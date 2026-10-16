@@ -37,3 +37,20 @@ export const authorizeAdmin = (req, res, next) => {
     res.status(403).json({ success: false, message: 'Access denied: Admin clearance required' });
   }
 };
+
+// Optional auth middleware (attaches req.user if present, but does not block)
+export const optionalProtect = async (req, res, next) => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET);
+      req.user = await User.findById(decoded.id).select('-password');
+    } catch (e) {
+      // Non-blocking
+    }
+  }
+  next();
+};

@@ -302,7 +302,26 @@ Built with an original AAA cyberpunk sci-fi aesthetic matching the official bran
 
 ---
 
-## 🔌 8. REST API Specification
+## 🖥️ 8. Complete 10-Screen UI/UX Architecture
+
+The frontend provides a cohesive 10-screen visual journey adhering to the cosmic cyberpunk design system:
+
+| # | Screen | Component | Key Features & Interactions |
+| :-: | :--- | :--- | :--- |
+| **1** | **Main Menu Landing** | `MainMenuPage.jsx` | Cinematic title backdrop, ambient audio synthesizer toggle (`SoundManager`), mission launch CTA, and quick-route status cards. |
+| **2** | **Pilot Dossier / Auth** | `AuthPage.jsx` | Dual-mode JWT registration/login, live credential validation, callsign allocation, and session token persistence. |
+| **3** | **Command Deck Dashboard** | `DashboardPage.jsx` | Central player hub displaying equipped starship render, 4 live currency stats, operational links, and combat quick-launch. |
+| **4** | **Mission Selection Grid** | `MissionsPage.jsx` | 5 sector tabs (`Sector 1` to `Sector 5`), 50 data-driven mission cards, star ratings, boss alerts, and level requirements. |
+| **5** | **Starship Hangar** | `HangarPage.jsx` | 5 distinct ship classes (`Orbitron`, `Phoenix`, `Shadow`, `Titan`, `Nova`), modular upgrade paths, attribute meters, and real-time ledger purchasing. |
+| **6** | **Combat Arena HUD** | `GameContainer.jsx` | 60 FPS Phaser 3 canvas with React HUD overlay: dynamic boss health bar, score multipliers, lives counter, and weapon status. |
+| **7** | **Mission Results Debrief**| `GameContainer.jsx` | Victory/Defeat modal displaying kill counts, star rating, verified ledger payout, and 2x Rewarded Ad claim CTA. |
+| **8** | **VELOP Economy Ledger**| `WalletPage.jsx` | Cryptographic multi-currency balances, filterable immutable transaction table, and interactive simulated ad player. |
+| **9** | **Daily Quests & Merits** | `QuestsPage.jsx` | 24h UTC reset countdown, 7-day progressive login streak tracker, 4 daily rotating combat tasks, and 10 merit achievements. |
+| **10**| **Global Pilot Rankings** | `LeaderboardPage.jsx` | Gold/Silver/Bronze podium cards, top 50 global pilots leaderboard, and personal rank banner. |
+
+---
+
+## 🔌 9. REST API Specification
 
 ### Authentication (`/api/auth`)
 | Method | Endpoint | Description | Auth Required |
@@ -326,17 +345,34 @@ Built with an original AAA cyberpunk sci-fi aesthetic matching the official bran
 | `POST` | `/api/games/start` | Initialize mission session ID | Yes |
 | `POST` | `/api/games/:sessionId/complete` | Submit telemetry & validate rewards | Yes |
 
-### Economy & Rewarded Ads (`/api/economy`, `/api/rewards`)
+### Daily Quests, Streaks & Achievements (`/api/quests`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/quests` | Retrieve active daily quests, streak progress, and 10 achievements | Yes |
+| `POST` | `/api/quests/claim` | Claim reward for a completed quest or achievement | Yes |
+| `POST` | `/api/quests/streak` | Claim daily 7-day login streak bonus | Yes |
+
+### Global Leaderboard (`/api/leaderboard`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/leaderboard` | Fetch top 50 global pilots and requesting pilot's personal rank | Yes |
+
+### Economy & Rewarded Ads (`/api/economy`, `/api/rewards`, `/api/wallet`)
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :---: |
 | `GET` | `/api/economy/config` | Fetch reward constants & ad caps | Yes |
-| `GET` | `/api/wallet/ledger` | Fetch immutable transaction history | Yes |
-| `POST` | `/api/rewards/ad/opportunity` | Create verifiable ad event | Yes |
+| `GET` | `/api/wallet/ledger` | Fetch immutable transaction audit history | Yes |
+| `POST` | `/api/rewards/ad/opportunity` | Create verifiable ad event (9-state machine) | Yes |
 | `POST` | `/api/rewards/ad/verify` | Verify ad completion & credit reward | Yes |
+
+### Admin & System Audit (`/api/admin`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/admin/audit` | Live verification of double-entry mathematical balance and zero discrepancies | Yes |
 
 ---
 
-## 🗄️ 9. Database Architecture
+## 🗄️ 10. Database Architecture
 
 ```
 User ───────────────< PlayerProfile
@@ -344,20 +380,40 @@ User ───────────────< PlayerProfile
                             ├───< PlayerShip (Ownership & Upgrade Levels)
                             ├───< PlayerMissionProgress (Stars & High Scores)
                             ├───< WalletTransaction (Audit Ledger)
-                            ├───< RewardTransaction (Ad Verification Log)
+                            ├───< RewardedAdSession (9-State Ad Verification Log)
                             └───< GameSession (Combat Sessions & Anti-Cheat)
 ```
 
-* **User**: Authentication credentials, email, password hash, role (`player` / `admin`).
-* **PlayerProfile**: Pilot level, XP progression, selected ship, wallet balances.
-* **PlayerShip**: Upgrade tiers for Weapon, Shield, Engine, and Special modules.
-* **GameSession**: Lifecycle tracking, session duration, telemetry, validation status.
-* **WalletTransaction**: Immutable double-entry financial ledger records.
-* **AdOpportunity**: 9-state tracking for rewarded video opportunities.
+* **User**: Authentication credentials, email, bcrypt password hash.
+* **PlayerProfile**: Pilot level, XP progression, selected ship, wallet balances, login streak state, completed quests, and claimed achievements.
+* **PlayerShip**: Starship ownership and upgrade tiers for Weapon, Shield, Engine, and Special modules.
+* **GameSession**: Lifecycle tracking, session start timestamp, duration, telemetry, validation status.
+* **WalletTransaction**: Immutable double-entry financial ledger records (`CREDIT` vs `DEBIT`).
+* **RewardedAdSession**: 9-state tracking for rewarded video opportunities (`OFFERED` $\to$ `GRANTED`).
 
 ---
 
-## ⚡ 10. Quickstart & Local Setup
+## 🧪 11. Automated Invariant & Security Test Suite
+
+The repository includes an end-to-end automated verification script (`server/tests/test_invariants.ps1`) validating the core architectural guarantees of the engine:
+
+1. **Double-Entry Balance Conservation**:
+   $$\sum \text{Credits Minted} - \sum \text{Credits Sunk} = \text{Net Credits In Circulation}$$
+2. **Anti-Cheat Duration Interception**:
+   Sessions submitted under the minimum physical duration threshold ($< 10\text{s}$) are rejected with `CHEAT_DETECTED_INVALID_DURATION`.
+3. **Session Completion Idempotency**:
+   A completed session cannot be re-submitted or double-claimed.
+4. **Zero Ledger Discrepancies**:
+   Validates ledger mathematical consistency across all pilot profiles and transactions.
+
+### Running the Test Suite:
+```powershell
+powershell -ExecutionPolicy Bypass -File server/tests/test_invariants.ps1
+```
+
+---
+
+## ⚡ 12. Quickstart & Local Setup
 
 ### Prerequisites
 * **Node.js**: v18.0.0 or higher

@@ -59,6 +59,28 @@ const playerProfileSchema = new mongoose.Schema(
       adsWatchedToday: { type: Number, default: 0 },
       revivesUsedToday: { type: Number, default: 0 }
     },
+    // Daily Quests Progress
+    dailyQuests: [
+      {
+        questId: { type: String, required: true },
+        progress: { type: Number, default: 0 },
+        target: { type: Number, default: 1 },
+        completed: { type: Boolean, default: false },
+        claimed: { type: Boolean, default: false }
+      }
+    ],
+    lastQuestReset: {
+      type: Date,
+      default: null
+    },
+    // Unlocked Achievements
+    achievements: [
+      {
+        achievementId: { type: String, required: true },
+        unlockedAt: { type: Date, default: Date.now },
+        claimed: { type: Boolean, default: false }
+      }
+    ],
     // Player Preferences
     settings: {
       bgmVolume: { type: Number, default: 0.7, min: 0, max: 1 },

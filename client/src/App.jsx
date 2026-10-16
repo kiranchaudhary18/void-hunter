@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
+import MainMenuPage from './pages/MainMenuPage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
+import DashboardPage from './pages/DashboardPage.jsx';
 import HangarPage from './pages/HangarPage.jsx';
 import MissionsPage from './pages/MissionsPage.jsx';
 import WalletPage from './pages/WalletPage.jsx';
+import QuestsPage from './pages/QuestsPage.jsx';
+import LeaderboardPage from './pages/LeaderboardPage.jsx';
 import GameContainer from './game/GameContainer.jsx';
 import api from './services/api.js';
 import { GAME_NAME, GAME_TAGLINE } from './config/gameConfig.js';
@@ -12,7 +16,7 @@ import './App.css';
 
 function MainAppContent() {
   const { user, profile, isAuthenticated, logout, refreshProfile } = useAuth();
-  const [currentScreen, setCurrentScreen] = useState('dashboard'); // Screens: 'auth', 'dashboard', 'missions', 'hangar', 'wallet', 'gameplay'
+  const [currentScreen, setCurrentScreen] = useState('landing'); // Screens: 'landing', 'auth', 'dashboard', 'missions', 'hangar', 'wallet', 'quests', 'leaderboard', 'gameplay'
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [activeMission, setActiveMission] = useState({
     id: 'sector-1-mission-1',
@@ -39,6 +43,15 @@ function MainAppContent() {
     }
     if (refreshProfile) refreshProfile();
   };
+
+  // Screen 1: Cinematic Main Menu Landing
+  if (currentScreen === 'landing') {
+    return (
+      <MainMenuPage 
+        onNavigate={(screen) => setCurrentScreen(screen)}
+      />
+    );
+  }
 
   // Screen 2: Login / Signup
   if (currentScreen === 'auth') {
@@ -79,6 +92,24 @@ function MainAppContent() {
   if (currentScreen === 'wallet') {
     return (
       <WalletPage 
+        onBack={() => setCurrentScreen('dashboard')}
+      />
+    );
+  }
+
+  // Screen 9: Daily Rotating Quests & 10 Achievements
+  if (currentScreen === 'quests') {
+    return (
+      <QuestsPage 
+        onBack={() => setCurrentScreen('dashboard')}
+      />
+    );
+  }
+
+  // Screen 10: Global Pilot Leaderboard
+  if (currentScreen === 'leaderboard') {
+    return (
+      <LeaderboardPage 
         onBack={() => setCurrentScreen('dashboard')}
       />
     );
@@ -135,7 +166,11 @@ function MainAppContent() {
       {/* Top Universal Navbar */}
       <nav style={styles.navBar} className="glass-panel">
         <div style={styles.navLeft}>
-          <div style={styles.logoGroup} onClick={() => setCurrentScreen('dashboard')}>
+          <div 
+            style={{ ...styles.logoGroup, cursor: 'pointer' }} 
+            onClick={() => setCurrentScreen('landing')}
+            title="Return to Main Menu"
+          >
             <img src="/favicon.svg" alt="Void Hunter Logo" style={styles.navLogo} />
             <div>
               <span className="font-heading" style={styles.navBrandTitle}>{GAME_NAME}</span>
@@ -144,6 +179,12 @@ function MainAppContent() {
           </div>
 
           <div style={styles.navLinks}>
+            <button 
+              style={{ ...styles.navLink, ...(currentScreen === 'landing' ? styles.navLinkActive : {}) }}
+              onClick={() => setCurrentScreen('landing')}
+            >
+              HOME
+            </button>
             <button 
               style={{ ...styles.navLink, ...(currentScreen === 'dashboard' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('dashboard')}
@@ -163,16 +204,28 @@ function MainAppContent() {
               HANGAR
             </button>
             <button 
-              style={{ ...styles.navLink, ...(currentScreen === 'gameplay' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('gameplay')}
+              style={{ ...styles.navLink, ...(currentScreen === 'quests' ? styles.navLinkActive : {}) }}
+              onClick={() => setCurrentScreen('quests')}
             >
-              COMBAT (PLAY)
+              QUESTS
+            </button>
+            <button 
+              style={{ ...styles.navLink, ...(currentScreen === 'leaderboard' ? styles.navLinkActive : {}) }}
+              onClick={() => setCurrentScreen('leaderboard')}
+            >
+              LEADERBOARD
             </button>
             <button 
               style={{ ...styles.navLink, ...(currentScreen === 'wallet' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('wallet')}
             >
               WALLET
+            </button>
+            <button 
+              style={{ ...styles.navLink, ...(currentScreen === 'gameplay' ? styles.navLinkActive : {}) }}
+              onClick={() => setCurrentScreen('gameplay')}
+            >
+              COMBAT (PLAY)
             </button>
           </div>
         </div>
@@ -204,7 +257,11 @@ function MainAppContent() {
               </div>
 
               {/* Pilot Card */}
-              <div style={styles.pilotBadge} className="glass-card">
+              <div 
+                style={{ ...styles.pilotBadge, cursor: 'pointer' }} 
+                className="glass-card"
+                onClick={() => setCurrentScreen('dashboard')}
+              >
                 <div style={styles.pilotAvatar}>
                   <User size={16} color="var(--secondary-cyan)" />
                 </div>
@@ -213,7 +270,7 @@ function MainAppContent() {
                   <div style={styles.pilotLevel}>LV. {profile.level || 1} {profile.pilotRank || 'Star Cadet'}</div>
                 </div>
                 <button 
-                  onClick={logout} 
+                  onClick={(e) => { e.stopPropagation(); logout(); }} 
                   style={styles.logoutBtn} 
                   title="Logout Pilot"
                 >
@@ -233,89 +290,12 @@ function MainAppContent() {
         </div>
       </nav>
 
-      {/* Main Content Area */}
-      <main style={styles.contentContainer}>
-        {/* Quick Welcome & Launch Pad */}
-        <div style={styles.heroCard} className="glass-panel">
-          <div style={styles.heroLeft}>
-            <span className="badge badge-cyan">PHASE 6 MISSIONS & APEX BOSSES READY</span>
-            <h1 className="font-heading" style={styles.heroHeading}>
-              COMMAND DECK // <span style={{ color: 'var(--secondary-cyan)' }}>{user?.name?.toUpperCase() || 'COMMANDER'}</span>
-            </h1>
-            <p style={styles.heroDesc}>
-              50 strategic sector missions loaded across 5 sectors with 5 original multi-phase bosses: <b>Orion Dreadnought</b>, <b>Crimson Colossus</b>, <b>Glacial Leviathan</b>, <b>Rift Annihilator</b>, and <b>Void Overlord</b>.
-            </p>
-
-            <div style={styles.heroActions}>
-              <button 
-                onClick={() => setCurrentScreen('missions')}
-                className="btn btn-cyan"
-                style={{ padding: '14px 28px', fontSize: '1rem' }}
-              >
-                <Compass size={18} /> SECTOR CAMPAIGNS (50)
-              </button>
-              <button 
-                onClick={() => setCurrentScreen('gameplay')}
-                className="btn btn-outline"
-                style={{ padding: '14px 24px' }}
-              >
-                <Play size={18} /> INSTANT COMBAT
-              </button>
-            </div>
-          </div>
-
-          <div style={styles.heroRight}>
-            <img 
-              src="/favicon.svg" 
-              alt="Void Hunter Emblem" 
-              style={styles.floatingEmblem} 
-              className="animate-float"
-            />
-          </div>
-        </div>
-
-        {/* Live Wallet & Account Verification Cards */}
-        <div style={styles.cardGrid}>
-          <div 
-            className="glass-card" 
-            style={{ ...styles.infoCard, cursor: 'pointer' }}
-            onClick={() => setCurrentScreen('wallet')}
-            title="Click to view double-entry transaction ledger"
-          >
-            <div style={styles.infoCardHeader}>
-              <Coins size={20} color="var(--currency-gold)" />
-              <h3 className="font-heading" style={styles.infoTitle}>WALLET LEDGER</h3>
-            </div>
-            <p style={styles.infoText}>Balance: <b style={{ color: 'var(--currency-gold)' }}>{profile?.credits || 500} Credits</b></p>
-            <p style={styles.infoSubtext}>Status: Fully ledgered & double-entry verified &rarr;</p>
-          </div>
-
-          <div 
-            className="glass-card" 
-            style={{ ...styles.infoCard, cursor: 'pointer' }}
-            onClick={() => setCurrentScreen('hangar')}
-            title="Click to open Ship Hangar & Upgrades"
-          >
-            <div style={styles.infoCardHeader}>
-              <Shield size={20} color="var(--secondary-cyan)" />
-              <h3 className="font-heading" style={styles.infoTitle}>ACTIVE STARSHIP</h3>
-            </div>
-            <p style={styles.infoText}>Equipped: <b style={{ color: 'var(--secondary-cyan)' }}>{profile?.selectedShipId?.toUpperCase() || 'V-01 ORBITRON'}</b></p>
-            <p style={styles.infoSubtext}>Click to upgrade modules or commission ships &rarr;</p>
-          </div>
-
-          <div className="glass-card" style={styles.infoCard}>
-            <div style={styles.infoCardHeader}>
-              <Award size={20} color="#C084FC" />
-              <h3 className="font-heading" style={styles.infoTitle}>PILOT RANK & XP</h3>
-            </div>
-            <p style={styles.infoText}>Level: <b>{profile?.level || 1}</b> ({profile?.xp || 0} / {profile?.xpToNextLevel || 500} XP)</p>
-            <div className="stat-bar-track" style={{ marginTop: '8px' }}>
-              <div className="stat-bar-fill stat-fill-purple" style={{ width: `${Math.min(100, ((profile?.xp || 0) / (profile?.xpToNextLevel || 500)) * 100)}%` }}></div>
-            </div>
-          </div>
-        </div>
-      </main>
+      {/* Screen 3 Full Pilot Command Deck */}
+      <DashboardPage 
+        onNavigate={(screen) => setCurrentScreen(screen)}
+        onLaunchQuickCombat={() => setCurrentScreen('gameplay')}
+        selectedShip={getSelectedShipData()}
+      />
     </div>
   );
 }
