@@ -10,6 +10,8 @@ import authRoutes from './routes/authRoutes.js';
 import shipRoutes from './routes/shipRoutes.js';
 import powerUpRoutes from './routes/powerUpRoutes.js';
 import missionRoutes from './routes/missionRoutes.js';
+import walletRoutes from './routes/walletRoutes.js';
+import adRoutes from './routes/adRoutes.js';
 
 dotenv.config();
 
@@ -29,6 +31,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/ships', shipRoutes);
 app.use('/api/powerups', powerUpRoutes);
 app.use('/api/missions', missionRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/ads', adRoutes);
 
 // Health Check & Dynamic Game Name Endpoint
 app.get('/api/health', (req, res) => {

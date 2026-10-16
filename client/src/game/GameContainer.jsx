@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import BootScene from './scenes/BootScene.js';
 import SpaceCombatScene from './scenes/SpaceCombatScene.js';
+import api from '../services/api.js';
 import { Shield, Heart, Zap, Pause, Play, RotateCcw, ArrowLeft, Video, Award, Coins } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -33,6 +34,7 @@ export const GameContainer = ({
   const [adModalOpen, setAdModalOpen] = useState(false);
   const [adCountdown, setAdCountdown] = useState(5);
   const [adTargetAction, setAdTargetAction] = useState(null); // 'revive' or 'double_credits'
+  const [adSessionData, setAdSessionData] = useState(null);
 
   useEffect(() => {
     if (!gameRef.current) return;
@@ -112,11 +114,25 @@ export const GameContainer = ({
     }
   };
 
-  // Watch Rewarded Ad flow (Simulated Provider)
-  const triggerRewardedAd = (action) => {
+  // Watch Rewarded Ad flow (Simulated Provider connected to backend 9-state machine)
+  const triggerRewardedAd = async (action) => {
     setAdTargetAction(action);
     setAdCountdown(5);
     setAdModalOpen(true);
+
+    try {
+      const placement = action === 'revive' ? 'REVIVE' : 'DOUBLE_CREDITS';
+      const expectedReward = action === 'revive' 
+        ? { currencyType: 'REVIVE', amount: 1 }
+        : { currencyType: 'CREDITS', amount: victoryData?.creditsEarned || 200 };
+
+      const res = await api.post('/ads/offer', { placement, expectedReward });
+      if (res.data?.success) {
+        setAdSessionData(res.data);
+      }
+    } catch (e) {
+      console.warn('Backend ad session fallback:', e.message);
+    }
 
     const timer = setInterval(() => {
       setAdCountdown((prev) => {
@@ -129,7 +145,16 @@ export const GameContainer = ({
     }, 1000);
   };
 
-  const claimAdReward = () => {
+  const claimAdReward = async () => {
+    // If backend adSession is active, verify and credit ledger
+    if (adSessionData?.adId) {
+      try {
+        await api.post(`/ads/${adSessionData.adId}/verify`);
+      } catch (e) {
+        console.warn('Ad verify fallback:', e.message);
+      }
+    }
+
     setAdModalOpen(false);
     if (adTargetAction === 'revive') {
       setGameOverData(null);

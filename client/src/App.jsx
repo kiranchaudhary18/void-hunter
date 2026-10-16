@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import HangarPage from './pages/HangarPage.jsx';
 import MissionsPage from './pages/MissionsPage.jsx';
+import WalletPage from './pages/WalletPage.jsx';
 import GameContainer from './game/GameContainer.jsx';
 import api from './services/api.js';
 import { GAME_NAME, GAME_TAGLINE } from './config/gameConfig.js';
@@ -11,7 +12,7 @@ import './App.css';
 
 function MainAppContent() {
   const { user, profile, isAuthenticated, logout, refreshProfile } = useAuth();
-  const [currentScreen, setCurrentScreen] = useState('dashboard'); // Screens: 'auth', 'dashboard', 'missions', 'hangar', 'gameplay'
+  const [currentScreen, setCurrentScreen] = useState('dashboard'); // Screens: 'auth', 'dashboard', 'missions', 'hangar', 'wallet', 'gameplay'
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [activeMission, setActiveMission] = useState({
     id: 'sector-1-mission-1',
@@ -70,6 +71,15 @@ function MainAppContent() {
       <HangarPage 
         onBack={() => setCurrentScreen('dashboard')}
         onLaunchMission={() => setCurrentScreen('missions')}
+      />
+    );
+  }
+
+  // Screen 8: VELOOP Rewards & Double-Entry Transaction Ledger
+  if (currentScreen === 'wallet') {
+    return (
+      <WalletPage 
+        onBack={() => setCurrentScreen('dashboard')}
       />
     );
   }
@@ -159,8 +169,8 @@ function MainAppContent() {
               COMBAT (PLAY)
             </button>
             <button 
-              style={styles.navLink}
-              onClick={() => alert('Rewards Wallet Ledger opening in Phase 7!')}
+              style={{ ...styles.navLink, ...(currentScreen === 'wallet' ? styles.navLinkActive : {}) }}
+              onClick={() => setCurrentScreen('wallet')}
             >
               WALLET
             </button>
@@ -171,14 +181,24 @@ function MainAppContent() {
         <div style={styles.navRight}>
           {isAuthenticated && profile ? (
             <>
-              {/* Credits Counter */}
-              <div className="currency-pill credits" title="In-Game Credits">
+              {/* Credits Counter - Click to open Wallet */}
+              <div 
+                className="currency-pill credits" 
+                title="In-Game Credits (Click to View Ledger)"
+                onClick={() => setCurrentScreen('wallet')}
+                style={{ cursor: 'pointer' }}
+              >
                 <Coins size={16} color="var(--currency-gold)" />
                 <span>{profile.credits?.toLocaleString() || 500}</span>
               </div>
 
-              {/* Energy Cores Counter */}
-              <div className="currency-pill cores" title="Energy Cores (Gems)">
+              {/* Energy Cores Counter - Click to open Wallet */}
+              <div 
+                className="currency-pill cores" 
+                title="Energy Cores (Click to View Ledger)"
+                onClick={() => setCurrentScreen('wallet')}
+                style={{ cursor: 'pointer' }}
+              >
                 <Zap size={16} color="#C084FC" />
                 <span>{profile.energyCores || 10}</span>
               </div>
@@ -256,13 +276,18 @@ function MainAppContent() {
 
         {/* Live Wallet & Account Verification Cards */}
         <div style={styles.cardGrid}>
-          <div className="glass-card" style={styles.infoCard}>
+          <div 
+            className="glass-card" 
+            style={{ ...styles.infoCard, cursor: 'pointer' }}
+            onClick={() => setCurrentScreen('wallet')}
+            title="Click to view double-entry transaction ledger"
+          >
             <div style={styles.infoCardHeader}>
               <Coins size={20} color="var(--currency-gold)" />
               <h3 className="font-heading" style={styles.infoTitle}>WALLET LEDGER</h3>
             </div>
             <p style={styles.infoText}>Balance: <b style={{ color: 'var(--currency-gold)' }}>{profile?.credits || 500} Credits</b></p>
-            <p style={styles.infoSubtext}>Status: Fully ledgered & double-entry verified.</p>
+            <p style={styles.infoSubtext}>Status: Fully ledgered & double-entry verified &rarr;</p>
           </div>
 
           <div 
