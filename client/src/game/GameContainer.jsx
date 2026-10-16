@@ -6,15 +6,16 @@ import soundManager from './managers/SoundManager.js';
 import api from '../services/api.js';
 import { 
   Shield, Heart, Zap, Pause, Play, RotateCcw, ArrowLeft, Video, Award, Coins, 
-  Volume2, VolumeX, AlertTriangle 
+  Volume2, VolumeX, AlertTriangle, Compass 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const GameContainer = ({ 
-  mission = { id: 'sector-1-mission-1', name: 'MISSION 01: RECON PATROL', sector: 'Nebula Outpost' },
+  mission = { id: 'sector-1-mission-1', name: 'MISSION 01: RECON PATROL', sector: 'Nebula Outpost', globalSequence: 1 },
   ship = { name: 'V-01 ORBITRON', speed: 380, damage: 25 },
   onExit,
-  onCompleteMission
+  onCompleteMission,
+  onNextMission
 }) => {
   const gameRef = useRef(null);
   const phaserGameInstance = useRef(null);
@@ -151,7 +152,7 @@ export const GameContainer = ({
     if (phaserGameInstance.current) {
       phaserGameInstance.current.destroy(true);
     }
-    onExit();
+    onExit('missions');
   };
 
   // Watch Rewarded Ad flow (Simulated Provider connected to backend 9-state machine)
@@ -468,8 +469,8 @@ export const GameContainer = ({
                 <button onClick={handleRestart} className="btn btn-purple" style={{ flex: 1 }}>
                   <RotateCcw size={16} /> RESTART
                 </button>
-                <button onClick={onExit} className="btn btn-outline" style={{ flex: 1 }}>
-                  <ArrowLeft size={16} /> HANGAR
+                <button onClick={() => onExit('missions')} className="btn btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <Compass size={16} /> MISSIONS
                 </button>
               </div>
             </div>
@@ -531,15 +532,26 @@ export const GameContainer = ({
               <button 
                 onClick={() => {
                   if (onCompleteMission) onCompleteMission(victoryData);
-                  onExit();
+                  if (onNextMission) {
+                    onNextMission(mission);
+                  } else {
+                    onExit('missions');
+                  }
                 }} 
                 className="btn btn-cyan" 
-                style={{ flex: 1, padding: '14px' }}
+                style={{ flex: 1, padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                CLAIM & CONTINUE
+                <Play size={16} /> NEXT MISSION
               </button>
-              <button onClick={onExit} className="btn btn-outline" style={{ flex: 1 }}>
-                CAMPAIGN MAP
+              <button 
+                onClick={() => {
+                  if (onCompleteMission) onCompleteMission(victoryData);
+                  onExit('missions');
+                }} 
+                className="btn btn-outline" 
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                <Compass size={16} /> CAMPAIGN MAP
               </button>
             </div>
           </div>

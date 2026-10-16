@@ -10,6 +10,7 @@ import QuestsPage from './pages/QuestsPage.jsx';
 import LeaderboardPage from './pages/LeaderboardPage.jsx';
 import GameContainer from './game/GameContainer.jsx';
 import api from './services/api.js';
+import { MISSIONS_CATALOG } from './data/missionsData.js';
 import { GAME_NAME, GAME_TAGLINE } from './config/gameConfig.js';
 import { Coins, Zap, User, LogOut, Play, Compass, Shield, Award, BarChart3, Wallet, Settings } from 'lucide-react';
 import './App.css';
@@ -21,8 +22,68 @@ function MainAppContent() {
   const [activeMission, setActiveMission] = useState({
     id: 'sector-1-mission-1',
     name: 'MISSION 01: RECON PATROL',
-    sector: 'Nebula Outpost'
+    sector: 'Nebula Outpost',
+    globalSequence: 1
   });
+
+  // Map selectedShipId to texture and stats (hoisted at top to prevent ReferenceError)
+  const getSelectedShipData = () => {
+    const id = profile?.selectedShipId || 'v01-orbitron';
+    const textures = {
+      'v01-orbitron': 'ship_orbitron',
+      's02-phoenix': 'ship_phoenix',
+      'x03-shadow': 'ship_shadow',
+      'r04-titan': 'ship_titan',
+      'z05-nova': 'ship_nova'
+    };
+    const speeds = {
+      'v01-orbitron': 390,
+      's02-phoenix': 370,
+      'x03-shadow': 460,
+      'r04-titan': 320,
+      'z05-nova': 420
+    };
+    const damages = {
+      'v01-orbitron': 28,
+      's02-phoenix': 45,
+      'x03-shadow': 26,
+      'r04-titan': 34,
+      'z05-nova': 40
+    };
+    return {
+      id,
+      name: id.toUpperCase(),
+      textureKey: textures[id] || 'ship_orbitron',
+      speed: speeds[id] || 390,
+      damage: damages[id] || 28
+    };
+  };
+
+  // Launch next sequential campaign mission directly
+  const handleNextMission = async (currentMission) => {
+    const nextSeq = (currentMission?.globalSequence || 1) + 1;
+    const nextMission = MISSIONS_CATALOG.find((m) => m.globalSequence === nextSeq);
+    if (nextMission) {
+      setActiveMission(nextMission);
+      try {
+        const ship = getSelectedShipData();
+        const res = await api.post(`/missions/${nextMission.id}/start`, {
+          shipId: ship?.id || 'v01-orbitron'
+        });
+        if (res.data?.success && res.data?.session?.id) {
+          setActiveSessionId(res.data.session.id);
+        } else {
+          setActiveSessionId(`local-${Date.now()}`);
+        }
+      } catch (e) {
+        setActiveSessionId(`local-${Date.now()}`);
+      }
+      setCurrentScreen('gameplay');
+    } else {
+      // Completed all 50 missions! Return to campaign map
+      setCurrentScreen('missions');
+    }
+  };
 
   // Handle Mission Completion callback from Game Engine & post to backend ledger
   const handleMissionCompleted = async (result) => {
@@ -115,47 +176,15 @@ function MainAppContent() {
     );
   }
 
-  // Map selectedShipId to texture and stats
-  const getSelectedShipData = () => {
-    const id = profile?.selectedShipId || 'v01-orbitron';
-    const textures = {
-      'v01-orbitron': 'ship_orbitron',
-      's02-phoenix': 'ship_phoenix',
-      'x03-shadow': 'ship_shadow',
-      'r04-titan': 'ship_titan',
-      'z05-nova': 'ship_nova'
-    };
-    const speeds = {
-      'v01-orbitron': 390,
-      's02-phoenix': 370,
-      'x03-shadow': 460,
-      'r04-titan': 320,
-      'z05-nova': 420
-    };
-    const damages = {
-      'v01-orbitron': 28,
-      's02-phoenix': 45,
-      'x03-shadow': 26,
-      'r04-titan': 34,
-      'z05-nova': 40
-    };
-    return {
-      id,
-      name: id.toUpperCase(),
-      textureKey: textures[id] || 'ship_orbitron',
-      speed: speeds[id] || 390,
-      damage: damages[id] || 28
-    };
-  };
-
   // Screen 6: Real-time 60 FPS Combat Game Engine
   if (currentScreen === 'gameplay') {
     return (
       <GameContainer
         mission={activeMission}
         ship={getSelectedShipData()}
-        onExit={() => setCurrentScreen('dashboard')}
+        onExit={(target = 'missions') => setCurrentScreen(target)}
         onCompleteMission={handleMissionCompleted}
+        onNextMission={handleNextMission}
       />
     );
   }
