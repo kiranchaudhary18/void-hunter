@@ -2,8 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import BootScene from './scenes/BootScene.js';
 import SpaceCombatScene from './scenes/SpaceCombatScene.js';
+import soundManager from './managers/SoundManager.js';
 import api from '../services/api.js';
-import { Shield, Heart, Zap, Pause, Play, RotateCcw, ArrowLeft, Video, Award, Coins } from 'lucide-react';
+import { 
+  Shield, Heart, Zap, Pause, Play, RotateCcw, ArrowLeft, Video, Award, Coins, 
+  Volume2, VolumeX, AlertTriangle 
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const GameContainer = ({ 
@@ -29,6 +33,9 @@ export const GameContainer = ({
   });
 
   const [isPaused, setIsPaused] = useState(false);
+  const [isAbortModalOpen, setIsAbortModalOpen] = useState(false);
+  const [isMuted, setIsMuted] = useState(soundManager.muted);
+  const [waveAnnouncement, setWaveAnnouncement] = useState(null);
   const [gameOverData, setGameOverData] = useState(null);
   const [victoryData, setVictoryData] = useState(null);
   const [adModalOpen, setAdModalOpen] = useState(false);
@@ -62,6 +69,12 @@ export const GameContainer = ({
     const game = new Phaser.Game(config);
     phaserGameInstance.current = game;
 
+    // Listen to wave announcements
+    game.events.on('wave-announcement', (data) => {
+      setWaveAnnouncement(`WAVE ${data.wave} OF ${data.maxWaves} INCOMING`);
+      setTimeout(() => setWaveAnnouncement(null), 2500);
+    });
+
     // Pass mission and callbacks to SpaceCombatScene when ready
     game.events.on('ready', () => {
       const combatScene = game.scene.getScene('SpaceCombatScene');
@@ -90,6 +103,19 @@ export const GameContainer = ({
     };
   }, [mission.id]);
 
+  // Global Keyboard Shortcuts (Esc or P to Pause/Resume)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+        if (!gameOverData && !victoryData && !adModalOpen) {
+          handleTogglePause();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPaused, gameOverData, victoryData, adModalOpen]);
+
   const handleTogglePause = () => {
     if (!phaserGameInstance.current) return;
     const scene = phaserGameInstance.current.scene.getScene('SpaceCombatScene');
@@ -98,20 +124,34 @@ export const GameContainer = ({
     if (isPaused) {
       scene.scene.resume();
       setIsPaused(false);
+      setIsAbortModalOpen(false);
     } else {
       scene.scene.pause();
       setIsPaused(true);
     }
   };
 
+  const handleToggleMute = () => {
+    const m = soundManager.toggleMute();
+    setIsMuted(m);
+  };
+
   const handleRestart = () => {
     setGameOverData(null);
     setVictoryData(null);
     setIsPaused(false);
+    setIsAbortModalOpen(false);
     if (phaserGameInstance.current) {
       const scene = phaserGameInstance.current.scene.getScene('SpaceCombatScene');
       if (scene) scene.scene.restart();
     }
+  };
+
+  const handleConfirmAbort = () => {
+    if (phaserGameInstance.current) {
+      phaserGameInstance.current.destroy(true);
+    }
+    onExit();
   };
 
   // Watch Rewarded Ad flow (Simulated Provider connected to backend 9-state machine)
@@ -210,7 +250,22 @@ export const GameContainer = ({
       {/* ================= SCREEN 6: TOP HUD OVERLAY ================= */}
       <div style={styles.hudTop} className="glass-panel">
         <div style={styles.hudLeft}>
-          <button onClick={handleTogglePause} style={styles.iconBtn} title="Pause Combat">
+          <button 
+            onClick={() => {
+              if (!isPaused) handleTogglePause();
+              setIsAbortModalOpen(true);
+            }} 
+            style={styles.iconBtn} 
+            title="Abort Mission & Return to Missions"
+          >
+            <ArrowLeft size={18} color="var(--text-light)" />
+          </button>
+
+          <button 
+            onClick={handleTogglePause} 
+            style={styles.iconBtn} 
+            title={isPaused ? "Resume Combat (Esc/P)" : "Pause Combat (Esc/P)"}
+          >
             {isPaused ? <Play size={18} color="var(--secondary-cyan)" /> : <Pause size={18} color="var(--secondary-cyan)" />}
           </button>
 
@@ -520,6 +575,97 @@ export const GameContainer = ({
             >
               {adCountdown > 0 ? `REWARD AVAILABLE IN ${adCountdown}S` : 'CLAIM VERIFIED REWARD'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= WAVE ANNOUNCEMENT BANNER ================= */}
+      {waveAnnouncement && (
+        <div style={styles.waveBanner} className="glass-panel animate-pulse-glow">
+          <span className="font-heading" style={styles.waveBannerText}>
+            ⚡ {waveAnnouncement} ⚡
+          </span>
+        </div>
+      )}
+
+      {/* ================= PAUSE MODAL ================= */}
+      {isPaused && !gameOverData && !victoryData && !adModalOpen && !isAbortModalOpen && (
+        <div style={styles.modalBackdrop}>
+          <div className="glass-panel" style={styles.pauseModal}>
+            <span className="badge badge-cyan">SYSTEM PAUSED</span>
+            <h2 className="font-heading" style={styles.pauseTitle}>COMBAT SUSPENDED</h2>
+            <div style={styles.pauseSub}>
+              {mission.name} • WAVE {stats.currentWave} / {stats.maxWaves}
+            </div>
+
+            <div style={styles.statsSummaryBox} className="glass-card">
+              <div>Score: <b style={{ color: 'var(--secondary-cyan)' }}>{stats.score.toLocaleString()}</b></div>
+              <div>Hostiles Neutralized: <b style={{ color: 'var(--text-light)' }}>{stats.enemiesKilled}</b></div>
+              <div>Credits: <b style={{ color: 'var(--currency-gold)' }}>+{stats.credits}</b></div>
+            </div>
+
+            {/* Quick Controls Reminder */}
+            <div style={styles.controlsCheatSheet} className="glass-card">
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px', letterSpacing: '0.05em' }}>FLIGHT CONTROLS</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-light)', display: 'flex', justifyContent: 'space-around' }}>
+                <span>WASD / Drag : Move</span>
+                <span>Space / Click : Laser</span>
+                <span>1-4 : Tactical Buffs</span>
+              </div>
+            </div>
+
+            <div style={styles.modalActions}>
+              <button onClick={handleTogglePause} className="btn btn-cyan" style={{ width: '100%', padding: '12px' }}>
+                <Play size={18} /> RESUME FLIGHT (ESC / P)
+              </button>
+              <button onClick={handleRestart} className="btn btn-purple" style={{ width: '100%', padding: '12px' }}>
+                <RotateCcw size={18} /> RESTART MISSION
+              </button>
+              <button onClick={handleToggleMute} className="btn btn-outline" style={{ width: '100%', padding: '12px' }}>
+                {isMuted ? <VolumeX size={18} color="#EF4444" /> : <Volume2 size={18} color="var(--secondary-cyan)" />}
+                AUDIO SFX: {isMuted ? 'MUTED' : 'ENABLED'}
+              </button>
+              <button 
+                onClick={() => setIsAbortModalOpen(true)} 
+                className="btn btn-outline" 
+                style={{ width: '100%', padding: '12px', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#EF4444' }}
+              >
+                <ArrowLeft size={18} /> ABORT TO MISSIONS
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= ABORT CONFIRMATION MODAL ================= */}
+      {isAbortModalOpen && (
+        <div style={styles.modalBackdrop}>
+          <div className="glass-panel" style={styles.abortModal}>
+            <AlertTriangle size={42} color="#EF4444" className="animate-pulse-glow" />
+            <h2 className="font-heading" style={{ color: '#EF4444', fontSize: '1.6rem', marginTop: '4px' }}>ABORT MISSION?</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '360px', textAlign: 'center', lineHeight: '1.5' }}>
+              Are you sure you want to retreat to the hangar? Any unverified telemetry and mid-battle credits from this sortie will be forfeited.
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', width: '100%', marginTop: '12px' }}>
+              <button 
+                onClick={handleConfirmAbort} 
+                className="btn btn-outline" 
+                style={{ flex: 1, padding: '12px', borderColor: 'rgba(239, 68, 68, 0.6)', color: '#EF4444' }}
+              >
+                CONFIRM ABORT
+              </button>
+              <button 
+                onClick={() => {
+                  setIsAbortModalOpen(false);
+                  if (isPaused) handleTogglePause();
+                }} 
+                className="btn btn-cyan" 
+                style={{ flex: 1, padding: '12px' }}
+              >
+                RESUME COMBAT
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -862,6 +1008,64 @@ const styles = {
     background: 'linear-gradient(90deg, #DC2626 0%, #EF4444 60%, #FF2DFF 100%)',
     borderRadius: '6px',
     transition: 'width 0.15s ease'
+  },
+  pauseModal: {
+    maxWidth: '480px',
+    width: '100%',
+    padding: '32px 28px',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '14px',
+    border: '1px solid rgba(0, 229, 255, 0.4)',
+    boxShadow: '0 0 45px rgba(0, 229, 255, 0.2)'
+  },
+  pauseTitle: {
+    fontSize: '1.8rem',
+    color: 'var(--secondary-cyan)',
+    letterSpacing: '0.08em'
+  },
+  pauseSub: {
+    fontSize: '0.88rem',
+    color: 'var(--text-muted)',
+    fontFamily: 'var(--font-heading)'
+  },
+  controlsCheatSheet: {
+    width: '100%',
+    padding: '10px 14px',
+    background: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: '8px'
+  },
+  abortModal: {
+    maxWidth: '420px',
+    width: '100%',
+    padding: '32px 28px',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+    border: '1px solid rgba(239, 68, 68, 0.4)',
+    boxShadow: '0 0 40px rgba(239, 68, 68, 0.25)'
+  },
+  waveBanner: {
+    position: 'absolute',
+    top: '90px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    padding: '10px 24px',
+    border: '1px solid var(--currency-gold)',
+    boxShadow: '0 0 25px rgba(251, 191, 36, 0.3)',
+    zIndex: 25,
+    pointerEvents: 'none',
+    borderRadius: '8px'
+  },
+  waveBannerText: {
+    color: 'var(--currency-gold)',
+    fontSize: '0.95rem',
+    letterSpacing: '0.12em',
+    fontWeight: '700'
   }
 };
 

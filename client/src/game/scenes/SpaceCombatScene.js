@@ -233,6 +233,50 @@ export class SpaceCombatScene extends Phaser.Scene {
       }
     });
 
+    // Off-screen enemy bounds checking & wrapping to prevent wave stalling
+    this.enemies.getChildren().forEach((enemy) => {
+      if (enemy.active && !enemy.isBoss) {
+        // If enemy flew past bottom of the combat screen
+        if (enemy.y > this.scale.height + 40) {
+          enemy.loopCount = (enemy.loopCount || 0) + 1;
+          if (enemy.loopCount < 2) {
+            // Re-enter from the top for another attack run
+            enemy.y = -40;
+            enemy.x = Phaser.Math.Between(50, this.scale.width - 50);
+          } else {
+            // Exited airspace: destroy cleanly so wave can advance
+            if (enemy.fireTimer) enemy.fireTimer.remove();
+            enemy.destroy();
+          }
+        }
+        // Horizontal screen bounds bounce for interceptors
+        if (enemy.x < -30) {
+          enemy.x = 20;
+          if (enemy.body) enemy.setVelocityX(Math.abs(enemy.body.velocity.x || 80));
+        } else if (enemy.x > this.scale.width + 30) {
+          enemy.x = this.scale.width - 20;
+          if (enemy.body) enemy.setVelocityX(-Math.abs(enemy.body.velocity.x || 80));
+        }
+      }
+    });
+
+    // Clean up out-of-bounds lasers, bullets, and pickups
+    this.playerLasers.getChildren().forEach((l) => {
+      if (l.active && (l.y < -50 || l.y > this.scale.height + 50 || l.x < -50 || l.x > this.scale.width + 50)) {
+        l.destroy();
+      }
+    });
+    this.enemyBullets.getChildren().forEach((b) => {
+      if (b.active && (b.y < -50 || b.y > this.scale.height + 50 || b.x < -50 || b.x > this.scale.width + 50)) {
+        b.destroy();
+      }
+    });
+    this.pickups.getChildren().forEach((p) => {
+      if (p.active && p.y > this.scale.height + 50) {
+        p.destroy();
+      }
+    });
+
     // Auto-fire / Space fire
     const isFiring = this.cursors.space.isDown || this.wasd.space.isDown || this.input.activePointer.isDown;
     const currentRate = this.activeBuffs.rapidFire ? this.fireRate * 0.45 : this.fireRate;
@@ -243,15 +287,21 @@ export class SpaceCombatScene extends Phaser.Scene {
     }
 
     // Check wave completion
-    if (this.enemies.countActive(true) === 0 && !this.isSpawningWave) {
+    if (this.enemies.countActive(true) === 0 && !this.isSpawningWave && !this.isGameOver) {
       if (this.currentWave < this.maxWaves) {
         this.currentWave++;
         this.isSpawningWave = true;
-        this.time.delayedCall(1500, () => {
+        this.emitStats();
+        this.game.events.emit('wave-announcement', {
+          wave: this.currentWave,
+          maxWaves: this.maxWaves
+        });
+        soundManager.playPowerUp();
+        this.time.delayedCall(1200, () => {
           this.spawnWave(this.currentWave);
           this.isSpawningWave = false;
         });
-      } else if (!this.isVictory) {
+      } else if (!this.isVictory && !this.bossActive) {
         this.triggerVictory();
       }
     }
@@ -270,8 +320,6 @@ export class SpaceCombatScene extends Phaser.Scene {
         const laser = this.playerLasers.create(x, y, 'player_laser');
         laser.setVelocity(Math.sin(angle) * 700, -Math.cos(angle) * 700);
         laser.setRotation(angle);
-        laser.checkWorldBounds = true;
-        laser.outOfBoundsKill = true;
       });
     } else {
       // Twin parallel lasers
@@ -285,8 +333,8 @@ export class SpaceCombatScene extends Phaser.Scene {
   spawnWave(waveNum) {
     const { width } = this.scale;
 
-    // Boss Encounter on Wave 3 if boss is present
-    if (this.bossInfo && waveNum === 3) {
+    // Boss Encounter on Final Wave if boss is present
+    if (this.bossInfo && waveNum >= this.maxWaves) {
       this.spawnBoss();
       return;
     }
@@ -346,7 +394,25 @@ export class SpaceCombatScene extends Phaser.Scene {
           c.setVelocity(i === 0 ? 40 : -40, 55);
         }
         for (let i = 0; i < 4; i++) {
-          this.createEnemy('enemy_scout', 40 + i * (width / 4), -140 - i * 30, 50, 50).setVelocity(0, 140);
+          this.createEnemy('enemy_scout', 50 + i * ((width - 100) / 3), -140 - i * 30, 50, 50).setVelocity(0, 140);
+        }
+        for (let i = 0; i < 2; i++) {
+          this.createEnemy('enemy_interceptor', i === 0 ? 70 : width - 70, -100, 80, 100).setVelocity(i === 0 ? 50 : -50, 160);
+        }
+        break;
+
+      case 5:
+      default:
+        // Heavy Fleet: 2 Cruisers + 5 Scouts + 3 Interceptors
+        for (let i = 0; i < 2; i++) {
+          const c = this.createEnemy('enemy_cruiser', width * (i === 0 ? 0.28 : 0.72), -80, 380, 350);
+          c.setVelocity(i === 0 ? 35 : -35, 50);
+        }
+        for (let i = 0; i < 5; i++) {
+          this.createEnemy('enemy_scout', 40 + i * ((width - 80) / 4), -120 - i * 25, 50, 50).setVelocity(0, 145);
+        }
+        for (let i = 0; i < 3; i++) {
+          this.createEnemy('enemy_interceptor', 80 + i * ((width - 160) / 2), -160, 90, 120).setVelocity(Phaser.Math.Between(-40, 40), 165);
         }
         break;
     }
