@@ -205,23 +205,23 @@ export const QuestsPage = ({ onBack }) => {
   return (
     <div style={styles.pageContainer}>
       {/* ================= HEADER BAR ================= */}
-      <header style={styles.header} className="glass-panel">
+      <header style={styles.header} className="glass-panel cyber-box">
         <div style={styles.headerLeft}>
           <button onClick={onBack} style={styles.backBtn} className="btn-secondary">
             <ArrowLeft size={18} />
             <span>COMMAND DECK</span>
           </button>
           <div>
-            <h1 className="font-heading" style={styles.pageTitle}>QUESTS & ACHIEVEMENTS</h1>
+            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>QUESTS & ACHIEVEMENTS</h1>
             <p style={styles.subTitle}>DAILY 24H REWARDS & REPUTATION MERIT LEDGER</p>
           </div>
         </div>
 
         <div style={styles.headerRight}>
-          <div style={styles.countdownBadge} className="glass-card">
-            <Clock size={16} color="var(--secondary-cyan)" />
+          <div style={styles.countdownBadge} className="glass-card cyber-box">
+            <Clock size={16} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
             <div>
-              <div style={styles.countdownVal}>{countdown}</div>
+              <div style={styles.countdownVal} className="text-glow-cyan">{countdown}</div>
               <div style={styles.countdownLabel}>DAILY ROTATION RESET</div>
             </div>
           </div>
@@ -242,12 +242,12 @@ export const QuestsPage = ({ onBack }) => {
       )}
 
       {/* ================= 7-DAY LOGIN STREAK REWARDS ================= */}
-      <div style={styles.streakCard} className="glass-panel">
+      <div style={styles.streakCard} className="glass-panel cyber-box">
         <div style={styles.streakHeader}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Calendar size={20} color="var(--currency-gold)" />
+            <Calendar size={20} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
             <div>
-              <h2 className="font-heading" style={styles.streakTitle}>
+              <h2 className="font-heading text-glow-gold" style={styles.streakTitle}>
                 7-DAY DEPLOYMENT STREAK // DAY {questsData.streak.streakDay}
               </h2>
               <p style={styles.streakSubtitle}>

@@ -147,68 +147,7 @@ function MainAppContent() {
     );
   }
 
-  // Screen 4: 50 Strategic Campaign Missions & Boss Battles
-  if (currentScreen === 'missions') {
-    return (
-      <MissionsPage 
-        onBack={() => setCurrentScreen('dashboard')}
-        selectedShip={getSelectedShipData()}
-        onLaunchMission={(mission, sessionId) => {
-          setActiveMission(mission);
-          setActiveSessionId(sessionId);
-          setCurrentScreen('gameplay');
-        }}
-      />
-    );
-  }
-
-  // Screen 5: Ship Hangar & Upgrades
-  if (currentScreen === 'hangar') {
-    return (
-      <HangarPage 
-        onBack={() => setCurrentScreen('dashboard')}
-        onLaunchMission={() => setCurrentScreen('missions')}
-      />
-    );
-  }
-
-  // Screen 8: VELOOP Rewards & Double-Entry Transaction Ledger
-  if (currentScreen === 'wallet') {
-    return (
-      <WalletPage 
-        onBack={() => setCurrentScreen('dashboard')}
-      />
-    );
-  }
-
-  // Screen 9: Daily Rotating Quests & 10 Achievements
-  if (currentScreen === 'quests') {
-    return (
-      <QuestsPage 
-        onBack={() => setCurrentScreen('dashboard')}
-      />
-    );
-  }
-
-  // Screen 10: Global Pilot Leaderboard
-  if (currentScreen === 'leaderboard') {
-    return (
-      <LeaderboardPage 
-        onBack={() => setCurrentScreen('dashboard')}
-      />
-    );
-  }
-
-  // Screen 11: Admin Economy Audit & Fraud Dashboard (Section 75)
-  if (currentScreen === 'admin') {
-    return (
-      <AdminDashboardPage 
-        onBack={() => setCurrentScreen('dashboard')}
-      />
-    );
-  }
-
-  // Screen 6: Real-time 60 FPS Combat Game Engine
+  // Screen 6: Real-time 60 FPS Combat Game Engine (Full Screen Arcade Mode)
   if (currentScreen === 'gameplay') {
     return (
       <GameContainer
@@ -222,11 +161,69 @@ function MainAppContent() {
     );
   }
 
-  // Screen 3: Player Dashboard / Command Center Shell
+  // Active Screen Content Renderer
+  const renderScreenContent = () => {
+    switch (currentScreen) {
+      case 'missions':
+        return (
+          <MissionsPage 
+            onBack={() => setCurrentScreen('dashboard')}
+            selectedShip={getSelectedShipData()}
+            onLaunchMission={(mission, sessionId) => {
+              setActiveMission(mission);
+              setActiveSessionId(sessionId);
+              setCurrentScreen('gameplay');
+            }}
+          />
+        );
+      case 'hangar':
+        return (
+          <HangarPage 
+            onBack={() => setCurrentScreen('dashboard')}
+            onLaunchMission={() => setCurrentScreen('missions')}
+          />
+        );
+      case 'wallet':
+        return (
+          <WalletPage 
+            onBack={() => setCurrentScreen('dashboard')}
+          />
+        );
+      case 'quests':
+        return (
+          <QuestsPage 
+            onBack={() => setCurrentScreen('dashboard')}
+          />
+        );
+      case 'leaderboard':
+        return (
+          <LeaderboardPage 
+            onBack={() => setCurrentScreen('dashboard')}
+          />
+        );
+      case 'admin':
+        return (
+          <AdminDashboardPage 
+            onBack={() => setCurrentScreen('dashboard')}
+          />
+        );
+      case 'dashboard':
+      default:
+        return (
+          <DashboardPage 
+            onNavigate={(screen) => setCurrentScreen(screen)}
+            onLaunchQuickCombat={() => setCurrentScreen('gameplay')}
+            selectedShip={getSelectedShipData()}
+          />
+        );
+    }
+  };
+
+  // Universal Authenticated App Shell with Cyber Top Navigation
   return (
     <div style={styles.appShell}>
       {/* Top Universal Navbar */}
-      <nav style={styles.navBar} className="glass-panel">
+      <nav style={styles.navBar} className="glass-panel cyber-box">
         <div style={styles.navLeft}>
           <div 
             style={{ ...styles.logoGroup, cursor: 'pointer' }} 
@@ -235,7 +232,7 @@ function MainAppContent() {
           >
             <img src="/favicon.svg" alt="Void Hunter Logo" style={styles.navLogo} />
             <div>
-              <span className="font-heading" style={styles.navBrandTitle}>{GAME_NAME}</span>
+              <span className="font-heading text-glow-cyan" style={styles.navBrandTitle}>{GAME_NAME}</span>
               <span className="font-ui" style={styles.navBrandTag}>{GAME_TAGLINE}</span>
             </div>
           </div>
@@ -243,6 +240,7 @@ function MainAppContent() {
           <div style={styles.navLinks}>
             {!isAuthenticated && (
               <button 
+                id="nav-btn-home"
                 style={{ ...styles.navLink, ...(currentScreen === 'landing' ? styles.navLinkActive : {}) }}
                 onClick={() => setCurrentScreen('landing')}
               >
@@ -250,42 +248,49 @@ function MainAppContent() {
               </button>
             )}
             <button 
+              id="nav-btn-dashboard"
               style={{ ...styles.navLink, ...(currentScreen === 'dashboard' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('dashboard')}
             >
               DASHBOARD
             </button>
             <button 
+              id="nav-btn-missions"
               style={{ ...styles.navLink, ...(currentScreen === 'missions' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('missions')}
             >
               MISSIONS (50)
             </button>
             <button 
+              id="nav-btn-hangar"
               style={{ ...styles.navLink, ...(currentScreen === 'hangar' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('hangar')}
             >
               HANGAR
             </button>
             <button 
+              id="nav-btn-quests"
               style={{ ...styles.navLink, ...(currentScreen === 'quests' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('quests')}
             >
               QUESTS
             </button>
             <button 
+              id="nav-btn-leaderboard"
               style={{ ...styles.navLink, ...(currentScreen === 'leaderboard' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('leaderboard')}
             >
               LEADERBOARD
             </button>
             <button 
+              id="nav-btn-wallet"
               style={{ ...styles.navLink, ...(currentScreen === 'wallet' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('wallet')}
             >
               WALLET
             </button>
             <button 
+              id="nav-btn-admin"
               style={{ ...styles.navLink, ...(currentScreen === 'admin' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('admin')}
               title="VELoop Rewards Administrative Audit & Fraud Dashboard (Section 75)"
@@ -293,7 +298,14 @@ function MainAppContent() {
               ADMIN AUDIT
             </button>
             <button 
-              style={{ ...styles.navLink, ...(currentScreen === 'gameplay' ? styles.navLinkActive : {}) }}
+              id="nav-btn-combat"
+              style={{ 
+                ...styles.navLink, 
+                color: 'var(--secondary-cyan)',
+                border: '1px solid rgba(0, 229, 255, 0.4)',
+                background: 'rgba(0, 229, 255, 0.1)',
+                boxShadow: '0 0 10px rgba(0, 229, 255, 0.25)'
+              }}
               onClick={() => setCurrentScreen('gameplay')}
             >
               COMBAT (PLAY)
@@ -305,9 +317,10 @@ function MainAppContent() {
         <div style={styles.navRight}>
           {/* Settings Audio & Keybinds Trigger */}
           <button 
+            id="nav-btn-settings"
             onClick={() => setIsSettingsOpen(true)}
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: 'rgba(0, 229, 255, 0.08)',
               border: '1px solid var(--border-glass)',
               borderRadius: '8px',
               padding: '8px 10px',
@@ -315,7 +328,8 @@ function MainAppContent() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              transition: 'all 0.2s ease'
             }}
             title="Audio & Control Settings (Section 73)"
           >
@@ -329,10 +343,10 @@ function MainAppContent() {
                 className="currency-pill credits" 
                 title="In-Game Credits (Click to View Ledger)"
                 onClick={() => setCurrentScreen('wallet')}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', border: '1px solid rgba(251, 191, 36, 0.4)', boxShadow: '0 0 10px rgba(251, 191, 36, 0.2)' }}
               >
-                <Coins size={16} color="var(--currency-gold)" />
-                <span>{profile.credits?.toLocaleString() || 500}</span>
+                <Coins size={16} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
+                <span className="font-heading" style={{ color: 'var(--currency-gold)' }}>{profile.credits?.toLocaleString() || 500}</span>
               </div>
 
               {/* Energy Cores Counter - Click to open Wallet */}
@@ -340,15 +354,15 @@ function MainAppContent() {
                 className="currency-pill cores" 
                 title="Energy Cores (Click to View Ledger)"
                 onClick={() => setCurrentScreen('wallet')}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', border: '1px solid rgba(168, 85, 247, 0.4)', boxShadow: '0 0 10px rgba(168, 85, 247, 0.2)' }}
               >
-                <Zap size={16} color="#C084FC" />
-                <span>{profile.energyCores || 10}</span>
+                <Zap size={16} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
+                <span className="font-heading" style={{ color: '#C084FC' }}>{profile.energyCores || 10}</span>
               </div>
 
               {/* Pilot Card */}
               <div 
-                style={{ ...styles.pilotBadge, cursor: 'pointer' }} 
+                style={{ ...styles.pilotBadge, cursor: 'pointer', border: '1px solid rgba(0, 229, 255, 0.35)', borderRadius: '10px' }} 
                 className="glass-card"
                 onClick={() => setCurrentScreen('dashboard')}
               >
@@ -357,7 +371,7 @@ function MainAppContent() {
                 </div>
                 <div>
                   <div style={styles.pilotName}>{user?.name || 'Commander'}</div>
-                  <div style={styles.pilotLevel}>LV. {profile.level || 1} {profile.pilotRank || 'Star Cadet'}</div>
+                  <div style={styles.pilotLevel}>LV. {profile.level || 1} • {profile.pilotRank || 'Star Cadet'}</div>
                 </div>
                 <button 
                   onClick={(e) => { e.stopPropagation(); logout(); setCurrentScreen('landing'); }} 
@@ -380,12 +394,8 @@ function MainAppContent() {
         </div>
       </nav>
 
-      {/* Screen 3 Full Pilot Command Deck */}
-      <DashboardPage 
-        onNavigate={(screen) => setCurrentScreen(screen)}
-        onLaunchQuickCombat={() => setCurrentScreen('gameplay')}
-        selectedShip={getSelectedShipData()}
-      />
+      {/* Screen Content */}
+      {renderScreenContent()}
 
       {/* Audio & Controls Settings Modal */}
       {isSettingsOpen && (
@@ -410,18 +420,22 @@ const styles = {
   appShell: {
     minHeight: '100vh',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    background: '#060919'
   },
   navBar: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '14px 28px',
+    padding: '12px 28px',
     borderRadius: '0',
     borderTop: 'none',
     borderLeft: 'none',
     borderRight: 'none',
-    borderBottom: '1px solid rgba(0, 229, 255, 0.2)',
+    borderBottom: '1px solid rgba(0, 229, 255, 0.3)',
+    background: 'rgba(6, 9, 25, 0.94)',
+    backdropFilter: 'blur(16px)',
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 229, 255, 0.15)',
     position: 'sticky',
     top: 0,
     zIndex: 100
@@ -429,7 +443,7 @@ const styles = {
   navLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: '36px'
+    gap: '32px'
   },
   logoGroup: {
     display: 'flex',
@@ -438,23 +452,23 @@ const styles = {
     cursor: 'pointer'
   },
   navLogo: {
-    width: '36px',
-    height: '36px',
-    filter: 'drop-shadow(0 0 8px rgba(0, 229, 255, 0.6))'
+    width: '38px',
+    height: '38px',
+    filter: 'drop-shadow(0 0 10px rgba(0, 229, 255, 0.8))'
   },
   navBrandTitle: {
     display: 'block',
-    fontSize: '1.15rem',
+    fontSize: '1.2rem',
     fontWeight: '900',
     letterSpacing: '0.08em',
-    background: 'linear-gradient(90deg, #FFFFFF, #00E5FF)',
+    background: 'linear-gradient(90deg, #FFFFFF 0%, #00E5FF 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     lineHeight: 1
   },
   navBrandTag: {
     display: 'block',
-    fontSize: '0.65rem',
+    fontSize: '0.62rem',
     color: 'var(--text-muted)',
     letterSpacing: '0.1em'
   },
@@ -465,20 +479,22 @@ const styles = {
   },
   navLink: {
     background: 'transparent',
-    border: 'none',
+    border: '1px solid transparent',
     color: 'var(--text-muted)',
     padding: '8px 14px',
     fontFamily: 'var(--font-heading)',
     fontSize: '0.78rem',
     letterSpacing: '0.06em',
     cursor: 'pointer',
-    borderRadius: '4px',
+    borderRadius: '6px',
     transition: 'all 0.2s ease'
   },
   navLinkActive: {
     color: 'var(--secondary-cyan)',
-    background: 'rgba(0, 229, 255, 0.1)',
-    boxShadow: '0 0 10px rgba(0, 229, 255, 0.2)'
+    background: 'rgba(0, 229, 255, 0.14)',
+    borderColor: 'rgba(0, 229, 255, 0.45)',
+    boxShadow: '0 0 14px rgba(0, 229, 255, 0.35)',
+    textShadow: '0 0 8px rgba(0, 229, 255, 0.7)'
   },
   navRight: {
     display: 'flex',

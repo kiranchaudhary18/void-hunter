@@ -132,14 +132,14 @@ export const WalletPage = ({ onBack }) => {
   return (
     <div style={styles.pageContainer}>
       {/* ================= TOP HEADER BAR ================= */}
-      <header style={styles.header} className="glass-panel">
+      <header style={styles.header} className="glass-panel cyber-box">
         <div style={styles.headerLeft}>
           <button onClick={onBack} style={styles.backBtn} className="btn-secondary">
             <ArrowLeft size={18} />
             <span>COMMAND DECK</span>
           </button>
           <div>
-            <h1 className="font-heading" style={styles.pageTitle}>VELOOP REWARDS & WALLET</h1>
+            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>VELOOP REWARDS & WALLET</h1>
             <p style={styles.subTitle}>DOUBLE-ENTRY CRYPTOGRAPHIC TRANSACTION AUDIT</p>
           </div>
         </div>
@@ -174,10 +174,18 @@ export const WalletPage = ({ onBack }) => {
       {/* ================= 4 CURRENCY & PROGRESS CARDS ================= */}
       <div style={styles.balanceGrid}>
         {/* 1. In-Game Credits */}
-        <div style={styles.balanceCard} className="glass-card">
+        <div 
+          style={{ 
+            ...styles.balanceCard, 
+            border: '1px solid rgba(251, 191, 36, 0.4)', 
+            boxShadow: '0 0 18px rgba(251, 191, 36, 0.15)',
+            background: 'radial-gradient(circle at top left, rgba(251, 191, 36, 0.08) 0%, rgba(10, 15, 40, 0.8) 100%)'
+          }} 
+          className="glass-card cyber-box"
+        >
           <div style={styles.balanceCardHeader}>
             <div style={styles.iconCircleGold}>
-              <Coins size={22} color="var(--currency-gold)" />
+              <Coins size={22} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
             </div>
             <button 
               onClick={handleWatchAd}
@@ -190,8 +198,8 @@ export const WalletPage = ({ onBack }) => {
             </button>
           </div>
           <div style={styles.balanceCardBody}>
-            <div style={styles.balanceLabel}>IN-GAME CREDITS</div>
-            <div className="font-heading" style={styles.balanceValGold}>
+            <div style={{ ...styles.balanceLabel, color: 'var(--currency-gold)' }}>IN-GAME CREDITS</div>
+            <div className="font-heading text-glow-gold" style={styles.balanceValGold}>
               {balance.credits?.toLocaleString() || 0}
             </div>
             <div style={styles.balanceSubtext}>Standard combat & upgrade tender</div>
@@ -199,16 +207,24 @@ export const WalletPage = ({ onBack }) => {
         </div>
 
         {/* 2. Energy Cores */}
-        <div style={styles.balanceCard} className="glass-card">
+        <div 
+          style={{ 
+            ...styles.balanceCard, 
+            border: '1px solid rgba(168, 85, 247, 0.4)', 
+            boxShadow: '0 0 18px rgba(168, 85, 247, 0.15)',
+            background: 'radial-gradient(circle at top left, rgba(168, 85, 247, 0.08) 0%, rgba(10, 15, 40, 0.8) 100%)'
+          }} 
+          className="glass-card cyber-box"
+        >
           <div style={styles.balanceCardHeader}>
             <div style={styles.iconCirclePurple}>
-              <Zap size={22} color="#C084FC" />
+              <Zap size={22} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
             </div>
             <span style={styles.hardCurrencyBadge}>HARD CURRENCY</span>
           </div>
           <div style={styles.balanceCardBody}>
-            <div style={styles.balanceLabel}>ENERGY CORES</div>
-            <div className="font-heading" style={styles.balanceValPurple}>
+            <div style={{ ...styles.balanceLabel, color: '#C084FC' }}>ENERGY CORES</div>
+            <div className="font-heading text-glow-purple" style={styles.balanceValPurple}>
               {balance.energyCores || 0}
             </div>
             <div style={styles.balanceSubtext}>Used for ship unlocks & boss surges</div>
@@ -216,16 +232,24 @@ export const WalletPage = ({ onBack }) => {
         </div>
 
         {/* 3. VELOOP Reward Coins (Simulated Web3) */}
-        <div style={styles.balanceCard} className="glass-card">
+        <div 
+          style={{ 
+            ...styles.balanceCard, 
+            border: '1px solid rgba(255, 45, 255, 0.4)', 
+            boxShadow: '0 0 18px rgba(255, 45, 255, 0.15)',
+            background: 'radial-gradient(circle at top left, rgba(255, 45, 255, 0.08) 0%, rgba(10, 15, 40, 0.8) 100%)'
+          }} 
+          className="glass-card cyber-box"
+        >
           <div style={styles.balanceCardHeader}>
             <div style={styles.iconCircleMagenta}>
-              <Award size={22} color="var(--electric-magenta)" />
+              <Award size={22} color="var(--accent-magenta)" style={{ filter: 'drop-shadow(0 0 4px #FF2DFF)' }} />
             </div>
             <span style={styles.networkBadge}>VEL-CHAIN 2.0</span>
           </div>
           <div style={styles.balanceCardBody}>
-            <div style={styles.balanceLabel}>VELOP REWARD COINS</div>
-            <div className="font-heading" style={styles.balanceValMagenta}>
+            <div style={{ ...styles.balanceLabel, color: 'var(--accent-magenta)' }}>VELOP REWARD COINS</div>
+            <div className="font-heading text-glow-magenta" style={styles.balanceValMagenta}>
               {(balance.rewardCoins || 0).toFixed(2)} VEL
             </div>
             <div style={styles.balanceSubtext}>Cross-game simulated reward currency</div>
@@ -233,16 +257,24 @@ export const WalletPage = ({ onBack }) => {
         </div>
 
         {/* 4. Pilot Level & XP */}
-        <div style={styles.balanceCard} className="glass-card">
+        <div 
+          style={{ 
+            ...styles.balanceCard, 
+            border: '1px solid rgba(0, 229, 255, 0.4)', 
+            boxShadow: '0 0 18px rgba(0, 229, 255, 0.15)',
+            background: 'radial-gradient(circle at top left, rgba(0, 229, 255, 0.08) 0%, rgba(10, 15, 40, 0.8) 100%)'
+          }} 
+          className="glass-card cyber-box"
+        >
           <div style={styles.balanceCardHeader}>
             <div style={styles.iconCircleCyan}>
-              <ShieldCheck size={22} color="var(--secondary-cyan)" />
+              <ShieldCheck size={22} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
             </div>
             <span style={styles.levelBadge}>LV. {balance.level} {balance.pilotRank}</span>
           </div>
           <div style={styles.balanceCardBody}>
-            <div style={styles.balanceLabel}>EXPERIENCE (XP)</div>
-            <div className="font-heading" style={styles.balanceValCyan}>
+            <div style={{ ...styles.balanceLabel, color: 'var(--secondary-cyan)' }}>EXPERIENCE (XP)</div>
+            <div className="font-heading text-glow-cyan" style={styles.balanceValCyan}>
               {balance.xp} / {balance.xpToNextLevel} XP
             </div>
             <div style={styles.xpTrack}>

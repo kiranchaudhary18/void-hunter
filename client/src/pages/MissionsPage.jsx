@@ -245,28 +245,48 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                 style={{
                   ...styles.missionCard,
                   borderColor: isBossMission 
-                    ? 'rgba(239, 68, 68, 0.7)' 
-                    : isUnlocked 
-                      ? 'var(--border-glass)' 
-                      : 'rgba(255, 255, 255, 0.05)',
+                    ? 'rgba(239, 68, 68, 0.8)' 
+                    : m.isCompleted
+                      ? 'rgba(0, 229, 255, 0.45)'
+                      : isUnlocked 
+                        ? 'rgba(0, 229, 255, 0.3)' 
+                        : 'rgba(255, 255, 255, 0.05)',
                   background: isBossMission
-                    ? 'radial-gradient(circle at top, rgba(239, 68, 68, 0.12) 0%, rgba(6, 9, 25, 0.95) 75%)'
-                    : isUnlocked
-                      ? 'linear-gradient(180deg, rgba(14, 23, 50, 0.8) 0%, rgba(6, 9, 25, 0.95) 100%)'
-                      : 'rgba(10, 15, 30, 0.5)',
-                  opacity: isUnlocked ? 1 : 0.65
+                    ? 'radial-gradient(circle at top, rgba(239, 68, 68, 0.18) 0%, rgba(6, 9, 25, 0.95) 75%)'
+                    : m.isCompleted
+                      ? 'radial-gradient(circle at top, rgba(0, 229, 255, 0.1) 0%, rgba(6, 9, 25, 0.95) 100%)'
+                      : isUnlocked
+                        ? 'linear-gradient(180deg, rgba(14, 23, 50, 0.85) 0%, rgba(6, 9, 25, 0.95) 100%)'
+                        : 'rgba(10, 15, 30, 0.5)',
+                  opacity: isUnlocked ? 1 : 0.65,
+                  boxShadow: isBossMission
+                    ? '0 0 25px rgba(239, 68, 68, 0.25)'
+                    : m.isCompleted
+                      ? '0 0 20px rgba(0, 229, 255, 0.2)'
+                      : 'none'
                 }}
-                className={`glass-card ${isUnlocked ? 'glass-card-hover' : ''}`}
+                className={`glass-card ${isUnlocked ? 'glass-card-hover cyber-box' : ''}`}
               >
                 {/* Card Top: Number & Objective Badge */}
                 <div style={styles.cardHeader}>
-                  <div style={styles.missionSeqBadge}>
-                    <span className="font-heading">{String(m.sequence).padStart(2, '0')}</span>
+                  <div style={{
+                    ...styles.missionSeqBadge,
+                    borderColor: isBossMission ? '#EF4444' : m.isCompleted ? 'var(--secondary-cyan)' : 'var(--border-glass)',
+                    background: isBossMission ? 'rgba(239, 68, 68, 0.2)' : m.isCompleted ? 'rgba(0, 229, 255, 0.2)' : 'rgba(0, 229, 255, 0.1)'
+                  }}>
+                    <span className="font-heading" style={{ color: isBossMission ? '#FCA5A5' : m.isCompleted ? 'var(--secondary-cyan)' : 'var(--text-light)' }}>
+                      {String(m.sequence).padStart(2, '0')}
+                    </span>
                   </div>
 
                   <div style={styles.badgeGroup}>
+                    {m.isCompleted && (
+                      <span className="badge badge-cyan" style={{ fontSize: '0.62rem', padding: '2px 8px' }}>
+                        CLEARED
+                      </span>
+                    )}
                     {isBossMission && (
-                      <span style={styles.bossBadge}>
+                      <span style={styles.bossBadge} className="animate-pulse-magenta">
                         <Skull size={11} /> BOSS APEX
                       </span>
                     )}
@@ -279,9 +299,9 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                 {/* Card Body: Mission Name & Subtitle */}
                 <div style={styles.cardBody}>
                   <div style={styles.cardSubtitle}>{m.subtitle}</div>
-                  <h3 className="font-heading" style={{
+                  <h3 className={`font-heading ${isBossMission ? 'text-glow-magenta' : m.isCompleted ? 'text-glow-cyan' : ''}`} style={{
                     ...styles.cardTitle,
-                    color: isBossMission ? '#FCA5A5' : 'var(--text-light)'
+                    color: isBossMission ? '#FCA5A5' : m.isCompleted ? 'var(--secondary-cyan)' : 'var(--text-light)'
                   }}>
                     {m.name}
                   </h3>
@@ -294,10 +314,11 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                         size={16}
                         color={starIdx <= (m.stars || 0) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.18)'}
                         fill={starIdx <= (m.stars || 0) ? 'var(--currency-gold)' : 'transparent'}
+                        style={starIdx <= (m.stars || 0) ? { filter: 'drop-shadow(0 0 3px #FBBF24)' } : {}}
                       />
                     ))}
                     {m.highScore > 0 && (
-                      <span style={styles.highScoreText}>
+                      <span style={styles.highScoreText} className="text-glow-gold">
                         HIGH: {m.highScore.toLocaleString()}
                       </span>
                     )}
@@ -316,7 +337,7 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                   </div>
                   {m.rewards?.energyCores > 0 && (
                     <div style={styles.rewardPill}>
-                      <Compass size={13} color="var(--cosmic-purple)" />
+                      <Compass size={13} color="#C084FC" />
                       <span>+{m.rewards?.energyCores} CORES</span>
                     </div>
                   )}
@@ -332,9 +353,13 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                         ...styles.launchBtn,
                         background: isBossMission
                           ? 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)'
-                          : 'linear-gradient(135deg, var(--secondary-cyan) 0%, #0099FF 100%)'
+                          : m.isCompleted
+                            ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.25) 0%, rgba(124, 58, 237, 0.25) 100%)'
+                            : 'linear-gradient(135deg, #00E5FF 0%, #0099FF 100%)',
+                        border: m.isCompleted ? '1px solid rgba(0, 229, 255, 0.5)' : 'none',
+                        color: m.isCompleted ? 'var(--secondary-cyan)' : '#050B20'
                       }}
-                      className={isBossMission ? 'animate-pulse-glow' : ''}
+                      className={isBossMission ? 'animate-pulse-magenta' : (!m.isCompleted ? 'animate-pulse-glow' : '')}
                     >
                       {isLaunching ? (
                         <>
@@ -344,7 +369,7 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                       ) : (
                         <>
                           <Play size={14} fill="currentColor" />
-                          <span>{m.isCompleted ? 'REPLAY MISSION' : 'LAUNCH COMBAT'}</span>
+                          <span>{m.isCompleted ? 'REPLAY SORTIE' : 'LAUNCH SORTIE'}</span>
                         </>
                       )}
                     </button>

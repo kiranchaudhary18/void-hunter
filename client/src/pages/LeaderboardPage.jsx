@@ -41,14 +41,14 @@ export const LeaderboardPage = ({ onBack }) => {
   return (
     <div style={styles.pageContainer}>
       {/* ================= HEADER BAR ================= */}
-      <header style={styles.header} className="glass-panel">
+      <header style={styles.header} className="glass-panel cyber-box">
         <div style={styles.headerLeft}>
           <button onClick={onBack} style={styles.backBtn} className="btn-secondary">
             <ArrowLeft size={18} />
             <span>COMMAND DECK</span>
           </button>
           <div>
-            <h1 className="font-heading" style={styles.pageTitle}>GLOBAL PILOT LEADERBOARD</h1>
+            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>GLOBAL PILOT LEADERBOARD</h1>
             <p style={styles.subTitle}>INTERGALACTIC COMBAT ACES & SECTOR DEFENDERS</p>
           </div>
         </div>
@@ -71,13 +71,13 @@ export const LeaderboardPage = ({ onBack }) => {
 
       {/* ================= PINNED USER RANK BANNER ================= */}
       {userRank && (
-        <div style={styles.userRankBanner} className="glass-panel animate-pulse-glow">
+        <div style={styles.userRankBanner} className="glass-panel cyber-box animate-pulse-glow">
           <div style={styles.userRankLeft}>
-            <div style={styles.userRankNumberBadge}>
+            <div style={styles.userRankNumberBadge} className="text-glow-cyan">
               #{userRank.rank}
             </div>
             <div>
-              <div style={styles.userRankName}>
+              <div style={styles.userRankName} className="text-glow-cyan">
                 {userRank.name?.toUpperCase()} // {userRank.pilotRank}
               </div>
               <div style={styles.userRankSub}>
@@ -89,14 +89,14 @@ export const LeaderboardPage = ({ onBack }) => {
           <div style={styles.userRankMetrics}>
             <div style={styles.userMetricItem}>
               <span style={styles.userMetricLabel}>TOTAL SCORE</span>
-              <span className="font-heading" style={styles.userMetricValCyan}>
+              <span className="font-heading text-glow-cyan" style={styles.userMetricValCyan}>
                 {userRank.totalScore?.toLocaleString()}
               </span>
             </div>
             <div style={styles.userMetricItem}>
               <span style={styles.userMetricLabel}>CAMPAIGN STARS</span>
-              <span style={styles.userMetricValGold}>
-                <Star size={14} color="var(--currency-gold)" fill="var(--currency-gold)" />
+              <span style={styles.userMetricValGold} className="text-glow-gold">
+                <Star size={14} color="var(--currency-gold)" fill="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 3px #FBBF24)' }} />
                 {userRank.stars} / 150
               </span>
             </div>
@@ -128,7 +128,8 @@ export const LeaderboardPage = ({ onBack }) => {
                 ...styles.filterBtn,
                 background: timeFrame === tf.id ? 'var(--secondary-cyan)' : 'rgba(255, 255, 255, 0.05)',
                 color: timeFrame === tf.id ? '#060919' : 'var(--text-light)',
-                fontWeight: timeFrame === tf.id ? 'bold' : 'normal'
+                fontWeight: timeFrame === tf.id ? 'bold' : 'normal',
+                boxShadow: timeFrame === tf.id ? '0 0 12px rgba(0, 229, 255, 0.4)' : 'none'
               }}
             >
               {tf.label}
@@ -141,7 +142,7 @@ export const LeaderboardPage = ({ onBack }) => {
       {!loading && leaderboard.length >= 3 && (
         <div style={styles.podiumContainer}>
           {/* Rank 2 (Silver) */}
-          <div style={{ ...styles.podiumCard, order: 1 }} className="glass-card">
+          <div style={{ ...styles.podiumCard, order: 1 }} className="glass-card cyber-box">
             <div style={styles.podiumRankSilver}>
               <Medal size={24} color="#94A3B8" />
               <span>#2</span>
@@ -152,16 +153,16 @@ export const LeaderboardPage = ({ onBack }) => {
           </div>
 
           {/* Rank 1 (Gold - Elevated) */}
-          <div style={{ ...styles.podiumCardGold, order: 2 }} className="glass-panel animate-pulse-glow">
-            <Crown size={32} color="var(--currency-gold)" />
-            <div style={styles.podiumRankGold}>#1 CHAMPION</div>
-            <div className="font-heading" style={styles.podiumNameGold}>{top1.name}</div>
+          <div style={{ ...styles.podiumCardGold, order: 2 }} className="glass-panel cyber-box animate-pulse-glow">
+            <Crown size={32} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 6px #FBBF24)' }} />
+            <div style={styles.podiumRankGold} className="text-glow-gold">#1 CHAMPION</div>
+            <div className="font-heading text-glow-gold" style={styles.podiumNameGold}>{top1.name}</div>
             <div style={styles.podiumScoreGold}>{top1.totalScore?.toLocaleString()} PTS</div>
             <div style={styles.podiumSubGold}>LV. {top1.level} {top1.pilotRank} • {top1.stars} ⭐</div>
           </div>
 
           {/* Rank 3 (Bronze) */}
-          <div style={{ ...styles.podiumCard, order: 3 }} className="glass-card">
+          <div style={{ ...styles.podiumCard, order: 3 }} className="glass-card cyber-box">
             <div style={styles.podiumRankBronze}>
               <Medal size={24} color="#F59E0B" />
               <span>#3</span>

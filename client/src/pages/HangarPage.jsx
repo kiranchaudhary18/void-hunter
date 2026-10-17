@@ -123,7 +123,7 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
             <ArrowLeft size={16} /> DASHBOARD
           </button>
           <div>
-            <h1 className="font-heading" style={styles.pageTitle}>SHIP HANGAR</h1>
+            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>SHIP HANGAR</h1>
             <p style={styles.pageSubtitle}>Select, upgrade and customize your spacecraft fleet</p>
           </div>
         </div>
@@ -158,8 +158,8 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
       {/* Main Hangar Workspace */}
       <div style={styles.hangarGrid}>
         {/* ================= 1. LEFT SHIP ROSTER ================= */}
-        <aside style={styles.rosterPanel} className="glass-panel">
-          <div className="font-heading" style={styles.rosterTitle}>FLEET ROSTER</div>
+        <aside style={styles.rosterPanel} className="glass-panel cyber-box">
+          <div className="font-heading text-glow-cyan" style={styles.rosterTitle}>FLEET ROSTER</div>
 
           <div style={styles.shipList}>
             {ships.map((s) => {
@@ -199,7 +199,7 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
         </aside>
 
         {/* ================= 2. CENTER HOLOGRAPHIC SHOWCASE ================= */}
-        <section style={styles.showcasePanel} className="glass-panel">
+        <section style={styles.showcasePanel} className="glass-panel cyber-box">
           <div style={styles.holoStage}>
             {/* Holographic Glowing Rings */}
             <div style={styles.holoRingOuter} />
@@ -254,10 +254,10 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
         </section>
 
         {/* ================= 3. RIGHT SHIP STATS & ACTIONS ================= */}
-        <aside style={styles.statsPanel} className="glass-panel">
+        <aside style={styles.statsPanel} className="glass-panel cyber-box">
           <div style={styles.statsHeader}>
             <span className="badge badge-cyan">{activeShip.classType} CLASS</span>
-            <h2 className="font-heading" style={styles.activeShipName}>
+            <h2 className="font-heading text-glow-cyan" style={styles.activeShipName}>
               {activeShip.code} {activeShip.name}
             </h2>
             <p style={styles.activeShipDesc}>{activeShip.description}</p>

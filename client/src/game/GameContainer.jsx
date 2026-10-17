@@ -275,7 +275,7 @@ export const GameContainer = ({
   return (
     <div style={styles.gameWrapper}>
       {/* ================= SCREEN 6: TOP HUD OVERLAY ================= */}
-      <div style={styles.hudTop} className="glass-panel">
+      <div style={styles.hudTop} className="glass-panel cyber-box">
         <div style={styles.hudLeft}>
           <button 
             onClick={() => {
@@ -300,42 +300,59 @@ export const GameContainer = ({
           <div style={styles.gaugesContainer}>
             {/* Health Bar */}
             <div style={styles.gaugeRow}>
-              <Heart size={14} color="var(--status-green)" />
+              <Heart size={14} color="var(--status-green)" style={{ filter: 'drop-shadow(0 0 4px #10B981)' }} />
               <div style={styles.barTrack}>
                 <div 
-                  style={{ ...styles.barFill, width: `${(stats.health / stats.maxHealth) * 100}%`, background: 'var(--status-green)' }} 
+                  style={{ 
+                    ...styles.barFill, 
+                    width: `${Math.max(0, Math.min(100, (stats.health / stats.maxHealth) * 100))}%`, 
+                    background: 'linear-gradient(90deg, #059669 0%, #10B981 60%, #00E5FF 100%)',
+                    boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)'
+                  }} 
                 />
               </div>
-              <span style={styles.gaugeVal}>{Math.round(stats.health)}</span>
+              <span style={{ ...styles.gaugeVal, color: '#10B981' }}>{Math.round(stats.health)}</span>
             </div>
 
             {/* Shield Bar */}
             <div style={styles.gaugeRow}>
-              <Shield size={14} color="var(--secondary-cyan)" />
+              <Shield size={14} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
               <div style={styles.barTrack}>
                 <div 
-                  style={{ ...styles.barFill, width: `${(stats.shield / stats.maxShield) * 100}%`, background: 'var(--secondary-cyan)' }} 
+                  style={{ 
+                    ...styles.barFill, 
+                    width: `${Math.max(0, Math.min(100, (stats.shield / stats.maxShield) * 100))}%`, 
+                    background: 'linear-gradient(90deg, #0099FF 0%, #00E5FF 60%, #C084FC 100%)',
+                    boxShadow: '0 0 8px rgba(0, 229, 255, 0.6)'
+                  }} 
                 />
               </div>
-              <span style={styles.gaugeVal}>{Math.round(stats.shield)}</span>
+              <span style={{ ...styles.gaugeVal, color: 'var(--secondary-cyan)' }}>{Math.round(stats.shield)}</span>
             </div>
           </div>
         </div>
 
         {/* Center: Mission Objective Tracker */}
         <div style={styles.hudCenter}>
-          <div className="font-heading" style={styles.missionTitle}>{mission.name}</div>
-          <div style={styles.missionWave}>WAVE {stats.currentWave} / {stats.maxWaves} • DESTROY ALL FLEET UNITS</div>
+          <div className="font-heading text-glow-cyan" style={styles.missionTitle}>{mission.name}</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
+            <span className="badge badge-cyan" style={{ fontSize: '0.64rem', padding: '2px 8px' }}>
+              WAVE {stats.currentWave} / {stats.maxWaves}
+            </span>
+            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              HOSTILE FLEET ENGAGEMENT
+            </span>
+          </div>
         </div>
 
         {/* Right: Score & Credits Counters */}
         <div style={styles.hudRight}>
           <div style={styles.scoreCounter}>
-            <span style={styles.scoreLabel}>SCORE</span>
-            <span className="font-heading" style={styles.scoreNum}>{stats.score.toLocaleString()}</span>
+            <span style={styles.scoreLabel}>COMBAT SCORE</span>
+            <span className="font-heading text-glow-gold" style={styles.scoreNum}>{stats.score.toLocaleString()}</span>
           </div>
 
-          <div className="currency-pill credits" style={{ padding: '4px 10px' }}>
+          <div className="currency-pill credits" style={{ padding: '5px 12px' }}>
             <Coins size={14} color="var(--currency-gold)" />
             <span>+{stats.credits}</span>
           </div>
@@ -344,9 +361,9 @@ export const GameContainer = ({
 
       {/* Sector Boss Dynamic Health Bar Overlay */}
       {stats.boss && (
-        <div style={styles.bossHealthBarWrapper} className="glass-panel animate-pulse-glow">
+        <div style={styles.bossHealthBarWrapper} className="glass-panel cyber-box animate-pulse-glow">
           <div style={styles.bossHealthInfo}>
-            <span className="font-heading" style={{ color: '#EF4444', fontWeight: 'bold', letterSpacing: '0.1em' }}>
+            <span className="font-heading text-glow-magenta" style={{ color: '#EF4444', fontWeight: 'bold', letterSpacing: '0.1em' }}>
               💀 {stats.boss.name} [PHASE {stats.boss.phase}]
             </span>
             <span style={{ fontSize: '0.85rem', color: '#E6F1FF', fontFamily: 'var(--font-heading)' }}>
@@ -364,14 +381,16 @@ export const GameContainer = ({
         </div>
       )}
 
-      {/* Phaser Canvas Mount */}
-      <div ref={gameRef} style={styles.canvasContainer} />
+      {/* Phaser Canvas Mount with Arcade Viewport Enclosure */}
+      <div className="combat-hud-enclosure" style={styles.canvasEnclosure}>
+        <div ref={gameRef} style={styles.canvasContainer} />
+      </div>
 
       {/* Active Buff Notification Banner */}
       {activeBuffNotification && (
         <div style={styles.buffBanner} className="glass-panel animate-pulse-glow">
           <Zap size={16} color="var(--secondary-cyan)" />
-          <span className="font-heading" style={{ fontSize: '0.82rem', letterSpacing: '0.08em' }}>
+          <span className="font-heading text-glow-cyan" style={{ fontSize: '0.82rem', letterSpacing: '0.08em' }}>
             {activeBuffNotification}
           </span>
         </div>
@@ -383,10 +402,11 @@ export const GameContainer = ({
         <button 
           onClick={() => activateAbility('spread_shot', 22)}
           disabled={cooldowns['spread_shot'] > 0}
-          className="glass-card" 
+          className="hud-ability-card" 
           style={{
-            ...styles.abilityBtn,
-            opacity: cooldowns['spread_shot'] > 0 ? 0.5 : 1
+            borderColor: 'rgba(0, 229, 255, 0.5)',
+            boxShadow: cooldowns['spread_shot'] > 0 ? 'none' : '0 0 15px rgba(0, 229, 255, 0.3)',
+            opacity: cooldowns['spread_shot'] > 0 ? 0.45 : 1
           }}
           title="Spread Shot (HotKey: 1)"
         >
@@ -394,9 +414,9 @@ export const GameContainer = ({
             <span style={styles.cdNum}>{cooldowns['spread_shot']}s</span>
           ) : (
             <>
-              <Zap size={20} color="var(--secondary-cyan)" />
+              <Zap size={20} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
               <span style={styles.abilityLabel}>SPREAD</span>
-              <span style={styles.hotkeyBadge}>1</span>
+              <span style={{ ...styles.hotkeyBadge, color: 'var(--secondary-cyan)' }}>1</span>
             </>
           )}
         </button>
@@ -405,10 +425,11 @@ export const GameContainer = ({
         <button 
           onClick={() => activateAbility('shield_pulse', 25)}
           disabled={cooldowns['shield_pulse'] > 0}
-          className="glass-card" 
+          className="hud-ability-card" 
           style={{
-            ...styles.abilityBtn,
-            opacity: cooldowns['shield_pulse'] > 0 ? 0.5 : 1
+            borderColor: 'rgba(192, 132, 252, 0.5)',
+            boxShadow: cooldowns['shield_pulse'] > 0 ? 'none' : '0 0 15px rgba(192, 132, 252, 0.3)',
+            opacity: cooldowns['shield_pulse'] > 0 ? 0.45 : 1
           }}
           title="Shield Pulse (HotKey: 2)"
         >
@@ -416,9 +437,9 @@ export const GameContainer = ({
             <span style={styles.cdNum}>{cooldowns['shield_pulse']}s</span>
           ) : (
             <>
-              <Shield size={20} color="#C084FC" />
+              <Shield size={20} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
               <span style={styles.abilityLabel}>SHIELD</span>
-              <span style={styles.hotkeyBadge}>2</span>
+              <span style={{ ...styles.hotkeyBadge, color: '#C084FC' }}>2</span>
             </>
           )}
         </button>
@@ -427,10 +448,11 @@ export const GameContainer = ({
         <button 
           onClick={() => activateAbility('homing_missiles', 30)}
           disabled={cooldowns['homing_missiles'] > 0}
-          className="glass-card" 
+          className="hud-ability-card" 
           style={{
-            ...styles.abilityBtn,
-            opacity: cooldowns['homing_missiles'] > 0 ? 0.5 : 1
+            borderColor: 'rgba(249, 115, 22, 0.5)',
+            boxShadow: cooldowns['homing_missiles'] > 0 ? 'none' : '0 0 15px rgba(249, 115, 22, 0.3)',
+            opacity: cooldowns['homing_missiles'] > 0 ? 0.45 : 1
           }}
           title="Homing Missiles (HotKey: 3)"
         >
@@ -438,9 +460,9 @@ export const GameContainer = ({
             <span style={styles.cdNum}>{cooldowns['homing_missiles']}s</span>
           ) : (
             <>
-              <Zap size={20} color="#F97316" />
+              <Zap size={20} color="#F97316" style={{ filter: 'drop-shadow(0 0 4px #F97316)' }} />
               <span style={styles.abilityLabel}>MISSILES</span>
-              <span style={styles.hotkeyBadge}>3</span>
+              <span style={{ ...styles.hotkeyBadge, color: '#F97316' }}>3</span>
             </>
           )}
         </button>
@@ -449,10 +471,11 @@ export const GameContainer = ({
         <button 
           onClick={() => activateAbility('emp_blast', 35)}
           disabled={cooldowns['emp_blast'] > 0}
-          className="glass-card" 
+          className="hud-ability-card" 
           style={{
-            ...styles.abilityBtn,
-            opacity: cooldowns['emp_blast'] > 0 ? 0.5 : 1
+            borderColor: 'rgba(255, 45, 255, 0.5)',
+            boxShadow: cooldowns['emp_blast'] > 0 ? 'none' : '0 0 15px rgba(255, 45, 255, 0.3)',
+            opacity: cooldowns['emp_blast'] > 0 ? 0.45 : 1
           }}
           title="EMP Blast (HotKey: 4)"
         >
@@ -460,21 +483,22 @@ export const GameContainer = ({
             <span style={styles.cdNum}>{cooldowns['emp_blast']}s</span>
           ) : (
             <>
-              <Zap size={20} color="var(--accent-magenta)" />
+              <Zap size={20} color="var(--accent-magenta)" style={{ filter: 'drop-shadow(0 0 4px #FF2DFF)' }} />
               <span style={styles.abilityLabel}>EMP</span>
-              <span style={styles.hotkeyBadge}>4</span>
+              <span style={{ ...styles.hotkeyBadge, color: 'var(--accent-magenta)' }}>4</span>
             </>
           )}
         </button>
 
-        {/* 5. Emergency Warp (Section 26 Requirement) */}
+        {/* 5. Emergency Warp */}
         <button 
           onClick={() => activateAbility('emergency_warp', 35)}
           disabled={cooldowns['emergency_warp'] > 0}
-          className="glass-card" 
+          className="hud-ability-card" 
           style={{
-            ...styles.abilityBtn,
-            opacity: cooldowns['emergency_warp'] > 0 ? 0.5 : 1
+            borderColor: 'rgba(56, 189, 248, 0.5)',
+            boxShadow: cooldowns['emergency_warp'] > 0 ? 'none' : '0 0 15px rgba(56, 189, 248, 0.3)',
+            opacity: cooldowns['emergency_warp'] > 0 ? 0.45 : 1
           }}
           title="Emergency Warp (HotKey: 5)"
         >
@@ -482,9 +506,9 @@ export const GameContainer = ({
             <span style={styles.cdNum}>{cooldowns['emergency_warp']}s</span>
           ) : (
             <>
-              <Zap size={20} color="#38BDF8" />
+              <Zap size={20} color="#38BDF8" style={{ filter: 'drop-shadow(0 0 4px #38BDF8)' }} />
               <span style={styles.abilityLabel}>WARP</span>
-              <span style={styles.hotkeyBadge}>5</span>
+              <span style={{ ...styles.hotkeyBadge, color: '#38BDF8' }}>5</span>
             </>
           )}
         </button>
@@ -768,11 +792,12 @@ const styles = {
     left: '50%',
     transform: 'translateX(-50%)',
     width: '94%',
-    maxWidth: '1000px',
+    maxWidth: '1020px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 20px',
+    padding: '12px 24px',
+    borderRadius: '14px',
     zIndex: 20
   },
   hudLeft: {
@@ -781,48 +806,51 @@ const styles = {
     gap: '16px'
   },
   iconBtn: {
-    width: '36px',
-    height: '36px',
+    width: '38px',
+    height: '38px',
     borderRadius: '8px',
-    background: 'rgba(0, 229, 255, 0.1)',
+    background: 'rgba(0, 229, 255, 0.12)',
     border: '1px solid var(--border-glass)',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    transition: 'all 0.2s ease'
   },
   gaugesContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px'
+    gap: '6px'
   },
   gaugeRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: '10px'
   },
   barTrack: {
-    width: '120px',
-    height: '6px',
-    background: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: '3px',
-    overflow: 'hidden'
+    width: '140px',
+    height: '8px',
+    background: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: '4px',
+    overflow: 'hidden',
+    border: '1px solid rgba(255, 255, 255, 0.12)'
   },
   barFill: {
     height: '100%',
-    transition: 'width 0.2s ease'
+    transition: 'width 0.2s ease',
+    borderRadius: '4px'
   },
   gaugeVal: {
-    fontSize: '0.72rem',
+    fontSize: '0.75rem',
     fontFamily: 'var(--font-ui)',
     fontWeight: '700',
-    width: '24px'
+    width: '28px'
   },
   hudCenter: {
     textAlign: 'center'
   },
   missionTitle: {
-    fontSize: '0.95rem',
+    fontSize: '1rem',
     color: 'var(--text-light)',
     letterSpacing: '0.08em'
   },
@@ -848,8 +876,19 @@ const styles = {
     fontFamily: 'var(--font-heading)'
   },
   scoreNum: {
-    fontSize: '1.1rem',
-    color: 'var(--text-light)'
+    fontSize: '1.15rem',
+    color: 'var(--currency-gold)'
+  },
+  canvasEnclosure: {
+    position: 'relative',
+    width: '800px',
+    height: '900px',
+    maxWidth: '100vw',
+    maxHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '12px'
   },
   canvasContainer: {
     width: '100%',

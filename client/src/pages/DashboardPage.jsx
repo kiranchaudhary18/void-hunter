@@ -22,7 +22,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
   return (
     <div style={styles.dashboardContainer}>
       {/* ================= HERO COMMAND BANNER ================= */}
-      <div style={styles.heroBanner} className="glass-panel">
+      <div style={styles.heroBanner} className="glass-panel cyber-box">
         <div style={styles.heroLeft}>
           <div style={styles.badgeRow}>
             <span className="badge badge-cyan animate-pulse-glow">
@@ -31,7 +31,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
             </span>
           </div>
 
-          <h1 className="font-heading" style={styles.heroHeading}>
+          <h1 className="font-heading text-glow-cyan" style={styles.heroHeading}>
             WELCOME BACK, <span style={{ color: 'var(--secondary-cyan)' }}>{user?.name?.toUpperCase() || 'COMMANDER'}</span>
           </h1>
 
@@ -60,12 +60,12 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
         </div>
 
         <div style={styles.heroRight}>
-          <div style={styles.starshipBadgeCard} className="glass-card">
+          <div style={styles.starshipBadgeCard} className="glass-card cyber-box">
             <div style={styles.starshipBadgeHeader}>
-              <Crosshair size={18} color="var(--electric-magenta)" />
+              <Crosshair size={18} color="var(--accent-magenta)" style={{ filter: 'drop-shadow(0 0 4px #FF2DFF)' }} />
               <span style={styles.starshipBadgeTag}>DEPLOYED STARFIGHTER</span>
             </div>
-            <div className="font-heading" style={styles.starshipBadgeName}>{currentShipName}</div>
+            <div className="font-heading text-glow-cyan" style={styles.starshipBadgeName}>{currentShipName}</div>
             <div style={styles.shipStatGrid}>
               <div style={styles.shipStatRow}>
                 <span>SPEED</span>
@@ -73,7 +73,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
               </div>
               <div style={styles.shipStatRow}>
                 <span>DAMAGE</span>
-                <b style={{ color: 'var(--electric-magenta)' }}>{selectedShip?.damage || 28} DPS</b>
+                <b style={{ color: 'var(--accent-magenta)' }}>{selectedShip?.damage || 28} DPS</b>
               </div>
             </div>
             <button 
@@ -92,78 +92,102 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
       <div style={styles.metricsGrid}>
         {/* 1. Wallet Ledger Balance */}
         <div 
-          style={{ ...styles.metricCard, cursor: 'pointer' }} 
+          style={{ 
+            ...styles.metricCard, 
+            cursor: 'pointer',
+            border: '1px solid rgba(251, 191, 36, 0.35)',
+            background: 'radial-gradient(circle at top left, rgba(251, 191, 36, 0.1) 0%, rgba(10, 15, 40, 0.8) 100%)',
+            boxShadow: '0 0 20px rgba(251, 191, 36, 0.15)'
+          }} 
           className="glass-card glass-card-hover"
           onClick={() => handleNav('wallet')}
           title="Click to view full double-entry ledger"
         >
           <div style={styles.metricCardHeader}>
             <div style={styles.metricIconGold}>
-              <Coins size={20} color="var(--currency-gold)" />
+              <Coins size={20} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
             </div>
-            <ArrowUpRight size={16} color="var(--text-muted)" />
+            <ArrowUpRight size={16} color="var(--currency-gold)" />
           </div>
-          <div style={styles.metricValGold}>
+          <div className="text-glow-gold" style={styles.metricValGold}>
             {profile?.credits?.toLocaleString() || 500}
           </div>
-          <div style={styles.metricLabel}>CREDITS LEDGER BALANCE</div>
+          <div style={{ ...styles.metricLabel, color: 'var(--currency-gold)' }}>CREDITS LEDGER BALANCE</div>
           <div style={styles.metricSub}>Double-entry cryptographically verified &rarr;</div>
         </div>
 
         {/* 2. Energy Cores Hard Currency */}
         <div 
-          style={{ ...styles.metricCard, cursor: 'pointer' }} 
+          style={{ 
+            ...styles.metricCard, 
+            cursor: 'pointer',
+            border: '1px solid rgba(168, 85, 247, 0.35)',
+            background: 'radial-gradient(circle at top left, rgba(168, 85, 247, 0.1) 0%, rgba(10, 15, 40, 0.8) 100%)',
+            boxShadow: '0 0 20px rgba(168, 85, 247, 0.15)'
+          }} 
           className="glass-card glass-card-hover"
           onClick={() => handleNav('wallet')}
         >
           <div style={styles.metricCardHeader}>
             <div style={styles.metricIconPurple}>
-              <Zap size={20} color="#C084FC" />
+              <Zap size={20} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
             </div>
-            <ArrowUpRight size={16} color="var(--text-muted)" />
+            <ArrowUpRight size={16} color="#C084FC" />
           </div>
-          <div style={styles.metricValPurple}>
+          <div className="text-glow-purple" style={styles.metricValPurple}>
             {profile?.energyCores || 10}
           </div>
-          <div style={styles.metricLabel}>ENERGY CORES</div>
+          <div style={{ ...styles.metricLabel, color: '#C084FC' }}>ENERGY CORES</div>
           <div style={styles.metricSub}>Premium currency for instant commissioning &rarr;</div>
         </div>
 
         {/* 3. Campaign Conquest Status */}
         <div 
-          style={{ ...styles.metricCard, cursor: 'pointer' }} 
+          style={{ 
+            ...styles.metricCard, 
+            cursor: 'pointer',
+            border: '1px solid rgba(0, 229, 255, 0.35)',
+            background: 'radial-gradient(circle at top left, rgba(0, 229, 255, 0.1) 0%, rgba(10, 15, 40, 0.8) 100%)',
+            boxShadow: '0 0 20px rgba(0, 229, 255, 0.15)'
+          }} 
           className="glass-card glass-card-hover"
           onClick={() => handleNav('missions')}
         >
           <div style={styles.metricCardHeader}>
             <div style={styles.metricIconCyan}>
-              <Star size={20} color="var(--currency-gold)" fill="var(--currency-gold)" />
+              <Star size={20} color="var(--currency-gold)" fill="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
             </div>
-            <ArrowUpRight size={16} color="var(--text-muted)" />
+            <ArrowUpRight size={16} color="var(--secondary-cyan)" />
           </div>
-          <div style={styles.metricValCyan}>
+          <div className="text-glow-cyan" style={styles.metricValCyan}>
             {profile?.stats?.missionsCompleted || 0} / 50
           </div>
-          <div style={styles.metricLabel}>SECTOR MISSIONS SECURED</div>
+          <div style={{ ...styles.metricLabel, color: 'var(--secondary-cyan)' }}>SECTOR MISSIONS SECURED</div>
           <div style={styles.metricSub}>5 Sectors across 50 data-driven stages &rarr;</div>
         </div>
 
         {/* 4. Pilot Level & Rank */}
         <div 
-          style={{ ...styles.metricCard, cursor: 'pointer' }} 
+          style={{ 
+            ...styles.metricCard, 
+            cursor: 'pointer',
+            border: '1px solid rgba(255, 45, 255, 0.35)',
+            background: 'radial-gradient(circle at top left, rgba(255, 45, 255, 0.1) 0%, rgba(10, 15, 40, 0.8) 100%)',
+            boxShadow: '0 0 20px rgba(255, 45, 255, 0.15)'
+          }} 
           className="glass-card glass-card-hover"
           onClick={() => handleNav('quests')}
         >
           <div style={styles.metricCardHeader}>
             <div style={styles.metricIconMagenta}>
-              <Award size={20} color="var(--electric-magenta)" />
+              <Award size={20} color="var(--accent-magenta)" style={{ filter: 'drop-shadow(0 0 4px #FF2DFF)' }} />
             </div>
-            <ArrowUpRight size={16} color="var(--text-muted)" />
+            <ArrowUpRight size={16} color="var(--accent-magenta)" />
           </div>
-          <div style={styles.metricValMagenta}>
+          <div className="text-glow-magenta" style={styles.metricValMagenta}>
             LV. {profile?.level || 1}
           </div>
-          <div style={styles.metricLabel}>{profile?.pilotRank || 'STAR CADET'}</div>
+          <div style={{ ...styles.metricLabel, color: 'var(--accent-magenta)' }}>{profile?.pilotRank?.toUpperCase() || 'STAR CADET'}</div>
           <div style={styles.metricSub}>{profile?.xp || 0} / {profile?.xpToNextLevel || 500} XP progress &rarr;</div>
         </div>
       </div>
