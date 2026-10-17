@@ -213,7 +213,7 @@ export const SidebarLayout = ({
 const styles = {
   shell: {
     display: 'flex',
-    width: '100vw',
+    width: '100%',
     minHeight: '100vh',
     backgroundColor: '#060919',
     backgroundImage: `
@@ -225,22 +225,26 @@ const styles = {
     `,
     backgroundSize: '100% 100%, 100% 100%, 450px 450px, 350px 350px, 500px 500px',
     color: 'var(--text-light)',
+    position: 'relative',
     overflowX: 'hidden'
   },
   sidebar: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    bottom: 0,
     width: '230px',
     minWidth: '230px',
-    minHeight: '100vh',
+    height: '100vh',
     background: 'rgba(8, 12, 32, 0.94)',
     backdropFilter: 'blur(16px)',
     borderRight: '1px solid rgba(0, 229, 255, 0.18)',
     display: 'flex',
     flexDirection: 'column',
-    position: 'sticky',
-    top: 0,
-    height: '100vh',
+    flexShrink: 0,
     zIndex: 100,
-    boxShadow: '4px 0 25px rgba(0, 0, 0, 0.6)'
+    boxShadow: '4px 0 25px rgba(0, 0, 0, 0.6)',
+    overflowY: 'auto'
   },
   logoBox: {
     display: 'flex',
@@ -329,10 +333,12 @@ const styles = {
   },
   mainColumn: {
     flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
+    marginLeft: '230px',
+    width: 'calc(100% - 230px)',
     minWidth: 0,
-    minHeight: '100vh'
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column'
   },
   topHeader: {
     display: 'flex',
