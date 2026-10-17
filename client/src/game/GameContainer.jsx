@@ -112,7 +112,7 @@ export const GameContainer = ({
     });
 
     return () => {
-      soundManager.stopBGM();
+      soundManager.startBGM('menu');
       if (phaserGameInstance.current) {
         phaserGameInstance.current.destroy(true);
       }
@@ -165,7 +165,7 @@ export const GameContainer = ({
   };
 
   const handleConfirmAbort = () => {
-    soundManager.stopBGM();
+    soundManager.startBGM('menu');
     if (phaserGameInstance.current) {
       phaserGameInstance.current.destroy(true);
     }

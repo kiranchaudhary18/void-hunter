@@ -15,6 +15,8 @@ import GameContainer from './game/GameContainer.jsx';
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
 import SidebarLayout from './components/SidebarLayout.jsx';
+import GlobalAudioPlayer from './components/GlobalAudioPlayer.jsx';
+import soundManager from './game/managers/SoundManager.js';
 import api from './services/api.js';
 import { MISSIONS_CATALOG } from './data/missionsData.js';
 import './App.css';
@@ -105,6 +107,15 @@ function MainAppContent() {
     sector: 'Nebula Outpost',
     globalSequence: 1
   });
+
+  // Seamless Global Background Music Synchronization across all pages & gameplay
+  React.useEffect(() => {
+    if (currentScreen === 'gameplay') {
+      soundManager.startBGM('combat');
+    } else {
+      soundManager.startBGM('menu');
+    }
+  }, [currentScreen]);
 
   // Master navigation handler syncing browser address bar via HTML5 History API
   const navigateTo = React.useCallback((screen, replace = false) => {
@@ -416,6 +427,7 @@ export function App() {
   return (
     <AuthProvider>
       <MainAppContent />
+      <GlobalAudioPlayer />
     </AuthProvider>
   );
 }
