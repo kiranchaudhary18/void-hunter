@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { 
-  Shield, Zap, Crosshair, Wrench, ArrowLeft, Check, Lock, 
-  Coins, Sparkles, ChevronRight, AlertCircle, CheckCircle2 
+  Shield, Zap, Crosshair, Check, Lock, 
+  Sparkles, ChevronRight, AlertCircle, CheckCircle2 
 } from 'lucide-react';
 
-export const HangarPage = ({ onBack, onNavigate, onLaunchMission }) => {
-  const { user, profile, isAuthenticated, refreshProfile } = useAuth();
+export const HangarPage = ({ onNavigate }) => {
+  const { isAuthenticated, refreshProfile } = useAuth();
   const [ships, setShips] = useState([]);
   const [selectedShipId, setSelectedShipId] = useState('v01-orbitron');
   const [loading, setLoading] = useState(true);

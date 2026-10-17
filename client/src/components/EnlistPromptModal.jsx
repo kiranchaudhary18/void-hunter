@@ -1,6 +1,6 @@
 import React from 'react';
 import soundManager from '../game/managers/SoundManager.js';
-import { ShieldAlert, Lock, UserCheck, ArrowRight, X, Sparkles, Trophy, Compass, Shield } from 'lucide-react';
+import { Lock, UserCheck, ArrowRight, X, Sparkles } from 'lucide-react';
 
 export const EnlistPromptModal = ({ 
   isOpen, 

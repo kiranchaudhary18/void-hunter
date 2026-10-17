@@ -5,12 +5,11 @@ import soundManager from '../game/managers/SoundManager.js';
 import confetti from 'canvas-confetti';
 import { 
   ArrowLeft, Coins, Zap, Award, Video, ShieldCheck, 
-  TrendingUp, TrendingDown, RefreshCw, Filter, Clock, 
-  CheckCircle2, AlertCircle, ArrowUpRight, ArrowDownLeft, X, Play 
+  RefreshCw, Clock, CheckCircle2, AlertCircle, ArrowUpRight, ArrowDownLeft 
 } from 'lucide-react';
 
 export const WalletPage = ({ onBack }) => {
-  const { user, profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile } = useAuth();
   const [balance, setBalance] = useState({
     credits: profile?.credits || 500,
     energyCores: profile?.energyCores || 10,
@@ -89,7 +88,7 @@ export const WalletPage = ({ onBack }) => {
             await api.post(`/ads/${res.data.adId}/heartbeat`, {
               elapsedSeconds: (res.data.durationSeconds || 5) - currentSec
             });
-          } catch (e) {
+          } catch {
             // Heartbeat non-blocking
           }
 

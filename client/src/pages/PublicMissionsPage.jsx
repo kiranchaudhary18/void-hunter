@@ -3,10 +3,7 @@ import soundManager from '../game/managers/SoundManager.js';
 import PublicNavbar from '../components/PublicNavbar.jsx';
 import EnlistPromptModal from '../components/EnlistPromptModal.jsx';
 import { SECTORS_LIST, MISSIONS_CATALOG } from '../data/missionsData.js';
-import { 
-  Play, Star, Shield, Award, Compass, Crosshair, 
-  Skull, Sparkles, ChevronRight, Lock, Zap, ArrowRight 
-} from 'lucide-react';
+import { Play, Star, Crosshair, Lock, Zap } from 'lucide-react';
 
 export const PublicMissionsPage = ({ onNavigate }) => {
   const [activeSectorId, setActiveSectorId] = useState('sector-1');

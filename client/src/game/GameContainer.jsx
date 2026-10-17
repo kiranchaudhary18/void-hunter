@@ -105,20 +105,7 @@ export const GameContainer = ({
     };
   }, [mission.id]);
 
-  // Global Keyboard Shortcuts (Esc or P to Pause/Resume)
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
-        if (!gameOverData && !victoryData && !adModalOpen) {
-          handleTogglePause();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPaused, gameOverData, victoryData, adModalOpen]);
-
-  const handleTogglePause = () => {
+  const handleTogglePause = React.useCallback(() => {
     if (!phaserGameInstance.current) return;
     const scene = phaserGameInstance.current.scene.getScene('SpaceCombatScene');
     if (!scene) return;
@@ -131,7 +118,20 @@ export const GameContainer = ({
       scene.scene.pause();
       setIsPaused(true);
     }
-  };
+  }, [isPaused]);
+
+  // Global Keyboard Shortcuts (Esc or P to Pause/Resume)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+        if (!gameOverData && !victoryData && !adModalOpen) {
+          handleTogglePause();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleTogglePause, gameOverData, victoryData, adModalOpen]);
 
   const handleToggleMute = () => {
     const m = soundManager.toggleMute();

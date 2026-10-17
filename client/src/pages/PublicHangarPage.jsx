@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import soundManager from '../game/managers/SoundManager.js';
 import PublicNavbar from '../components/PublicNavbar.jsx';
 import EnlistPromptModal from '../components/EnlistPromptModal.jsx';
-import { 
-  Shield, Zap, Crosshair, Wrench, Sparkles, 
-  ChevronRight, ArrowRight, Check, Lock, Award, Flame 
-} from 'lucide-react';
+import { Crosshair, Wrench } from 'lucide-react';
 
 const SHIPS_SHOWCASE = [
   {

@@ -17,8 +17,6 @@ import SettingsModal from './components/SettingsModal.jsx';
 import SidebarLayout from './components/SidebarLayout.jsx';
 import api from './services/api.js';
 import { MISSIONS_CATALOG } from './data/missionsData.js';
-import { GAME_NAME, GAME_TAGLINE } from './config/gameConfig.js';
-import { Coins, Zap, User, LogOut, Play, Compass, Shield, Award, BarChart3, Wallet, Settings } from 'lucide-react';
 import './App.css';
 
 // Map URL pathname to internal screen identifier
@@ -91,7 +89,7 @@ export const getPathFromScreen = (screen) => {
 };
 
 function MainAppContent() {
-  const { user, profile, isAuthenticated, logout, refreshProfile } = useAuth();
+  const { user, profile, isAuthenticated, refreshProfile } = useAuth();
   
   // Initialize current screen from actual browser URL path
   const [currentScreen, setCurrentScreen] = useState(() => {
@@ -109,7 +107,7 @@ function MainAppContent() {
   });
 
   // Master navigation handler syncing browser address bar via HTML5 History API
-  const navigateTo = (screen, replace = false) => {
+  const navigateTo = React.useCallback((screen, replace = false) => {
     let targetScreen = screen;
     if (targetScreen === 'main_menu' || targetScreen === 'home') {
       targetScreen = isAuthenticated ? 'dashboard' : 'landing';
@@ -130,7 +128,7 @@ function MainAppContent() {
 
     setCurrentScreen(targetScreen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [isAuthenticated]);
 
   // Popstate event listener for browser Back & Forward button navigation
   React.useEffect(() => {
@@ -143,28 +141,19 @@ function MainAppContent() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [isAuthenticated]);
 
-  // Synchronize initial URL address bar if user accessed root while authenticated
-  React.useEffect(() => {
-    const expectedPath = getPathFromScreen(currentScreen);
-    const validAliases = ['/login', '/signup', '/register', '/ships', '/ranks', '/rewards', '/combat'];
-    if (window.location.pathname !== expectedPath && !validAliases.includes(window.location.pathname)) {
-      window.history.replaceState({ screen: currentScreen }, '', expectedPath);
-    }
-  }, []);
-
   // Automatically transition to Dashboard upon authentication if on root landing
   React.useEffect(() => {
     if (isAuthenticated && currentScreen === 'landing') {
       navigateTo('dashboard', true);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, currentScreen, navigateTo]);
 
   // Security Guard: Prevent non-administrators from accessing admin panel
   React.useEffect(() => {
     if (currentScreen === 'admin' && user?.role?.toLowerCase() !== 'admin') {
       navigateTo('dashboard', true);
     }
-  }, [currentScreen, user]);
+  }, [currentScreen, user, navigateTo]);
 
   // Map selectedShipId to texture and stats (hoisted at top to prevent ReferenceError)
   const getSelectedShipData = () => {

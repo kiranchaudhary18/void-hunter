@@ -3,10 +3,10 @@ import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { 
-  ArrowLeft, RefreshCw, ShieldCheck, AlertTriangle, TrendingUp, 
-  Coins, Zap, Video, Award, Users, Database, Activity, CheckCircle2,
-  Sliders, Filter, Search, ChevronLeft, ChevronRight, Lock, Eye, Save,
-  Clock, HelpCircle, XCircle, FileText
+  ArrowLeft, RefreshCw, AlertTriangle, TrendingUp, 
+  Video, Award, Database, Activity, CheckCircle2,
+  Sliders, Filter, Search, ChevronLeft, ChevronRight, Lock, Save,
+  Clock
 } from 'lucide-react';
 
 export const AdminDashboardPage = ({ onBack }) => {

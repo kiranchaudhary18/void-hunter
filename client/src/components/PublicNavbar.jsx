@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
-import { Volume2, VolumeX, LogIn, ChevronRight } from 'lucide-react';
+import { Volume2, VolumeX, LogIn } from 'lucide-react';
 
 export const PublicNavbar = ({ current = 'home', onNavigate }) => {
   const [isMuted, setIsMuted] = useState(soundManager.muted);

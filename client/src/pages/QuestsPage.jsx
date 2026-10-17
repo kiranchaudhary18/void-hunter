@@ -4,14 +4,12 @@ import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import confetti from 'canvas-confetti';
 import { 
-  ArrowLeft, Award, Clock, Star, Zap, Coins, 
-  CheckCircle2, Lock, Shield, Crosshair, Skull, Compass, 
-  Calendar, Gift, AlertCircle, RefreshCw, ChevronRight,
-  Package, Flame, Timer
+  ArrowLeft, Award, Clock, Zap, Coins, 
+  CheckCircle2, Lock, Calendar, Gift, AlertCircle, Package, Flame 
 } from 'lucide-react';
 
 export const QuestsPage = ({ onBack }) => {
-  const { user, profile, refreshProfile } = useAuth();
+  const { refreshProfile } = useAuth();
   const [questsData, setQuestsData] = useState({
     dailyQuests: [],
     achievements: [],
@@ -22,7 +20,7 @@ export const QuestsPage = ({ onBack }) => {
   const [events, setEvents] = useState([]);
   const [activeTab, setActiveTab] = useState('QUESTS'); // 'QUESTS', 'ACHIEVEMENTS', or 'EVENTS'
   const [achievementFilter, setAchievementFilter] = useState('ALL');
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState(null);
   const [feedbackMessage, setFeedbackMessage] = useState(null);
   const [countdown, setCountdown] = useState('');

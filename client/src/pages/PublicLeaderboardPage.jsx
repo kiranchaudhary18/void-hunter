@@ -3,19 +3,16 @@ import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import PublicNavbar from '../components/PublicNavbar.jsx';
 import EnlistPromptModal from '../components/EnlistPromptModal.jsx';
-import { 
-  Trophy, Star, Award, Shield, Crown, 
-  Medal, User, ArrowRight, Sparkles, RefreshCw 
-} from 'lucide-react';
+import { Trophy, Star, Crown, Medal, User, RefreshCw } from 'lucide-react';
 
 export const PublicLeaderboardPage = ({ onNavigate }) => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [timeFrame, setTimeFrame] = useState('ALL_TIME');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch live MongoDB leaderboard rankings
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = React.useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get(`/leaderboard?timeFrame=${timeFrame}`);
@@ -27,11 +24,11 @@ export const PublicLeaderboardPage = ({ onNavigate }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeFrame]);
 
   useEffect(() => {
     fetchLeaderboard();
-  }, [timeFrame]);
+  }, [fetchLeaderboard]);
 
   const handleClaimRank = () => {
     soundManager.playLaser();
@@ -185,8 +182,8 @@ export const PublicLeaderboardPage = ({ onNavigate }) => {
               style={styles.refreshBtn}
               title="Refresh telemetry standings"
             >
-              <RefreshCw size={14} color="var(--text-muted)" />
-              <span>SYNC LIVE</span>
+              <RefreshCw size={14} color="var(--text-muted)" className={loading ? "animate-spin" : ""} />
+              <span>{loading ? 'SYNCING...' : 'SYNC LIVE'}</span>
             </button>
           </div>
 

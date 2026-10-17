@@ -41,8 +41,11 @@
 - [6. Anti-Cheat Engine & Session Lifecycle](#-6-anti-cheat-engine--session-lifecycle)
 - [7. Design System & Brand Identity](#-7-design-system--brand-identity)
 - [8. REST API Specification](#-8-rest-api-specification)
-- [9. Database Architecture](#-9-database-architecture)
 - [10. Quickstart & Local Setup](#-10-quickstart--local-setup)
+- [11. Testing & Compliance Matrix](#-11-testing--compliance-matrix)
+- [15. Demo Video Checklist (Section 86 Compliance)](#-15-demo-video-checklist-section-86-compliance)
+- [17. Secure Admin Panel & Economy Audit System](#-17-secure-admin-panel--economy-audit-system-sections-33-35-36-37-74-75-80)
+- [18. Public Showcase & Guest Navigation Architecture](#-18-public-showcase--guest-navigation-architecture)
 
 ---
 
@@ -609,8 +612,31 @@ Execute the comprehensive automated test suite verifying all 14 mandatory securi
 
 ```bash
 cd server
-node tests/test_compliance_matrix.js
+npm test
+# Or: node tests/test_compliance_matrix.js
 ```
+
+---
+
+## 🌐 18. Public Showcase & Guest Navigation Architecture
+
+VOID HUNTER features a clean separation between **Unauthenticated Public Exploration** and the **Authenticated Command Deck**:
+
+### Dedicated Public Pages (Without Sidebar)
+For unauthenticated guests, the application displays a full-width, cosmic space interface with the unified top navigation bar (`HOME`, `MISSIONS`, `HANGAR`, `LEADERBOARD`, audio toggle, and `LOGIN / ENLIST` button). The left sidebar is strictly hidden to ensure an open, landing-portal feel:
+
+1. **Cinematic Landing Page (`/`)**: Hero showcase with animated starship vectors, mission control status badge, and rapid deploy call-to-actions.
+2. **Public Missions Catalog (`/missions`)**: Full-width sector map and 50-mission tactical database with difficulty tabs (Normal, Hard, Expert), wave counts, and reward disclosures. Clicking **Mission 01** or any mission card triggers the cyber enlistment prompt.
+3. **Public Starship Hangar (`/hangar`)**: Complete fleet showcase of all 5 spacecraft classes (Orbitron, Phoenix, Shadow, Titan, Nova) with live stats matrix (Firepower, Shield, Speed, Maneuver) and weapon loadouts. Clicking **Equip** or **Upgrade** triggers the enlistment prompt.
+4. **Public Intergalactic Hall of Fame (`/leaderboard`)**: Real-time podium aces and MongoDB global ranking table with live server telemetry synchronization. Clicking **Claim Rank** triggers the enlistment prompt.
+
+### Action-Gated Enlistment Modals
+When guests attempt interactive progression actions (launching sorties, equipping ships, purchasing module upgrades, or recording high scores), the non-blocking `EnlistPromptModal` engages with sound feedback, highlighting the benefits of enlistment and offering a direct gateway to `/auth`.
+
+### Authenticated Command Deck
+Upon successful authentication, the interface seamlessly transitions into the full Command Deck:
+- The **Left Cyber Sidebar** becomes active with quick navigation across `DASHBOARD`, `MISSIONS`, `HANGAR`, `REWARDS`, `ACHIEVEMENTS`, `LEADERBOARD`, and `AUDIT LEDGER` (for administrators).
+- The **Top Header** displays live credit and energy core ledger pills, the pilot's callsign, rank badge, level progression, and sign-out controls.
 
 ---
 

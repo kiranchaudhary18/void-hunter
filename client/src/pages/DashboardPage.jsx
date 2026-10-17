@@ -4,20 +4,19 @@ import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import { MISSIONS_CATALOG } from '../data/missionsData.js';
 import { 
-  Play, Compass, Shield, Award, ChevronRight, 
-  Coins, Zap, Star, Flame, Trophy, Crosshair, 
-  CheckCircle2, Clock, Sparkles, ArrowRight, RefreshCw
+  Play, Compass, Award, ChevronRight, 
+  Coins, Zap, Crosshair 
 } from 'lucide-react';
 
-export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip: propSelectedShip }) => {
-  const { user, profile, refreshProfile } = useAuth();
+export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
+  const { profile } = useAuth();
 
   // Real backend-driven state
   const [activeShip, setActiveShip] = useState(null);
   const [dailyQuests, setDailyQuests] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
-  const [loadingStats, setLoadingStats] = useState(true);
+  const [_loadingStats, setLoadingStats] = useState(true);
 
   const handleNav = (screenName) => {
     soundManager.playLaser();
