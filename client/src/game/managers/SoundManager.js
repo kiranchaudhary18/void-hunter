@@ -6,11 +6,14 @@
 class SoundManager {
   constructor() {
     this.ctx = null;
-    this.sfxVolume = 0.7;
-    this.bgmVolume = 0.55;
+    this.sfxVolume = 0.8;
+    this.bgmVolume = 0.85;
     this.muted = false;
     this.bgmPlaying = false;
     this.bgmMode = null; // 'menu' | 'combat'
+    this.desiredBgmMode = 'menu';
+    this.autoplayBlocked = false;
+    this.audioUnlocked = false;
     this.listeners = new Set();
 
     // HTML5 Audio Elements for Studio-Quality Soundtrack Playback
@@ -35,25 +38,16 @@ class SoundManager {
         console.warn('Audio element initialization notice:', e);
       }
 
-      // Auto-start BGM on very first user interaction anywhere on the website
-      const initAudioOnGesture = () => {
-        this.init();
-        if (!this.muted && !this.bgmPlaying) {
-          const isCombat = window.location.pathname.includes('combat') || window.location.pathname.includes('gameplay');
-          this.startBGM(isCombat ? 'combat' : 'menu');
-        }
-        window.removeEventListener('pointerdown', initAudioOnGesture);
-        window.removeEventListener('mousedown', initAudioOnGesture);
-        window.removeEventListener('click', initAudioOnGesture);
-        window.removeEventListener('keydown', initAudioOnGesture);
-        window.removeEventListener('touchstart', initAudioOnGesture);
+      // Universal user gesture handler to unlock audio context & play BGM smoothly
+      const handleUserGesture = () => {
+        this.unlockAudio();
       };
 
-      window.addEventListener('pointerdown', initAudioOnGesture, { once: true });
-      window.addEventListener('mousedown', initAudioOnGesture, { once: true });
-      window.addEventListener('click', initAudioOnGesture, { once: true });
-      window.addEventListener('keydown', initAudioOnGesture, { once: true });
-      window.addEventListener('touchstart', initAudioOnGesture, { once: true });
+      window.addEventListener('pointerdown', handleUserGesture, { capture: true });
+      window.addEventListener('mousedown', handleUserGesture, { capture: true });
+      window.addEventListener('click', handleUserGesture, { capture: true });
+      window.addEventListener('keydown', handleUserGesture, { capture: true });
+      window.addEventListener('touchstart', handleUserGesture, { capture: true });
     }
   }
 
@@ -67,10 +61,11 @@ class SoundManager {
       try {
         fn({
           bgmPlaying: this.bgmPlaying,
-          bgmMode: this.bgmMode,
+          bgmMode: this.bgmMode || this.desiredBgmMode,
           muted: this.muted,
           bgmVolume: this.bgmVolume,
-          sfxVolume: this.sfxVolume
+          sfxVolume: this.sfxVolume,
+          autoplayBlocked: this.autoplayBlocked
         });
       } catch (e) {
         console.error(e);
@@ -87,6 +82,18 @@ class SoundManager {
     }
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
+    }
+  }
+
+  unlockAudio() {
+    this.audioUnlocked = true;
+    this.init();
+
+    if (!this.muted && (!this.bgmPlaying || this.autoplayBlocked)) {
+      const isCombat = typeof window !== 'undefined' && 
+        (window.location.pathname.includes('combat') || window.location.pathname.includes('gameplay'));
+      const target = this.desiredBgmMode || (isCombat ? 'combat' : 'menu');
+      this.startBGM(target);
     }
   }
 
@@ -112,26 +119,25 @@ class SoundManager {
   updateVolumes() {
     const activeVolume = this.muted ? 0 : this.bgmVolume;
     if (this.tracks.menu) {
-      this.tracks.menu.volume = this.bgmMode === 'menu' ? activeVolume * 0.75 : 0;
+      this.tracks.menu.volume = this.bgmMode === 'menu' ? activeVolume : 0;
     }
     if (this.tracks.combat) {
-      this.tracks.combat.volume = this.bgmMode === 'combat' ? activeVolume * 0.85 : 0;
+      this.tracks.combat.volume = this.bgmMode === 'combat' ? activeVolume : 0;
     }
   }
 
   // ==================== BACKGROUND SOUNDTRACK CONTROLLER ====================
   startBGM(mode = 'menu') {
     this.init();
-    if (this.bgmPlaying && this.bgmMode === mode) return;
+    this.desiredBgmMode = mode;
 
-    this.bgmMode = mode;
-    this.bgmPlaying = true;
+    if (this.bgmPlaying && this.bgmMode === mode) return;
 
     const targetTrack = mode === 'combat' ? this.tracks.combat : this.tracks.menu;
     const fadeTrack = mode === 'combat' ? this.tracks.menu : this.tracks.combat;
 
     // Fade out inactive track
-    if (fadeTrack) {
+    if (fadeTrack && fadeTrack !== targetTrack) {
       try {
         fadeTrack.pause();
         fadeTrack.currentTime = 0;
@@ -140,17 +146,25 @@ class SoundManager {
 
     // Play active track
     if (targetTrack) {
-      targetTrack.volume = this.muted ? 0 : this.bgmVolume * (mode === 'combat' ? 0.85 : 0.75);
+      targetTrack.volume = this.muted ? 0 : this.bgmVolume;
       const playPromise = targetTrack.play();
       if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          // If blocked by browser autoplay policy, it will resume on next click
-          console.log('Audio autoplay awaiting user gesture:', err.message);
-        });
+        playPromise
+          .then(() => {
+            this.bgmPlaying = true;
+            this.bgmMode = mode;
+            this.autoplayBlocked = false;
+            this.notifyListeners();
+          })
+          .catch((err) => {
+            // Blocked by browser autoplay policy awaiting user gesture
+            console.log('[SoundManager] Autoplay waiting for user gesture:', err.message);
+            this.bgmPlaying = false;
+            this.autoplayBlocked = true;
+            this.notifyListeners();
+          });
       }
     }
-
-    this.notifyListeners();
   }
 
   stopBGM() {

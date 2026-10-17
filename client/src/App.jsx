@@ -117,6 +117,21 @@ function MainAppContent() {
     }
   }, [currentScreen]);
 
+  // Universal first-gesture unlock so soundtrack begins on any user click/tap/keypress
+  React.useEffect(() => {
+    const handleFirstGesture = () => {
+      soundManager.unlockAudio();
+    };
+    window.addEventListener('click', handleFirstGesture, { capture: true });
+    window.addEventListener('pointerdown', handleFirstGesture, { capture: true });
+    window.addEventListener('keydown', handleFirstGesture, { capture: true });
+    return () => {
+      window.removeEventListener('click', handleFirstGesture, { capture: true });
+      window.removeEventListener('pointerdown', handleFirstGesture, { capture: true });
+      window.removeEventListener('keydown', handleFirstGesture, { capture: true });
+    };
+  }, []);
+
   // Master navigation handler syncing browser address bar via HTML5 History API
   const navigateTo = React.useCallback((screen, replace = false) => {
     let targetScreen = screen;

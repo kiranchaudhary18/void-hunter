@@ -26,6 +26,7 @@ export const GlobalAudioPlayer = () => {
     if (audioState.bgmPlaying) {
       soundManager.stopBGM();
     } else {
+      soundManager.unlockAudio();
       const isCombat = window.location.pathname.includes('combat') || window.location.pathname.includes('gameplay');
       soundManager.startBGM(isCombat ? 'combat' : 'menu');
     }
@@ -41,16 +42,23 @@ export const GlobalAudioPlayer = () => {
     soundManager.setVolumes(soundManager.sfxVolume, newVol);
   };
 
+  const handleWidgetClick = () => {
+    if (!audioState.bgmPlaying) {
+      soundManager.unlockAudio();
+    }
+    setIsExpanded(!isExpanded);
+  };
+
   const trackTitle = audioState.bgmMode === 'combat' 
-    ? 'SECTOR COMBAT // HIGH-OCTANE SYNTH' 
-    : 'COSMIC DRIFT // AMBIENT EXPLORATION';
+    ? 'SECTOR OVERDRIVE // COMBAT FRENZY (138 BPM)' 
+    : 'VOID HUNTER // CYBER ANTHEM (124 BPM)';
 
   return (
     <div 
-      className="global-audio-widget glass-panel cyber-box animate-pulse-glow"
+      className={`global-audio-widget glass-panel cyber-box ${!audioState.bgmPlaying ? 'audio-prompt-glow' : 'animate-pulse-glow'}`}
       style={styles.widgetContainer}
-      onClick={() => setIsExpanded(!isExpanded)}
-      title="Click to expand/collapse soundtrack controls"
+      onClick={handleWidgetClick}
+      title={audioState.bgmPlaying ? "Click to expand/collapse soundtrack controls" : "Click anywhere to enable soundtrack"}
     >
       <div style={styles.headerRow}>
         {/* Equalizer Visualizer Bars */}
@@ -67,8 +75,15 @@ export const GlobalAudioPlayer = () => {
             <Music size={11} color="var(--secondary-cyan)" style={{ display: 'inline', marginRight: '4px' }} />
             <span>SOUNDTRACK</span>
           </div>
-          <div className="font-heading text-glow-cyan" style={styles.trackName}>
-            {audioState.bgmPlaying ? trackTitle : 'AUDIO PAUSED (CLICK TO PLAY)'}
+          <div 
+            className="font-heading" 
+            style={{
+              ...styles.trackName,
+              color: audioState.bgmPlaying ? '#00E5FF' : '#F59E0B',
+              textShadow: audioState.bgmPlaying ? '0 0 8px rgba(0,229,255,0.6)' : '0 0 8px rgba(245,158,11,0.6)'
+            }}
+          >
+            {audioState.bgmPlaying ? trackTitle : '⚡ TAP TO START SOUNDTRACK 🔊'}
           </div>
         </div>
 
@@ -76,13 +91,17 @@ export const GlobalAudioPlayer = () => {
         <div style={styles.actionButtons} onClick={(e) => e.stopPropagation()}>
           <button 
             onClick={handleTogglePlay}
-            style={styles.controlBtn}
+            style={{
+              ...styles.controlBtn,
+              background: audioState.bgmPlaying ? 'rgba(0, 229, 255, 0.15)' : 'rgba(245, 158, 11, 0.25)',
+              borderColor: audioState.bgmPlaying ? 'rgba(0, 229, 255, 0.4)' : '#F59E0B'
+            }}
             title={audioState.bgmPlaying ? 'Pause Music' : 'Play Music'}
           >
             {audioState.bgmPlaying ? (
               <Pause size={15} color="var(--secondary-cyan)" />
             ) : (
-              <Play size={15} color="var(--secondary-cyan)" fill="var(--secondary-cyan)" />
+              <Play size={15} color="#F59E0B" fill="#F59E0B" />
             )}
           </button>
 
@@ -99,7 +118,10 @@ export const GlobalAudioPlayer = () => {
           </button>
 
           <button 
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
             style={styles.chevronBtn}
           >
             {isExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
@@ -143,6 +165,15 @@ export const GlobalAudioPlayer = () => {
           cursor: pointer;
           user-select: none;
           transition: all 0.25s ease;
+        }
+        .global-audio-widget.audio-prompt-glow {
+          border-color: #F59E0B;
+          box-shadow: 0 0 20px rgba(245, 158, 11, 0.45), inset 0 0 12px rgba(245, 158, 11, 0.2);
+          animation: promptPulse 1.8s infinite alternate ease-in-out;
+        }
+        @keyframes promptPulse {
+          0% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
+          100% { box-shadow: 0 0 28px rgba(245, 158, 11, 0.7), 0 0 10px rgba(0, 229, 255, 0.5); }
         }
         .global-audio-widget:hover {
           border-color: var(--secondary-cyan);
