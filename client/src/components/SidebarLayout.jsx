@@ -14,7 +14,7 @@ export const SidebarLayout = ({
   onOpenSettings, 
   children 
 }) => {
-  const { user, profile, logout } = useAuth();
+  const { user, profile, isAuthenticated, logout } = useAuth();
 
   const baseNavItems = [
     { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
@@ -37,15 +37,20 @@ export const SidebarLayout = ({
     if (item.isAction) {
       if (item.id === 'settings' && onOpenSettings) onOpenSettings();
     } else {
-      if (onNavigate) onNavigate(item.id);
+      const authRequired = ['wallet', 'quests', 'admin'];
+      if (!isAuthenticated && authRequired.includes(item.id)) {
+        if (onNavigate) onNavigate('auth');
+      } else {
+        if (onNavigate) onNavigate(item.id);
+      }
     }
   };
 
-  const pilotName = user?.name || 'Kiran';
+  const pilotName = user?.name || 'Commander';
   const pilotLevel = profile?.level || 1;
   const pilotRank = profile?.pilotRank || 'Star Cadet';
-  const credits = profile?.credits?.toLocaleString() || '500';
-  const energyCores = profile?.energyCores || 10;
+  const credits = profile?.credits?.toLocaleString() || '0';
+  const energyCores = profile?.energyCores ?? 0;
 
   return (
     <div style={styles.shell}>
@@ -110,7 +115,7 @@ export const SidebarLayout = ({
         <div style={styles.sidebarFooter}>
           <button
             id="sidebar-quick-combat"
-            onClick={() => onNavigate('gameplay')}
+            onClick={() => isAuthenticated ? onNavigate('gameplay') : onNavigate('auth')}
             style={styles.quickCombatBtn}
             className="btn btn-cyan animate-pulse-glow"
             title="Launch Quick Sortie"
@@ -123,7 +128,7 @@ export const SidebarLayout = ({
 
       {/* ================= RIGHT MAIN APPLICATION COLUMN ================= */}
       <div style={styles.mainColumn}>
-        {/* Top Floating Cyber Navigation & Currency Bar */}
+        {/* Top Floating Cyber Navigation & Currency Bar (FIXED at Top) */}
         <header style={styles.topHeader} className="glass-panel">
           {/* Left: Quick Nav Links matching Mockup Top Bar */}
           <div style={styles.headerLeft}>
@@ -156,55 +161,67 @@ export const SidebarLayout = ({
           </div>
 
           {/* Right: Currencies & Pilot Profile */}
-          <div style={styles.headerRight}>
-            {/* In-Game Credits */}
-            <div 
-              style={styles.currencyPill} 
-              className="glass-card"
-              onClick={() => onNavigate('wallet')}
-              title="Credits Ledger Balance"
-            >
-              <div style={styles.currencyIconBoxGold}>
-                <Coins size={15} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
-              </div>
-              <span className="font-heading text-glow-gold" style={styles.currencyValGold}>
-                {credits}
-              </span>
-            </div>
-
-            {/* Energy Cores / Gems */}
-            <div 
-              style={styles.currencyPill} 
-              className="glass-card"
-              onClick={() => onNavigate('wallet')}
-              title="Energy Cores (Gems)"
-            >
-              <div style={styles.currencyIconBoxPurple}>
-                <Zap size={15} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
-              </div>
-              <span className="font-heading text-glow-purple" style={styles.currencyValPurple}>
-                {energyCores}
-              </span>
-            </div>
-
-            {/* Pilot Profile Badge */}
-            <div style={styles.profileBadge} className="glass-card">
-              <div style={styles.avatarCircle}>
-                <User size={16} color="var(--secondary-cyan)" />
-              </div>
-              <div style={styles.profileInfo}>
-                <div className="font-heading" style={styles.profileName}>{pilotName}</div>
-                <div style={styles.profileLevel}>LEVEL {pilotLevel} • {pilotRank}</div>
-              </div>
-              <button 
-                onClick={(e) => { e.stopPropagation(); logout(); onNavigate('landing'); }}
-                style={styles.logoutBtn}
-                title="Sign Out Pilot"
+          {isAuthenticated ? (
+            <div style={styles.headerRight}>
+              {/* In-Game Credits */}
+              <div 
+                style={styles.currencyPill} 
+                className="glass-card"
+                onClick={() => onNavigate('wallet')}
+                title="Credits Ledger Balance"
               >
-                <LogOut size={14} />
+                <div style={styles.currencyIconBoxGold}>
+                  <Coins size={15} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
+                </div>
+                <span className="font-heading text-glow-gold" style={styles.currencyValGold}>
+                  {credits}
+                </span>
+              </div>
+
+              {/* Energy Cores / Gems */}
+              <div 
+                style={styles.currencyPill} 
+                className="glass-card"
+                onClick={() => onNavigate('wallet')}
+                title="Energy Cores (Gems)"
+              >
+                <div style={styles.currencyIconBoxPurple}>
+                  <Zap size={15} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
+                </div>
+                <span className="font-heading text-glow-purple" style={styles.currencyValPurple}>
+                  {energyCores}
+                </span>
+              </div>
+
+              {/* Pilot Profile Badge */}
+              <div style={styles.profileBadge} className="glass-card">
+                <div style={styles.avatarCircle}>
+                  <User size={16} color="var(--secondary-cyan)" />
+                </div>
+                <div style={styles.profileInfo}>
+                  <div className="font-heading" style={styles.profileName}>{pilotName}</div>
+                  <div style={styles.profileLevel}>LEVEL {pilotLevel} • {pilotRank}</div>
+                </div>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); logout(); onNavigate('landing'); }}
+                  style={styles.logoutBtn}
+                  title="Sign Out Pilot"
+                >
+                  <LogOut size={14} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={styles.headerRight}>
+              <button 
+                onClick={() => onNavigate('auth')} 
+                className="btn btn-cyan animate-pulse-glow"
+                style={{ padding: '8px 24px', fontSize: '0.82rem', fontWeight: 'bold' }}
+              >
+                LOGIN / ENLIST
               </button>
             </div>
-          </div>
+          )}
         </header>
 
         {/* Page Content Viewport */}
@@ -344,22 +361,22 @@ const styles = {
     minWidth: 0,
     minHeight: '100vh',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    position: 'relative'
   },
   topHeader: {
+    position: 'fixed',
+    top: 0,
+    left: '230px',
+    right: 0,
+    height: '64px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 28px',
-    borderRadius: '0',
-    borderTop: 'none',
-    borderLeft: 'none',
-    borderRight: 'none',
+    padding: '0 28px',
     borderBottom: '1px solid rgba(0, 229, 255, 0.18)',
-    background: 'rgba(8, 12, 32, 0.88)',
+    background: 'rgba(8, 12, 32, 0.96)',
     backdropFilter: 'blur(16px)',
-    position: 'sticky',
-    top: 0,
     zIndex: 90
   },
   headerLeft: {
@@ -464,7 +481,8 @@ const styles = {
   },
   contentViewport: {
     flex: 1,
-    minHeight: 0
+    minHeight: 0,
+    paddingTop: '64px'
   }
 };
 

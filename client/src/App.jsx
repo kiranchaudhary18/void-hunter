@@ -125,18 +125,28 @@ function MainAppContent() {
     if (refreshProfile) refreshProfile();
   };
 
-  // Protected Route Guards (Section 60)
-  const protectedScreens = ['dashboard', 'missions', 'hangar', 'wallet', 'quests', 'leaderboard', 'admin'];
-  if (!isAuthenticated && protectedScreens.includes(currentScreen)) {
+  // Screens that strictly require pilot login
+  const strictlyAuthScreens = ['wallet', 'quests', 'admin'];
+  if (!isAuthenticated && strictlyAuthScreens.includes(currentScreen)) {
     return (
       <AuthPage 
-        onBackToGame={() => setCurrentScreen('landing')} 
-        onAuthSuccess={() => setCurrentScreen('dashboard')} 
+        onBackToGame={() => setCurrentScreen('dashboard')} 
+        onAuthSuccess={() => setCurrentScreen(currentScreen === 'admin' ? 'dashboard' : currentScreen)} 
       />
     );
   }
 
-  // Screen 1: Cinematic Main Menu Landing (Only for unauthenticated guests)
+  // Combat gameplay requires authentication to save combat progress, telemetry, and rewards
+  if (!isAuthenticated && currentScreen === 'gameplay') {
+    return (
+      <AuthPage 
+        onBackToGame={() => setCurrentScreen('missions')} 
+        onAuthSuccess={() => setCurrentScreen('gameplay')} 
+      />
+    );
+  }
+
+  // Screen 1: Cinematic Main Menu Landing (Only when currentScreen === 'landing')
   if (currentScreen === 'landing' && !isAuthenticated) {
     return (
       <MainMenuPage 
@@ -176,8 +186,14 @@ function MainAppContent() {
         return (
           <MissionsPage 
             onBack={() => setCurrentScreen('dashboard')}
+            onNavigate={(screen) => setCurrentScreen(screen)}
             selectedShip={getSelectedShipData()}
             onLaunchMission={(mission, sessionId) => {
+              if (!isAuthenticated) {
+                setActiveMission(mission);
+                setCurrentScreen('auth');
+                return;
+              }
               setActiveMission(mission);
               setActiveSessionId(sessionId);
               setCurrentScreen('gameplay');
@@ -188,7 +204,14 @@ function MainAppContent() {
         return (
           <HangarPage 
             onBack={() => setCurrentScreen('dashboard')}
-            onLaunchMission={() => setCurrentScreen('missions')}
+            onNavigate={(screen) => setCurrentScreen(screen)}
+            onLaunchMission={() => {
+              if (!isAuthenticated) {
+                setCurrentScreen('auth');
+              } else {
+                setCurrentScreen('missions');
+              }
+            }}
           />
         );
       case 'wallet':
@@ -207,6 +230,7 @@ function MainAppContent() {
         return (
           <LeaderboardPage 
             onBack={() => setCurrentScreen('dashboard')}
+            onNavigate={(screen) => setCurrentScreen(screen)}
           />
         );
       case 'admin':
@@ -220,7 +244,13 @@ function MainAppContent() {
         return (
           <DashboardPage 
             onNavigate={(screen) => setCurrentScreen(screen)}
-            onLaunchQuickCombat={() => setCurrentScreen('gameplay')}
+            onLaunchQuickCombat={() => {
+              if (!isAuthenticated) {
+                setCurrentScreen('auth');
+              } else {
+                setCurrentScreen('gameplay');
+              }
+            }}
             selectedShip={getSelectedShipData()}
           />
         );

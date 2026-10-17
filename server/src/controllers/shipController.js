@@ -87,9 +87,13 @@ export const UPGRADE_COSTS = {
  */
 export const getShips = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const playerShips = await PlayerShip.find({ user: userId });
-    const profile = await PlayerProfile.findOne({ user: userId });
+    const userId = req.user?.id;
+    let playerShips = [];
+    let profile = null;
+    if (userId) {
+      playerShips = await PlayerShip.find({ user: userId });
+      profile = await PlayerProfile.findOne({ user: userId });
+    }
 
     const shipsData = SHIPS_CATALOG.map((ship) => {
       const owned = playerShips.find((ps) => ps.shipId === ship.id);

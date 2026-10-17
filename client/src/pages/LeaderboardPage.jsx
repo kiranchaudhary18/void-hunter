@@ -7,8 +7,8 @@ import {
   Crown, Medal, RefreshCw, Crosshair, ChevronRight 
 } from 'lucide-react';
 
-export const LeaderboardPage = ({ onBack }) => {
-  const { user, profile } = useAuth();
+export const LeaderboardPage = ({ onBack, onNavigate }) => {
+  const { user, profile, isAuthenticated } = useAuth();
   const [leaderboard, setLeaderboard] = useState([]);
   const [userRank, setUserRank] = useState(null);
   const [timeFrame, setTimeFrame] = useState('ALL_TIME');
@@ -70,7 +70,7 @@ export const LeaderboardPage = ({ onBack }) => {
       </header>
 
       {/* ================= PINNED USER RANK BANNER ================= */}
-      {userRank && (
+      {userRank ? (
         <div style={styles.userRankBanner} className="glass-panel cyber-box animate-pulse-glow">
           <div style={styles.userRankLeft}>
             <div style={styles.userRankNumberBadge} className="text-glow-cyan">
@@ -107,6 +107,29 @@ export const LeaderboardPage = ({ onBack }) => {
               </span>
             </div>
           </div>
+        </div>
+      ) : (
+        <div style={styles.userRankBanner} className="glass-panel cyber-box">
+          <div style={styles.userRankLeft}>
+            <div style={{ ...styles.userRankNumberBadge, color: 'var(--text-muted)', borderColor: 'rgba(255,255,255,0.2)' }}>
+              --
+            </div>
+            <div>
+              <div style={styles.userRankName} className="text-glow-cyan">
+                GUEST PILOT // UNENLISTED
+              </div>
+              <div style={styles.userRankSub}>
+                Log in or enlist to record combat scores and claim your leaderboard rank!
+              </div>
+            </div>
+          </div>
+          <button 
+            onClick={() => onNavigate && onNavigate('auth')} 
+            className="btn btn-cyan animate-pulse-glow"
+            style={{ padding: '8px 24px', fontSize: '0.82rem', fontWeight: 'bold' }}
+          >
+            LOGIN / ENLIST
+          </button>
         </div>
       )}
 

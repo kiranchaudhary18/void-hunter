@@ -12,8 +12,11 @@ import { v4 as uuidv4 } from 'uuid';
  */
 export const getMissions = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const progressRecords = await PlayerMissionProgress.find({ user: userId });
+    const userId = req.user?.id;
+    let progressRecords = [];
+    if (userId) {
+      progressRecords = await PlayerMissionProgress.find({ user: userId });
+    }
 
     const missionsWithProgress = MISSIONS_CATALOG.map((m) => {
       const p = progressRecords.find((rec) => rec.missionId === m.id);

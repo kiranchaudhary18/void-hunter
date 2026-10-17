@@ -6,8 +6,8 @@ import {
   Coins, Sparkles, ChevronRight, AlertCircle, CheckCircle2 
 } from 'lucide-react';
 
-export const HangarPage = ({ onBack, onLaunchMission }) => {
-  const { profile, refreshProfile } = useAuth();
+export const HangarPage = ({ onBack, onNavigate, onLaunchMission }) => {
+  const { user, profile, isAuthenticated, refreshProfile } = useAuth();
   const [ships, setShips] = useState([]);
   const [selectedShipId, setSelectedShipId] = useState('v01-orbitron');
   const [loading, setLoading] = useState(true);
@@ -39,6 +39,10 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
 
   // Equip Ship
   const handleSelectShip = async (shipId) => {
+    if (!isAuthenticated) {
+      if (onNavigate) onNavigate('auth');
+      return;
+    }
     setActionLoading(true);
     setFeedback({ error: null, success: null });
     try {
@@ -57,6 +61,10 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
 
   // Unlock Ship
   const handleUnlockShip = async (shipId) => {
+    if (!isAuthenticated) {
+      if (onNavigate) onNavigate('auth');
+      return;
+    }
     setActionLoading(true);
     setFeedback({ error: null, success: null });
     try {
@@ -75,6 +83,10 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
 
   // Upgrade Module (Section 25 Atomic server validation)
   const handleUpgradeModule = async (moduleType) => {
+    if (!isAuthenticated) {
+      if (onNavigate) onNavigate('auth');
+      return;
+    }
     setActionLoading(true);
     setFeedback({ error: null, success: null });
     try {
@@ -138,6 +150,25 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
           <p style={styles.pageSubtitle}>Select, upgrade and customize your spacecraft fleet</p>
         </div>
       </div>
+
+      {/* Guest Mode Banner */}
+      {!isAuthenticated && (
+        <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', border: '1px solid rgba(0, 229, 255, 0.35)', background: 'rgba(0, 229, 255, 0.08)', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Sparkles size={18} color="var(--secondary-cyan)" />
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-light)' }}>
+              GUEST PREVIEW MODE // Log in to equip starships, commission hulls, and purchase module upgrades.
+            </span>
+          </div>
+          <button 
+            onClick={() => onNavigate && onNavigate('auth')} 
+            className="btn btn-cyan animate-pulse-glow" 
+            style={{ padding: '6px 18px', fontSize: '0.76rem', fontWeight: 'bold' }}
+          >
+            LOGIN / ENLIST
+          </button>
+        </div>
+      )}
 
       {/* Feedback Alerts */}
       {feedback.error && (

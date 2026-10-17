@@ -8,8 +8,8 @@ import {
   Coins, Zap, Compass, Crosshair, Skull, ChevronRight, RefreshCw 
 } from 'lucide-react';
 
-export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: 'V-01 ORBITRON', speed: 380, damage: 25 } }) => {
-  const { user, profile, refreshProfile } = useAuth();
+export const MissionsPage = ({ onBack, onNavigate, onLaunchMission, selectedShip = { name: 'V-01 ORBITRON', speed: 380, damage: 25 } }) => {
+  const { user, profile, isAuthenticated, refreshProfile } = useAuth();
   const [activeSectorId, setActiveSectorId] = useState('sector-1');
   const [difficulty, setDifficulty] = useState('NORMAL');
   const [missions, setMissions] = useState([]);
@@ -63,6 +63,16 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
   const totalCompleted = missions.filter((m) => m.isCompleted).length;
 
   const handleLaunch = async (mission) => {
+    if (!isAuthenticated) {
+      soundManager.playLaser();
+      if (onLaunchMission) {
+        onLaunchMission(mission, null);
+      } else if (onNavigate) {
+        onNavigate('auth');
+      }
+      return;
+    }
+
     if (!mission.isUnlocked) {
       soundManager.playShieldHit();
       setErrorMessage(`Mission ${mission.name} is locked. Complete previous missions first.`);
