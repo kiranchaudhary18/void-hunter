@@ -13,16 +13,24 @@ const __dirname = path.dirname(__filename);
 
 const API_BASE = 'http://localhost:5000/api';
 
-async function request(endpoint, options = {}) {
+async function request(endpoint, options = {}, retries = 3) {
   const url = `${API_BASE}${endpoint}`;
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
   let body = options.body;
   if (body !== undefined && typeof body !== 'string') {
     body = JSON.stringify(body);
   }
-  const res = await fetch(url, { ...options, headers, body });
-  const data = await res.json().catch(() => ({}));
-  return { status: res.status, ok: res.ok, data };
+  
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, { ...options, headers, body });
+      const data = await res.json().catch(() => ({}));
+      return { status: res.status, ok: res.ok, data };
+    } catch (err) {
+      if (attempt === retries) throw err;
+      await new Promise((r) => setTimeout(r, 600));
+    }
+  }
 }
 
 let passedCount = 0;

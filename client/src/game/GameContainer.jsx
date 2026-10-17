@@ -6,9 +6,15 @@ import soundManager from './managers/SoundManager.js';
 import api from '../services/api.js';
 import { 
   Shield, Heart, Zap, Pause, Play, RotateCcw, ArrowLeft, Video, Award, Coins, 
-  Volume2, VolumeX, AlertTriangle, Compass, Star, Crosshair, Target 
+  Volume2, VolumeX, AlertTriangle, Compass, Star, Crosshair, Target, Timer, Rocket, Flame 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+
+const formatCombatTimer = (seconds = 0) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};
 
 export const GameContainer = ({ 
   mission = { id: 'sector-1-mission-1', name: 'MISSION 01: RECON PATROL', sector: 'Nebula Outpost', globalSequence: 1 },
@@ -76,6 +82,9 @@ export const GameContainer = ({
       setTimeout(() => setWaveAnnouncement(null), 2500);
     });
 
+    // Start Procedural Synth Combat BGM
+    soundManager.startBGM('combat');
+
     // Pass mission and callbacks to SpaceCombatScene when ready
     game.events.on('ready', () => {
       const combatScene = game.scene.getScene('SpaceCombatScene');
@@ -87,8 +96,12 @@ export const GameContainer = ({
           ship: ship,
           callbacks: {
             onStatsUpdate: (newStats) => setStats(newStats),
-            onGameOver: (result) => setGameOverData(result),
+            onGameOver: (result) => {
+              soundManager.stopBGM();
+              setGameOverData(result);
+            },
             onVictory: (result) => {
+              soundManager.stopBGM();
               setVictoryData(result);
               confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
               if (onCompleteMission) onCompleteMission(result);
@@ -99,6 +112,7 @@ export const GameContainer = ({
     });
 
     return () => {
+      soundManager.stopBGM();
       if (phaserGameInstance.current) {
         phaserGameInstance.current.destroy(true);
       }
@@ -143,6 +157,7 @@ export const GameContainer = ({
     setVictoryData(null);
     setIsPaused(false);
     setIsAbortModalOpen(false);
+    soundManager.startBGM('combat');
     if (phaserGameInstance.current) {
       const scene = phaserGameInstance.current.scene.getScene('SpaceCombatScene');
       if (scene) scene.scene.restart();
@@ -150,6 +165,7 @@ export const GameContainer = ({
   };
 
   const handleConfirmAbort = () => {
+    soundManager.stopBGM();
     if (phaserGameInstance.current) {
       phaserGameInstance.current.destroy(true);
     }
@@ -296,6 +312,14 @@ export const GameContainer = ({
             {isPaused ? <Play size={18} color="var(--secondary-cyan)" /> : <Pause size={18} color="var(--secondary-cyan)" />}
           </button>
 
+          <button 
+            onClick={handleToggleMute} 
+            style={styles.iconBtn} 
+            title={isMuted ? "Unmute Audio & Music" : "Mute Audio & Music"}
+          >
+            {isMuted ? <VolumeX size={18} color="#EF4444" /> : <Volume2 size={18} color="var(--secondary-cyan)" />}
+          </button>
+
           {/* Dual Health & Shield Gauges */}
           <div style={styles.gaugesContainer}>
             {/* Health Bar */}
@@ -332,12 +356,16 @@ export const GameContainer = ({
           </div>
         </div>
 
-        {/* Center: Mission Objective Tracker */}
+        {/* Center: Mission Objective & Live Combat Timer */}
         <div style={styles.hudCenter}>
           <div className="font-heading text-glow-cyan" style={styles.missionTitle}>{mission.name}</div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
             <span className="badge badge-cyan" style={{ fontSize: '0.64rem', padding: '2px 8px' }}>
               WAVE {stats.currentWave} / {stats.maxWaves}
+            </span>
+            <span className="badge badge-gold" style={{ fontSize: '0.66rem', padding: '2px 8px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'monospace' }}>
+              <Timer size={11} color="var(--currency-gold)" />
+              {formatCombatTimer(stats.elapsedTime || 0)}
             </span>
             <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
               HOSTILE FLEET ENGAGEMENT
@@ -397,9 +425,61 @@ export const GameContainer = ({
       )}
 
       {/* ================= SCREEN 6: TOUCH JOYSTICK & ARCADE TRIGGER BUTTONS ================= */}
-      {/* Bottom-Left Touch Virtual Joystick indicator (Screen 6) */}
-      <div style={styles.screen6Joystick}>
-        <div style={styles.screen6JoystickInner} />
+      {/* Bottom-Left Tactical Bomb / Missile Launcher Button (Matching Reference Game) */}
+      <div style={{ position: 'absolute', bottom: '28px', left: '28px', zIndex: 40 }}>
+        <button
+          onClick={() => activateAbility('homing_missiles', 12)}
+          disabled={cooldowns['homing_missiles'] > 0}
+          style={{
+            width: '68px',
+            height: '68px',
+            borderRadius: '50%',
+            background: cooldowns['homing_missiles'] > 0 
+              ? 'radial-gradient(circle, #27272a 0%, #09090b 100%)' 
+              : 'radial-gradient(circle, #854d0e 0%, #451a03 60%, #1c1917 100%)',
+            border: cooldowns['homing_missiles'] > 0 ? '3px solid #52525b' : '3px solid #f59e0b',
+            boxShadow: cooldowns['homing_missiles'] > 0 ? 'none' : '0 0 22px rgba(245, 158, 11, 0.7), inset 0 0 10px rgba(251, 191, 36, 0.5)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: cooldowns['homing_missiles'] > 0 ? 'not-allowed' : 'pointer',
+            position: 'relative',
+            transition: 'all 0.2s ease',
+            outline: 'none'
+          }}
+          title="Tactical Missile Salvo (Key B / 3)"
+        >
+          <div style={{
+            position: 'absolute',
+            top: '-5px',
+            left: '-5px',
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            background: '#09090b',
+            border: '2px solid #f59e0b',
+            color: '#fef08a',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'monospace'
+          }}>
+            B
+          </div>
+          <Rocket size={24} color={cooldowns['homing_missiles'] > 0 ? '#71717a' : '#fef08a'} />
+          <span style={{
+            fontSize: '10px',
+            fontWeight: 'bold',
+            fontFamily: 'monospace',
+            color: cooldowns['homing_missiles'] > 0 ? '#ef4444' : '#fde047',
+            marginTop: '2px'
+          }}>
+            {cooldowns['homing_missiles'] > 0 ? `${cooldowns['homing_missiles']}s` : 'READY'}
+          </span>
+        </button>
       </div>
 
       {/* Bottom-Right Tactile Circular Arcade Ability Buttons (Screen 6) */}

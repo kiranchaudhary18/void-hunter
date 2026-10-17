@@ -23,6 +23,25 @@ export const MainMenuPage = ({ onNavigate }) => {
     }
   }, [isAuthenticated, onNavigate]);
 
+  // Ambient Sci-Fi Music on First User Gesture
+  React.useEffect(() => {
+    const handleFirstGesture = () => {
+      if (!soundManager.muted && !soundManager.bgmPlaying) {
+        soundManager.startBGM('menu');
+      }
+      window.removeEventListener('pointerdown', handleFirstGesture);
+      window.removeEventListener('keydown', handleFirstGesture);
+    };
+
+    window.addEventListener('pointerdown', handleFirstGesture, { once: true });
+    window.addEventListener('keydown', handleFirstGesture, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', handleFirstGesture);
+      window.removeEventListener('keydown', handleFirstGesture);
+    };
+  }, []);
+
   return (
     <div style={styles.mainWrapper}>
       {/* Dynamic Starry Space Backdrop */}

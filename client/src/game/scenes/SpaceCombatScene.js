@@ -39,6 +39,8 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.fireRate = 180; // ms between shots
     this.currentWave = 1;
     this.maxWaves = this.bossInfo ? 3 : 4; // Boss arrives on Wave 3!
+    this.isSpawningWave = true; // Prevent update loop from skipping to Wave 2 on startup
+    this.elapsedCombatSeconds = 0;
 
     // Active power-up buffs
     this.activeBuffs = {
@@ -126,8 +128,33 @@ export class SpaceCombatScene extends Phaser.Scene {
     // Player collects drops
     this.physics.add.overlap(this.pickups, this.player, this.handleCollectPickup, null, this);
 
-    // 6. Spawn Initial Wave
-    this.time.delayedCall(800, () => this.spawnWave(this.currentWave));
+    // Enemy Health Bars Graphics Layer (Rendered above damaged hostiles)
+    this.enemyHealthBars = this.add.graphics();
+    this.enemyHealthBars.setDepth(15);
+
+    // Initial Wave 1 Announcement
+    this.game.events.emit('wave-announcement', {
+      wave: 1,
+      maxWaves: this.maxWaves
+    });
+
+    // 6. Spawn Initial Wave (Wave 1 starts cleanly)
+    this.time.delayedCall(850, () => {
+      this.spawnWave(1);
+      this.isSpawningWave = false;
+    });
+
+    // Live Combat Mission Timer (Counts active seconds)
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        if (!this.isGameOver && !this.scene.isPaused()) {
+          this.elapsedCombatSeconds++;
+          this.emitStats();
+        }
+      },
+      loop: true
+    });
 
     // Shield passive regeneration every second if not damaged
     this.time.addEvent({
@@ -212,8 +239,28 @@ export class SpaceCombatScene extends Phaser.Scene {
       );
     }
 
-    // Auto-Targeting & Guidance for Homing Missiles
+    // Auto-Targeting & Guidance for Homing Missiles with Rocket Flare Particles
     this.homingMissiles.getChildren().forEach((missile) => {
+      // Dynamic rocket engine smoke and spark contrail
+      if (Math.random() < 0.65) {
+        const spark = this.add.circle(
+          missile.x + Phaser.Math.Between(-2, 2),
+          missile.y + 16,
+          Phaser.Math.Between(2, 3),
+          0xF97316,
+          0.85
+        );
+        spark.setDepth(8);
+        this.tweens.add({
+          targets: spark,
+          alpha: 0,
+          scale: 0.2,
+          y: spark.y + 12,
+          duration: 200,
+          onComplete: () => spark.destroy()
+        });
+      }
+
       let nearestEnemy = null;
       let minDist = 9999;
       this.enemies.getChildren().forEach((enemy) => {
@@ -227,22 +274,50 @@ export class SpaceCombatScene extends Phaser.Scene {
       });
 
       if (nearestEnemy) {
-        this.physics.moveToObject(missile, nearestEnemy, 650);
+        this.physics.moveToObject(missile, nearestEnemy, 680);
         const angle = Phaser.Math.Angle.Between(missile.x, missile.y, nearestEnemy.x, nearestEnemy.y);
         missile.setRotation(angle + Math.PI / 2);
       }
     });
 
-    // Magnetic Attraction for Floating Pickups (Section 13)
-    const magnetRadius = 160;
+    // High-Impact Magnetic Pull for Floating Pickups (Section 13)
+    const magnetRadius = 240;
     this.pickups.getChildren().forEach((pickup) => {
       if (pickup.active) {
         const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, pickup.x, pickup.y);
         if (dist < magnetRadius) {
-          this.physics.moveToObject(pickup, this.player, 360);
+          this.physics.moveToObject(pickup, this.player, 420);
         }
       }
     });
+
+    // Render Real-Time Enemy Health Bars Above Hostiles (Matching Reference Space Shooter)
+    if (this.enemyHealthBars) {
+      this.enemyHealthBars.clear();
+      this.enemies.getChildren().forEach((enemy) => {
+        const shouldShowBar = (enemy.hasTakenDamage || enemy.hp < enemy.maxHp || enemy.isElite || enemy.texture.key === 'enemy_cruiser');
+        if (enemy.active && shouldShowBar && enemy.hp > 0 && enemy.y > -20 && enemy.y < this.scale.height + 20) {
+          const barWidth = enemy.isBoss ? 96 : (enemy.isElite || enemy.texture.key === 'enemy_cruiser' ? 52 : 38);
+          const barHeight = 5;
+          const x = enemy.x - barWidth / 2;
+          const y = enemy.y - (enemy.displayHeight / 2) - 10;
+
+          // Outer dark frame with border
+          this.enemyHealthBars.fillStyle(0x060919, 0.95);
+          this.enemyHealthBars.fillRoundedRect(x - 1, y - 1, barWidth + 2, barHeight + 2, 2);
+
+          // Red health fill proportional to HP (matching reference screenshot)
+          const pct = Math.max(0, Math.min(1, enemy.hp / enemy.maxHp));
+          const fillColor = pct > 0.45 ? 0xEF4444 : 0xDC2626;
+          this.enemyHealthBars.fillStyle(fillColor, 1);
+          this.enemyHealthBars.fillRoundedRect(x, y, Math.max(2, barWidth * pct), barHeight, 1);
+
+          // Top highlight line for 3D arcade effect
+          this.enemyHealthBars.fillStyle(0xFCA5A5, 0.5);
+          this.enemyHealthBars.fillRect(x, y, Math.max(2, barWidth * pct), 1.5);
+        }
+      });
+    }
 
     // Off-screen enemy bounds checking & wrapping to prevent wave stalling
     this.enemies.getChildren().forEach((enemy) => {
@@ -677,6 +752,7 @@ export class SpaceCombatScene extends Phaser.Scene {
       return;
     }
 
+    enemy.hasTakenDamage = true;
     enemy.hp -= damage;
 
     // Flash hit
@@ -697,17 +773,36 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.enemiesKilled++;
     soundManager.playExplosion(enemy.texture.key === 'enemy_cruiser' || enemy.isElite);
 
-    // Guaranteed high-value drop from Elite
+    // Floating Arcade Score Text Popup
+    this.showFloatingText(enemy.x, enemy.y, `+${enemy.scoreValue}`, '#00E5FF');
+
+    // High Value Loot Drops Based on Enemy Tier
     if (enemy.isElite) {
       this.elitesKilled = (this.elitesKilled || 0) + 1;
-      const p = this.pickups.create(enemy.x, enemy.y, 'pickup_core');
-      p.pickupType = 'core';
-      p.pickupVal = 1;
-      p.setVelocityY(80);
-    }
+      const core = this.pickups.create(enemy.x, enemy.y, 'pickup_core');
+      core.pickupType = 'core';
+      core.pickupVal = 1;
+      core.setVelocityY(80);
 
-    // Chance to drop combat pickup (Credits, Core, Shield)
-    this.spawnPickup(enemy.x, enemy.y);
+      // Multiple coins for Elite kill
+      for (let i = 0; i < 3; i++) {
+        const p = this.pickups.create(enemy.x + (i - 1) * 16, enemy.y + Phaser.Math.Between(-10, 10), 'pickup_credit');
+        p.pickupType = 'credit';
+        p.pickupVal = Phaser.Math.Between(8, 15);
+        p.setVelocityY(85);
+      }
+    } else if (enemy.texture.key === 'enemy_cruiser') {
+      // 2-3 credit coins for Cruiser kill
+      for (let i = 0; i < 2; i++) {
+        const p = this.pickups.create(enemy.x + (i - 0.5) * 18, enemy.y, 'pickup_credit');
+        p.pickupType = 'credit';
+        p.pickupVal = Phaser.Math.Between(5, 12);
+        p.setVelocityY(90);
+      }
+    } else {
+      // 75% Drop Chance for standard enemies
+      this.spawnPickup(enemy.x, enemy.y);
+    }
 
     enemy.destroy();
     this.emitStats();
@@ -715,25 +810,46 @@ export class SpaceCombatScene extends Phaser.Scene {
 
   spawnPickup(x, y) {
     const roll = Math.random();
-    if (roll < 0.35) {
+    if (roll < 0.72) {
       // Credit coin
       const p = this.pickups.create(x, y, 'pickup_credit');
       p.pickupType = 'credit';
-      p.pickupVal = Phaser.Math.Between(2, 8);
+      p.pickupVal = Phaser.Math.Between(4, 12);
       p.setVelocityY(90);
-    } else if (roll < 0.45) {
+    } else if (roll < 0.84) {
       // Energy Core (Gems)
       const p = this.pickups.create(x, y, 'pickup_core');
       p.pickupType = 'core';
       p.pickupVal = 1;
       p.setVelocityY(80);
-    } else if (roll < 0.55) {
-      // Shield or health restore
+    } else if (roll < 0.95) {
+      // Shield restore
       const p = this.pickups.create(x, y, 'pickup_shield');
       p.pickupType = 'shield';
       p.pickupVal = 30;
       p.setVelocityY(85);
     }
+  }
+
+  // Floating Arcade Combat Text Popups (Score & Credits)
+  showFloatingText(x, y, text, color = '#FDE047') {
+    const popup = this.add.text(x, y, text, {
+      fontFamily: 'Orbitron, sans-serif',
+      fontSize: '13px',
+      fontStyle: 'bold',
+      color: color,
+      stroke: '#060919',
+      strokeThickness: 3
+    }).setOrigin(0.5).setDepth(30);
+
+    this.tweens.add({
+      targets: popup,
+      y: y - 36,
+      alpha: 0,
+      duration: 650,
+      ease: 'Power1',
+      onComplete: () => popup.destroy()
+    });
   }
 
   handleCollectPickup(player, pickup) {
@@ -742,10 +858,13 @@ export class SpaceCombatScene extends Phaser.Scene {
     if (pickup.pickupType === 'credit') {
       this.creditsCollected += pickup.pickupVal;
       this.score += pickup.pickupVal * 20;
+      this.showFloatingText(pickup.x, pickup.y, `+${pickup.pickupVal} CR`, '#FBBF24');
     } else if (pickup.pickupType === 'core') {
-      this.creditsCollected += 15;
+      this.creditsCollected += 25;
+      this.showFloatingText(pickup.x, pickup.y, `+CORE`, '#C084FC');
     } else if (pickup.pickupType === 'shield') {
       this.playerShield = Math.min(this.playerMaxShield, this.playerShield + pickup.pickupVal);
+      this.showFloatingText(pickup.x, pickup.y, `+SHIELD`, '#00E5FF');
     }
 
     pickup.destroy();
@@ -849,14 +968,45 @@ export class SpaceCombatScene extends Phaser.Scene {
   }
 
   handleMissileHitEnemy(missile, enemy) {
+    const blastX = missile.x;
+    const blastY = missile.y;
     missile.destroy();
-    soundManager.playExplosion(false);
+    soundManager.playExplosion(true);
+
+    // Shockwave Blast Ring Graphic
+    const shockwave = this.add.circle(blastX, blastY, 8, 0xF97316, 0.85);
+    shockwave.setDepth(20);
+    this.tweens.add({
+      targets: shockwave,
+      scale: 5,
+      alpha: 0,
+      duration: 320,
+      ease: 'Power2',
+      onComplete: () => shockwave.destroy()
+    });
+
+    this.cameras.main.shake(180, 0.02);
+
+    // Area-of-Effect Splash Damage (Splash 45 damage to all hostiles within 90px)
+    this.enemies.getChildren().forEach((other) => {
+      if (other.active && other !== enemy) {
+        const dist = Phaser.Math.Distance.Between(blastX, blastY, other.x, other.y);
+        if (dist < 90) {
+          other.hp -= 45;
+          other.setTint(0xF97316);
+          this.time.delayedCall(70, () => {
+            if (other.active) other.clearTint();
+          });
+          if (other.hp <= 0) this.destroyEnemy(other);
+        }
+      }
+    });
 
     if (enemy.isBoss) {
-      this.bossHp = Math.max(0, this.bossHp - 85);
+      this.bossHp = Math.max(0, this.bossHp - 95);
       enemy.hp = this.bossHp;
       enemy.setTint(0xF97316);
-      this.time.delayedCall(60, () => {
+      this.time.delayedCall(70, () => {
         if (enemy.active) enemy.clearTint();
       });
       this.emitStats();
@@ -866,9 +1016,9 @@ export class SpaceCombatScene extends Phaser.Scene {
       return;
     }
 
-    enemy.hp -= 85;
+    enemy.hp -= 95;
     enemy.setTint(0xF97316);
-    this.time.delayedCall(60, () => {
+    this.time.delayedCall(70, () => {
       if (enemy.active) enemy.clearTint();
     });
 
@@ -998,6 +1148,7 @@ export class SpaceCombatScene extends Phaser.Scene {
         enemiesKilled: this.enemiesKilled,
         currentWave: this.currentWave,
         maxWaves: this.maxWaves,
+        elapsedTime: this.elapsedCombatSeconds,
         boss: (this.bossActive && this.bossSprite && this.bossSprite.active) ? {
           name: this.bossInfo?.name || 'SECTOR BOSS',
           hp: this.bossHp,

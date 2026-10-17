@@ -9,7 +9,14 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
   const handleToggleMute = () => {
     const muted = soundManager.toggleMute();
     setIsMuted(muted);
-    if (!muted) soundManager.playPowerUp();
+    if (!muted) {
+      soundManager.playPowerUp();
+      if (!soundManager.bgmPlaying) {
+        soundManager.startBGM('menu');
+      }
+    } else {
+      soundManager.stopBGM();
+    }
   };
 
   const handleAction = (screenName) => {

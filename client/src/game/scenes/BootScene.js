@@ -240,22 +240,53 @@ export class BootScene extends Phaser.Scene {
       this.textures.addCanvas('ship_nova', canvas);
     }
 
-    // 2. Player Laser Bolt (Twin Cyan Energy)
+    // 2. Player Laser Bolt: High-Power Glowing Plasma Lance (Neon Emerald & Cyan)
     if (!this.textures.exists('player_laser')) {
       const canvas = document.createElement('canvas');
-      canvas.width = 10;
-      canvas.height = 24;
+      canvas.width = 14;
+      canvas.height = 36;
       const ctx = canvas.getContext('2d');
 
-      const grad = ctx.createLinearGradient(0, 0, 0, 24);
-      grad.addColorStop(0, '#FFFFFF');
-      grad.addColorStop(0.3, '#00E5FF');
-      grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+      // Outer Plasma Energy Aura
+      ctx.shadowColor = '#00FF88';
+      ctx.shadowBlur = 12;
 
-      ctx.fillStyle = grad;
-      ctx.shadowColor = '#00E5FF';
-      ctx.shadowBlur = 8;
-      ctx.fillRect(2, 0, 6, 24);
+      // Lance Outer Body
+      const outerGrad = ctx.createLinearGradient(0, 0, 0, 36);
+      outerGrad.addColorStop(0, '#FFFFFF');
+      outerGrad.addColorStop(0.2, '#00FF88');
+      outerGrad.addColorStop(0.6, '#00E5FF');
+      outerGrad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+
+      ctx.fillStyle = outerGrad;
+      ctx.beginPath();
+      ctx.moveTo(7, 0);       // Sharp forward tip
+      ctx.lineTo(13, 14);     // Right taper
+      ctx.lineTo(11, 32);     // Right body
+      ctx.lineTo(7, 36);      // Tail center
+      ctx.lineTo(3, 32);      // Left body
+      ctx.lineTo(1, 14);      // Left taper
+      ctx.closePath();
+      ctx.fill();
+
+      // Superheated White-Hot Core
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = '#FFFFFF';
+      const coreGrad = ctx.createLinearGradient(0, 2, 0, 28);
+      coreGrad.addColorStop(0, '#FFFFFF');
+      coreGrad.addColorStop(0.5, '#A7F3D0');
+      coreGrad.addColorStop(1, 'rgba(167, 243, 208, 0)');
+
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.moveTo(7, 2);
+      ctx.lineTo(10, 12);
+      ctx.lineTo(8, 26);
+      ctx.lineTo(7, 28);
+      ctx.lineTo(6, 26);
+      ctx.lineTo(4, 12);
+      ctx.closePath();
+      ctx.fill();
 
       this.textures.addCanvas('player_laser', canvas);
     }
@@ -449,25 +480,48 @@ export class BootScene extends Phaser.Scene {
       this.textures.addCanvas('enemy_bullet', canvas);
     }
 
-    // 7. Pickups: Credit Coin
+    // 7. Pickups: High-Tech Credit Coin (Glowing 3D Gold Coin)
     if (!this.textures.exists('pickup_credit')) {
       const canvas = document.createElement('canvas');
-      canvas.width = 24;
-      canvas.height = 24;
+      canvas.width = 28;
+      canvas.height = 28;
       const ctx = canvas.getContext('2d');
 
+      // Outer Gold Radiant Glow
       ctx.shadowColor = '#FBBF24';
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = '#FBBF24';
+      ctx.shadowBlur = 10;
+
+      // Outer Golden Rim
+      const rimGrad = ctx.createRadialGradient(14, 14, 6, 14, 14, 13);
+      rimGrad.addColorStop(0, '#FEF08A');
+      rimGrad.addColorStop(0.7, '#F59E0B');
+      rimGrad.addColorStop(1, '#B45309');
+
+      ctx.fillStyle = rimGrad;
       ctx.beginPath();
-      ctx.arc(12, 12, 9, 0, Math.PI * 2);
+      ctx.arc(14, 14, 12, 0, Math.PI * 2);
       ctx.fill();
 
+      // Inner Coin Plate
+      ctx.shadowBlur = 0;
       ctx.fillStyle = '#78350F';
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('C', 12, 13);
+      ctx.beginPath();
+      ctx.arc(14, 14, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Embossed Gold Star / Credit Symbol
+      ctx.fillStyle = '#FDE047';
+      ctx.beginPath();
+      ctx.moveTo(14, 7);
+      ctx.lineTo(16, 12);
+      ctx.lineTo(21, 14);
+      ctx.lineTo(16, 16);
+      ctx.lineTo(14, 21);
+      ctx.lineTo(12, 16);
+      ctx.lineTo(7, 14);
+      ctx.lineTo(12, 12);
+      ctx.closePath();
+      ctx.fill();
 
       this.textures.addCanvas('pickup_credit', canvas);
     }
@@ -527,34 +581,78 @@ export class BootScene extends Phaser.Scene {
       this.textures.addCanvas('spark', canvas);
     }
 
-    // 11. Homing Missile (Target Seeking Rocket)
+    // 11. Homing Missile (Heavy Sci-Fi Tactical Rocket with Thruster Flare)
     if (!this.textures.exists('homing_missile')) {
       const canvas = document.createElement('canvas');
-      canvas.width = 12;
-      canvas.height = 24;
+      canvas.width = 16;
+      canvas.height = 38;
       const ctx = canvas.getContext('2d');
 
-      ctx.fillStyle = '#FFFFFF';
+      // Glowing Rocket Booster Flare
       ctx.shadowColor = '#F97316';
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 10;
+
+      // Rocket Exhaust Plume
+      const exhaustGrad = ctx.createLinearGradient(0, 24, 0, 38);
+      exhaustGrad.addColorStop(0, '#FFFFFF');
+      exhaustGrad.addColorStop(0.3, '#FBBF24');
+      exhaustGrad.addColorStop(0.7, '#EA580C');
+      exhaustGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+
+      ctx.fillStyle = exhaustGrad;
       ctx.beginPath();
-      ctx.moveTo(6, 0);
-      ctx.lineTo(10, 8);
-      ctx.lineTo(10, 20);
-      ctx.lineTo(2, 20);
-      ctx.lineTo(2, 8);
+      ctx.moveTo(4, 25);
+      ctx.lineTo(8, 38);
+      ctx.lineTo(12, 25);
       ctx.closePath();
       ctx.fill();
 
-      // Orange Warhead & Fins
-      ctx.fillStyle = '#EA580C';
+      // Titanium Rocket Fuselage
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = '#000000';
+      const bodyGrad = ctx.createLinearGradient(0, 0, 16, 0);
+      bodyGrad.addColorStop(0, '#334155');
+      bodyGrad.addColorStop(0.5, '#CBD5E1');
+      bodyGrad.addColorStop(1, '#1E293B');
+
+      ctx.fillStyle = bodyGrad;
       ctx.beginPath();
-      ctx.moveTo(6, 0);
-      ctx.lineTo(10, 8);
-      ctx.lineTo(2, 8);
+      ctx.moveTo(8, 0);      // Warhead tip
+      ctx.lineTo(12, 9);     // Upper cone
+      ctx.lineTo(12, 25);    // Cylindrical body
+      ctx.lineTo(4, 25);
+      ctx.lineTo(4, 9);
       ctx.closePath();
       ctx.fill();
-      ctx.fillRect(0, 16, 12, 4);
+
+      // High-Explosive Warhead Tip (Crimson/Orange Plasma)
+      ctx.fillStyle = '#EF4444';
+      ctx.beginPath();
+      ctx.moveTo(8, 0);
+      ctx.lineTo(12, 9);
+      ctx.lineTo(4, 9);
+      ctx.closePath();
+      ctx.fill();
+
+      // Aerodynamic Stabilizer Swept Fins
+      ctx.fillStyle = '#B91C1C';
+      ctx.beginPath();
+      ctx.moveTo(4, 16);
+      ctx.lineTo(0, 26);
+      ctx.lineTo(4, 25);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(12, 16);
+      ctx.lineTo(16, 26);
+      ctx.lineTo(12, 25);
+      ctx.closePath();
+      ctx.fill();
+
+      // Core Navigation Sensor Dot
+      ctx.fillStyle = '#FDE047';
+      ctx.fillRect(7, 12, 2, 4);
 
       this.textures.addCanvas('homing_missile', canvas);
     }
