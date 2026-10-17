@@ -117,8 +117,19 @@ function MainAppContent() {
     if (refreshProfile) refreshProfile();
   };
 
-  // Screen 1: Cinematic Main Menu Landing
-  if (currentScreen === 'landing') {
+  // Protected Route Guards (Section 60)
+  const protectedScreens = ['dashboard', 'missions', 'hangar', 'wallet', 'quests', 'leaderboard', 'admin'];
+  if (!isAuthenticated && protectedScreens.includes(currentScreen)) {
+    return (
+      <AuthPage 
+        onBackToGame={() => setCurrentScreen('landing')} 
+        onAuthSuccess={() => setCurrentScreen('dashboard')} 
+      />
+    );
+  }
+
+  // Screen 1: Cinematic Main Menu Landing (Only for unauthenticated guests)
+  if (currentScreen === 'landing' && !isAuthenticated) {
     return (
       <MainMenuPage 
         onNavigate={(screen) => setCurrentScreen(screen)}
@@ -130,7 +141,7 @@ function MainAppContent() {
   if (currentScreen === 'auth') {
     return (
       <AuthPage 
-        onBackToGame={() => setCurrentScreen('dashboard')} 
+        onBackToGame={() => setCurrentScreen(isAuthenticated ? 'dashboard' : 'landing')} 
         onAuthSuccess={() => setCurrentScreen('dashboard')} 
       />
     );
@@ -219,8 +230,8 @@ function MainAppContent() {
         <div style={styles.navLeft}>
           <div 
             style={{ ...styles.logoGroup, cursor: 'pointer' }} 
-            onClick={() => setCurrentScreen('landing')}
-            title="Return to Main Menu"
+            onClick={() => setCurrentScreen(isAuthenticated ? 'dashboard' : 'landing')}
+            title={isAuthenticated ? "Command Deck Dashboard" : "Return to Main Menu"}
           >
             <img src="/favicon.svg" alt="Void Hunter Logo" style={styles.navLogo} />
             <div>
@@ -230,12 +241,14 @@ function MainAppContent() {
           </div>
 
           <div style={styles.navLinks}>
-            <button 
-              style={{ ...styles.navLink, ...(currentScreen === 'landing' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('landing')}
-            >
-              HOME
-            </button>
+            {!isAuthenticated && (
+              <button 
+                style={{ ...styles.navLink, ...(currentScreen === 'landing' ? styles.navLinkActive : {}) }}
+                onClick={() => setCurrentScreen('landing')}
+              >
+                HOME
+              </button>
+            )}
             <button 
               style={{ ...styles.navLink, ...(currentScreen === 'dashboard' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('dashboard')}
@@ -347,7 +360,7 @@ function MainAppContent() {
                   <div style={styles.pilotLevel}>LV. {profile.level || 1} {profile.pilotRank || 'Star Cadet'}</div>
                 </div>
                 <button 
-                  onClick={(e) => { e.stopPropagation(); logout(); }} 
+                  onClick={(e) => { e.stopPropagation(); logout(); setCurrentScreen('landing'); }} 
                   style={styles.logoutBtn} 
                   title="Logout Pilot"
                 >

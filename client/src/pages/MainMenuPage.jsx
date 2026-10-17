@@ -22,6 +22,13 @@ export const MainMenuPage = ({ onNavigate }) => {
     if (onNavigate) onNavigate(screenName);
   };
 
+  // If user is already authenticated, redirect straight to Command Deck
+  React.useEffect(() => {
+    if (isAuthenticated && onNavigate) {
+      onNavigate('dashboard');
+    }
+  }, [isAuthenticated, onNavigate]);
+
   return (
     <div style={styles.mainWrapper}>
       {/* Dynamic Starry Space Backdrop */}
