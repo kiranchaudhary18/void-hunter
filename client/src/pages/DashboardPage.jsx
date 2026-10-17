@@ -1,21 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
+import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
+import { MISSIONS_CATALOG } from '../data/missionsData.js';
 import { 
   Play, Compass, Shield, Award, ChevronRight, 
   Coins, Zap, Star, Flame, Trophy, Crosshair, 
-  CheckCircle2, Clock, Sparkles, ArrowRight
+  CheckCircle2, Clock, Sparkles, ArrowRight, RefreshCw
 } from 'lucide-react';
 
-export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip }) => {
-  const { user, profile } = useAuth();
+export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip: propSelectedShip }) => {
+  const { user, profile, refreshProfile } = useAuth();
+
+  // Real backend-driven state
+  const [activeShip, setActiveShip] = useState(null);
+  const [dailyQuests, setDailyQuests] = useState([]);
+  const [achievements, setAchievements] = useState([]);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   const handleNav = (screenName) => {
     soundManager.playLaser();
     if (onNavigate) onNavigate(screenName);
   };
 
-  const currentShipName = selectedShip?.name || profile?.selectedShipId?.toUpperCase() || 'V-01 ORBITRON';
   const completedCount = profile?.stats?.missionsCompleted || 0;
   const currentMissionNumber = Math.min(50, completedCount + 1);
 
@@ -29,6 +37,65 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
   };
 
   const activeSector = getSectorInfo(currentMissionNumber);
+
+  // Fetch real data: ships, daily quests, and wallet transactions
+  const fetchDashboardData = async () => {
+    setLoadingStats(true);
+    try {
+      // 1. Fetch real ship ownership and upgrades
+      const shipsRes = await api.get('/ships');
+      if (shipsRes.data?.success && shipsRes.data.ships) {
+        const equipped = shipsRes.data.ships.find((s) => s.isEquipped) || shipsRes.data.ships[0];
+        setActiveShip(equipped);
+      }
+
+      // 2. Fetch real daily quests and achievements
+      const questsRes = await api.get('/quests');
+      if (questsRes.data?.success) {
+        setDailyQuests(questsRes.data.dailyQuests || []);
+        setAchievements(questsRes.data.achievements || []);
+      }
+
+      // 3. Fetch real recent wallet ledger transactions
+      const ledgerRes = await api.get('/wallet/ledger?limit=3');
+      if (ledgerRes.data?.success && ledgerRes.data.transactions) {
+        setRecentTransactions(ledgerRes.data.transactions.slice(0, 3));
+      }
+    } catch (err) {
+      console.warn('Dashboard real-time data sync error:', err.message);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [profile?.selectedShipId, profile?.credits]);
+
+  // Compute live ship stats from real upgrades
+  const baseStats = activeShip?.baseStats || { firepower: 78, shield: 64, speed: 82, maneuver: 76 };
+  const upgrades = activeShip?.upgrades || { weapon: 1, shield: 1, engine: 1, special: 1 };
+
+  const liveFirepower = Math.min(100, (baseStats.firepower || 78) + ((upgrades.weapon || 1) - 1) * 6);
+  const liveShield = Math.min(100, (baseStats.shield || 64) + ((upgrades.shield || 1) - 1) * 6);
+  const liveSpeed = Math.min(100, (baseStats.speed || 82) + ((upgrades.engine || 1) - 1) * 4);
+  const liveManeuver = Math.min(100, (baseStats.maneuver || 76) + ((upgrades.special || 1) - 1) * 4);
+
+  const currentShipName = activeShip?.name ? `${activeShip.code || 'V-01'} ${activeShip.name}` : (profile?.selectedShipId?.toUpperCase() || 'V-01 ORBITRON');
+  const currentShipClass = activeShip?.classType ? `${activeShip.classType} • ${activeShip.tagline || 'Combat Ready'}` : 'Balanced Fighter • All-Rounder';
+
+  // Compute 3 upcoming sequential missions from real MISSIONS_CATALOG
+  const upcomingMissions = MISSIONS_CATALOG.filter(
+    (m) => m.globalSequence >= currentMissionNumber
+  ).slice(0, 3);
+
+  // If at mission 50, show the final 3 missions
+  const displayedMissions = upcomingMissions.length > 0 
+    ? upcomingMissions 
+    : MISSIONS_CATALOG.slice(-3);
+
+  // Real unlocked achievements count
+  const unlockedAchievementsCount = achievements.filter((a) => a.isUnlocked).length;
 
   return (
     <div style={styles.container}>
@@ -84,7 +151,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
               <h2 className="font-heading text-glow-cyan" style={styles.shipName}>
                 {currentShipName}
               </h2>
-              <span style={styles.shipClass}>Balanced Fighter • All-Rounder</span>
+              <span style={styles.shipClass}>{currentShipClass}</span>
             </div>
             <button
               onClick={() => handleNav('hangar')}
@@ -110,38 +177,38 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
             </div>
           </div>
 
-          {/* 4 Stat Tracks */}
+          {/* 4 Stat Tracks - Powered by Real Module Upgrades */}
           <div style={styles.shipStatsList}>
             <div style={styles.statRow}>
-              <span style={styles.statLabel}>FIREPOWER</span>
+              <span style={styles.statLabel}>FIREPOWER (LVL {upgrades.weapon || 1})</span>
               <div style={styles.statBarTrack}>
-                <div style={{ ...styles.statBarFill, width: '78%', background: 'linear-gradient(90deg, #6D28D9, #A855F7)' }} />
+                <div style={{ ...styles.statBarFill, width: `${liveFirepower}%`, background: 'linear-gradient(90deg, #6D28D9, #A855F7)' }} />
               </div>
-              <span style={styles.statVal}>78</span>
+              <span style={styles.statVal}>{liveFirepower}</span>
             </div>
 
             <div style={styles.statRow}>
-              <span style={styles.statLabel}>SHIELD</span>
+              <span style={styles.statLabel}>SHIELD (LVL {upgrades.shield || 1})</span>
               <div style={styles.statBarTrack}>
-                <div style={{ ...styles.statBarFill, width: '64%', background: 'linear-gradient(90deg, #0099FF, #00E5FF)' }} />
+                <div style={{ ...styles.statBarFill, width: `${liveShield}%`, background: 'linear-gradient(90deg, #0099FF, #00E5FF)' }} />
               </div>
-              <span style={styles.statVal}>64</span>
+              <span style={styles.statVal}>{liveShield}</span>
             </div>
 
             <div style={styles.statRow}>
-              <span style={styles.statLabel}>SPEED</span>
+              <span style={styles.statLabel}>SPEED (LVL {upgrades.engine || 1})</span>
               <div style={styles.statBarTrack}>
-                <div style={{ ...styles.statBarFill, width: '82%', background: 'linear-gradient(90deg, #D97706, #FBBF24)' }} />
+                <div style={{ ...styles.statBarFill, width: `${liveSpeed}%`, background: 'linear-gradient(90deg, #D97706, #FBBF24)' }} />
               </div>
-              <span style={styles.statVal}>82</span>
+              <span style={styles.statVal}>{liveSpeed}</span>
             </div>
 
             <div style={styles.statRow}>
-              <span style={styles.statLabel}>MANEUVER</span>
+              <span style={styles.statLabel}>MANEUVER (LVL {upgrades.special || 1})</span>
               <div style={styles.statBarTrack}>
-                <div style={{ ...styles.statBarFill, width: '76%', background: 'linear-gradient(90deg, #059669, #10B981)' }} />
+                <div style={{ ...styles.statBarFill, width: `${liveManeuver}%`, background: 'linear-gradient(90deg, #059669, #10B981)' }} />
               </div>
-              <span style={styles.statVal}>76</span>
+              <span style={styles.statVal}>{liveManeuver}</span>
             </div>
           </div>
         </div>
@@ -149,7 +216,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
 
       {/* ================= BOTTOM SECTION: 3 PANELS ================= */}
       <div style={styles.bottomGrid}>
-        {/* PANEL 1: UPCOMING MISSIONS */}
+        {/* PANEL 1: UPCOMING MISSIONS (Real Data-Driven Catalog) */}
         <div style={styles.panelCard} className="glass-panel cyber-box">
           <div style={styles.panelHeader}>
             <span className="font-heading" style={styles.panelTitle}>UPCOMING MISSIONS</span>
@@ -157,11 +224,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
           </div>
 
           <div style={styles.missionsList}>
-            {[
-              { id: currentMissionNumber, name: `Mission ${String(currentMissionNumber).padStart(2, '0')}`, type: 'Recon Patrol', reward: 300 },
-              { id: currentMissionNumber + 1, name: `Mission ${String(currentMissionNumber + 1).padStart(2, '0')}`, type: 'Space Minefield', reward: 350 },
-              { id: currentMissionNumber + 2, name: `Mission ${String(currentMissionNumber + 2).padStart(2, '0')}`, type: 'Elite Squadron', reward: 400 }
-            ].map((m) => (
+            {displayedMissions.map((m) => (
               <div 
                 key={m.id} 
                 style={styles.missionItem} 
@@ -173,15 +236,19 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
                     <Crosshair size={14} color="var(--secondary-cyan)" />
                   </div>
                   <div>
-                    <div className="font-heading" style={styles.missionItemTitle}>{m.name}</div>
-                    <div style={styles.missionItemSub}>{m.type}</div>
+                    <div className="font-heading" style={styles.missionItemTitle}>
+                      {m.name || `MISSION ${String(m.globalSequence).padStart(2, '0')}`}
+                    </div>
+                    <div style={styles.missionItemSub}>
+                      {m.sectorName || 'Nebula Outpost'} • {m.objectiveType?.replace('_', ' ').toUpperCase() || 'COMBAT'}
+                    </div>
                   </div>
                 </div>
 
                 <div style={styles.missionItemRight}>
                   <div style={styles.rewardTag}>
                     <Coins size={12} color="var(--currency-gold)" />
-                    <span>+{m.reward}</span>
+                    <span>+{m.rewards?.credits || 100}</span>
                   </div>
                   <div style={styles.arrowIcon}>
                     <ChevronRight size={14} />
@@ -192,7 +259,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
           </div>
         </div>
 
-        {/* PANEL 2: DAILY MISSIONS & ACHIEVEMENTS */}
+        {/* PANEL 2: DAILY MISSIONS & ACHIEVEMENTS (Real User Quests) */}
         <div style={styles.panelCard} className="glass-panel cyber-box">
           <div style={styles.panelHeader}>
             <span className="font-heading" style={styles.panelTitle}>DAILY MISSIONS</span>
@@ -200,63 +267,67 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
           </div>
 
           <div style={styles.dailyTasksList}>
-            {/* Task 1 */}
-            <div style={styles.taskItem}>
-              <div style={styles.taskItemHeader}>
-                <span style={styles.taskName}>Destroy 50 enemies</span>
-                <span style={styles.taskReward}>+200 <Coins size={11} color="var(--currency-gold)" style={{ verticalAlign: 'middle' }} /></span>
-              </div>
-              <div style={styles.taskProgressRow}>
-                <div style={styles.taskBarTrack}>
-                  <div style={{ ...styles.taskBarFill, width: '64%', background: 'linear-gradient(90deg, #00E5FF, #0099FF)' }} />
-                </div>
-                <span style={styles.taskProgressText}>32 / 50</span>
-              </div>
-            </div>
-
-            {/* Task 2 */}
-            <div style={styles.taskItem}>
-              <div style={styles.taskItemHeader}>
-                <span style={styles.taskName}>Collect 5 power-ups</span>
-                <span style={styles.taskReward}>+100 <Coins size={11} color="var(--currency-gold)" style={{ verticalAlign: 'middle' }} /></span>
-              </div>
-              <div style={styles.taskProgressRow}>
-                <div style={styles.taskBarTrack}>
-                  <div style={{ ...styles.taskBarFill, width: '40%', background: 'linear-gradient(90deg, #A855F7, #C084FC)' }} />
-                </div>
-                <span style={styles.taskProgressText}>2 / 5</span>
-              </div>
-            </div>
-
-            {/* Task 3 */}
-            <div style={styles.taskItem}>
-              <div style={styles.taskItemHeader}>
-                <span style={styles.taskName}>Complete 1 campaign mission</span>
-                <span style={styles.taskReward}>+150 <Coins size={11} color="var(--currency-gold)" style={{ verticalAlign: 'middle' }} /></span>
-              </div>
-              <div style={styles.taskProgressRow}>
-                <div style={styles.taskBarTrack}>
-                  <div style={{ ...styles.taskBarFill, width: '0%', background: 'linear-gradient(90deg, #10B981, #059669)' }} />
-                </div>
-                <span style={styles.taskProgressText}>0 / 1</span>
-              </div>
-            </div>
+            {dailyQuests.length === 0 ? (
+              <div style={styles.emptyNotice}>Loading active daily mission telemetry...</div>
+            ) : (
+              dailyQuests.slice(0, 3).map((q) => {
+                const pct = Math.min(100, Math.round(((q.progress || 0) / (q.target || 1)) * 100));
+                return (
+                  <div key={q.id} style={styles.taskItem}>
+                    <div style={styles.taskItemHeader}>
+                      <span style={styles.taskName}>{q.title}</span>
+                      <span style={styles.taskReward}>
+                        +{q.rewardCredits || 100}{' '}
+                        <Coins size={11} color="var(--currency-gold)" style={{ verticalAlign: 'middle' }} />
+                      </span>
+                    </div>
+                    <div style={styles.taskProgressRow}>
+                      <div style={styles.taskBarTrack}>
+                        <div 
+                          style={{ 
+                            ...styles.taskBarFill, 
+                            width: `${pct}%`, 
+                            background: q.isClaimed 
+                              ? 'var(--status-green)' 
+                              : 'linear-gradient(90deg, #00E5FF, #0099FF)' 
+                          }} 
+                        />
+                      </div>
+                      <span style={styles.taskProgressText}>
+                        {q.isClaimed ? 'CLAIMED' : `${q.progress || 0} / ${q.target}`}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
 
-          {/* Achievement Badges Row */}
+          {/* Achievement Badges Row (Live Unlocks) */}
           <div style={styles.achievementRow}>
-            <span style={styles.achieveLabel}>ACHIEVEMENT PROGRESS</span>
+            <span style={styles.achieveLabel}>
+              ACHIEVEMENTS ({unlockedAchievementsCount} / {achievements.length || 10})
+            </span>
             <div style={styles.badgeIconsGroup}>
-              {['First Blood', 'Sharp Shooter', 'Survivor', 'Explorer', 'Legend'].map((name, i) => (
-                <div key={name} style={styles.achieveBadgeIcon} title={name}>
-                  <Award size={14} color={i < 2 ? 'var(--secondary-cyan)' : 'var(--text-muted)'} />
+              {achievements.slice(0, 5).map((a) => (
+                <div 
+                  key={a.id} 
+                  style={{
+                    ...styles.achieveBadgeIcon,
+                    background: a.isUnlocked ? 'rgba(0, 229, 255, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                    borderColor: a.isUnlocked ? 'var(--secondary-cyan)' : 'rgba(255, 255, 255, 0.08)'
+                  }} 
+                  title={`${a.title} - ${a.description} (${a.isUnlocked ? 'UNLOCKED' : 'LOCKED'})`}
+                  onClick={() => handleNav('quests')}
+                >
+                  <Award size={14} color={a.isUnlocked ? 'var(--secondary-cyan)' : 'var(--text-muted)'} />
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* PANEL 3: RECENT REWARDS & LEDGER */}
+        {/* PANEL 3: RECENT REWARDS & LEDGER (Real Transactions) */}
         <div style={styles.panelCard} className="glass-panel cyber-box">
           <div style={styles.panelHeader}>
             <span className="font-heading" style={styles.panelTitle}>RECENT REWARDS</span>
@@ -264,49 +335,39 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
           </div>
 
           <div style={styles.rewardsFeed}>
-            <div style={styles.rewardFeedItem} className="glass-card">
-              <div style={styles.feedIconBoxGold}>
-                <Coins size={14} color="var(--currency-gold)" />
+            {recentTransactions.length === 0 ? (
+              <div style={styles.emptyNotice}>
+                No wallet transactions recorded yet. Complete sorties or claim daily supplies to earn rewards.
               </div>
-              <div style={styles.feedInfo}>
-                <div style={styles.feedTitle}>Mission Completed</div>
-                <div style={styles.feedSub}>Sector Sortie Cleared</div>
-              </div>
-              <span className="font-heading text-glow-gold" style={styles.feedAmountGold}>+350 CREDITS</span>
-            </div>
-
-            <div style={styles.rewardFeedItem} className="glass-card">
-              <div style={styles.feedIconBoxPurple}>
-                <Zap size={14} color="#C084FC" />
-              </div>
-              <div style={styles.feedInfo}>
-                <div style={styles.feedTitle}>Daily Mission Reward</div>
-                <div style={styles.feedSub}>Hostile Recon Routine</div>
-              </div>
-              <span className="font-heading text-glow-purple" style={styles.feedAmountPurple}>+50 CREDITS</span>
-            </div>
-
-            <div style={styles.rewardFeedItem} className="glass-card">
-              <div style={styles.feedIconBoxCyan}>
-                <Trophy size={14} color="var(--secondary-cyan)" />
-              </div>
-              <div style={styles.feedInfo}>
-                <div style={styles.feedTitle}>Achievement Unlocked</div>
-                <div style={styles.feedSub}>Sharp Shooter Pilot</div>
-              </div>
-              <span className="font-heading text-glow-cyan" style={styles.feedAmountCyan}>+5 GEMS</span>
-            </div>
-
-            <div style={styles.rewardFeedItem} className="glass-card">
-              <div style={styles.feedIconBoxGold}>
-                <Star size={14} color="var(--currency-gold)" fill="var(--currency-gold)" />
-              </div>
-              <div style={styles.feedInfo}>
-                <div style={styles.feedTitle}>Star Hunter Badge</div>
-                <div style={styles.feedSub}>3 Stars Secured</div>
-              </div>
-              <span className="font-heading text-glow-gold" style={styles.feedAmountGold}>BADGE UNLOCKED</span>
-            </div>
+            ) : (
+              recentTransactions.map((tx) => {
+                const isCredit = tx.transactionType === 'CREDIT';
+                return (
+                  <div key={tx._id} style={styles.rewardFeedItem} className="glass-card" onClick={() => handleNav('wallet')}>
+                    <div style={isCredit ? styles.feedIconBoxGold : styles.feedIconBoxPurple}>
+                      {tx.currencyType === 'ENERGY_CORES' ? (
+                        <Zap size={14} color="#C084FC" />
+                      ) : (
+                        <Coins size={14} color={isCredit ? 'var(--currency-gold)' : '#EF4444'} />
+                      )}
+                    </div>
+                    <div style={styles.feedInfo}>
+                      <div style={styles.feedTitle}>{tx.description || tx.source || 'Wallet Adjustment'}</div>
+                      <div style={styles.feedSub}>{new Date(tx.createdAt).toLocaleTimeString()}</div>
+                    </div>
+                    <span 
+                      className="font-heading" 
+                      style={{
+                        ...(isCredit ? styles.feedAmountGold : styles.feedAmountPurple),
+                        color: isCredit ? 'var(--currency-gold)' : '#EF4444'
+                      }}
+                    >
+                      {isCredit ? `+${tx.amount}` : `-${tx.amount}`} {tx.currencyType}
+                    </span>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
@@ -327,101 +388,105 @@ const styles = {
   topGrid: {
     display: 'grid',
     gridTemplateColumns: '1.45fr 1fr',
-    gap: '24px'
+    gap: '20px',
+    alignItems: 'stretch'
   },
   journeyCard: {
-    padding: '28px 32px',
+    padding: '32px 36px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    minHeight: '280px',
-    background: 'radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.12) 0%, rgba(10, 16, 42, 0.9) 75%)',
-    borderColor: 'rgba(0, 229, 255, 0.3)',
-    boxShadow: '0 0 30px rgba(0, 229, 255, 0.12)'
+    minHeight: '320px',
+    background: 'radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.12) 0%, rgba(8, 12, 32, 0.95) 70%)',
+    position: 'relative',
+    overflow: 'hidden'
   },
   journeyHeader: {
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   missionProgressTag: {
-    fontSize: '0.72rem',
-    color: 'var(--text-muted)',
     fontFamily: 'var(--font-heading)',
+    fontSize: '0.82rem',
+    color: 'var(--text-muted)',
     letterSpacing: '0.08em'
   },
   journeyBody: {
-    margin: '18px 0'
+    margin: '20px 0'
   },
   sectorSubTitle: {
-    fontSize: '0.85rem',
+    fontSize: '0.88rem',
     color: 'var(--secondary-cyan)',
     letterSpacing: '0.12em',
-    marginBottom: '4px'
+    marginBottom: '6px'
   },
   sectorTitle: {
-    fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
-    letterSpacing: '0.08em',
+    fontSize: '2.4rem',
+    fontWeight: '900',
+    letterSpacing: '0.06em',
     lineHeight: 1.1,
-    marginBottom: '10px'
+    marginBottom: '12px'
   },
   sectorDesc: {
-    fontSize: '0.88rem',
+    fontSize: '0.92rem',
     color: 'var(--text-muted)',
-    lineHeight: 1.6,
+    lineHeight: 1.5,
     maxWidth: '540px'
   },
   journeyFooter: {
     display: 'flex',
+    alignItems: 'center',
     gap: '14px',
-    alignItems: 'center'
+    marginTop: '12px'
   },
   continueBtn: {
     padding: '14px 28px',
-    fontSize: '0.92rem'
+    fontSize: '0.92rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
   },
   sectorMapBtn: {
     padding: '14px 22px',
-    fontSize: '0.88rem',
+    fontSize: '0.92rem',
     display: 'flex',
     alignItems: 'center',
     gap: '8px'
   },
   currentShipCard: {
-    padding: '24px',
+    padding: '24px 28px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    background: 'radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.15) 0%, rgba(10, 16, 42, 0.9) 80%)',
-    borderColor: 'rgba(124, 58, 237, 0.35)',
-    boxShadow: '0 0 30px rgba(124, 58, 237, 0.12)'
+    background: 'radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.15) 0%, rgba(8, 12, 32, 0.95) 75%)',
+    position: 'relative',
+    overflow: 'hidden'
   },
   shipCardHeader: {
     display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'flex-start'
   },
   shipName: {
-    fontSize: '1.25rem',
-    letterSpacing: '0.08em',
-    marginTop: '6px'
+    fontSize: '1.35rem',
+    marginTop: '4px',
+    letterSpacing: '0.06em'
   },
   shipClass: {
-    fontSize: '0.65rem',
-    color: 'var(--text-muted)',
-    display: 'block',
-    marginTop: '2px'
+    fontSize: '0.72rem',
+    color: 'var(--text-muted)'
   },
   goToHangarBtn: {
     padding: '6px 12px',
-    fontSize: '0.72rem',
+    fontSize: '0.74rem',
     display: 'flex',
     alignItems: 'center',
     gap: '4px'
   },
   shipPreviewContainer: {
     position: 'relative',
-    height: '120px',
+    height: '140px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -429,22 +494,21 @@ const styles = {
   },
   holoRing: {
     position: 'absolute',
-    width: '130px',
+    width: '160px',
     height: '40px',
     borderRadius: '50%',
-    border: '1.5px solid rgba(0, 229, 255, 0.4)',
-    boxShadow: '0 0 20px rgba(0, 229, 255, 0.3)',
-    bottom: '10px'
+    border: '1.5px solid rgba(0, 229, 255, 0.35)',
+    boxShadow: '0 0 20px rgba(0, 229, 255, 0.25)',
+    transform: 'rotateX(65deg)',
+    bottom: '15px'
   },
   shipWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+    zIndex: 2
   },
   shipStatsList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px'
+    gap: '8px'
   },
   statRow: {
     display: 'flex',
@@ -452,17 +516,17 @@ const styles = {
     gap: '10px'
   },
   statLabel: {
-    fontSize: '0.65rem',
-    fontFamily: 'var(--font-heading)',
+    width: '130px',
+    fontSize: '0.68rem',
     color: 'var(--text-muted)',
-    width: '75px',
-    letterSpacing: '0.06em'
+    fontFamily: 'var(--font-heading)',
+    letterSpacing: '0.05em'
   },
   statBarTrack: {
     flex: 1,
     height: '6px',
-    borderRadius: '3px',
     background: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: '3px',
     overflow: 'hidden'
   },
   statBarFill: {
@@ -471,46 +535,45 @@ const styles = {
     transition: 'width 0.4s ease'
   },
   statVal: {
-    fontSize: '0.72rem',
-    fontFamily: 'var(--font-ui)',
+    width: '28px',
+    fontSize: '0.74rem',
     fontWeight: '700',
     color: 'var(--text-light)',
-    width: '24px',
     textAlign: 'right'
   },
   bottomGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '24px'
+    gap: '20px'
   },
   panelCard: {
-    padding: '22px',
+    padding: '22px 24px',
     display: 'flex',
     flexDirection: 'column',
+    gap: '16px',
     minHeight: '280px',
-    background: 'rgba(10, 16, 42, 0.85)'
+    background: 'rgba(8, 12, 32, 0.92)'
   },
   panelHeader: {
     display: 'flex',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: '12px',
+    alignItems: 'center',
     borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-    marginBottom: '14px'
+    paddingBottom: '10px'
   },
   panelTitle: {
-    fontSize: '0.85rem',
-    color: 'var(--text-light)',
-    letterSpacing: '0.08em'
+    fontSize: '0.84rem',
+    letterSpacing: '0.08em',
+    color: 'var(--text-light)'
   },
   panelLink: {
-    fontSize: '0.68rem',
-    color: 'var(--secondary-cyan)',
-    background: 'transparent',
+    background: 'none',
     border: 'none',
-    cursor: 'pointer',
+    color: 'var(--secondary-cyan)',
+    fontSize: '0.72rem',
     fontFamily: 'var(--font-heading)',
-    letterSpacing: '0.06em'
+    cursor: 'pointer',
+    padding: '2px 4px'
   },
   missionsList: {
     display: 'flex',
@@ -518,12 +581,14 @@ const styles = {
     gap: '10px'
   },
   missionItem: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     padding: '12px 14px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     cursor: 'pointer',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
+    borderRadius: '8px',
+    border: '1px solid rgba(255, 255, 255, 0.06)'
   },
   missionItemLeft: {
     display: 'flex',
@@ -535,35 +600,30 @@ const styles = {
     height: '28px',
     borderRadius: '6px',
     background: 'rgba(0, 229, 255, 0.1)',
-    border: '1px solid rgba(0, 229, 255, 0.3)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
   },
   missionItemTitle: {
-    fontSize: '0.8rem',
+    fontSize: '0.82rem',
     color: 'var(--text-light)'
   },
   missionItemSub: {
-    fontSize: '0.65rem',
+    fontSize: '0.68rem',
     color: 'var(--text-muted)'
   },
   missionItemRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: '10px'
   },
   rewardTag: {
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
-    fontSize: '0.72rem',
+    fontSize: '0.74rem',
     color: 'var(--currency-gold)',
-    fontFamily: 'var(--font-heading)',
-    background: 'rgba(251, 191, 36, 0.1)',
-    border: '1px solid rgba(251, 191, 36, 0.3)',
-    padding: '3px 8px',
-    borderRadius: '12px'
+    fontWeight: '700'
   },
   arrowIcon: {
     color: 'var(--text-muted)'
@@ -582,15 +642,16 @@ const styles = {
   taskItemHeader: {
     display: 'flex',
     justifyContent: 'space-between',
-    fontSize: '0.74rem'
+    alignItems: 'center',
+    fontSize: '0.78rem'
   },
   taskName: {
     color: 'var(--text-light)'
   },
   taskReward: {
     color: 'var(--currency-gold)',
-    fontSize: '0.72rem',
-    fontFamily: 'var(--font-heading)'
+    fontWeight: '700',
+    fontSize: '0.74rem'
   },
   taskProgressRow: {
     display: 'flex',
@@ -600,115 +661,109 @@ const styles = {
   taskBarTrack: {
     flex: 1,
     height: '6px',
-    borderRadius: '3px',
     background: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: '3px',
     overflow: 'hidden'
   },
   taskBarFill: {
     height: '100%',
     borderRadius: '3px',
-    transition: 'width 0.4s ease'
+    transition: 'width 0.3s ease'
   },
   taskProgressText: {
-    fontSize: '0.65rem',
+    fontSize: '0.7rem',
     color: 'var(--text-muted)',
-    width: '38px',
+    minWidth: '45px',
     textAlign: 'right'
   },
   achievementRow: {
-    marginTop: '14px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTop: '1px solid rgba(255, 255, 255, 0.06)',
     paddingTop: '12px',
-    borderTop: '1px solid rgba(255, 255, 255, 0.06)'
+    marginTop: 'auto'
   },
   achieveLabel: {
-    fontSize: '0.62rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.08em',
+    fontSize: '0.68rem',
     fontFamily: 'var(--font-heading)',
-    display: 'block',
-    marginBottom: '8px'
+    letterSpacing: '0.06em',
+    color: 'var(--text-muted)'
   },
   badgeIconsGroup: {
     display: 'flex',
-    gap: '8px'
+    gap: '6px'
   },
   achieveBadgeIcon: {
-    width: '28px',
-    height: '28px',
+    width: '26px',
+    height: '26px',
     borderRadius: '6px',
-    background: 'rgba(255, 255, 255, 0.04)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    border: '1px solid',
+    cursor: 'pointer',
+    transition: 'transform 0.15s ease'
   },
   rewardsFeed: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px'
+    gap: '10px'
   },
   rewardFeedItem: {
+    padding: '12px 14px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '8px 12px'
+    gap: '12px',
+    borderRadius: '8px',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
   },
   feedIconBoxGold: {
-    width: '26px',
-    height: '26px',
+    width: '28px',
+    height: '28px',
     borderRadius: '6px',
-    background: 'rgba(251, 191, 36, 0.12)',
-    border: '1px solid rgba(251, 191, 36, 0.3)',
+    background: 'rgba(251, 191, 36, 0.15)',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: '8px'
+    justifyContent: 'center'
   },
   feedIconBoxPurple: {
-    width: '26px',
-    height: '26px',
+    width: '28px',
+    height: '28px',
     borderRadius: '6px',
-    background: 'rgba(168, 85, 247, 0.12)',
-    border: '1px solid rgba(168, 85, 247, 0.3)',
+    background: 'rgba(168, 85, 247, 0.15)',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: '8px'
-  },
-  feedIconBoxCyan: {
-    width: '26px',
-    height: '26px',
-    borderRadius: '6px',
-    background: 'rgba(0, 229, 255, 0.12)',
-    border: '1px solid rgba(0, 229, 255, 0.3)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: '8px'
+    justifyContent: 'center'
   },
   feedInfo: {
     flex: 1
   },
   feedTitle: {
-    fontSize: '0.72rem',
+    fontSize: '0.8rem',
     color: 'var(--text-light)',
     fontWeight: '600'
   },
   feedSub: {
-    fontSize: '0.58rem',
+    fontSize: '0.68rem',
     color: 'var(--text-muted)'
   },
   feedAmountGold: {
-    fontSize: '0.68rem',
-    color: 'var(--currency-gold)'
+    fontSize: '0.8rem',
+    fontWeight: '700'
   },
   feedAmountPurple: {
-    fontSize: '0.68rem',
-    color: '#C084FC'
+    fontSize: '0.8rem',
+    fontWeight: '700'
   },
-  feedAmountCyan: {
-    fontSize: '0.68rem',
-    color: 'var(--secondary-cyan)'
+  emptyNotice: {
+    padding: '24px 10px',
+    textAlign: 'center',
+    fontSize: '0.78rem',
+    color: 'var(--text-muted)',
+    lineHeight: '1.4'
   }
 };
 
