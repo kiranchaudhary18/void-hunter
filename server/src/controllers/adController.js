@@ -1,96 +1,45 @@
 import RewardedAdSession from '../models/RewardedAdSession.js';
-import PlayerProfile from '../models/PlayerProfile.js';
-import WalletTransaction from '../models/WalletTransaction.js';
-import { v4 as uuidv4 } from 'uuid';
+import rewardedAdService from '../services/ads/rewardedAdService.js';
+import { getAdProviderAdapter } from '../services/ads/adProviderAdapter.js';
 
 /**
- * @desc    Check eligibility and initialize a 9-state Rewarded Ad session
+ * @desc    Get current ad provider configuration & simulation status (Section 48)
+ * @route   GET /api/ads/provider
+ * @access  Public
+ */
+export const getProviderInfo = (req, res) => {
+  const adapter = getAdProviderAdapter();
+  return res.status(200).json({
+    success: true,
+    ...adapter.getProviderInfo()
+  });
+};
+
+/**
+ * @desc    Check eligibility and initialize a 9-state Rewarded Ad session (Sections 40-50)
  * @route   POST /api/ads/offer
  * @access  Private
  */
 export const offerAd = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { placement, expectedReward } = req.body;
+    const { placement, expectedReward, gameSessionId, missionId } = req.body;
 
-    if (!['REVIVE', 'DOUBLE_CREDITS', 'DOUBLE_SCORE', 'POWER_UP', 'DAILY_BONUS', 'DAILY_SUPPLY', 'ENERGY_BOOST'].includes(placement)) {
-      return res.status(400).json({ success: false, message: 'Invalid ad placement identifier' });
-    }
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    // Section 35: Daily Cap Validation (Max 10 total ads per day)
-    const adsTodayCount = await RewardedAdSession.countDocuments({
-      user: userId,
-      status: 'GRANTED',
-      createdAt: { $gte: todayStart }
-    });
-
-    if (adsTodayCount >= 10) {
-      return res.status(429).json({
-        success: false,
-        message: 'Daily rewarded ad limit reached (10/10). Resets at midnight UTC.'
-      });
-    }
-
-    // Specific Cap for Revive (Max 3 revives per day)
-    if (placement === 'REVIVE') {
-      const revivesToday = await RewardedAdSession.countDocuments({
-        user: userId,
-        placement: 'REVIVE',
-        status: 'GRANTED',
-        createdAt: { $gte: todayStart }
-      });
-
-      if (revivesToday >= 3) {
-        return res.status(429).json({
-          success: false,
-          message: 'Daily combat revive limit reached (3/3).'
-        });
-      }
-    }
-
-    // Section 35: Minimum Cooldown Check (60 seconds between granted ads)
-    const lastGrantedAd = await RewardedAdSession.findOne({
-      user: userId,
-      status: 'GRANTED'
-    }).sort({ grantedAt: -1 });
-
-    if (lastGrantedAd && lastGrantedAd.grantedAt) {
-      const elapsedSeconds = (Date.now() - new Date(lastGrantedAd.grantedAt).getTime()) / 1000;
-      if (elapsedSeconds < 60) {
-        return res.status(429).json({
-          success: false,
-          message: `Ad cooldown in progress. Please wait ${Math.ceil(60 - elapsedSeconds)}s.`
-        });
-      }
-    }
-
-    // Create Rewarded Ad Session in INITIALIZED state
-    const adId = `ad-${uuidv4()}`;
-    const durationSeconds = 5; // 5-second simulated rewarded video playback
-
-    const adSession = await RewardedAdSession.create({
-      adId,
-      user: userId,
-      placement,
-      status: 'INITIALIZED',
-      durationSeconds,
-      reward: expectedReward || { currencyType: 'CREDITS', amount: 150 }
+    const sessionData = await rewardedAdService.createOpportunity(userId, placement, {
+      expectedReward,
+      gameSessionId,
+      missionId
     });
 
     return res.status(201).json({
       success: true,
-      adId,
-      placement,
-      durationSeconds,
-      state: adSession.status,
+      ...sessionData,
       message: 'Rewarded ad session initialized'
     });
   } catch (error) {
     console.error('offerAd Error:', error);
-    return res.status(500).json({ success: false, message: 'Server error initializing ad session' });
+    const status = error.statusCode || 500;
+    return res.status(status).json({ success: false, message: error.message || 'Server error initializing ad session' });
   }
 };
 
@@ -105,32 +54,21 @@ export const adHeartbeat = async (req, res) => {
     const { elapsedSeconds } = req.body;
     const userId = req.user.id;
 
-    const adSession = await RewardedAdSession.findOne({ adId, user: userId });
-    if (!adSession) {
-      return res.status(404).json({ success: false, message: 'Ad session not found' });
-    }
-
-    if (adSession.status === 'GRANTED' || adSession.status === 'EXPIRED') {
-      return res.status(400).json({ success: false, message: 'Ad session is no longer active' });
-    }
-
-    adSession.status = 'HEARTBEAT';
-    adSession.watchedSeconds = Math.max(adSession.watchedSeconds, elapsedSeconds || 1);
-    await adSession.save();
+    const result = await rewardedAdService.recordHeartbeat(adId, userId, elapsedSeconds || 1);
 
     return res.status(200).json({
       success: true,
-      watchedSeconds: adSession.watchedSeconds,
-      status: adSession.status
+      ...result
     });
   } catch (error) {
     console.error('adHeartbeat Error:', error);
-    return res.status(500).json({ success: false, message: 'Server error updating ad heartbeat' });
+    const status = error.statusCode || 500;
+    return res.status(status).json({ success: false, message: error.message || 'Server error updating ad heartbeat' });
   }
 };
 
 /**
- * @desc    Verify ad completion, transition to GRANTED, and credit double-entry ledger
+ * @desc    Verify ad completion through provider adapter, transition to VERIFIED, and grant reward atomically (Section 46, 48)
  * @route   POST /api/ads/:adId/verify
  * @access  Private
  */
@@ -139,100 +77,50 @@ export const verifyAdReward = async (req, res) => {
     const { adId } = req.params;
     const userId = req.user.id;
 
-    const adSession = await RewardedAdSession.findOne({ adId, user: userId });
-    if (!adSession) {
-      return res.status(404).json({ success: false, message: 'Ad session not found' });
-    }
+    // 1. Verify playback with ad provider adapter
+    await rewardedAdService.verifyAd(adId, userId, req.body || {});
 
-    // Section 39: Prevent Double Claim
-    if (adSession.status === 'GRANTED') {
-      return res.status(400).json({ success: false, message: 'Reward for this ad has already been claimed' });
-    }
-
-    // Ensure ad was completed
-    adSession.status = 'VERIFYING';
-    adSession.completedAt = new Date();
-
-    const profile = await PlayerProfile.findOne({ user: userId });
-    if (!profile) {
-      return res.status(404).json({ success: false, message: 'Pilot profile not found' });
-    }
-
-    const reward = adSession.reward;
-    let balanceBefore = profile.credits;
-    let balanceAfter = profile.credits;
-
-    if (adSession.placement === 'REVIVE') {
-      // Revive grant
-      adSession.status = 'GRANTED';
-      adSession.grantedAt = new Date();
-      await adSession.save();
-
-      profile.stats.totalAdsWatched += 1;
-      await profile.save();
-
-      return res.status(200).json({
-        success: true,
-        message: 'Revive reward authorized! Pilot starfighter restored.',
-        grantedReward: { type: 'REVIVE', amount: 1 },
-        updatedBalances: {
-          credits: profile.credits,
-          energyCores: profile.energyCores
-        }
-      });
-    }
-
-    // Currency grants (Credits / Cores)
-    const amountToGrant = reward?.amount || 150;
-    const currencyType = reward?.currencyType || 'CREDITS';
-
-    if (currencyType === 'CREDITS') {
-      balanceBefore = profile.credits;
-      profile.credits += amountToGrant;
-      balanceAfter = profile.credits;
-    } else if (currencyType === 'ENERGY_CORES') {
-      balanceBefore = profile.energyCores;
-      profile.energyCores += amountToGrant;
-      balanceAfter = profile.energyCores;
-    } else {
-      balanceBefore = profile.credits;
-      profile.credits += 50;
-      balanceAfter = profile.credits;
-    }
-
-    profile.stats.totalAdsWatched += 1;
-    await profile.save();
-
-    // Create immutable double-entry ledger record
-    await WalletTransaction.create({
-      user: userId,
-      transactionType: 'CREDIT',
-      currencyType,
-      amount: amountToGrant,
-      balanceBefore,
-      balanceAfter,
-      source: adSession.placement === 'DOUBLE_CREDITS' ? 'AD_DOUBLE_CREDITS' : 'AD_BONUS_REWARD',
-      referenceId: adId,
-      description: `Rewarded Ad reward (${adSession.placement})`,
-      status: 'COMPLETED'
-    });
-
-    adSession.status = 'GRANTED';
-    adSession.grantedAt = new Date();
-    await adSession.save();
+    // 2. Atomically credit wallet & reward ledgers with idempotency guarantee
+    const claimResult = await rewardedAdService.claimReward(adId, userId);
 
     return res.status(200).json({
       success: true,
-      message: 'Rewarded ad verified and credited to wallet ledger!',
-      grantedReward: { currencyType, amount: amountToGrant },
-      updatedBalances: {
-        credits: profile.credits,
-        energyCores: profile.energyCores,
-        totalAdsWatched: profile.stats.totalAdsWatched
-      }
+      ...claimResult
     });
   } catch (error) {
     console.error('verifyAdReward Error:', error);
-    return res.status(500).json({ success: false, message: 'Server error verifying ad reward' });
+    const status = error.statusCode || 500;
+    return res.status(status).json({ success: false, message: error.message || 'Server error verifying ad reward' });
   }
+};
+
+/**
+ * @desc    Get pilot's recent rewarded ad audit history
+ * @route   GET /api/ads/history
+ * @access  Private
+ */
+export const getAdHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const history = await RewardedAdSession.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    return res.status(200).json({
+      success: true,
+      count: history.length,
+      history
+    });
+  } catch (error) {
+    console.error('getAdHistory Error:', error);
+    return res.status(500).json({ success: false, message: 'Server error retrieving ad history' });
+  }
+};
+
+export default {
+  getProviderInfo,
+  offerAd,
+  adHeartbeat,
+  verifyAdReward,
+  getAdHistory
 };

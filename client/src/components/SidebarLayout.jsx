@@ -5,7 +5,7 @@ import { GAME_NAME } from '../config/gameConfig.js';
 import { 
   LayoutDashboard, Compass, Shield, Wallet, 
   Award, BarChart3, Settings, Coins, Zap, 
-  User, LogOut, Crosshair, ChevronRight, Play
+  User, LogOut, Crosshair, ChevronRight, Play, ShieldCheck
 } from 'lucide-react';
 
 export const SidebarLayout = ({ 
@@ -23,6 +23,7 @@ export const SidebarLayout = ({
     { id: 'wallet', label: 'REWARDS', icon: Wallet },
     { id: 'quests', label: 'ACHIEVEMENTS', icon: Award },
     { id: 'leaderboard', label: 'LEADERBOARD', icon: BarChart3 },
+    { id: 'admin', label: 'AUDIT LEDGER', icon: ShieldCheck },
     { id: 'settings', label: 'SETTINGS', icon: Settings, isAction: true },
   ];
 

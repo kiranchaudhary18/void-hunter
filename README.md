@@ -408,18 +408,30 @@ User ───────────────< PlayerProfile
 
 ## 🧪 11. Automated Invariant & Security Test Suite
 
-The repository includes an end-to-end automated verification script (`server/tests/test_invariants.ps1`) validating the core architectural guarantees of the engine:
+The repository includes an end-to-end automated verification script (`server/tests/test_invariants.ps1`) and a cross-cutting Node.js compliance test suite (`server/tests/test_compliance_matrix.js`) validating the core architectural guarantees of the engine:
 
 1. **Double-Entry Balance Conservation**:
    $$\sum \text{Credits Minted} - \sum \text{Credits Sunk} = \text{Net Credits In Circulation}$$
 2. **Anti-Cheat Duration Interception**:
-   Sessions submitted under the minimum physical duration threshold ($< 10\text{s}$) are rejected with `CHEAT_DETECTED_INVALID_DURATION`.
+   Sessions submitted under the minimum physical duration threshold ($< 10\text{s}$) are rejected with `CHEAT_DETECTED_INVALID_DURATION` (HTTP 400).
 3. **Session Completion Idempotency**:
    A completed session cannot be re-submitted or double-claimed.
 4. **Zero Ledger Discrepancies**:
    Validates ledger mathematical consistency across all pilot profiles and transactions.
+5. **Ad Provider Abstraction & Idempotent Claims**:
+   Simulated ad adapter verifies duration playback before transitioning to `VERIFIED`; duplicate reward claims are safely handled without double-crediting.
+6. **Supply Drop & Event Cooldowns**:
+   Enforces 4-hour cooldowns on orbital supply crates and validates event targets.
 
-### Running the Test Suite:
+### Running the Test Suites:
+
+**Option A: Master Node.js Compliance Suite (Cross-Platform)**
+```bash
+cd server
+npm test
+```
+
+**Option B: PowerShell Invariants Suite**
 ```powershell
 powershell -ExecutionPolicy Bypass -File server/tests/test_invariants.ps1
 ```
@@ -456,6 +468,105 @@ npm install
 npm run dev
 # Vite client running at http://localhost:5173
 ```
+
+---
+
+## 🌐 13. Production Deployment Instructions
+
+### Frontend Deployment (Vercel / Netlify / Cloudflare Pages)
+1. **Build Command**: `npm run build`
+2. **Output Directory**: `dist`
+3. **Environment Variables**:
+   * `VITE_GAME_NAME`: `VOID HUNTER`
+   * `VITE_GAME_TAGLINE`: `Space Combat Beyond Limits`
+   * `VITE_API_URL`: `https://your-backend-api.onrender.com/api`
+
+### Backend Deployment (Render / Railway / DigitalOcean)
+1. **Root Directory**: `server`
+2. **Build Command**: `npm install`
+3. **Start Command**: `npm start`
+4. **Environment Variables**:
+   * `PORT`: `5000` (or injected by host)
+   * `GAME_NAME`: `VOID HUNTER`
+   * `MONGODB_URI`: `mongodb+srv://<user>:<password>@cluster.mongodb.net/void_hunter?retryWrites=true&w=majority`
+   * `JWT_SECRET`: Production 256-bit secret string
+   * `JWT_EXPIRES_IN`: `7d`
+   * `CLIENT_URL`: `https://your-frontend-app.vercel.app`
+   * `NODE_ENV`: `production`
+
+---
+
+## 📸 14. Visual Design & Screenshots
+
+| Screen | Description |
+| :--- | :--- |
+| **Command Deck (Dashboard)** | Real-time pilot rank, currency ledgers, active spacecraft stats, and quick sortie launch |
+| **50-Mission Sector Map** | 5 progressive sectors with 10 missions each, star rating criteria, and Apex Flagship battles |
+| **Spacecraft Hangar** | 5 distinct ship classes (Interceptor, Striker, Support Craft, Guardian, Experimental) and 5 module upgrade tracks |
+| **60 FPS Combat Engine** | Phaser 3 hardware-accelerated canvas with particle systems, multi-wave spawn directors, and 8 tactical abilities |
+| **Rewards & Wallet Ledger** | Immutable double-entry financial ledger displaying all CREDIT and DEBIT records |
+| **Quests & Achievements** | Daily mission resets, 7-day login streak calendar, and 10 milestone badges |
+| **Global Leaderboard** | Real-time pilot rankings calculated from authoritative combat session completions |
+| **Admin Audit Deck** | Live diagnostic dashboard verifying double-entry mathematical equilibrium and anti-cheat telemetry |
+
+---
+
+## 🎥 15. Demo Video Checklist (Section 86 Compliance)
+
+A complete demonstration video covering all 36 mandatory validation scenarios:
+
+### Gameplay Journeys (Items 1–16)
+- [x] **1. Landing Page**: Cinematic main menu with dynamic game title and audio toggle.
+- [x] **2. Player Registration / Login**: Secure pilot enlistment and JWT token generation.
+- [x] **3. Player Dashboard**: Active pilot rank, level, XP bar, currencies, and campaign journey card.
+- [x] **4. Ship Hangar**: Inspect all 5 starships, view attributes, weapon previews, and locked tiers.
+- [x] **5. Ship Selection**: Equip different starships and verify real-time stat changes.
+- [x] **6. Ship Upgrade**: Purchase modular upgrade and demonstrate atomic currency deduction.
+- [x] **7. Mission Selection**: Browse 5 sectors across 50 data-driven missions; inspect star criteria.
+- [x] **8. Ship Movement**: Demonstrate smooth 60 FPS desktop keyboard (WASD/arrows) and touch/pointer movement.
+- [x] **9. Firing & Enemy Destruction**: Space/click laser barrage and particle explosion feedback.
+- [x] **10. Power-Up Activation**: Trigger Shield Pulse, Rapid Fire, Spread Shot, Homing Missiles, EMP, Drone, Overdrive, and Warp.
+- [x] **11. Boss Battle**: Fight multi-phase Apex Flagship with custom attack patterns and health bar.
+- [x] **12. Mission Completion**: 3-star victory modal showing duration, accuracy, kills, score, and credits.
+- [x] **13. Player Defeat**: Hull compromise handling and defeat telemetry display.
+- [x] **14. Revive Offer**: Watch sponsored ad transmission to revive with full shields and resume run.
+- [x] **15. Restart Mission**: Clean state teardown and fresh run session creation.
+- [x] **16. Mission Progression**: Verify completion of Mission N permanently unlocks Mission N+1.
+
+### Economy Journeys (Items 17–28)
+- [x] **17. Wallet Balance**: Inspect Credits, Energy Cores, XP, and VELoop Reward Coins.
+- [x] **18. Mission Reward**: Authoritative post-mission payout deposited to player ledger.
+- [x] **19. Double-Score Offer**: Sponsored ad prompt granting 2x score multiplier.
+- [x] **20. Double-Credits Offer**: Sponsored ad prompt doubling earned mission credits.
+- [x] **21. Rewarded Ad Demonstration**: Interactive video modal with 5-second playback timer and progress bar.
+- [x] **22. Reward Verification Outcome**: Cryptographic HMAC verification and state transition to `GRANTED`.
+- [x] **23. Reward History**: Chronological audit trail of all rewarded ad grants.
+- [x] **24. Currency Spending**: Commissioning new ships or buying module upgrades.
+- [x] **25. Reward Limits**: Demonstration of daily caps (10 ads/day) and 60-second cooldown enforcement.
+- [x] **26. Daily Mission**: Track progress, complete objective, and claim reward.
+- [x] **27. Achievement**: Milestone unlock trigger and badge notification.
+- [x] **28. Leaderboard**: Verified high score submission reflected on global pilot standings.
+
+### Backend & Reliability (Items 29–36)
+- [x] **29. Persistent Player Progress**: Full reload or re-login preserves unlocked missions, ships, and balances.
+- [x] **30. Database Records**: Mongoose collections for Users, Profiles, Sessions, Ships, and Ledgers.
+- [x] **31. Game Session Handling**: Unique UUID creation, start timestamp, and anti-cheat duration validation.
+- [x] **32. Server-Side Validation**: Mission completion score and accuracy bound validation.
+- [x] **33. Duplicate Reward Rejection**: Idempotency protection blocking replay attacks on completed sessions or ads.
+- [x] **34. Environment Configuration**: Dynamic `VITE_GAME_NAME` and `GAME_NAME` propagation across all views.
+- [x] **35. Responsive Mobile Gameplay**: Touch drag, touch abilities, and adapted viewport layout.
+- [x] **36. Desktop Gameplay**: Full keyboard shortcuts (WASD, 1-8 abilities, Space fire, Esc/P pause).
+
+---
+
+## ⚠️ 16. Known Limitations & Architecture Notes
+
+1. **Advertising Provider Abstraction (Section 48)**:
+   * Uses `SimulatedDevAdAdapter` in local development environments. While it fully enforces playback duration timing, heartbeat verification, and server HMAC verification, it does not connect to live Google AdMob / Unity Ads production ad exchanges without commercial publisher IDs.
+2. **Hybrid Client Physics vs Server-Side Simulation**:
+   * Canvas collisions and particle dynamics are executed on the client game loop at 60 FPS using Phaser 3, while score, duration, accuracy telemetry, and currency payouts are strictly verified on the Node.js server. Future iterations can incorporate headless server-side game state simulation for esports-grade competitive anti-cheat.
+3. **VELoop Platform Coins**:
+   * VELoop Reward Coins are tracked as an independent currency ledger separated from in-game Credits and Energy Cores, ready for integration with VELoop's platform API.
 
 ---
 

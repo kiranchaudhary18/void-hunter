@@ -18,6 +18,8 @@ export const getWalletBalance = async (req, res) => {
     return res.status(200).json({
       success: true,
       balance: {
+        user: userId,
+        userId: userId,
         credits: profile.credits,
         energyCores: profile.energyCores,
         rewardCoins: profile.rewardCoins,

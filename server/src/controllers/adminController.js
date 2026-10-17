@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import PlayerProfile from '../models/PlayerProfile.js';
 import WalletTransaction from '../models/WalletTransaction.js';
 import RewardedAdSession from '../models/RewardedAdSession.js';
+import RewardTransaction from '../models/RewardTransaction.js';
 import GameSession from '../models/GameSession.js';
 
 /**
@@ -80,6 +81,7 @@ export const getEconomyAudit = async (req, res) => {
         totalCreditsMinted: ledgerCreditSum,
         totalCreditsSunk: ledgerDebitSum,
         netCirculation: ledgerCreditSum - ledgerDebitSum,
+        totalRewardLedgerEvents: await RewardTransaction.countDocuments(),
         ledgerInconsistencies,
         isDoubleEntryBalanced: ledgerInconsistencies === 0
       },

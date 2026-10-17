@@ -56,7 +56,9 @@ const playerProfileSchema = new mongoose.Schema(
       totalPlayTimeSeconds: { type: Number, default: 0 },
       dailyStreak: { type: Number, default: 1 },
       lastDailyClaim: { type: Date, default: null },
+      lastSupplyDrop: { type: Date, default: null },
       adsWatchedToday: { type: Number, default: 0 },
+      lastAdWatched: { type: Date, default: null },
       revivesUsedToday: { type: Number, default: 0 }
     },
     // Daily Quests Progress

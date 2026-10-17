@@ -89,15 +89,24 @@ export class SpaceCombatScene extends Phaser.Scene {
       space: Phaser.Input.Keyboard.KeyCodes.SPACE
     });
 
-    // Number keys 1-6 for abilities
+    // Number keys 1-8 for all 8 tactical abilities (Section 26)
     this.input.keyboard.on('keydown-ONE', () => this.activatePowerUp('spread_shot'));
     this.input.keyboard.on('keydown-TWO', () => this.activatePowerUp('shield_pulse'));
     this.input.keyboard.on('keydown-THREE', () => this.activatePowerUp('homing_missiles'));
     this.input.keyboard.on('keydown-FOUR', () => this.activatePowerUp('emp_blast'));
     this.input.keyboard.on('keydown-FIVE', () => this.activatePowerUp('emergency_warp'));
     this.input.keyboard.on('keydown-SIX', () => this.activatePowerUp('rapid_fire'));
+    this.input.keyboard.on('keydown-SEVEN', () => this.activatePowerUp('repair_drone'));
+    this.input.keyboard.on('keydown-EIGHT', () => this.activatePowerUp('overdrive'));
 
-    // Mouse / Touch pointer drag
+    // Mouse / Touch pointer drag and tap movement (Section 7 Mobile Controls)
+    this.input.on('pointerdown', (pointer) => {
+      if (!this.isGameOver) {
+        this.player.x = Phaser.Math.Clamp(pointer.x, 30, width - 30);
+        this.player.y = Phaser.Math.Clamp(pointer.y, 60, height - 60);
+      }
+    });
+
     this.input.on('pointermove', (pointer) => {
       if (pointer.isDown && !this.isGameOver) {
         this.player.x = Phaser.Math.Clamp(pointer.x, 30, width - 30);

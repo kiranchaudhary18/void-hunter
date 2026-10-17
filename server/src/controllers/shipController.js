@@ -35,11 +35,11 @@ export const SHIPS_CATALOG = [
     id: 'x03-shadow',
     code: 'X-03',
     name: 'SHADOW',
-    classType: 'Interceptor',
-    tagline: 'High Speed',
-    description: 'Ultra-lightweight stealth craft capable of lightning evasive maneuvers.',
+    classType: 'Support Craft',
+    tagline: 'Utility & Support',
+    description: 'Utility-focused starcraft with automated nanite repair drones, enhanced cooling, and rapid pickup collection.',
     textureKey: 'ship_shadow',
-    baseStats: { firepower: 72, shield: 55, speed: 96, maneuver: 92 },
+    baseStats: { firepower: 72, shield: 65, speed: 96, maneuver: 92 },
     priceCredits: 4000,
     priceCores: 25,
     unlockedByDefault: false
@@ -241,12 +241,26 @@ export const upgradeShip = async (req, res) => {
     const { moduleType } = req.body; // 'weapon', 'shield', 'engine', 'special'
     const userId = req.user.id;
 
-    if (!['weapon', 'shield', 'engine', 'special'].includes(moduleType)) {
+    const validModules = ['weapon', 'shield', 'engine', 'special', 'hull'];
+    if (!validModules.includes(moduleType)) {
       return res.status(400).json({ success: false, message: 'Invalid upgrade module type' });
     }
 
     // 1. Verify ownership
-    const playerShip = await PlayerShip.findOne({ user: userId, shipId });
+    let playerShip = await PlayerShip.findOne({ user: userId, shipId });
+    if (!playerShip) {
+      const shipInfo = SHIPS_CATALOG.find((s) => s.id === shipId);
+      if (shipInfo && shipInfo.unlockedByDefault) {
+        playerShip = await PlayerShip.create({
+          user: userId,
+          shipId,
+          isUnlocked: true,
+          unlockedAt: new Date(),
+          upgrades: { weapon: 1, shield: 1, engine: 1, special: 1, hull: 1 }
+        });
+      }
+    }
+
     if (!playerShip || !playerShip.isUnlocked) {
       return res.status(400).json({ success: false, message: 'You must own this starship to upgrade its modules' });
     }

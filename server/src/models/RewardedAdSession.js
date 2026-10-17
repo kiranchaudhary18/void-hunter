@@ -16,25 +16,54 @@ const rewardedAdSessionSchema = new mongoose.Schema(
     },
     placement: {
       type: String,
-      enum: ['REVIVE', 'DOUBLE_CREDITS', 'DAILY_SUPPLY', 'ENERGY_BOOST'],
+      enum: ['REVIVE', 'DOUBLE_SCORE', 'DOUBLE_CREDITS', 'POWER_UP', 'DAILY_BONUS', 'DAILY_SUPPLY', 'ENERGY_BOOST'],
       required: true
     },
     status: {
       type: String,
       enum: [
         'OFFERED',
+        'CREATED',
+        'READY',
         'REQUESTED',
         'INITIALIZED',
         'PLAYING',
+        'DISPLAYING',
         'HEARTBEAT',
         'COMPLETED',
         'VERIFYING',
+        'VERIFIED',
         'GRANTED',
         'EXPIRED',
         'REJECTED'
       ],
       default: 'OFFERED',
       index: true
+    },
+    provider: {
+      type: String,
+      default: 'SIMULATED_DEV_ADAPTER'
+    },
+    isSimulated: {
+      type: Boolean,
+      default: true
+    },
+    gameSessionId: {
+      type: String,
+      default: null,
+      index: true
+    },
+    missionId: {
+      type: String,
+      default: null
+    },
+    providerEventId: {
+      type: String,
+      default: null
+    },
+    expiresAt: {
+      type: Date,
+      default: null
     },
     durationSeconds: {
       type: Number,
