@@ -8,6 +8,9 @@ import MissionsPage from './pages/MissionsPage.jsx';
 import WalletPage from './pages/WalletPage.jsx';
 import QuestsPage from './pages/QuestsPage.jsx';
 import LeaderboardPage from './pages/LeaderboardPage.jsx';
+import PublicMissionsPage from './pages/PublicMissionsPage.jsx';
+import PublicHangarPage from './pages/PublicHangarPage.jsx';
+import PublicLeaderboardPage from './pages/PublicLeaderboardPage.jsx';
 import GameContainer from './game/GameContainer.jsx';
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
@@ -243,7 +246,7 @@ function MainAppContent() {
   };
 
   // Screens that strictly require pilot login
-  const strictlyAuthScreens = ['wallet', 'quests', 'admin'];
+  const strictlyAuthScreens = ['wallet', 'quests', 'admin', 'dashboard'];
   if (!isAuthenticated && strictlyAuthScreens.includes(currentScreen)) {
     return (
       <AuthPage 
@@ -263,13 +266,39 @@ function MainAppContent() {
     );
   }
 
-  // Screen 1: Cinematic Main Menu Landing (Only when currentScreen === 'landing')
-  if (currentScreen === 'landing' && !isAuthenticated) {
-    return (
-      <MainMenuPage 
-        onNavigate={(screen) => navigateTo(screen)}
-      />
-    );
+  // Dedicated Public Showcase Pages for Unauthenticated Guests (NO Sidebar, Top Cyber Header Only)
+  if (!isAuthenticated) {
+    if (currentScreen === 'landing') {
+      return (
+        <MainMenuPage 
+          onNavigate={(screen) => navigateTo(screen)}
+        />
+      );
+    }
+
+    if (currentScreen === 'missions') {
+      return (
+        <PublicMissionsPage 
+          onNavigate={(screen) => navigateTo(screen)}
+        />
+      );
+    }
+
+    if (currentScreen === 'hangar') {
+      return (
+        <PublicHangarPage 
+          onNavigate={(screen) => navigateTo(screen)}
+        />
+      );
+    }
+
+    if (currentScreen === 'leaderboard') {
+      return (
+        <PublicLeaderboardPage 
+          onNavigate={(screen) => navigateTo(screen)}
+        />
+      );
+    }
   }
 
   // Screen 2: Login / Signup

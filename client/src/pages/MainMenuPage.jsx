@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
+import PublicNavbar from '../components/PublicNavbar.jsx';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
 import { 
   Play, Compass, Shield, Award, BarChart3, Wallet, 
-  User, Volume2, VolumeX, LogOut, ChevronRight, Zap, Coins, Sparkles 
+  User, ChevronRight, Zap, Coins, Sparkles 
 } from 'lucide-react';
 
 export const MainMenuPage = ({ onNavigate }) => {
   const { user, profile, isAuthenticated, logout } = useAuth();
-  const [isMuted, setIsMuted] = useState(soundManager.muted);
-
-  const handleToggleMute = () => {
-    const muted = soundManager.toggleMute();
-    setIsMuted(muted);
-    if (!muted) soundManager.playPowerUp();
-  };
 
   const handleAction = (screenName) => {
     soundManager.playLaser();
@@ -35,59 +29,8 @@ export const MainMenuPage = ({ onNavigate }) => {
       <div style={styles.starsBackdrop} />
       <div style={styles.nebulaGlow} />
 
-      {/* Screen 1 Top Navigation Bar */}
-      <header style={styles.topBar}>
-        <div style={styles.brandGroup}>
-          <svg width="28" height="28" viewBox="0 0 64 64" style={{ filter: 'drop-shadow(0 0 8px #00E5FF)' }}>
-            <polygon points="32,6 44,28 60,52 48,56 38,48 32,58 26,48 16,56 4,52 20,28" fill="#00E5FF" />
-            <ellipse cx="32" cy="26" rx="4" ry="10" fill="#FFFFFF" />
-          </svg>
-          <div>
-            <div className="font-heading text-glow-cyan" style={{ fontSize: '1.05rem', lineHeight: 1.1, letterSpacing: '0.08em' }}>
-              VOID HUNTER
-            </div>
-            <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
-              SPACE COMBAT BEYOND LIMITS
-            </div>
-          </div>
-        </div>
-
-        {/* Center Nav Links (Screen 1) */}
-        <nav style={styles.centerNavLinks}>
-          <button onClick={() => handleAction('main_menu')} style={{ ...styles.navLink, color: 'var(--secondary-cyan)' }}>HOME</button>
-          <button onClick={() => handleAction('missions')} style={styles.navLink}>MISSIONS</button>
-          <button onClick={() => handleAction('hangar')} style={styles.navLink}>HANGAR</button>
-          <button onClick={() => handleAction('leaderboard')} style={styles.navLink}>LEADERBOARD</button>
-        </nav>
-
-        {/* Top Right Utilities */}
-        <div style={styles.topBarRight}>
-          <button 
-            onClick={handleToggleMute} 
-            style={styles.iconCircleBtn}
-            title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
-          >
-            {isMuted ? <VolumeX size={16} color="#EF4444" /> : <Volume2 size={16} color="var(--secondary-cyan)" />}
-          </button>
-
-          {isAuthenticated && profile ? (
-            <div style={styles.pilotCard} className="glass-panel" onClick={() => handleAction('dashboard')}>
-              <div style={styles.pilotInfo}>
-                <div style={styles.pilotName}>{user?.name || 'Commander'}</div>
-                <div style={styles.pilotRank}>LV. {profile.level}</div>
-              </div>
-            </div>
-          ) : (
-            <button 
-              onClick={() => handleAction('auth')} 
-              className="btn btn-cyan animate-pulse-glow"
-              style={{ padding: '8px 22px', fontSize: '0.8rem', fontWeight: 'bold' }}
-            >
-              LOGIN
-            </button>
-          )}
-        </div>
-      </header>
+      {/* Screen 1 Top Cyber Navigation Bar (Unified Public Navbar) */}
+      <PublicNavbar current="home" onNavigate={onNavigate} />
 
       {/* Screen 1 Two-Column Hero Showcase */}
       <main style={styles.screen1HeroGrid}>
@@ -168,7 +111,7 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '24px 32px',
+    padding: '90px 32px 24px 32px',
     overflow: 'hidden'
   },
   starsBackdrop: {
