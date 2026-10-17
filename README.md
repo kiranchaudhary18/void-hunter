@@ -78,7 +78,7 @@ The application combines:
 
 ## 🔬 2. Reference Game Comparison & Originality
 
-Per **Section 2 & 3** of the assignment specification, **VOID HUNTER** draws structural inspiration from arcade vertical space shooters like *Space Shooter: Galaxy Attack* (ONESOFT) while delivering **100% original assets, mechanics, and backend infrastructure**:
+Per **Section 2 & 3** of the assignment specification, a formal research document has been prepared in [**RESEARCH.md**](./RESEARCH.md). **VOID HUNTER** draws structural inspiration from arcade vertical space shooters like *Space Shooter: Galaxy Attack (Space Shooter 2)* while delivering **100% original assets, mechanics, and backend infrastructure**:
 
 | Feature | Reference Model (*Space Shooter*) | VOID HUNTER (Our Implementation) |
 | :--- | :--- | :--- |
@@ -88,6 +88,7 @@ Per **Section 2 & 3** of the assignment specification, **VOID HUNTER** draws str
 | **Ad Verification** | Client-triggered ad calls | **9-State Ad Machine** (`OFFERED` $\to$ `GRANTED`) with local simulated adapter |
 | **Progression Engine**| Level maps with basic stars | **50 Data-Driven Missions** with 7 diverse objective archetypes |
 | **Anti-Cheat** | Basic client storage | **Server-side Duration, Kill Bounds, and Score Verification** |
+| **Monetization Fair Play** | Aggressive, non-skippable ads | **100% Optional Rewarded Ads** with transparent probability disclosure |
 
 ---
 
@@ -361,14 +362,26 @@ The frontend provides a cohesive 10-screen visual journey adhering to the cosmic
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :---: |
 | `GET` | `/api/economy/config` | Fetch reward constants & ad caps | Yes |
+| `GET` | `/api/wallet/balance` | Fetch pilot's current authenticated balances | Yes |
 | `GET` | `/api/wallet/ledger` | Fetch immutable transaction audit history | Yes |
 | `POST` | `/api/rewards/ad/opportunity` | Create verifiable ad event (9-state machine) | Yes |
 | `POST` | `/api/rewards/ad/verify` | Verify ad completion & credit reward | Yes |
+| `POST` | `/api/games/:sessionId/revive/verify` | Verified ad revive restoration | Yes |
+| `POST` | `/api/games/:sessionId/double-score/verify`| Verified ad 2x score multiplier | Yes |
+| `POST` | `/api/games/:sessionId/double-credits/verify`| Verified ad 2x credits multiplier | Yes |
+
+### Engagement, Supply Drops & Events (`/api/supply-drop`, `/api/events`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/supply-drop/status` | Check 4h cooldown & probability distribution | Yes |
+| `POST` | `/api/supply-drop/claim` | Roll server-side weighted random supply crate | Yes |
+| `GET` | `/api/events` | List active limited-time campaigns & kill progress | Yes |
+| `POST` | `/api/events/:eventId/claim`| Claim event rewards (Credits, Cores, VELoop Coins) | Yes |
 
 ### Admin & System Audit (`/api/admin`)
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :---: |
-| `GET` | `/api/admin/audit` | Live verification of double-entry mathematical balance and zero discrepancies | Yes |
+| `GET` | `/api/admin/audit` | Live verification of double-entry mathematical balance, ad conversion, and anti-cheat | Yes |
 
 ---
 

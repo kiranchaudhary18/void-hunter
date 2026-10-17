@@ -13,7 +13,7 @@ export const offerAd = async (req, res) => {
     const userId = req.user.id;
     const { placement, expectedReward } = req.body;
 
-    if (!['REVIVE', 'DOUBLE_CREDITS', 'DAILY_SUPPLY', 'ENERGY_BOOST'].includes(placement)) {
+    if (!['REVIVE', 'DOUBLE_CREDITS', 'DOUBLE_SCORE', 'POWER_UP', 'DAILY_BONUS', 'DAILY_SUPPLY', 'ENERGY_BOOST'].includes(placement)) {
       return res.status(400).json({ success: false, message: 'Invalid ad placement identifier' });
     }
 
@@ -194,6 +194,10 @@ export const verifyAdReward = async (req, res) => {
       balanceBefore = profile.energyCores;
       profile.energyCores += amountToGrant;
       balanceAfter = profile.energyCores;
+    } else {
+      balanceBefore = profile.credits;
+      profile.credits += 50;
+      balanceAfter = profile.credits;
     }
 
     profile.stats.totalAdsWatched += 1;

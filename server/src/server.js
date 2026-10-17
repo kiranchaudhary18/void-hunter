@@ -15,6 +15,7 @@ import adRoutes from './routes/adRoutes.js';
 import questRoutes from './routes/questRoutes.js';
 import leaderboardRoutes from './routes/leaderboardRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import engagementRoutes from './routes/engagementRoutes.js';
 
 dotenv.config();
 
@@ -29,7 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// API Routes
+// Core API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/ships', shipRoutes);
 app.use('/api/powerups', powerUpRoutes);
@@ -39,6 +40,14 @@ app.use('/api/ads', adRoutes);
 app.use('/api/quests', questRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Section 57 & 58: Supply Drops & Limited Events
+app.use('/api', engagementRoutes);
+
+// Section 68: Specification Route Aliases
+app.use('/api/games', missionRoutes);
+app.use('/api/daily-missions', questRoutes);
+app.use('/api/achievements', questRoutes);
 
 // Health Check & Dynamic Game Name Endpoint
 app.get('/api/health', (req, res) => {

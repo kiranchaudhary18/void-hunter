@@ -89,11 +89,13 @@ export class SpaceCombatScene extends Phaser.Scene {
       space: Phaser.Input.Keyboard.KeyCodes.SPACE
     });
 
-    // Number keys 1-4 for abilities
+    // Number keys 1-6 for abilities
     this.input.keyboard.on('keydown-ONE', () => this.activatePowerUp('spread_shot'));
     this.input.keyboard.on('keydown-TWO', () => this.activatePowerUp('shield_pulse'));
     this.input.keyboard.on('keydown-THREE', () => this.activatePowerUp('homing_missiles'));
     this.input.keyboard.on('keydown-FOUR', () => this.activatePowerUp('emp_blast'));
+    this.input.keyboard.on('keydown-FIVE', () => this.activatePowerUp('emergency_warp'));
+    this.input.keyboard.on('keydown-SIX', () => this.activatePowerUp('rapid_fire'));
 
     // Mouse / Touch pointer drag
     this.input.on('pointermove', (pointer) => {
@@ -362,7 +364,7 @@ export class SpaceCombatScene extends Phaser.Scene {
         break;
 
       case 3:
-        // 1 Armored Cruiser + 4 Interceptors
+        // 1 Armored Cruiser + 1 Long-Range Gunship + 3 Interceptors
         const cruiser = this.createEnemy('enemy_cruiser', width / 2, -70, 350, 300);
         cruiser.setVelocity(0, 50);
         cruiser.setCollideWorldBounds(true);
@@ -381,38 +383,34 @@ export class SpaceCombatScene extends Phaser.Scene {
           repeat: 12
         });
 
-        for (let i = 0; i < 4; i++) {
-          const enemy = this.createEnemy('enemy_interceptor', 70 + i * ((width - 140) / 3), -120 - i * 25, 80, 100);
+        this.createEnemy('enemy_gunship', width * 0.3, -50, 150, 200);
+
+        for (let i = 0; i < 3; i++) {
+          const enemy = this.createEnemy('enemy_interceptor', 80 + i * ((width - 160) / 2), -120 - i * 25, 80, 100);
           enemy.setVelocity(0, 150);
         }
         break;
 
       case 4:
-        // Elite Wave: 2 Cruisers + 4 Scouts + 2 Interceptors
-        for (let i = 0; i < 2; i++) {
-          const c = this.createEnemy('enemy_cruiser', width * (i === 0 ? 0.3 : 0.7), -70 - i * 40, 320, 300);
-          c.setVelocity(i === 0 ? 40 : -40, 55);
-        }
-        for (let i = 0; i < 4; i++) {
-          this.createEnemy('enemy_scout', 50 + i * ((width - 100) / 3), -140 - i * 30, 50, 50).setVelocity(0, 140);
-        }
-        for (let i = 0; i < 2; i++) {
-          this.createEnemy('enemy_interceptor', i === 0 ? 70 : width - 70, -100, 80, 100).setVelocity(i === 0 ? 50 : -50, 160);
+        // Elite Wave: 1 Elite Enemy + 2 Long-Range Gunships + 3 Scouts
+        this.createEnemy('enemy_elite', width / 2, -60, 240, 450);
+        this.createEnemy('enemy_gunship', width * 0.22, -80, 150, 200);
+        this.createEnemy('enemy_gunship', width * 0.78, -80, 150, 200);
+
+        for (let i = 0; i < 3; i++) {
+          this.createEnemy('enemy_scout', 80 + i * ((width - 160) / 2), -140 - i * 30, 50, 50).setVelocity(0, 140);
         }
         break;
 
       case 5:
       default:
-        // Heavy Fleet: 2 Cruisers + 5 Scouts + 3 Interceptors
-        for (let i = 0; i < 2; i++) {
-          const c = this.createEnemy('enemy_cruiser', width * (i === 0 ? 0.28 : 0.72), -80, 380, 350);
-          c.setVelocity(i === 0 ? 35 : -35, 50);
-        }
-        for (let i = 0; i < 5; i++) {
-          this.createEnemy('enemy_scout', 40 + i * ((width - 80) / 4), -120 - i * 25, 50, 50).setVelocity(0, 145);
-        }
+        // Combined Fleet: 1 Elite + 1 Cruiser + 2 Gunships + 3 Interceptors
+        this.createEnemy('enemy_elite', width / 2, -60, 260, 450);
+        this.createEnemy('enemy_cruiser', width * 0.75, -80, 350, 300).setVelocity(-30, 45);
+        this.createEnemy('enemy_gunship', width * 0.25, -90, 150, 200);
+
         for (let i = 0; i < 3; i++) {
-          this.createEnemy('enemy_interceptor', 80 + i * ((width - 160) / 2), -160, 90, 120).setVelocity(Phaser.Math.Between(-40, 40), 165);
+          this.createEnemy('enemy_interceptor', 80 + i * ((width - 160) / 2), -160, 90, 120).setVelocity(Phaser.Math.Between(-30, 30), 165);
         }
         break;
     }
@@ -561,7 +559,59 @@ export class SpaceCombatScene extends Phaser.Scene {
     enemy.scoreValue = scoreVal;
     enemy.setDepth(5);
 
-    // AI periodic firing
+    // Section 9: Long-Range Gunship AI (maintains distance, snipes player)
+    if (texture === 'enemy_gunship') {
+      enemy.isGunship = true;
+      enemy.setVelocity(Phaser.Math.Between(-60, 60), 65);
+      enemy.setCollideWorldBounds(true);
+      enemy.setBounce(1);
+
+      // Settle at high altitude and strafe
+      this.time.delayedCall(1400, () => {
+        if (enemy.active && enemy.body) {
+          enemy.setVelocityY(0);
+          enemy.setVelocityX(Phaser.Math.Between(55, 85) * (Math.random() < 0.5 ? 1 : -1));
+        }
+      });
+
+      const fireTimer = this.time.addEvent({
+        delay: 1700,
+        callback: () => {
+          if (enemy.active && this.player && !this.isGameOver) {
+            // Targeted sniper laser aimed directly at player starfighter
+            const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+            this.fireEnemyBullet(enemy.x, enemy.y + 18, Math.cos(angle) * 320, Math.sin(angle) * 320);
+          }
+        },
+        loop: true
+      });
+      enemy.fireTimer = fireTimer;
+      return enemy;
+    }
+
+    // Section 9: Elite Enemy AI (Heavy Shielded Craft)
+    if (texture === 'enemy_elite') {
+      enemy.isElite = true;
+      enemy.setVelocity(0, 65);
+      enemy.setCollideWorldBounds(true);
+      enemy.setBounce(1);
+
+      // Periodic dual plasma volley
+      const fireTimer = this.time.addEvent({
+        delay: 1800,
+        callback: () => {
+          if (enemy.active && !this.isGameOver) {
+            this.fireEnemyBullet(enemy.x - 18, enemy.y + 22, -55, 230);
+            this.fireEnemyBullet(enemy.x + 18, enemy.y + 22, 55, 230);
+          }
+        },
+        loop: true
+      });
+      enemy.fireTimer = fireTimer;
+      return enemy;
+    }
+
+    // AI periodic firing for Scouts and Cruisers
     const fireInterval = texture === 'enemy_cruiser' ? 2000 : Phaser.Math.Between(1800, 3200);
     const fireTimer = this.time.addEvent({
       delay: fireInterval,
@@ -636,7 +686,16 @@ export class SpaceCombatScene extends Phaser.Scene {
 
     this.score += enemy.scoreValue;
     this.enemiesKilled++;
-    soundManager.playExplosion(enemy.texture.key === 'enemy_cruiser');
+    soundManager.playExplosion(enemy.texture.key === 'enemy_cruiser' || enemy.isElite);
+
+    // Guaranteed high-value drop from Elite
+    if (enemy.isElite) {
+      this.elitesKilled = (this.elitesKilled || 0) + 1;
+      const p = this.pickups.create(enemy.x, enemy.y, 'pickup_core');
+      p.pickupType = 'core';
+      p.pickupVal = 1;
+      p.setVelocityY(80);
+    }
 
     // Chance to drop combat pickup (Credits, Core, Shield)
     this.spawnPickup(enemy.x, enemy.y);

@@ -9,6 +9,8 @@ import WalletPage from './pages/WalletPage.jsx';
 import QuestsPage from './pages/QuestsPage.jsx';
 import LeaderboardPage from './pages/LeaderboardPage.jsx';
 import GameContainer from './game/GameContainer.jsx';
+import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
+import SettingsModal from './components/SettingsModal.jsx';
 import api from './services/api.js';
 import { MISSIONS_CATALOG } from './data/missionsData.js';
 import { GAME_NAME, GAME_TAGLINE } from './config/gameConfig.js';
@@ -17,7 +19,8 @@ import './App.css';
 
 function MainAppContent() {
   const { user, profile, isAuthenticated, logout, refreshProfile } = useAuth();
-  const [currentScreen, setCurrentScreen] = useState('landing'); // Screens: 'landing', 'auth', 'dashboard', 'missions', 'hangar', 'wallet', 'quests', 'leaderboard', 'gameplay'
+  const [currentScreen, setCurrentScreen] = useState('landing'); // Screens: 'landing', 'auth', 'dashboard', 'missions', 'hangar', 'wallet', 'quests', 'leaderboard', 'admin', 'gameplay'
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [activeMission, setActiveMission] = useState({
     id: 'sector-1-mission-1',
@@ -176,6 +179,15 @@ function MainAppContent() {
     );
   }
 
+  // Screen 11: Admin Economy Audit & Fraud Dashboard (Section 75)
+  if (currentScreen === 'admin') {
+    return (
+      <AdminDashboardPage 
+        onBack={() => setCurrentScreen('dashboard')}
+      />
+    );
+  }
+
   // Screen 6: Real-time 60 FPS Combat Game Engine
   if (currentScreen === 'gameplay') {
     return (
@@ -251,6 +263,13 @@ function MainAppContent() {
               WALLET
             </button>
             <button 
+              style={{ ...styles.navLink, ...(currentScreen === 'admin' ? styles.navLinkActive : {}) }}
+              onClick={() => setCurrentScreen('admin')}
+              title="VELoop Rewards Administrative Audit & Fraud Dashboard (Section 75)"
+            >
+              ADMIN AUDIT
+            </button>
+            <button 
               style={{ ...styles.navLink, ...(currentScreen === 'gameplay' ? styles.navLinkActive : {}) }}
               onClick={() => setCurrentScreen('gameplay')}
             >
@@ -261,6 +280,25 @@ function MainAppContent() {
 
         {/* Top Right: Currencies & User Pilot Profile */}
         <div style={styles.navRight}>
+          {/* Settings Audio & Keybinds Trigger */}
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid var(--border-glass)',
+              borderRadius: '8px',
+              padding: '8px 10px',
+              color: 'var(--secondary-cyan)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Audio & Control Settings (Section 73)"
+          >
+            <Settings size={16} />
+          </button>
+
           {isAuthenticated && profile ? (
             <>
               {/* Credits Counter - Click to open Wallet */}
@@ -325,6 +363,14 @@ function MainAppContent() {
         onLaunchQuickCombat={() => setCurrentScreen('gameplay')}
         selectedShip={getSelectedShipData()}
       />
+
+      {/* Audio & Controls Settings Modal */}
+      {isSettingsOpen && (
+        <SettingsModal 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+        />
+      )}
     </div>
   );
 }

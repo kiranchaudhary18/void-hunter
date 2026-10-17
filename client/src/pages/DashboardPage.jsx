@@ -5,7 +5,8 @@ import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
 import { 
   Play, Compass, Shield, Award, BarChart3, Wallet, 
   Coins, Zap, User, Star, ChevronRight, Crosshair, 
-  Calendar, CheckCircle2, ArrowUpRight, Sparkles 
+  Calendar, CheckCircle2, ArrowUpRight, Sparkles,
+  Package, Sliders, ShieldAlert
 } from 'lucide-react';
 
 export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip }) => {
@@ -241,6 +242,30 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
             <div>
               <div className="font-heading" style={styles.actionTileTitle}>INSTANT COMBAT ARENA</div>
               <div style={styles.actionTileSub}>Real-Time 60 FPS Shmup Engine</div>
+            </div>
+          </button>
+
+          <button 
+            onClick={() => handleNav('quests')} 
+            style={styles.actionTile}
+            className="glass-card glass-card-hover"
+          >
+            <div style={styles.actionIconGold}><Package size={24} /></div>
+            <div>
+              <div className="font-heading" style={styles.actionTileTitle}>ORBITAL SUPPLY DROP</div>
+              <div style={styles.actionTileSub}>4h Cargo Container & Probability Tables</div>
+            </div>
+          </button>
+
+          <button 
+            onClick={() => handleNav('admin')} 
+            style={styles.actionTile}
+            className="glass-card glass-card-hover"
+          >
+            <div style={styles.actionIconMagenta}><ShieldAlert size={24} /></div>
+            <div>
+              <div className="font-heading" style={styles.actionTileTitle}>ADMIN ECONOMY AUDIT</div>
+              <div style={styles.actionTileSub}>Live Metrics, Ad Conversion & Ledgers</div>
             </div>
           </button>
         </div>

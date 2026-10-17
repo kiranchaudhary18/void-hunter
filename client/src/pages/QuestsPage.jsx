@@ -6,7 +6,8 @@ import confetti from 'canvas-confetti';
 import { 
   ArrowLeft, Award, Clock, Star, Zap, Coins, 
   CheckCircle2, Lock, Shield, Crosshair, Skull, Compass, 
-  Calendar, Gift, AlertCircle, RefreshCw, ChevronRight 
+  Calendar, Gift, AlertCircle, RefreshCw, ChevronRight,
+  Package, Flame, Timer
 } from 'lucide-react';
 
 export const QuestsPage = ({ onBack }) => {
@@ -16,7 +17,10 @@ export const QuestsPage = ({ onBack }) => {
     achievements: [],
     streak: { currentStreak: 1, streakDay: 1, canClaimToday: false, rewardsTable: [] }
   });
-  const [activeTab, setActiveTab] = useState('QUESTS'); // 'QUESTS' or 'ACHIEVEMENTS'
+  const [supplyDrop, setSupplyDrop] = useState({ canClaim: false, nextAvailableAt: null, rewardTiers: [] });
+  const [supplyDropLoading, setSupplyDropLoading] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [activeTab, setActiveTab] = useState('QUESTS'); // 'QUESTS', 'ACHIEVEMENTS', or 'EVENTS'
   const [achievementFilter, setAchievementFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState(null);
@@ -44,7 +48,7 @@ export const QuestsPage = ({ onBack }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch quests, achievements, and login streak
+  // Fetch quests, achievements, login streak, supply drops, and events
   const fetchQuestsData = async () => {
     setLoading(true);
     setFeedbackMessage(null);
@@ -55,6 +59,24 @@ export const QuestsPage = ({ onBack }) => {
       }
     } catch (err) {
       console.warn('Quests API error:', err.message);
+    }
+
+    try {
+      const dropRes = await api.get('/supply-drop/status');
+      if (dropRes.data?.success) {
+        setSupplyDrop(dropRes.data);
+      }
+    } catch (err) {
+      console.warn('Supply drop status error:', err.message);
+    }
+
+    try {
+      const evRes = await api.get('/events');
+      if (evRes.data?.success) {
+        setEvents(evRes.data.events || []);
+      }
+    } catch (err) {
+      console.warn('Events API error:', err.message);
     } finally {
       setLoading(false);
     }
@@ -81,6 +103,50 @@ export const QuestsPage = ({ onBack }) => {
       setFeedbackMessage({ 
         type: 'error', 
         text: err.response?.data?.message || 'Failed to claim daily streak bonus' 
+      });
+    } finally {
+      setClaimingId(null);
+    }
+  };
+
+  // Section 57: Claim Orbital Supply Drop
+  const handleClaimSupplyDrop = async () => {
+    soundManager.playPowerUp();
+    setSupplyDropLoading(true);
+    try {
+      const res = await api.post('/supply-drop/claim');
+      if (res.data?.success) {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+        setFeedbackMessage({ type: 'success', text: res.data.message });
+        fetchQuestsData();
+        if (refreshProfile) refreshProfile();
+      }
+    } catch (err) {
+      setFeedbackMessage({ 
+        type: 'error', 
+        text: err.response?.data?.message || 'Failed to claim orbital supply drop' 
+      });
+    } finally {
+      setSupplyDropLoading(false);
+    }
+  };
+
+  // Section 58: Claim Limited-Time Event Reward
+  const handleClaimEvent = async (eventId) => {
+    soundManager.playPowerUp();
+    setClaimingId(eventId);
+    try {
+      const res = await api.post(`/events/${eventId}/claim`);
+      if (res.data?.success) {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        setFeedbackMessage({ type: 'success', text: res.data.message });
+        fetchQuestsData();
+        if (refreshProfile) refreshProfile();
+      }
+    } catch (err) {
+      setFeedbackMessage({ 
+        type: 'error', 
+        text: err.response?.data?.message || 'Error claiming event reward' 
       });
     } finally {
       setClaimingId(null);
@@ -251,7 +317,53 @@ export const QuestsPage = ({ onBack }) => {
         </div>
       </div>
 
-      {/* ================= PRIMARY TABS: QUESTS VS ACHIEVEMENTS ================= */}
+      {/* ================= SECTION 57: ORBITAL SUPPLY DROP CRATE ================= */}
+      <div style={styles.supplyDropCard} className="glass-panel">
+        <div style={styles.supplyDropHeader}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={styles.crateIconContainer} className="animate-pulse-glow">
+              <Package size={26} color="var(--secondary-cyan)" />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 className="font-heading" style={styles.streakTitle}>ORBITAL SUPPLY DROP</h2>
+                <span className="badge badge-cyan" style={{ fontSize: '0.65rem' }}>SECTION 57</span>
+              </div>
+              <p style={styles.streakSubtitle}>
+                Orbital cargo drops deliver randomized resources every 4 hours. Probabilities disclosed transparently below.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleClaimSupplyDrop}
+            disabled={!supplyDrop.canClaim || supplyDropLoading}
+            style={{
+              ...styles.supplyClaimBtn,
+              opacity: supplyDrop.canClaim ? 1 : 0.6,
+              cursor: supplyDrop.canClaim ? 'pointer' : 'not-allowed'
+            }}
+            className={supplyDrop.canClaim ? "btn btn-cyan animate-pulse-glow" : "btn btn-secondary"}
+          >
+            <Gift size={16} />
+            <span>
+              {supplyDropLoading ? 'OPENING ORBITAL CRATE...' : supplyDrop.canClaim ? 'OPEN SUPPLY DROP' : 'REFUELING ORBITAL DROP'}
+            </span>
+          </button>
+        </div>
+
+        {/* Probability Tables Disclosed (Section 57 mandate: Do not describe a random reward as guaranteed) */}
+        <div style={styles.probGrid}>
+          {supplyDrop.rewardTiers?.map((tier, idx) => (
+            <div key={idx} style={styles.probPill} className="glass-card">
+              <span style={{ color: 'var(--currency-gold)', fontWeight: 'bold' }}>{tier.probability}</span>
+              <span style={{ color: 'var(--text-light)', fontSize: '0.82rem' }}>{tier.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ================= PRIMARY TABS: QUESTS, ACHIEVEMENTS & EVENTS ================= */}
       <div style={styles.primaryTabs}>
         <button
           onClick={() => setActiveTab('QUESTS')}
@@ -276,6 +388,18 @@ export const QuestsPage = ({ onBack }) => {
           className="font-heading"
         >
           LIFETIME MERIT ACHIEVEMENTS ({questsData.achievements.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('EVENTS')}
+          style={{
+            ...styles.primaryTabBtn,
+            borderColor: activeTab === 'EVENTS' ? 'var(--currency-gold)' : 'var(--border-glass)',
+            background: activeTab === 'EVENTS' ? 'rgba(251, 191, 36, 0.15)' : 'rgba(10, 15, 40, 0.5)',
+            color: activeTab === 'EVENTS' ? 'var(--currency-gold)' : 'var(--text-muted)'
+          }}
+          className="font-heading"
+        >
+          LIMITED-TIME EVENTS ({events.length})
         </button>
       </div>
 
@@ -454,6 +578,96 @@ export const QuestsPage = ({ onBack }) => {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* ================= TAB 3: LIMITED-TIME EVENTS (SECTION 58) ================= */}
+      {activeTab === 'EVENTS' && (
+        <div style={styles.questsGrid}>
+          {events.length === 0 ? (
+            <div style={{ ...styles.questCard, textAlign: 'center', padding: '36px' }} className="glass-card">
+              <p style={{ color: 'var(--text-muted)' }}>No active limited-time campaigns at this moment. Stand by for fleet transmissions.</p>
+            </div>
+          ) : (
+            events.map((ev) => {
+              const pct = Math.min(100, (ev.currentProgress / ev.objective.target) * 100);
+              return (
+                <div key={ev.id} style={styles.questCard} className="glass-card glass-card-hover">
+                  <div style={styles.questHeader}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(251, 191, 36, 0.15)', border: '1px solid var(--currency-gold)' }}>
+                        <Flame size={24} color="var(--currency-gold)" />
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <h3 className="font-heading" style={styles.questTitle}>{ev.name}</h3>
+                          <span className="badge badge-gold" style={{ fontSize: '0.65rem' }}>SPECIAL EVENT</span>
+                        </div>
+                        <p style={styles.questDesc}>{ev.description}</p>
+                      </div>
+                    </div>
+
+                    <div style={styles.questRewards}>
+                      <div style={styles.questRewardPill}>
+                        <Coins size={13} color="var(--currency-gold)" />
+                        <span>+{ev.reward?.credits}</span>
+                      </div>
+                      <div style={styles.questRewardPill}>
+                        <Zap size={13} color="#C084FC" />
+                        <span>+{ev.reward?.energyCores} CORES</span>
+                      </div>
+                      <div style={styles.questRewardPill}>
+                        <Award size={13} color="var(--electric-magenta)" />
+                        <span>+{ev.reward?.velopRewardCoins} VELOOP COINS</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Objective Progress Bar Track */}
+                  <div style={styles.questProgressSection}>
+                    <div style={styles.progressInfo}>
+                      <span style={styles.progressLabel}>OBJECTIVE PROGRESS</span>
+                      <span style={styles.progressNums}>
+                        {ev.currentProgress} / {ev.objective.target}
+                      </span>
+                    </div>
+                    <div style={styles.questProgressBarTrack}>
+                      <div 
+                        style={{
+                          ...styles.questProgressBarFill,
+                          width: `${pct}%`,
+                          background: ev.isCompleted ? 'var(--status-green)' : 'var(--currency-gold)'
+                        }} 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Event Claim Action Button */}
+                  <div style={styles.questFooter}>
+                    {ev.isClaimed ? (
+                      <div style={styles.claimedBadge}>
+                        <CheckCircle2 size={15} color="var(--status-green)" />
+                        <span>EVENT REWARDS CLAIMED</span>
+                      </div>
+                    ) : ev.isCompleted ? (
+                      <button
+                        onClick={() => handleClaimEvent(ev.id)}
+                        disabled={claimingId === ev.id}
+                        style={{ ...styles.claimQuestBtn, background: 'linear-gradient(135deg, var(--currency-gold) 0%, #D97706 100%)', color: '#000' }}
+                        className="animate-pulse-glow"
+                      >
+                        {claimingId === ev.id ? 'AUTHORIZING...' : 'CLAIM OPERATION REWARD'}
+                      </button>
+                    ) : (
+                      <div style={styles.inProgressBadge}>
+                        <span>IN PROGRESS ({Math.round(pct)}%)</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       )}
     </div>
@@ -844,6 +1058,52 @@ const styles = {
     color: 'var(--text-muted)',
     fontSize: '0.72rem',
     fontFamily: 'var(--font-heading)'
+  },
+  supplyDropCard: {
+    padding: '20px 24px',
+    borderRadius: '16px',
+    border: '1px solid var(--secondary-cyan)',
+    background: 'radial-gradient(circle at 15% 50%, rgba(0, 229, 255, 0.12) 0%, rgba(10, 15, 44, 0.85) 100%)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px'
+  },
+  supplyDropHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '16px'
+  },
+  crateIconContainer: {
+    padding: '12px',
+    borderRadius: '12px',
+    background: 'rgba(0, 229, 255, 0.15)',
+    border: '1px solid var(--secondary-cyan)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  supplyClaimBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px 20px',
+    fontSize: '0.85rem'
+  },
+  probGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+    gap: '10px'
+  },
+  probPill: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '10px 14px',
+    borderRadius: '10px',
+    background: 'rgba(6, 9, 25, 0.6)',
+    border: '1px solid rgba(255, 255, 255, 0.08)'
   }
 };
 

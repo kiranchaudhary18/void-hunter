@@ -162,10 +162,19 @@ export const GameContainer = ({
     setAdModalOpen(true);
 
     try {
-      const placement = action === 'revive' ? 'REVIVE' : 'DOUBLE_CREDITS';
-      const expectedReward = action === 'revive' 
-        ? { currencyType: 'REVIVE', amount: 1 }
-        : { currencyType: 'CREDITS', amount: victoryData?.creditsEarned || 200 };
+      let placement = 'DOUBLE_CREDITS';
+      let expectedReward = { currencyType: 'CREDITS', amount: victoryData?.creditsEarned || 200 };
+
+      if (action === 'revive') {
+        placement = 'REVIVE';
+        expectedReward = { currencyType: 'REVIVE', amount: 1 };
+      } else if (action === 'double_score') {
+        placement = 'DOUBLE_SCORE';
+        expectedReward = { currencyType: 'SCORE', amount: victoryData?.score || 1000 };
+      } else if (action === 'emergency_shield') {
+        placement = 'POWER_UP';
+        expectedReward = { currencyType: 'SHIELD', amount: 100 };
+      }
 
       const res = await api.post('/ads/offer', { placement, expectedReward });
       if (res.data?.success) {
@@ -205,11 +214,27 @@ export const GameContainer = ({
       }
     } else if (adTargetAction === 'double_credits') {
       if (victoryData) {
-        setVictoryData({
-          ...victoryData,
-          creditsEarned: victoryData.creditsEarned * 2,
-          doubled: true
-        });
+        setVictoryData((prev) => ({
+          ...prev,
+          creditsEarned: prev.creditsEarned * 2,
+          doubledCredits: true
+        }));
+      }
+    } else if (adTargetAction === 'double_score') {
+      if (victoryData) {
+        setVictoryData((prev) => ({
+          ...prev,
+          score: prev.score * 2,
+          doubledScore: true
+        }));
+      }
+    } else if (adTargetAction === 'emergency_shield') {
+      if (phaserGameInstance.current) {
+        const scene = phaserGameInstance.current.scene.getScene('SpaceCombatScene');
+        if (scene) {
+          scene.playerShield = scene.playerMaxShield;
+          scene.emitStats();
+        }
       }
     }
   };
@@ -440,6 +465,28 @@ export const GameContainer = ({
             </>
           )}
         </button>
+
+        {/* 5. Emergency Warp (Section 26 Requirement) */}
+        <button 
+          onClick={() => activateAbility('emergency_warp', 35)}
+          disabled={cooldowns['emergency_warp'] > 0}
+          className="glass-card" 
+          style={{
+            ...styles.abilityBtn,
+            opacity: cooldowns['emergency_warp'] > 0 ? 0.5 : 1
+          }}
+          title="Emergency Warp (HotKey: 5)"
+        >
+          {cooldowns['emergency_warp'] > 0 ? (
+            <span style={styles.cdNum}>{cooldowns['emergency_warp']}s</span>
+          ) : (
+            <>
+              <Zap size={20} color="#38BDF8" />
+              <span style={styles.abilityLabel}>WARP</span>
+              <span style={styles.hotkeyBadge}>5</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* ================= DEFEAT / REVIVE MODAL ================= */}
@@ -517,16 +564,27 @@ export const GameContainer = ({
               </div>
             </div>
 
-            {/* Rewarded Ad Option: 2x Credits */}
-            {!victoryData.doubled && (
-              <button 
-                onClick={() => triggerRewardedAd('double_credits')}
-                className="btn btn-magenta"
-                style={{ width: '100%', marginBottom: '16px', padding: '12px' }}
-              >
-                <Video size={18} /> WATCH AD: DOUBLE CREDITS (+{victoryData.creditsEarned * 2})
-              </button>
-            )}
+            {/* Rewarded Ad Options: 2x Credits (Section 43) & 2x Score (Section 42) */}
+            <div style={{ display: 'flex', gap: '10px', width: '100%', marginBottom: '16px' }}>
+              {!victoryData.doubledCredits && (
+                <button 
+                  onClick={() => triggerRewardedAd('double_credits')}
+                  className="btn btn-magenta"
+                  style={{ flex: 1, padding: '12px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                >
+                  <Video size={16} /> 2X CREDITS (+{victoryData.creditsEarned * 2})
+                </button>
+              )}
+              {!victoryData.doubledScore && (
+                <button 
+                  onClick={() => triggerRewardedAd('double_score')}
+                  className="btn btn-purple"
+                  style={{ flex: 1, padding: '12px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                >
+                  <Video size={16} /> 2X SCORE (+{victoryData.score.toLocaleString()})
+                </button>
+              )}
+            </div>
 
             <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
               <button 

@@ -356,6 +356,77 @@ export class BootScene extends Phaser.Scene {
       this.textures.addCanvas('enemy_cruiser', canvas);
     }
 
+    // 5b. Long-Range Gunship (Section 9: High-Altitude Sniper Vessel)
+    if (!this.textures.exists('enemy_gunship')) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 60;
+      canvas.height = 60;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#0284C7';
+      ctx.shadowColor = '#00E5FF';
+      ctx.shadowBlur = 10;
+
+      // Swept delta with elongated forward railgun barrel
+      ctx.beginPath();
+      ctx.moveTo(30, 56);
+      ctx.lineTo(54, 22);
+      ctx.lineTo(44, 12);
+      ctx.lineTo(30, 24);
+      ctx.lineTo(16, 12);
+      ctx.lineTo(6, 22);
+      ctx.closePath();
+      ctx.fill();
+
+      // Railgun Barrel
+      ctx.fillStyle = '#00E5FF';
+      ctx.fillRect(28, 2, 4, 24);
+
+      // Targeting Sensor
+      ctx.fillStyle = '#EF4444';
+      ctx.beginPath();
+      ctx.arc(30, 32, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      this.textures.addCanvas('enemy_gunship', canvas);
+    }
+
+    // 5c. Elite Enemy (Section 9: Advanced Shielded Assault Craft)
+    if (!this.textures.exists('enemy_elite')) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 68;
+      canvas.height = 68;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#D97706';
+      ctx.shadowColor = '#FBBF24';
+      ctx.shadowBlur = 12;
+
+      // Heavy golden hull with magenta plasma conduits
+      ctx.beginPath();
+      ctx.moveTo(34, 62);
+      ctx.lineTo(62, 30);
+      ctx.lineTo(52, 10);
+      ctx.lineTo(34, 20);
+      ctx.lineTo(16, 10);
+      ctx.lineTo(6, 30);
+      ctx.closePath();
+      ctx.fill();
+
+      // Dual Magenta Energy Cores
+      ctx.fillStyle = '#FF2DFF';
+      ctx.fillRect(18, 28, 6, 14);
+      ctx.fillRect(44, 28, 6, 14);
+
+      // Central Command Orb
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(34, 34, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      this.textures.addCanvas('enemy_elite', canvas);
+    }
+
     // 6. Enemy Bullet (Red Plasma Orb)
     if (!this.textures.exists('enemy_bullet')) {
       const canvas = document.createElement('canvas');
