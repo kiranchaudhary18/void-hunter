@@ -17,7 +17,7 @@ export const SidebarLayout = ({
   const { user, profile, isAuthenticated, logout } = useAuth();
 
   const baseNavItems = [
-    { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
+    { id: 'dashboard', label: isAuthenticated ? 'DASHBOARD' : 'MAIN MENU', icon: LayoutDashboard },
     { id: 'missions', label: 'MISSIONS', icon: Compass },
     { id: 'hangar', label: 'HANGAR', icon: Shield },
     { id: 'wallet', label: 'REWARDS', icon: Wallet },
@@ -37,11 +37,15 @@ export const SidebarLayout = ({
     if (item.isAction) {
       if (item.id === 'settings' && onOpenSettings) onOpenSettings();
     } else {
-      const authRequired = ['wallet', 'quests', 'admin'];
-      if (!isAuthenticated && authRequired.includes(item.id)) {
-        if (onNavigate) onNavigate('auth');
+      if (!isAuthenticated && item.id === 'dashboard') {
+        if (onNavigate) onNavigate('landing');
       } else {
-        if (onNavigate) onNavigate(item.id);
+        const authRequired = ['wallet', 'quests', 'admin'];
+        if (!isAuthenticated && authRequired.includes(item.id)) {
+          if (onNavigate) onNavigate('auth');
+        } else {
+          if (onNavigate) onNavigate(item.id);
+        }
       }
     }
   };
@@ -59,8 +63,8 @@ export const SidebarLayout = ({
         {/* Brand Logo Header */}
         <div 
           style={styles.logoBox} 
-          onClick={() => onNavigate('dashboard')} 
-          title="Return to Command Deck"
+          onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')} 
+          title={isAuthenticated ? "Return to Command Deck" : "Return to Main Menu"}
         >
           <img src="/favicon.svg" alt="Void Hunter" style={styles.logoIcon} />
           <div style={styles.logoTextGroup}>
@@ -73,7 +77,7 @@ export const SidebarLayout = ({
         <nav style={styles.navRail}>
           {navItems.map((item) => {
             const IconComponent = item.icon;
-            const isActive = currentScreen === item.id;
+            const isActive = currentScreen === item.id || (item.id === 'dashboard' && currentScreen === 'landing');
 
             return (
               <button
@@ -134,8 +138,8 @@ export const SidebarLayout = ({
           <div style={styles.headerLeft}>
             <div style={styles.topNavLinks}>
               <button 
-                onClick={() => onNavigate('dashboard')} 
-                style={{ ...styles.topNavLink, color: currentScreen === 'dashboard' ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
+                onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')} 
+                style={{ ...styles.topNavLink, color: (currentScreen === 'dashboard' || currentScreen === 'landing') ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
               >
                 HOME
               </button>

@@ -18,11 +18,84 @@ import { GAME_NAME, GAME_TAGLINE } from './config/gameConfig.js';
 import { Coins, Zap, User, LogOut, Play, Compass, Shield, Award, BarChart3, Wallet, Settings } from 'lucide-react';
 import './App.css';
 
+// Map URL pathname to internal screen identifier
+export const getScreenFromPath = (pathname, isAuthenticated = false) => {
+  const cleanPath = (pathname || window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
+  
+  switch (cleanPath) {
+    case '/missions':
+      return 'missions';
+    case '/hangar':
+    case '/ships':
+      return 'hangar';
+    case '/leaderboard':
+    case '/ranks':
+      return 'leaderboard';
+    case '/dashboard':
+      return 'dashboard';
+    case '/wallet':
+    case '/rewards':
+    case '/ledger':
+      return 'wallet';
+    case '/quests':
+    case '/achievements':
+      return 'quests';
+    case '/admin':
+    case '/audit':
+      return 'admin';
+    case '/auth':
+    case '/login':
+    case '/signup':
+    case '/register':
+      return 'auth';
+    case '/gameplay':
+    case '/combat':
+    case '/game':
+      return 'gameplay';
+    case '/':
+    case '/landing':
+    case '/home':
+    default:
+      return isAuthenticated ? 'dashboard' : 'landing';
+  }
+};
+
+// Map screen identifier to URL pathname
+export const getPathFromScreen = (screen) => {
+  switch (screen) {
+    case 'missions':
+      return '/missions';
+    case 'hangar':
+      return '/hangar';
+    case 'leaderboard':
+      return '/leaderboard';
+    case 'dashboard':
+      return '/dashboard';
+    case 'wallet':
+      return '/wallet';
+    case 'quests':
+      return '/quests';
+    case 'admin':
+      return '/admin';
+    case 'auth':
+      return '/auth';
+    case 'gameplay':
+      return '/gameplay';
+    case 'landing':
+    default:
+      return '/';
+  }
+};
+
 function MainAppContent() {
   const { user, profile, isAuthenticated, logout, refreshProfile } = useAuth();
+  
+  // Initialize current screen from actual browser URL path
   const [currentScreen, setCurrentScreen] = useState(() => {
-    return localStorage.getItem('void_hunter_token') ? 'dashboard' : 'landing';
+    const hasToken = !!localStorage.getItem('void_hunter_token');
+    return getScreenFromPath(window.location.pathname, hasToken);
   });
+  
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [activeMission, setActiveMission] = useState({
@@ -32,17 +105,61 @@ function MainAppContent() {
     globalSequence: 1
   });
 
-  // Automatically transition to Dashboard upon authentication
+  // Master navigation handler syncing browser address bar via HTML5 History API
+  const navigateTo = (screen, replace = false) => {
+    let targetScreen = screen;
+    if (targetScreen === 'main_menu' || targetScreen === 'home') {
+      targetScreen = isAuthenticated ? 'dashboard' : 'landing';
+    }
+
+    const targetPath = getPathFromScreen(targetScreen);
+    try {
+      if (window.location.pathname !== targetPath) {
+        if (replace) {
+          window.history.replaceState({ screen: targetScreen }, '', targetPath);
+        } else {
+          window.history.pushState({ screen: targetScreen }, '', targetPath);
+        }
+      }
+    } catch (e) {
+      console.warn('History navigation error:', e);
+    }
+
+    setCurrentScreen(targetScreen);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Popstate event listener for browser Back & Forward button navigation
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const targetScreen = getScreenFromPath(window.location.pathname, isAuthenticated);
+      setCurrentScreen(targetScreen);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isAuthenticated]);
+
+  // Synchronize initial URL address bar if user accessed root while authenticated
+  React.useEffect(() => {
+    const expectedPath = getPathFromScreen(currentScreen);
+    const validAliases = ['/login', '/signup', '/register', '/ships', '/ranks', '/rewards', '/combat'];
+    if (window.location.pathname !== expectedPath && !validAliases.includes(window.location.pathname)) {
+      window.history.replaceState({ screen: currentScreen }, '', expectedPath);
+    }
+  }, []);
+
+  // Automatically transition to Dashboard upon authentication if on root landing
   React.useEffect(() => {
     if (isAuthenticated && currentScreen === 'landing') {
-      setCurrentScreen('dashboard');
+      navigateTo('dashboard', true);
     }
   }, [isAuthenticated]);
 
   // Security Guard: Prevent non-administrators from accessing admin panel
   React.useEffect(() => {
     if (currentScreen === 'admin' && user?.role?.toLowerCase() !== 'admin') {
-      setCurrentScreen('dashboard');
+      navigateTo('dashboard', true);
     }
   }, [currentScreen, user]);
 
@@ -92,16 +209,16 @@ function MainAppContent() {
         const newSessionId = res.data?.sessionId || res.data?.session?.id || `local-${Date.now()}`;
         setActiveMission(nextMission);
         setActiveSessionId(newSessionId);
-        setCurrentScreen('gameplay');
+        navigateTo('gameplay');
       } catch (e) {
         console.warn('Could not start next mission online:', e.message);
         setActiveMission(nextMission);
         setActiveSessionId(`local-${Date.now()}`);
-        setCurrentScreen('gameplay');
+        navigateTo('gameplay');
       }
     } else {
       // Completed all 50 missions! Return to campaign map
-      setCurrentScreen('missions');
+      navigateTo('missions');
     }
   };
 
@@ -130,8 +247,8 @@ function MainAppContent() {
   if (!isAuthenticated && strictlyAuthScreens.includes(currentScreen)) {
     return (
       <AuthPage 
-        onBackToGame={() => setCurrentScreen('dashboard')} 
-        onAuthSuccess={() => setCurrentScreen(currentScreen === 'admin' ? 'dashboard' : currentScreen)} 
+        onBackToGame={() => navigateTo('landing')} 
+        onAuthSuccess={() => navigateTo(currentScreen === 'admin' ? 'dashboard' : currentScreen)} 
       />
     );
   }
@@ -140,8 +257,8 @@ function MainAppContent() {
   if (!isAuthenticated && currentScreen === 'gameplay') {
     return (
       <AuthPage 
-        onBackToGame={() => setCurrentScreen('missions')} 
-        onAuthSuccess={() => setCurrentScreen('gameplay')} 
+        onBackToGame={() => navigateTo('missions')} 
+        onAuthSuccess={() => navigateTo('gameplay')} 
       />
     );
   }
@@ -150,7 +267,7 @@ function MainAppContent() {
   if (currentScreen === 'landing' && !isAuthenticated) {
     return (
       <MainMenuPage 
-        onNavigate={(screen) => setCurrentScreen(screen)}
+        onNavigate={(screen) => navigateTo(screen)}
       />
     );
   }
@@ -159,8 +276,8 @@ function MainAppContent() {
   if (currentScreen === 'auth') {
     return (
       <AuthPage 
-        onBackToGame={() => setCurrentScreen(isAuthenticated ? 'dashboard' : 'landing')} 
-        onAuthSuccess={() => setCurrentScreen('dashboard')} 
+        onBackToGame={() => navigateTo(isAuthenticated ? 'dashboard' : 'landing')} 
+        onAuthSuccess={() => navigateTo('dashboard')} 
       />
     );
   }
@@ -172,7 +289,7 @@ function MainAppContent() {
         key={`${activeMission?.id || 'mission'}-${activeSessionId || 'sess'}`}
         mission={activeMission}
         ship={getSelectedShipData()}
-        onExit={(target = 'missions') => setCurrentScreen(target)}
+        onExit={(target = 'missions') => navigateTo(target)}
         onCompleteMission={handleMissionCompleted}
         onNextMission={handleNextMission}
       />
@@ -185,31 +302,31 @@ function MainAppContent() {
       case 'missions':
         return (
           <MissionsPage 
-            onBack={() => setCurrentScreen('dashboard')}
-            onNavigate={(screen) => setCurrentScreen(screen)}
+            onBack={() => navigateTo(isAuthenticated ? 'dashboard' : 'landing')}
+            onNavigate={(screen) => navigateTo(screen)}
             selectedShip={getSelectedShipData()}
             onLaunchMission={(mission, sessionId) => {
               if (!isAuthenticated) {
                 setActiveMission(mission);
-                setCurrentScreen('auth');
+                navigateTo('auth');
                 return;
               }
               setActiveMission(mission);
               setActiveSessionId(sessionId);
-              setCurrentScreen('gameplay');
+              navigateTo('gameplay');
             }}
           />
         );
       case 'hangar':
         return (
           <HangarPage 
-            onBack={() => setCurrentScreen('dashboard')}
-            onNavigate={(screen) => setCurrentScreen(screen)}
+            onBack={() => navigateTo(isAuthenticated ? 'dashboard' : 'landing')}
+            onNavigate={(screen) => navigateTo(screen)}
             onLaunchMission={() => {
               if (!isAuthenticated) {
-                setCurrentScreen('auth');
+                navigateTo('auth');
               } else {
-                setCurrentScreen('missions');
+                navigateTo('missions');
               }
             }}
           />
@@ -217,38 +334,38 @@ function MainAppContent() {
       case 'wallet':
         return (
           <WalletPage 
-            onBack={() => setCurrentScreen('dashboard')}
+            onBack={() => navigateTo('dashboard')}
           />
         );
       case 'quests':
         return (
           <QuestsPage 
-            onBack={() => setCurrentScreen('dashboard')}
+            onBack={() => navigateTo('dashboard')}
           />
         );
       case 'leaderboard':
         return (
           <LeaderboardPage 
-            onBack={() => setCurrentScreen('dashboard')}
-            onNavigate={(screen) => setCurrentScreen(screen)}
+            onBack={() => navigateTo(isAuthenticated ? 'dashboard' : 'landing')}
+            onNavigate={(screen) => navigateTo(screen)}
           />
         );
       case 'admin':
         return (
           <AdminDashboardPage 
-            onBack={() => setCurrentScreen('dashboard')}
+            onBack={() => navigateTo('dashboard')}
           />
         );
       case 'dashboard':
       default:
         return (
           <DashboardPage 
-            onNavigate={(screen) => setCurrentScreen(screen)}
+            onNavigate={(screen) => navigateTo(screen)}
             onLaunchQuickCombat={() => {
               if (!isAuthenticated) {
-                setCurrentScreen('auth');
+                navigateTo('auth');
               } else {
-                setCurrentScreen('gameplay');
+                navigateTo('gameplay');
               }
             }}
             selectedShip={getSelectedShipData()}
@@ -261,7 +378,7 @@ function MainAppContent() {
   return (
     <SidebarLayout
       currentScreen={currentScreen}
-      onNavigate={(screen) => setCurrentScreen(screen)}
+      onNavigate={(screen) => navigateTo(screen)}
       onOpenSettings={() => setIsSettingsOpen(true)}
     >
       {renderScreenContent()}

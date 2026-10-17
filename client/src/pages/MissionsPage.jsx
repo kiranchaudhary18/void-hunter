@@ -5,7 +5,7 @@ import soundManager from '../game/managers/SoundManager.js';
 import { SECTORS_LIST, MISSIONS_CATALOG, BOSS_ENCOUNTERS } from '../data/missionsData.js';
 import { 
   ArrowLeft, Star, Lock, Play, Shield, ShieldAlert, Award, 
-  Coins, Zap, Compass, Crosshair, Skull, ChevronRight, RefreshCw 
+  Coins, Zap, Compass, Crosshair, Skull, ChevronRight, RefreshCw, Sparkles 
 } from 'lucide-react';
 
 export const MissionsPage = ({ onBack, onNavigate, onLaunchMission, selectedShip = { name: 'V-01 ORBITRON', speed: 380, damage: 25 } }) => {
@@ -154,6 +154,25 @@ export const MissionsPage = ({ onBack, onNavigate, onLaunchMission, selectedShip
           </div>
         </div>
       </div>
+
+      {/* Guest Mode Banner */}
+      {!isAuthenticated && (
+        <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', border: '1px solid rgba(0, 229, 255, 0.35)', background: 'rgba(0, 229, 255, 0.08)', borderRadius: '8px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Sparkles size={18} color="var(--secondary-cyan)" />
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-light)' }}>
+              TACTICAL MISSIONS PREVIEW // Browse 50 campaign missions across 5 sectors. Enlist or login to launch combat sorties and log sector stars.
+            </span>
+          </div>
+          <button 
+            onClick={() => onNavigate && onNavigate('auth')} 
+            className="btn btn-cyan animate-pulse-glow" 
+            style={{ padding: '6px 18px', fontSize: '0.76rem', fontWeight: 'bold' }}
+          >
+            LOGIN / ENLIST
+          </button>
+        </div>
+      )}
 
       {/* Error / Locked Alert */}
       {errorMessage && (
