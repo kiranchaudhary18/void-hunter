@@ -91,6 +91,7 @@ export const GameContainer = ({
             onVictory: (result) => {
               setVictoryData(result);
               confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+              if (onCompleteMission) onCompleteMission(result);
             }
           }
         });
@@ -588,8 +589,11 @@ export const GameContainer = ({
 
             <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
               <button 
-                onClick={() => {
-                  if (onCompleteMission) onCompleteMission(victoryData);
+                onClick={async () => {
+                  setVictoryData(null);
+                  if (onCompleteMission) {
+                    await onCompleteMission(victoryData);
+                  }
                   if (onNextMission) {
                     onNextMission(mission);
                   } else {
@@ -602,8 +606,11 @@ export const GameContainer = ({
                 <Play size={16} /> NEXT MISSION
               </button>
               <button 
-                onClick={() => {
-                  if (onCompleteMission) onCompleteMission(victoryData);
+                onClick={async () => {
+                  setVictoryData(null);
+                  if (onCompleteMission) {
+                    await onCompleteMission(victoryData);
+                  }
                   onExit('missions');
                 }} 
                 className="btn btn-outline" 

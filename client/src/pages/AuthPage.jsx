@@ -43,10 +43,10 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
     setSubmitting(false);
 
     if (result.success) {
-      setSuccessMsg('Authentication verified. Welcome back, Pilot!');
+      setSuccessMsg('Authentication verified. Accessing Command Deck...');
       setTimeout(() => {
         if (onAuthSuccess) onAuthSuccess();
-      }, 1000);
+      }, 300);
     } else {
       setErrorMsg(result.message || 'Invalid email or password.');
     }
@@ -82,10 +82,10 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
     setSubmitting(false);
 
     if (result.success) {
-      setSuccessMsg('Pilot commission granted! Welcome bonus credited.');
+      setSuccessMsg('Pilot commission granted! Accessing Command Deck...');
       setTimeout(() => {
         if (onAuthSuccess) onAuthSuccess();
-      }, 1200);
+      }, 300);
     } else {
       setErrorMsg(result.message || 'Registration failed.');
     }

@@ -15,7 +15,7 @@ const walletTransactionSchema = new mongoose.Schema(
     },
     currencyType: {
       type: String,
-      enum: ['CREDITS', 'ENERGY_CORES', 'REWARD_COINS', 'XP'],
+      enum: ['CREDITS', 'ENERGY_CORES', 'REWARD_COINS', 'VELOP_COINS', 'VELOP_REWARD_COINS', 'XP'],
       default: 'CREDITS'
     },
     amount: {
@@ -43,6 +43,7 @@ const walletTransactionSchema = new mongoose.Schema(
         'AD_DOUBLE_CREDITS',
         'AD_BONUS_REWARD',
         'SUPPLY_DROP',
+        'EVENT_REWARD',
         'SHIP_PURCHASE',
         'SHIP_UPGRADE',
         'POWER_UP_PURCHASE',

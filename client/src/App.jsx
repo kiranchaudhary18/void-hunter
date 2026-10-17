@@ -19,7 +19,9 @@ import './App.css';
 
 function MainAppContent() {
   const { user, profile, isAuthenticated, logout, refreshProfile } = useAuth();
-  const [currentScreen, setCurrentScreen] = useState('landing'); // Screens: 'landing', 'auth', 'dashboard', 'missions', 'hangar', 'wallet', 'quests', 'leaderboard', 'admin', 'gameplay'
+  const [currentScreen, setCurrentScreen] = useState(() => {
+    return localStorage.getItem('void_hunter_token') ? 'dashboard' : 'landing';
+  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [activeMission, setActiveMission] = useState({
@@ -28,6 +30,13 @@ function MainAppContent() {
     sector: 'Nebula Outpost',
     globalSequence: 1
   });
+
+  // Automatically transition to Dashboard upon authentication
+  React.useEffect(() => {
+    if (isAuthenticated && currentScreen === 'landing') {
+      setCurrentScreen('dashboard');
+    }
+  }, [isAuthenticated]);
 
   // Map selectedShipId to texture and stats (hoisted at top to prevent ReferenceError)
   const getSelectedShipData = () => {
@@ -67,21 +76,21 @@ function MainAppContent() {
     const nextSeq = (currentMission?.globalSequence || 1) + 1;
     const nextMission = MISSIONS_CATALOG.find((m) => m.globalSequence === nextSeq);
     if (nextMission) {
-      setActiveMission(nextMission);
       try {
         const ship = getSelectedShipData();
         const res = await api.post(`/missions/${nextMission.id}/start`, {
           shipId: ship?.id || 'v01-orbitron'
         });
-        if (res.data?.success && res.data?.session?.id) {
-          setActiveSessionId(res.data.session.id);
-        } else {
-          setActiveSessionId(`local-${Date.now()}`);
-        }
+        const newSessionId = res.data?.sessionId || res.data?.session?.id || `local-${Date.now()}`;
+        setActiveMission(nextMission);
+        setActiveSessionId(newSessionId);
+        setCurrentScreen('gameplay');
       } catch (e) {
+        console.warn('Could not start next mission online:', e.message);
+        setActiveMission(nextMission);
         setActiveSessionId(`local-${Date.now()}`);
+        setCurrentScreen('gameplay');
       }
-      setCurrentScreen('gameplay');
     } else {
       // Completed all 50 missions! Return to campaign map
       setCurrentScreen('missions');
@@ -192,6 +201,7 @@ function MainAppContent() {
   if (currentScreen === 'gameplay') {
     return (
       <GameContainer
+        key={`${activeMission?.id || 'mission'}-${activeSessionId || 'sess'}`}
         mission={activeMission}
         ship={getSelectedShipData()}
         onExit={(target = 'missions') => setCurrentScreen(target)}
