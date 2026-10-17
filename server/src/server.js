@@ -16,6 +16,7 @@ import questRoutes from './routes/questRoutes.js';
 import leaderboardRoutes from './routes/leaderboardRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import engagementRoutes from './routes/engagementRoutes.js';
+import EconomyConfig from './models/EconomyConfig.js';
 
 dotenv.config();
 
@@ -59,22 +60,46 @@ app.get('/api/health', (req, res) => {
 });
 
 // Economy Config Endpoint (Section 35 Requirement)
-app.get('/api/economy/config', (req, res) => {
-  res.status(200).json({
-    success: true,
-    gameName: GAME_NAME,
-    economy: {
-      maxDailyAds: 10,
-      maxSessionAds: 5,
-      minSecondsBetweenAds: 60,
-      maxDailyRevives: 3,
-      maxDailyDoubleCredits: 5,
-      rewardMultipliers: {
-        doubleCredits: 2.0,
-        doubleScore: 2.0
+app.get('/api/economy/config', async (req, res) => {
+  try {
+    const config = await EconomyConfig.getActiveConfig();
+    res.status(200).json({
+      success: true,
+      gameName: GAME_NAME,
+      economy: {
+        maxDailyAds: config.maxDailyAds,
+        maxSessionAds: config.maxSessionAds,
+        minSecondsBetweenAds: config.minSecondsBetweenAds,
+        maxDailyRevives: config.maxDailyRevives,
+        standardMissionCredits: config.standardMissionCredits,
+        bossDefeatCredits: config.bossDefeatCredits,
+        dailyMissionCredits: config.dailyMissionCredits,
+        reviveEnabled: config.reviveEnabled,
+        doubleScoreEnabled: config.doubleScoreEnabled,
+        doubleCreditsEnabled: config.doubleCreditsEnabled,
+        extraShieldEnabled: config.extraShieldEnabled,
+        rewardMultipliers: {
+          doubleCredits: 2.0,
+          doubleScore: 2.0
+        }
       }
-    }
-  });
+    });
+  } catch (err) {
+    res.status(200).json({
+      success: true,
+      gameName: GAME_NAME,
+      economy: {
+        maxDailyAds: 10,
+        maxSessionAds: 5,
+        minSecondsBetweenAds: 60,
+        maxDailyRevives: 3,
+        rewardMultipliers: {
+          doubleCredits: 2.0,
+          doubleScore: 2.0
+        }
+      }
+    });
+  }
 });
 
 // 404 Handler

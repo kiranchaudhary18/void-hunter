@@ -1,7 +1,15 @@
 /**
- * VOID HUNTER: Master Assignment Compliance Test Suite
- * Tests Sections 78, 79, and 80 of the VELoop Full-Stack Developer Internship Specification
+ * VOID HUNTER: Master Assignment Compliance & Security Test Suite
+ * Tests Sections 33, 35, 36, 37, 60, 66, 74, 75, 78, 79, and 80
+ * of the VELoop Full-Stack Developer Internship Specification
  */
+
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -32,7 +40,7 @@ function assert(condition, testName, details = '') {
 
 async function runTests() {
   console.log('===============================================================');
-  console.log('   🚀 VOID HUNTER: COMPLETE ASSIGNMENT COMPLIANCE AUDIT SUITE');
+  console.log('   🚀 VOID HUNTER: COMPLETE ASSIGNMENT COMPLIANCE & SECURITY AUDIT');
   console.log('===============================================================\n');
 
   // -------------------------------------------------------------------------
@@ -43,12 +51,12 @@ async function runTests() {
   assert(health.ok && health.data.gameName, 'Health endpoint reports configured gameName', health.data.gameName);
 
   const econConfig = await request('/economy/config');
-  assert(econConfig.ok && econConfig.data.economy.maxDailyAds === 10, 'Server-authoritative economy config endpoint operational', JSON.stringify(econConfig.data));
+  assert(econConfig.ok && econConfig.data.economy.maxDailyAds, 'Server-authoritative economy config endpoint operational', JSON.stringify(econConfig.data));
 
   // -------------------------------------------------------------------------
-  // 2. AUTHENTICATION & SECURITY
+  // 2. AUTHENTICATION, ROLES & PRIVILEGE ESCALATION PREVENTION
   // -------------------------------------------------------------------------
-  console.log('\n--- TEST GROUP 2: AUTHENTICATION & CROSS-USER ISOLATION (Section 60 & 80) ---');
+  console.log('\n--- TEST GROUP 2: AUTHENTICATION, ROLES & SECURITY (Sections 60, 80) ---');
   const randomSuffix = Math.floor(Math.random() * 100000);
   const pilotA = {
     name: `Pilot A ${randomSuffix}`,
@@ -61,12 +69,22 @@ async function runTests() {
     password: 'Password123!'
   };
 
-  const regA = await request('/auth/register', { method: 'POST', body: JSON.stringify(pilotA) });
+  // Self-Promotion Attack: Player attempts to send role: 'admin' during registration
+  const hackerAttempt = {
+    name: `Hacker ${randomSuffix}`,
+    email: `hacker_${randomSuffix}@voidhunter.com`,
+    password: 'Password123!',
+    role: 'admin' // Attempted privilege escalation
+  };
+  const hackerReg = await request('/auth/register', { method: 'POST', body: hackerAttempt });
+  assert(hackerReg.status === 201 && hackerReg.data.user.role === 'player', 'Privilege Escalation Prevention: Sending role: admin defaults safely to player');
+
+  const regA = await request('/auth/register', { method: 'POST', body: pilotA });
   assert(regA.status === 201 && regA.data.token, 'Pilot A registered successfully');
   const tokenA = regA.data.token;
   const headersA = { Authorization: `Bearer ${tokenA}` };
 
-  const regB = await request('/auth/register', { method: 'POST', body: JSON.stringify(pilotB) });
+  const regB = await request('/auth/register', { method: 'POST', body: pilotB });
   assert(regB.status === 201 && regB.data.token, 'Pilot B registered successfully');
   const tokenB = regB.data.token;
   const headersB = { Authorization: `Bearer ${tokenB}` };
@@ -87,7 +105,7 @@ async function runTests() {
   const startSession = await request('/missions/sector-1-mission-1/start', {
     method: 'POST',
     headers: headersA,
-    body: JSON.stringify({ shipId: 'v01-orbitron' })
+    body: { shipId: 'v01-orbitron' }
   });
   assert(startSession.status === 201 && startSession.data.sessionId, 'Game session initialized with UUID');
   const sessionId = startSession.data.sessionId;
@@ -96,10 +114,10 @@ async function runTests() {
   const cheatAttempt = await request(`/missions/${sessionId}/complete`, {
     method: 'POST',
     headers: headersA,
-    body: JSON.stringify({
+    body: {
       finalScore: 50000,
       durationSeconds: 3 // impossible 3-second completion
-    })
+    }
   });
   assert(cheatAttempt.status === 400, 'Anti-cheat duration validation: speedhack (<10s) successfully rejected (HTTP 400)');
 
@@ -107,18 +125,18 @@ async function runTests() {
   const validRunStart = await request('/missions/sector-1-mission-1/start', {
     method: 'POST',
     headers: headersA,
-    body: JSON.stringify({ shipId: 'v01-orbitron' })
+    body: { shipId: 'v01-orbitron' }
   });
   const validSessionId = validRunStart.data.sessionId;
 
   const legitimateComplete = await request(`/missions/${validSessionId}/complete`, {
     method: 'POST',
     headers: headersA,
-    body: JSON.stringify({
+    body: {
       finalScore: 16500,
       durationSeconds: 42,
       telemetry: { accuracyPercentage: 88, enemiesDestroyed: 24 }
-    })
+    }
   });
   assert(legitimateComplete.status === 200 && legitimateComplete.data.starsAwarded > 0, 'Legitimate combat session verified, stars & rewards granted');
 
@@ -126,24 +144,17 @@ async function runTests() {
   const replayAttempt = await request(`/missions/${validSessionId}/complete`, {
     method: 'POST',
     headers: headersA,
-    body: JSON.stringify({
+    body: {
       finalScore: 16500,
       durationSeconds: 42
-    })
+    }
   });
   assert(replayAttempt.status === 400, 'Idempotency check: Replay attack on finalized session blocked (HTTP 400)');
 
   // -------------------------------------------------------------------------
-  // 4. SHIP UPGRADES & SPENDING INTEGRITY
+  // 4. FLEET UPGRADES & SPENDING INTEGRITY
   // -------------------------------------------------------------------------
   console.log('\n--- TEST GROUP 4: FLEET UPGRADES & SPENDING INTEGRITY (Sections 24-25, 38) ---');
-  // Attempt upgrade with insufficient funds
-  const expensiveUpgrade = await request('/ships/v01-orbitron/upgrade', {
-    method: 'POST',
-    headers: headersA,
-    body: JSON.stringify({ moduleType: 'hull', targetLevel: 5 })
-  });
-  // Since level 1->2 is 250, but targetLevel 5 requires consecutive or high cost
   const shipsRes = await request('/ships', { headers: headersA });
   assert(shipsRes.ok && shipsRes.data.ships.length === 5, 'Ship fleet contains all 5 mandatory classes');
 
@@ -151,7 +162,7 @@ async function runTests() {
   const upgradeRes = await request('/ships/v01-orbitron/upgrade', {
     method: 'POST',
     headers: headersA,
-    body: JSON.stringify({ moduleType: 'hull' })
+    body: { moduleType: 'hull' }
   });
   assert(upgradeRes.status === 200, 'Authoritative ship module upgrade succeeded, currency atomically deducted');
 
@@ -165,7 +176,7 @@ async function runTests() {
   const adOffer = await request('/ads/offer', {
     method: 'POST',
     headers: headersA,
-    body: JSON.stringify({ placement: 'DOUBLE_CREDITS', baseCredits: 200 })
+    body: { placement: 'DOUBLE_CREDITS', baseCredits: 200 }
   });
   assert(adOffer.status === 201 && adOffer.data.adId && adOffer.data.state === 'INITIALIZED', 'Rewarded ad session initialized in state INITIALIZED');
   const adId = adOffer.data.adId;
@@ -182,7 +193,7 @@ async function runTests() {
   await request(`/ads/${adId}/heartbeat`, {
     method: 'POST',
     headers: headersA,
-    body: JSON.stringify({ elapsedSeconds: 5 })
+    body: { elapsedSeconds: 5 }
   });
 
   // Verify and claim
@@ -218,13 +229,99 @@ async function runTests() {
   assert(events.ok && events.data.events.length > 0, 'Section 58 Limited-Time Events catalog returned');
 
   // -------------------------------------------------------------------------
-  // 7. DOUBLE-ENTRY LEDGER & AUDIT INTEGRITY
+  // 7. ADMIN SECURITY, RBAC & AUDIT LEDGER (Sections 74, 75, 80)
   // -------------------------------------------------------------------------
-  console.log('\n--- TEST GROUP 7: DOUBLE-ENTRY LEDGER & ADMIN AUDIT (Sections 36, 37, 74, 75) ---');
-  const audit = await request('/admin/audit');
-  assert(audit.ok && audit.data.systemHealth === 'OPTIMAL', 'Admin audit report generated: systemHealth is OPTIMAL');
-  assert(audit.data.ledgerAudit.isDoubleEntryBalanced === true, 'Double-entry ledger is mathematically balanced with 0 anomalies');
-  assert(audit.data.ledgerAudit.ledgerInconsistencies === 0, 'Ledger inconsistency count is exactly 0');
+  console.log('\n--- TEST GROUP 7: SECURE ADMIN PANEL & ECONOMY AUDIT (Sections 35, 74, 75, 80) ---');
+
+  // Requirement 4: Unauthenticated requests to /api/admin/* rejected with HTTP 401
+  const unauthOverview = await request('/admin/overview');
+  assert(unauthOverview.status === 401, 'RBAC Security: Unauthenticated request to /admin/overview returns HTTP 401');
+
+  const unauthAudit = await request('/admin/audit');
+  assert(unauthAudit.status === 401, 'RBAC Security: Unauthenticated request to /admin/audit returns HTTP 401');
+
+  // Requirement 2: Authenticated Player calling admin API directly is rejected with HTTP 403
+  const playerAdminOverview = await request('/admin/overview', { headers: headersA });
+  assert(playerAdminOverview.status === 403, 'RBAC Security: Authenticated PLAYER calling /admin/overview rejected with HTTP 403 Forbidden');
+
+  const playerAudit = await request('/admin/audit', { headers: headersA });
+  assert(playerAudit.status === 403, 'RBAC Security: Authenticated PLAYER calling /admin/audit rejected with HTTP 403 Forbidden');
+
+  const playerConfigUpdate = await request('/admin/economy-config', {
+    method: 'PUT',
+    headers: headersA,
+    body: { maxDailyAds: 99 }
+  });
+  assert(playerConfigUpdate.status === 403, 'RBAC Security: Authenticated PLAYER cannot modify economy configuration (HTTP 403)');
+
+  // Requirement 3: Bootstrap Administrator via CLI and verify Admin access
+  const adminEmail = `admin_${randomSuffix}@voidhunter.com`;
+  const adminPassword = 'AdminSecret2026!';
+  const scriptPath = path.join(__dirname, '../scripts/createAdmin.js');
+
+  console.log(`  [INFO] Bootstrapping admin account via server CLI: ${adminEmail}...`);
+  execSync(`node "${scriptPath}" --name "Supreme Commander" --email "${adminEmail}" --password "${adminPassword}"`, {
+    stdio: 'pipe'
+  });
+
+  // Login as Administrator
+  const adminLogin = await request('/auth/login', {
+    method: 'POST',
+    body: { email: adminEmail, password: adminPassword }
+  });
+  assert(adminLogin.status === 200 && adminLogin.data.user.role === 'admin', 'Admin Login: Authenticated administrator returned with role admin');
+  const adminToken = adminLogin.data.token;
+  const adminHeaders = { Authorization: `Bearer ${adminToken}` };
+
+  // Admin Overview Metrics (Section 75)
+  const adminOverview = await request('/admin/overview', { headers: adminHeaders });
+  assert(adminOverview.status === 200 && adminOverview.data.metrics, 'Admin Overview: Section 75 metrics successfully calculated and returned');
+  assert(typeof adminOverview.data.metrics.adCompletionRate === 'string', 'Admin Overview: adCompletionRate computed correctly');
+  assert(typeof adminOverview.data.metrics.totalCreditsGranted === 'number', 'Admin Overview: totalCreditsGranted computed correctly');
+
+  // Double-Entry Balance Audit (Section 74)
+  const adminAudit = await request('/admin/audit', { headers: adminHeaders });
+  assert(adminAudit.status === 200 && adminAudit.data.systemHealth === 'OPTIMAL', 'Admin Audit: systemHealth is OPTIMAL for authorized admin');
+  assert(adminAudit.data.ledgerAudit.isDoubleEntryBalanced === true, 'Admin Audit: Double-entry ledger is mathematically balanced with 0 anomalies');
+  assert(adminAudit.data.ledgerAudit.ledgerInconsistencies === 0, 'Admin Audit: Ledger inconsistency count is exactly 0');
+
+  // Reward Audit Log (Section 37)
+  const rewardLogs = await request('/admin/rewards?page=1&limit=10', { headers: adminHeaders });
+  assert(rewardLogs.status === 200 && Array.isArray(rewardLogs.data.transactions), 'Reward Audit Log: Paginated reward transaction records returned');
+  assert(rewardLogs.data.totalCount > 0, 'Reward Audit Log: Persisted reward events found in database');
+
+  // Wallet Transaction Ledger (Section 36)
+  const walletLedger = await request('/admin/wallet-ledger?page=1&limit=10', { headers: adminHeaders });
+  assert(walletLedger.status === 200 && Array.isArray(walletLedger.data.transactions), 'Wallet Ledger: Cross-user wallet transaction ledger records returned');
+  assert(walletLedger.data.totalCount > 0, 'Wallet Ledger: Double-entry wallet transactions correctly persisted');
+
+  // Ad Opportunities Monitor (Section 47 & 48)
+  const adOpportunities = await request('/admin/ad-opportunities?page=1&limit=10', { headers: adminHeaders });
+  assert(adOpportunities.status === 200 && Array.isArray(adOpportunities.data.sessions), 'Ad Opportunities: Ad sessions returned with provider status');
+  assert(adOpportunities.data.summary.activeSimulatedCount > 0, 'Ad Opportunities: Simulated development sessions properly distinguished');
+
+  // Economy Configuration Validation & Audit Logging (Section 35)
+  const invalidConfig = await request('/admin/economy-config', {
+    method: 'PUT',
+    headers: adminHeaders,
+    body: { maxDailyAds: 99999 } // Exceeds upper bound of 100
+  });
+  assert(invalidConfig.status === 400, 'Economy Config Validation: Out-of-bounds config update rejected (HTTP 400)');
+
+  const validConfigUpdate = await request('/admin/economy-config', {
+    method: 'PUT',
+    headers: adminHeaders,
+    body: {
+      maxDailyAds: 15,
+      reason: 'Automated compliance test rebalancing'
+    }
+  });
+  assert(validConfigUpdate.status === 200 && validConfigUpdate.data.config.maxDailyAds === 15, 'Economy Config: Valid adjustment persisted and enforced');
+  assert(validConfigUpdate.data.config.auditLog.length > 0, 'Economy Config: Immutable audit log recorded with administrator identity and timestamp');
+
+  // Verify dynamic economy endpoint reflects new config
+  const updatedEcon = await request('/economy/config');
+  assert(updatedEcon.data.economy.maxDailyAds === 15, 'Dynamic Configuration: Server-authoritative /economy/config reflects new setting');
 
   console.log('\n===============================================================');
   console.log(`   TEST EXECUTION SUMMARY: ${passedCount} PASSED, ${failedCount} FAILED`);

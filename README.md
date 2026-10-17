@@ -559,14 +559,58 @@ A complete demonstration video covering all 36 mandatory validation scenarios:
 
 ---
 
-## ⚠️ 16. Known Limitations & Architecture Notes
+---
 
-1. **Advertising Provider Abstraction (Section 48)**:
-   * Uses `SimulatedDevAdAdapter` in local development environments. While it fully enforces playback duration timing, heartbeat verification, and server HMAC verification, it does not connect to live Google AdMob / Unity Ads production ad exchanges without commercial publisher IDs.
-2. **Hybrid Client Physics vs Server-Side Simulation**:
-   * Canvas collisions and particle dynamics are executed on the client game loop at 60 FPS using Phaser 3, while score, duration, accuracy telemetry, and currency payouts are strictly verified on the Node.js server. Future iterations can incorporate headless server-side game state simulation for esports-grade competitive anti-cheat.
-3. **VELoop Platform Coins**:
-   * VELoop Reward Coins are tracked as an independent currency ledger separated from in-game Credits and Energy Cores, ready for integration with VELoop's platform API.
+## 🛡️ 17. Secure Admin Panel & Economy Audit System (Sections 33, 35, 36, 37, 74, 75, 80)
+
+VOID HUNTER includes a hardened, separate administrative suite adhering to the economy and auditing specifications of the VELOOP assignment.
+
+### Role-Based Access Control (RBAC) Architecture
+* **Roles**: `PLAYER` (default) and `ADMIN`.
+* **Zero Client Trust**: All administrative endpoints independently verify authenticated JWT tokens and check `req.user.role === 'admin'`.
+* **Tamper-Proof Registration**: Player self-promotion is blocked. Sending `role: 'admin'` in registration payloads is discarded and defaults safely to `player`.
+* **Conditional UI Exposure**: The `AUDIT LEDGER` navigation option is only visible in the sidebar to authenticated administrators. Non-admin players navigating to `/admin` are immediately intercepted and redirected to `/dashboard` with an HTTP 403 denial state.
+
+### Secure Initial Administrator Provisioning
+Administrator accounts cannot be registered publicly. To bootstrap the initial administrator account, run the server-side CLI tool:
+
+```bash
+# Using explicit CLI flags:
+node server/scripts/createAdmin.js --name "Admiral Sovereign" --email "admin@voidhunter.com" --password "YourStrongPassword123!"
+
+# Or using npm script with environment variables:
+ADMIN_NAME="Admiral Sovereign" ADMIN_EMAIL="admin@voidhunter.com" ADMIN_PASSWORD="YourStrongPassword123!" npm --prefix server run create-admin
+```
+
+This script promotes an existing user or securely initializes a new administrator account with a hashed password, level 10 pilot profile, and full unlocked fleet clearance.
+
+### Protected Administrative REST API Endpoints
+All administrative routes require `Authorization: Bearer <TOKEN>` and `ADMIN` role clearance:
+
+| Method | Endpoint | Description | Compliance |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/admin/overview` | Real-time Section 75 metrics: ad completion rate, revive conversion, credits minted vs sunk | Section 75 |
+| `GET` | `/api/admin/rewards` | Searchable, filterable, paginated reward audit records | Section 37 |
+| `GET` | `/api/admin/wallet-ledger` | Searchable, filterable, paginated cross-user double-entry wallet transactions | Section 36 |
+| `GET` | `/api/admin/ad-opportunities` | Monitor ad sessions, distinguishing simulated dev sessions from live providers | Section 47 & 48 |
+| `GET` | `/api/admin/economy-config` | Fetch server-authoritative economy limits and audit history | Section 35 |
+| `PUT` | `/api/admin/economy-config` | Update economy limits with strict backend bounds validation and immutable logging | Section 35 |
+| `GET` | `/api/admin/audit` | Double-entry mathematical balance verification & diagnostic anomaly detection | Section 74 |
+
+### Admin Panel Interface Tabs (`/admin`)
+1. **Overview**: Real-time KPI cards for ad opportunities, completed ads, failed ads, rejected claims, credits minted, credits sunk, net circulation, average reward per user, and conversion percentages.
+2. **Reward Audit Log**: Filter by reward type, verification status, event source, date range, and keyword search (User, Event ID, Session ID).
+3. **Wallet Transaction Ledger**: Full visibility into user transactions (CREDIT/DEBIT), balance before, balance after, reference ID, and audit details.
+4. **Ad Opportunities Monitor**: Track live and simulated session lifecycles (`INITIATED`, `AD_STARTED`, `VIDEO_COMPLETED`, `VERIFIED`, `GRANTED`, `REJECTED`, `EXPIRED`).
+5. **Economy Configuration**: Inspect and adjust daily caps, cooldowns, and mission reward values. Every change requires an administrative reason and is permanently recorded in the `auditLog` subcollection.
+
+### Running Automated Security & Compliance Tests
+Execute the comprehensive automated test suite verifying all 14 mandatory security and economy scenarios:
+
+```bash
+cd server
+node tests/test_compliance_matrix.js
+```
 
 ---
 

@@ -16,16 +16,21 @@ export const SidebarLayout = ({
 }) => {
   const { user, profile, logout } = useAuth();
 
-  const navItems = [
+  const baseNavItems = [
     { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
     { id: 'missions', label: 'MISSIONS', icon: Compass },
     { id: 'hangar', label: 'HANGAR', icon: Shield },
     { id: 'wallet', label: 'REWARDS', icon: Wallet },
     { id: 'quests', label: 'ACHIEVEMENTS', icon: Award },
     { id: 'leaderboard', label: 'LEADERBOARD', icon: BarChart3 },
-    { id: 'admin', label: 'AUDIT LEDGER', icon: ShieldCheck },
-    { id: 'settings', label: 'SETTINGS', icon: Settings, isAction: true },
   ];
+
+  if (user?.role?.toLowerCase() === 'admin') {
+    baseNavItems.push({ id: 'admin', label: 'AUDIT LEDGER', icon: ShieldCheck });
+  }
+
+  baseNavItems.push({ id: 'settings', label: 'SETTINGS', icon: Settings, isAction: true });
+  const navItems = baseNavItems;
 
   const handleNavClick = (item) => {
     soundManager.playLaser();

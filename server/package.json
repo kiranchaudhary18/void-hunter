@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "node tests/test_compliance_matrix.js"
+    "test": "node tests/test_compliance_matrix.js",
+    "create-admin": "node scripts/createAdmin.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

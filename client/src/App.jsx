@@ -39,6 +39,13 @@ function MainAppContent() {
     }
   }, [isAuthenticated]);
 
+  // Security Guard: Prevent non-administrators from accessing admin panel
+  React.useEffect(() => {
+    if (currentScreen === 'admin' && user?.role?.toLowerCase() !== 'admin') {
+      setCurrentScreen('dashboard');
+    }
+  }, [currentScreen, user]);
+
   // Map selectedShipId to texture and stats (hoisted at top to prevent ReferenceError)
   const getSelectedShipData = () => {
     const id = profile?.selectedShipId || 'v01-orbitron';

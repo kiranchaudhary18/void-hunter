@@ -29,14 +29,18 @@ export const protect = async (req, res, next) => {
   }
 };
 
-// Admin only middleware
-export const authorizeAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    next();
-  } else {
-    res.status(403).json({ success: false, message: 'Access denied: Admin clearance required' });
+// Admin only authorization middleware (Section 74: Restrict administrative access)
+export const requireAdmin = (req, res, next) => {
+  if (req.user && (req.user.role?.toLowerCase() === 'admin')) {
+    return next();
   }
+  return res.status(403).json({
+    success: false,
+    message: 'Access denied: Administrator clearance required'
+  });
 };
+
+export const authorizeAdmin = requireAdmin;
 
 // Optional auth middleware (attaches req.user if present, but does not block)
 export const optionalProtect = async (req, res, next) => {
