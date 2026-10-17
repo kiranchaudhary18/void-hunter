@@ -11,19 +11,31 @@ class SoundManager {
     this.muted = false;
     this.bgmPlaying = false;
     this.bgmMode = null; // 'menu' | 'combat'
-    this.desiredBgmMode = 'menu';
+    this.desiredBgmMode = 'vocal';
     this.autoplayBlocked = false;
     this.audioUnlocked = false;
     this.listeners = new Set();
 
+    // Playlist catalog for easy switching
+    this.playlist = [
+      { id: 'vocal', title: 'WARRIORS OF THE VOID', subtitle: 'ENGLISH VOCAL ANTHEM (130 BPM)', bpm: 130, hasLyrics: true },
+      { id: 'menu', title: 'VOID HUNTER // CYBER DRIVE', subtitle: 'SYNTHWAVE BEAT (124 BPM)', bpm: 124, hasLyrics: false },
+      { id: 'combat', title: 'SECTOR OVERDRIVE', subtitle: 'COMBAT FRENZY (138 BPM)', bpm: 138, hasLyrics: false }
+    ];
+
     // HTML5 Audio Elements for Studio-Quality Soundtrack Playback
     this.tracks = {
+      vocal: null,
       menu: null,
       combat: null
     };
 
     if (typeof window !== 'undefined') {
       try {
+        const vocalAudio = new Audio('/audio/vocal_anthem.wav');
+        vocalAudio.loop = true;
+        vocalAudio.preload = 'auto';
+
         const menuAudio = new Audio('/audio/ambient_theme.wav');
         menuAudio.loop = true;
         menuAudio.preload = 'auto';
@@ -32,6 +44,7 @@ class SoundManager {
         combatAudio.loop = true;
         combatAudio.preload = 'auto';
 
+        this.tracks.vocal = vocalAudio;
         this.tracks.menu = menuAudio;
         this.tracks.combat = combatAudio;
       } catch (e) {
@@ -65,7 +78,8 @@ class SoundManager {
           muted: this.muted,
           bgmVolume: this.bgmVolume,
           sfxVolume: this.sfxVolume,
-          autoplayBlocked: this.autoplayBlocked
+          autoplayBlocked: this.autoplayBlocked,
+          playlist: this.playlist
         });
       } catch (e) {
         console.error(e);
@@ -92,7 +106,7 @@ class SoundManager {
     if (!this.muted && (!this.bgmPlaying || this.autoplayBlocked)) {
       const isCombat = typeof window !== 'undefined' && 
         (window.location.pathname.includes('combat') || window.location.pathname.includes('gameplay'));
-      const target = this.desiredBgmMode || (isCombat ? 'combat' : 'menu');
+      const target = this.desiredBgmMode || (isCombat ? 'combat' : 'vocal');
       this.startBGM(target);
     }
   }
@@ -110,7 +124,7 @@ class SoundManager {
     if (!this.muted && !this.bgmPlaying) {
       const isCombat = typeof window !== 'undefined' && 
         (window.location.pathname.includes('combat') || window.location.pathname.includes('gameplay'));
-      this.startBGM(isCombat ? 'combat' : 'menu');
+      this.startBGM(this.desiredBgmMode || (isCombat ? 'combat' : 'vocal'));
     }
     this.notifyListeners();
     return this.muted;
@@ -118,31 +132,51 @@ class SoundManager {
 
   updateVolumes() {
     const activeVolume = this.muted ? 0 : this.bgmVolume;
-    if (this.tracks.menu) {
-      this.tracks.menu.volume = this.bgmMode === 'menu' ? activeVolume : 0;
-    }
-    if (this.tracks.combat) {
-      this.tracks.combat.volume = this.bgmMode === 'combat' ? activeVolume : 0;
+    ['vocal', 'menu', 'combat'].forEach((key) => {
+      if (this.tracks[key]) {
+        this.tracks[key].volume = this.bgmMode === key ? activeVolume : 0;
+      }
+    });
+  }
+
+  nextTrack() {
+    const ids = this.playlist.map((p) => p.id);
+    const currentIdx = ids.indexOf(this.bgmMode || this.desiredBgmMode);
+    const nextIdx = (currentIdx + 1) % ids.length;
+    this.startBGM(ids[nextIdx]);
+  }
+
+  prevTrack() {
+    const ids = this.playlist.map((p) => p.id);
+    const currentIdx = ids.indexOf(this.bgmMode || this.desiredBgmMode);
+    const prevIdx = (currentIdx - 1 + ids.length) % ids.length;
+    this.startBGM(ids[prevIdx]);
+  }
+
+  setTrack(trackId) {
+    if (this.tracks[trackId]) {
+      this.startBGM(trackId);
     }
   }
 
   // ==================== BACKGROUND SOUNDTRACK CONTROLLER ====================
-  startBGM(mode = 'menu') {
+  startBGM(mode = 'vocal') {
     this.init();
     this.desiredBgmMode = mode;
 
     if (this.bgmPlaying && this.bgmMode === mode) return;
 
-    const targetTrack = mode === 'combat' ? this.tracks.combat : this.tracks.menu;
-    const fadeTrack = mode === 'combat' ? this.tracks.menu : this.tracks.combat;
+    const targetTrack = this.tracks[mode] || this.tracks.vocal || this.tracks.menu;
 
-    // Fade out inactive track
-    if (fadeTrack && fadeTrack !== targetTrack) {
-      try {
-        fadeTrack.pause();
-        fadeTrack.currentTime = 0;
-      } catch {}
-    }
+    // Pause all other tracks
+    ['vocal', 'menu', 'combat'].forEach((key) => {
+      if (key !== mode && this.tracks[key]) {
+        try {
+          this.tracks[key].pause();
+          this.tracks[key].currentTime = 0;
+        } catch {}
+      }
+    });
 
     // Play active track
     if (targetTrack) {
@@ -169,12 +203,11 @@ class SoundManager {
 
   stopBGM() {
     this.bgmPlaying = false;
-    if (this.tracks.menu) {
-      try { this.tracks.menu.pause(); } catch {}
-    }
-    if (this.tracks.combat) {
-      try { this.tracks.combat.pause(); } catch {}
-    }
+    ['vocal', 'menu', 'combat'].forEach((key) => {
+      if (this.tracks[key]) {
+        try { this.tracks[key].pause(); } catch {}
+      }
+    });
     this.notifyListeners();
   }
 

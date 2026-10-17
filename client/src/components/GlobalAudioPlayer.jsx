@@ -1,25 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import soundManager from '../game/managers/SoundManager.js';
-import { Volume2, VolumeX, Play, Pause, Music, ChevronDown, ChevronUp } from 'lucide-react';
+import { 
+  Volume2, VolumeX, Play, Pause, Music, ChevronDown, ChevronUp, 
+  SkipForward, SkipBack, Mic, Radio, Disc 
+} from 'lucide-react';
+
+const LYRIC_SNIPPETS = [
+  "⚡ 'Into the endless dark we fly, stars ignite across the sky!'",
+  "🔥 'Void Hunters rise, our spirits bold! A galactic legend unfolds!'",
+  "⚡ 'Feel the thunder, feel the flame! Write our victory in their name!'",
+  "🛡️ 'Space warriors, never surrender! We are the Void Hunter!'",
+  "🚀 'Target locked! Full laser overdrive! All wings engage!'",
+  "👑 'Victory is ours! The galaxy belongs to Void Hunters!'"
+];
 
 export const GlobalAudioPlayer = () => {
   const [audioState, setAudioState] = useState({
     bgmPlaying: soundManager.bgmPlaying,
-    bgmMode: soundManager.bgmMode || 'menu',
+    bgmMode: soundManager.bgmMode || soundManager.desiredBgmMode || 'vocal',
     muted: soundManager.muted,
-    bgmVolume: soundManager.bgmVolume
+    bgmVolume: soundManager.bgmVolume,
+    autoplayBlocked: soundManager.autoplayBlocked,
+    playlist: soundManager.playlist
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [lyricIndex, setLyricIndex] = useState(0);
 
   useEffect(() => {
     // Subscribe to soundManager state changes
     const unsubscribe = soundManager.subscribe((state) => {
-      setAudioState({ ...state });
+      setAudioState((prev) => ({ ...prev, ...state }));
     });
-
     return () => unsubscribe();
   }, []);
+
+  // Cycle lyric snippets every 5 seconds when vocal track is active
+  useEffect(() => {
+    if (audioState.bgmMode === 'vocal' && audioState.bgmPlaying) {
+      const interval = setInterval(() => {
+        setLyricIndex((prev) => (prev + 1) % LYRIC_SNIPPETS.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [audioState.bgmMode, audioState.bgmPlaying]);
 
   const handleTogglePlay = (e) => {
     e.stopPropagation();
@@ -27,9 +51,25 @@ export const GlobalAudioPlayer = () => {
       soundManager.stopBGM();
     } else {
       soundManager.unlockAudio();
-      const isCombat = window.location.pathname.includes('combat') || window.location.pathname.includes('gameplay');
-      soundManager.startBGM(isCombat ? 'combat' : 'menu');
+      soundManager.startBGM(audioState.bgmMode || 'vocal');
     }
+  };
+
+  const handleNextTrack = (e) => {
+    e.stopPropagation();
+    soundManager.unlockAudio();
+    soundManager.nextTrack();
+  };
+
+  const handlePrevTrack = (e) => {
+    e.stopPropagation();
+    soundManager.unlockAudio();
+    soundManager.prevTrack();
+  };
+
+  const handleSelectTrack = (trackId) => {
+    soundManager.unlockAudio();
+    soundManager.setTrack(trackId);
   };
 
   const handleToggleMute = (e) => {
@@ -49,16 +89,15 @@ export const GlobalAudioPlayer = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const trackTitle = audioState.bgmMode === 'combat' 
-    ? 'SECTOR OVERDRIVE // COMBAT FRENZY (138 BPM)' 
-    : 'VOID HUNTER // CYBER ANTHEM (124 BPM)';
+  // Current track metadata
+  const currentTrack = soundManager.playlist.find((p) => p.id === (audioState.bgmMode || 'vocal')) || soundManager.playlist[0];
 
   return (
     <div 
       className={`global-audio-widget glass-panel cyber-box ${!audioState.bgmPlaying ? 'audio-prompt-glow' : 'animate-pulse-glow'}`}
       style={styles.widgetContainer}
       onClick={handleWidgetClick}
-      title={audioState.bgmPlaying ? "Click to expand/collapse soundtrack controls" : "Click anywhere to enable soundtrack"}
+      title={audioState.bgmPlaying ? "Click to expand soundtrack player" : "Click anywhere to enable soundtrack"}
     >
       <div style={styles.headerRow}>
         {/* Equalizer Visualizer Bars */}
@@ -72,9 +111,17 @@ export const GlobalAudioPlayer = () => {
         {/* Track Label */}
         <div style={styles.trackInfo}>
           <div style={styles.trackTag}>
-            <Music size={11} color="var(--secondary-cyan)" style={{ display: 'inline', marginRight: '4px' }} />
-            <span>SOUNDTRACK</span>
+            {currentTrack.hasLyrics ? (
+              <Mic size={11} color="#10B981" style={{ display: 'inline', marginRight: '4px' }} />
+            ) : (
+              <Music size={11} color="var(--secondary-cyan)" style={{ display: 'inline', marginRight: '4px' }} />
+            )}
+            <span style={{ color: currentTrack.hasLyrics ? '#10B981' : 'var(--secondary-cyan)' }}>
+              {currentTrack.hasLyrics ? 'VOCAL ANTHEM' : 'SOUNDTRACK'}
+            </span>
+            <span style={styles.trackBadge}>{currentTrack.bpm} BPM</span>
           </div>
+
           <div 
             className="font-heading" 
             style={{
@@ -83,12 +130,27 @@ export const GlobalAudioPlayer = () => {
               textShadow: audioState.bgmPlaying ? '0 0 8px rgba(0,229,255,0.6)' : '0 0 8px rgba(245,158,11,0.6)'
             }}
           >
-            {audioState.bgmPlaying ? trackTitle : '⚡ TAP TO START SOUNDTRACK 🔊'}
+            {audioState.bgmPlaying ? currentTrack.title : '⚡ TAP TO START SOUNDTRACK 🔊'}
           </div>
+
+          {/* Real-time lyrics ticker for the English vocal song */}
+          {audioState.bgmPlaying && currentTrack.hasLyrics && (
+            <div style={styles.lyricsTicker}>
+              {LYRIC_SNIPPETS[lyricIndex]}
+            </div>
+          )}
         </div>
 
-        {/* Quick Action Buttons */}
+        {/* Playback Controls (Prev, Play/Pause, Next, Mute, Expand) */}
         <div style={styles.actionButtons} onClick={(e) => e.stopPropagation()}>
+          <button 
+            onClick={handlePrevTrack}
+            style={styles.controlBtn}
+            title="Previous Track"
+          >
+            <SkipBack size={13} color="var(--secondary-cyan)" />
+          </button>
+
           <button 
             onClick={handleTogglePlay}
             style={{
@@ -99,10 +161,18 @@ export const GlobalAudioPlayer = () => {
             title={audioState.bgmPlaying ? 'Pause Music' : 'Play Music'}
           >
             {audioState.bgmPlaying ? (
-              <Pause size={15} color="var(--secondary-cyan)" />
+              <Pause size={14} color="var(--secondary-cyan)" />
             ) : (
-              <Play size={15} color="#F59E0B" fill="#F59E0B" />
+              <Play size={14} color="#F59E0B" fill="#F59E0B" />
             )}
+          </button>
+
+          <button 
+            onClick={handleNextTrack}
+            style={styles.controlBtn}
+            title="Next Track"
+          >
+            <SkipForward size={13} color="var(--secondary-cyan)" />
           </button>
 
           <button 
@@ -111,9 +181,9 @@ export const GlobalAudioPlayer = () => {
             title={audioState.muted ? 'Unmute' : 'Mute'}
           >
             {audioState.muted ? (
-              <VolumeX size={15} color="#EF4444" />
+              <VolumeX size={14} color="#EF4444" />
             ) : (
-              <Volume2 size={15} color="var(--secondary-cyan)" />
+              <Volume2 size={14} color="var(--secondary-cyan)" />
             )}
           </button>
 
@@ -129,9 +199,52 @@ export const GlobalAudioPlayer = () => {
         </div>
       </div>
 
-      {/* Expanded Slider Controls */}
+      {/* Expanded Playlist & Volume Drawer */}
       {isExpanded && (
         <div style={styles.expandedPanel} onClick={(e) => e.stopPropagation()}>
+          {/* Track Selection Catalog */}
+          <div style={styles.playlistHeader}>
+            <Radio size={12} color="var(--secondary-cyan)" style={{ marginRight: '6px' }} />
+            <span>SELECT SOUNDTRACK</span>
+          </div>
+
+          <div style={styles.playlistList}>
+            {soundManager.playlist.map((track) => {
+              const isSelected = (audioState.bgmMode || 'vocal') === track.id;
+              return (
+                <div 
+                  key={track.id}
+                  onClick={() => handleSelectTrack(track.id)}
+                  style={{
+                    ...styles.playlistItem,
+                    borderColor: isSelected ? 'var(--secondary-cyan)' : 'rgba(255,255,255,0.08)',
+                    background: isSelected ? 'rgba(0, 229, 255, 0.12)' : 'rgba(255,255,255,0.02)'
+                  }}
+                >
+                  <div style={styles.itemLeft}>
+                    {track.hasLyrics ? (
+                      <Mic size={13} color={isSelected ? '#10B981' : 'var(--text-muted)'} />
+                    ) : (
+                      <Disc size={13} color={isSelected ? 'var(--secondary-cyan)' : 'var(--text-muted)'} />
+                    )}
+                    <div>
+                      <div style={{ ...styles.itemTitle, color: isSelected ? '#00E5FF' : '#E2E8F0' }}>
+                        {track.title}
+                      </div>
+                      <div style={styles.itemSubtitle}>{track.subtitle}</div>
+                    </div>
+                  </div>
+                  {isSelected && (
+                    <span style={styles.playingBadge}>
+                      {audioState.bgmPlaying ? 'PLAYING' : 'READY'}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Volume Slider */}
           <div style={styles.sliderRow}>
             <span style={styles.sliderLabel}>VOLUME</span>
             <input 
@@ -150,18 +263,18 @@ export const GlobalAudioPlayer = () => {
         </div>
       )}
 
-      {/* Animated Equalizer CSS */}
+      {/* Styles */}
       <style>{`
         .global-audio-widget {
           position: fixed;
           bottom: 22px;
           right: 22px;
           z-index: 9999;
-          background: rgba(6, 9, 25, 0.92);
+          background: rgba(6, 9, 25, 0.94);
           border: 1px solid rgba(0, 229, 255, 0.4);
           border-radius: 12px;
           box-shadow: 0 4px 24px rgba(0, 229, 255, 0.25), inset 0 0 12px rgba(0, 229, 255, 0.1);
-          backdrop-filter: blur(12px);
+          backdrop-filter: blur(14px);
           cursor: pointer;
           user-select: none;
           transition: all 0.25s ease;
@@ -206,12 +319,12 @@ export const GlobalAudioPlayer = () => {
 const styles = {
   widgetContainer: {
     padding: '8px 14px',
-    maxWidth: '380px',
+    maxWidth: '430px',
   },
   headerRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px'
+    gap: '10px'
   },
   equalizerContainer: {
     display: 'flex',
@@ -223,7 +336,7 @@ const styles = {
   trackInfo: {
     display: 'flex',
     flexDirection: 'column',
-    minWidth: '170px'
+    minWidth: '185px'
   },
   trackTag: {
     fontSize: '0.62rem',
@@ -231,7 +344,16 @@ const styles = {
     letterSpacing: '0.12em',
     fontWeight: 'bold',
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    gap: '6px'
+  },
+  trackBadge: {
+    fontSize: '0.58rem',
+    padding: '1px 5px',
+    background: 'rgba(0, 229, 255, 0.12)',
+    borderRadius: '4px',
+    color: 'var(--secondary-cyan)',
+    border: '1px solid rgba(0, 229, 255, 0.2)'
   },
   trackName: {
     fontSize: '0.74rem',
@@ -240,18 +362,29 @@ const styles = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: '190px'
+    maxWidth: '195px'
+  },
+  lyricsTicker: {
+    fontSize: '0.62rem',
+    color: '#10B981',
+    fontStyle: 'italic',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '195px',
+    marginTop: '2px',
+    animation: 'fadeIn 0.4s ease'
   },
   actionButtons: {
     display: 'flex',
     alignItems: 'center',
-    gap: '6px'
+    gap: '5px'
   },
   controlBtn: {
     background: 'rgba(0, 229, 255, 0.12)',
     border: '1px solid rgba(0, 229, 255, 0.35)',
     borderRadius: '6px',
-    padding: '5px 7px',
+    padding: '5px 6px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -269,14 +402,64 @@ const styles = {
   },
   expandedPanel: {
     marginTop: '10px',
-    paddingTop: '8px',
+    paddingTop: '10px',
     borderTop: '1px solid rgba(0, 229, 255, 0.2)',
     cursor: 'default'
+  },
+  playlistHeader: {
+    fontSize: '0.64rem',
+    fontWeight: 'bold',
+    letterSpacing: '0.08em',
+    color: 'var(--secondary-cyan)',
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '8px'
+  },
+  playlistList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    marginBottom: '10px'
+  },
+  playlistItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '6px 10px',
+    borderRadius: '6px',
+    border: '1px solid transparent',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease'
+  },
+  itemLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  },
+  itemTitle: {
+    fontSize: '0.70rem',
+    fontWeight: 'bold',
+    letterSpacing: '0.03em'
+  },
+  itemSubtitle: {
+    fontSize: '0.58rem',
+    color: 'var(--text-muted)'
+  },
+  playingBadge: {
+    fontSize: '0.58rem',
+    color: '#00E5FF',
+    background: 'rgba(0, 229, 255, 0.2)',
+    border: '1px solid rgba(0, 229, 255, 0.4)',
+    padding: '1px 6px',
+    borderRadius: '4px',
+    fontWeight: 'bold'
   },
   sliderRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px'
+    gap: '10px',
+    paddingTop: '4px',
+    borderTop: '1px solid rgba(255, 255, 255, 0.06)'
   },
   sliderLabel: {
     fontSize: '0.64rem',

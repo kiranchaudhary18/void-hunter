@@ -113,7 +113,7 @@ function MainAppContent() {
     if (currentScreen === 'gameplay') {
       soundManager.startBGM('combat');
     } else {
-      soundManager.startBGM('menu');
+      soundManager.startBGM(soundManager.bgmMode || soundManager.desiredBgmMode || 'vocal');
     }
   }, [currentScreen]);
 
