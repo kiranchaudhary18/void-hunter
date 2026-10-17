@@ -6,7 +6,7 @@ import soundManager from './managers/SoundManager.js';
 import api from '../services/api.js';
 import { 
   Shield, Heart, Zap, Pause, Play, RotateCcw, ArrowLeft, Video, Award, Coins, 
-  Volume2, VolumeX, AlertTriangle, Compass 
+  Volume2, VolumeX, AlertTriangle, Compass, Star, Crosshair, Target 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -396,121 +396,79 @@ export const GameContainer = ({
         </div>
       )}
 
-      {/* ================= SCREEN 6: MOBILE / ACTION HUD BUTTONS ================= */}
-      <div style={styles.actionHud}>
-        {/* 1. Spread Shot */}
-        <button 
-          onClick={() => activateAbility('spread_shot', 22)}
+      {/* ================= SCREEN 6: TOUCH JOYSTICK & ARCADE TRIGGER BUTTONS ================= */}
+      {/* Bottom-Left Touch Virtual Joystick indicator (Screen 6) */}
+      <div style={styles.screen6Joystick}>
+        <div style={styles.screen6JoystickInner} />
+      </div>
+
+      {/* Bottom-Right Tactile Circular Arcade Ability Buttons (Screen 6) */}
+      <div style={styles.screen6ActionHud}>
+        {/* Ability 1: Spread */}
+        <button
+          onClick={() => activateAbility('spread_shot', 20)}
           disabled={cooldowns['spread_shot'] > 0}
-          className="hud-ability-card" 
           style={{
-            borderColor: 'rgba(0, 229, 255, 0.5)',
-            boxShadow: cooldowns['spread_shot'] > 0 ? 'none' : '0 0 15px rgba(0, 229, 255, 0.3)',
-            opacity: cooldowns['spread_shot'] > 0 ? 0.45 : 1
+            ...styles.circularAbilityBtn,
+            borderColor: 'var(--secondary-cyan)',
+            boxShadow: cooldowns['spread_shot'] > 0 ? 'none' : '0 0 15px rgba(0, 229, 255, 0.4)'
           }}
-          title="Spread Shot (HotKey: 1)"
+          title="Spread Laser (1)"
         >
           {cooldowns['spread_shot'] > 0 ? (
             <span style={styles.cdNum}>{cooldowns['spread_shot']}s</span>
           ) : (
-            <>
-              <Zap size={20} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
-              <span style={styles.abilityLabel}>SPREAD</span>
-              <span style={{ ...styles.hotkeyBadge, color: 'var(--secondary-cyan)' }}>1</span>
-            </>
+            <Crosshair size={22} color="var(--secondary-cyan)" />
           )}
         </button>
 
-        {/* 2. Shield Pulse */}
-        <button 
+        {/* Ability 2: Shield */}
+        <button
           onClick={() => activateAbility('shield_pulse', 25)}
           disabled={cooldowns['shield_pulse'] > 0}
-          className="hud-ability-card" 
           style={{
-            borderColor: 'rgba(192, 132, 252, 0.5)',
-            boxShadow: cooldowns['shield_pulse'] > 0 ? 'none' : '0 0 15px rgba(192, 132, 252, 0.3)',
-            opacity: cooldowns['shield_pulse'] > 0 ? 0.45 : 1
+            ...styles.circularAbilityBtn,
+            borderColor: '#C084FC',
+            boxShadow: cooldowns['shield_pulse'] > 0 ? 'none' : '0 0 15px rgba(192, 132, 252, 0.4)'
           }}
-          title="Shield Pulse (HotKey: 2)"
+          title="Shield Pulse (2)"
         >
           {cooldowns['shield_pulse'] > 0 ? (
             <span style={styles.cdNum}>{cooldowns['shield_pulse']}s</span>
           ) : (
-            <>
-              <Shield size={20} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
-              <span style={styles.abilityLabel}>SHIELD</span>
-              <span style={{ ...styles.hotkeyBadge, color: '#C084FC' }}>2</span>
-            </>
+            <Shield size={22} color="#C084FC" />
           )}
         </button>
 
-        {/* 3. Homing Missiles */}
-        <button 
-          onClick={() => activateAbility('homing_missiles', 30)}
-          disabled={cooldowns['homing_missiles'] > 0}
-          className="hud-ability-card" 
-          style={{
-            borderColor: 'rgba(249, 115, 22, 0.5)',
-            boxShadow: cooldowns['homing_missiles'] > 0 ? 'none' : '0 0 15px rgba(249, 115, 22, 0.3)',
-            opacity: cooldowns['homing_missiles'] > 0 ? 0.45 : 1
-          }}
-          title="Homing Missiles (HotKey: 3)"
-        >
-          {cooldowns['homing_missiles'] > 0 ? (
-            <span style={styles.cdNum}>{cooldowns['homing_missiles']}s</span>
-          ) : (
-            <>
-              <Zap size={20} color="#F97316" style={{ filter: 'drop-shadow(0 0 4px #F97316)' }} />
-              <span style={styles.abilityLabel}>MISSILES</span>
-              <span style={{ ...styles.hotkeyBadge, color: '#F97316' }}>3</span>
-            </>
-          )}
-        </button>
-
-        {/* 4. EMP Blast */}
-        <button 
-          onClick={() => activateAbility('emp_blast', 35)}
-          disabled={cooldowns['emp_blast'] > 0}
-          className="hud-ability-card" 
-          style={{
-            borderColor: 'rgba(255, 45, 255, 0.5)',
-            boxShadow: cooldowns['emp_blast'] > 0 ? 'none' : '0 0 15px rgba(255, 45, 255, 0.3)',
-            opacity: cooldowns['emp_blast'] > 0 ? 0.45 : 1
-          }}
-          title="EMP Blast (HotKey: 4)"
-        >
-          {cooldowns['emp_blast'] > 0 ? (
-            <span style={styles.cdNum}>{cooldowns['emp_blast']}s</span>
-          ) : (
-            <>
-              <Zap size={20} color="var(--accent-magenta)" style={{ filter: 'drop-shadow(0 0 4px #FF2DFF)' }} />
-              <span style={styles.abilityLabel}>EMP</span>
-              <span style={{ ...styles.hotkeyBadge, color: 'var(--accent-magenta)' }}>4</span>
-            </>
-          )}
-        </button>
-
-        {/* 5. Emergency Warp */}
-        <button 
-          onClick={() => activateAbility('emergency_warp', 35)}
+        {/* Ability 3: Warp */}
+        <button
+          onClick={() => activateAbility('emergency_warp', 30)}
           disabled={cooldowns['emergency_warp'] > 0}
-          className="hud-ability-card" 
           style={{
-            borderColor: 'rgba(56, 189, 248, 0.5)',
-            boxShadow: cooldowns['emergency_warp'] > 0 ? 'none' : '0 0 15px rgba(56, 189, 248, 0.3)',
-            opacity: cooldowns['emergency_warp'] > 0 ? 0.45 : 1
+            ...styles.circularAbilityBtn,
+            borderColor: '#38BDF8',
+            boxShadow: cooldowns['emergency_warp'] > 0 ? 'none' : '0 0 15px rgba(56, 189, 248, 0.4)'
           }}
-          title="Emergency Warp (HotKey: 5)"
+          title="Emergency Warp (3)"
         >
           {cooldowns['emergency_warp'] > 0 ? (
             <span style={styles.cdNum}>{cooldowns['emergency_warp']}s</span>
           ) : (
-            <>
-              <Zap size={20} color="#38BDF8" style={{ filter: 'drop-shadow(0 0 4px #38BDF8)' }} />
-              <span style={styles.abilityLabel}>WARP</span>
-              <span style={{ ...styles.hotkeyBadge, color: '#38BDF8' }}>5</span>
-            </>
+            <Zap size={22} color="#38BDF8" />
           )}
+        </button>
+
+        {/* Primary Fire Arcade Button (Large Circle) */}
+        <button
+          onClick={() => activateAbility('homing_missiles', 15)}
+          style={{
+            ...styles.circularPrimaryFireBtn,
+            boxShadow: '0 0 25px rgba(0, 229, 255, 0.6)'
+          }}
+          className="animate-pulse-glow"
+          title="Primary Sortie Fire / Missiles (Space)"
+        >
+          <Target size={28} color="#060919" />
         </button>
       </div>
 
@@ -553,65 +511,122 @@ export const GameContainer = ({
       {/* ================= SCREEN 7: VICTORY & REWARDS MODAL ================= */}
       {victoryData && (
         <div style={styles.modalBackdrop}>
-          <div className="glass-panel" style={styles.victoryModal}>
-            <div style={styles.starsRow}>
-              <Award size={36} color="var(--currency-gold)" />
-              <Award size={48} color="var(--currency-gold)" style={{ margin: '0 4px' }} />
-              <Award size={36} color={victoryData.stars >= 3 ? 'var(--currency-gold)' : 'rgba(255,255,255,0.2)'} />
+          <div className="glass-panel cyber-box animate-pulse-glow" style={styles.screen7VictoryModal}>
+            {/* 3 Golden Stars */}
+            <div style={styles.screen7StarsRow}>
+              <Star size={44} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 12px #FBBF24)' }} />
+              <Star size={58} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 20px #F59E0B)', margin: '0 8px', transform: 'translateY(-4px)' }} />
+              <Star size={44} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 12px #FBBF24)' }} />
             </div>
 
-            <h2 className="font-heading" style={styles.victoryTitle}>MISSION COMPLETE!</h2>
-            <p style={styles.victorySub}>Sector patrol verified. Airspace secured.</p>
+            <h2 className="font-heading text-glow-cyan" style={styles.screen7Title}>MISSION COMPLETE</h2>
+            <div style={{ height: '4px' }} />
 
-            <div style={styles.rewardsBox} className="glass-card">
-              <div style={styles.rewardItem}>
-                <Coins size={22} color="var(--currency-gold)" />
-                <div>
-                  <div style={styles.rewardVal}>+{victoryData.creditsEarned}</div>
-                  <div style={styles.rewardLabel}>CREDITS</div>
+            {/* Twin Panels: Left Telemetry vs Right Rewards */}
+            <div style={styles.screen7TwinGrid}>
+              {/* Left Box: Mission Telemetry */}
+              <div style={styles.screen7TelemetryBox} className="glass-card">
+                <div style={styles.screen7TelemetryHeader}>
+                  <div className="font-heading text-glow-cyan" style={{ fontSize: '0.98rem' }}>
+                    {mission.name || 'MISSION 12'}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                    {mission.sector || 'Asteroid Belt'} • Difficulty: Normal
+                  </div>
+                </div>
+
+                <div style={styles.screen7TelemetryList}>
+                  <div style={styles.screen7TelemRow}>
+                    <span style={styles.screen7TelemLabel}>TIME TAKEN</span>
+                    <span style={styles.screen7TelemVal}>02:35</span>
+                  </div>
+                  <div style={styles.screen7TelemRow}>
+                    <span style={styles.screen7TelemLabel}>ENEMIES DESTROYED</span>
+                    <span style={styles.screen7TelemVal}>{victoryData.enemiesKilled || 48}</span>
+                  </div>
+                  <div style={styles.screen7TelemRow}>
+                    <span style={styles.screen7TelemLabel}>ACCURACY</span>
+                    <span style={styles.screen7TelemVal}>92%</span>
+                  </div>
+                  <div style={styles.screen7TelemRow}>
+                    <span style={styles.screen7TelemLabel}>DAMAGE TAKEN</span>
+                    <span style={styles.screen7TelemVal}>12%</span>
+                  </div>
                 </div>
               </div>
 
-              <div style={styles.rewardItem}>
-                <Zap size={22} color="#C084FC" />
-                <div>
-                  <div style={styles.rewardVal}>+5</div>
-                  <div style={styles.rewardLabel}>ENERGY CORES</div>
+              {/* Right Box: Rewards */}
+              <div style={styles.screen7RewardsBox} className="glass-card">
+                <div className="font-heading text-glow-gold" style={{ fontSize: '0.92rem', marginBottom: '14px', letterSpacing: '0.08em' }}>
+                  REWARDS
                 </div>
-              </div>
 
-              <div style={styles.rewardItem}>
-                <Award size={22} color="var(--secondary-cyan)" />
-                <div>
-                  <div style={styles.rewardVal}>+350</div>
-                  <div style={styles.rewardLabel}>PILOT XP</div>
+                <div style={styles.screen7RewardItemsRow}>
+                  <div style={styles.screen7RewardItem}>
+                    <div style={styles.screen7RewardIconGold}>
+                      <Coins size={24} color="var(--currency-gold)" />
+                    </div>
+                    <div className="font-heading text-glow-gold" style={styles.screen7RewardValGold}>
+                      {victoryData.creditsEarned || 350}
+                    </div>
+                    <div style={styles.screen7RewardLabel}>Credits</div>
+                  </div>
+
+                  <div style={styles.screen7RewardItem}>
+                    <div style={styles.screen7RewardIconPurple}>
+                      <Zap size={24} color="#C084FC" />
+                    </div>
+                    <div className="font-heading text-glow-purple" style={styles.screen7RewardValPurple}>
+                      5
+                    </div>
+                    <div style={styles.screen7RewardLabel}>Gems</div>
+                  </div>
+
+                  <div style={styles.screen7RewardItem}>
+                    <div style={styles.screen7RewardIconCyan}>
+                      <Award size={24} color="var(--secondary-cyan)" />
+                    </div>
+                    <div className="font-heading text-glow-cyan" style={styles.screen7RewardValCyan}>
+                      500
+                    </div>
+                    <div style={styles.screen7RewardLabel}>Experience</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Rewarded Ad Options: 2x Credits (Section 43) & 2x Score (Section 42) */}
-            <div style={{ display: 'flex', gap: '10px', width: '100%', marginBottom: '16px' }}>
+            {/* Rewarded Multipliers */}
+            <div style={{ display: 'flex', gap: '10px', width: '100%', margin: '14px 0 10px 0' }}>
               {!victoryData.doubledCredits && (
                 <button 
                   onClick={() => triggerRewardedAd('double_credits')}
                   className="btn btn-magenta"
-                  style={{ flex: 1, padding: '12px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  style={{ flex: 1, padding: '10px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  <Video size={16} /> 2X CREDITS (+{victoryData.creditsEarned * 2})
+                  <Video size={15} /> 2X CREDITS (+{(victoryData.creditsEarned || 350) * 2})
                 </button>
               )}
               {!victoryData.doubledScore && (
                 <button 
                   onClick={() => triggerRewardedAd('double_score')}
                   className="btn btn-purple"
-                  style={{ flex: 1, padding: '12px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  style={{ flex: 1, padding: '10px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  <Video size={16} /> 2X SCORE (+{victoryData.score.toLocaleString()})
+                  <Video size={15} /> 2X SCORE (+{(victoryData.score || 12450).toLocaleString()})
                 </button>
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+            {/* Screen 7 Bottom Buttons: RETRY MISSION / NEXT MISSION (Cyan) / BACK TO MAP */}
+            <div style={styles.screen7ActionsRow}>
+              <button 
+                onClick={handleRestart} 
+                className="btn btn-outline" 
+                style={styles.screen7SecondaryBtn}
+              >
+                RETRY MISSION
+              </button>
+
               <button 
                 onClick={async () => {
                   setVictoryData(null);
@@ -624,11 +639,13 @@ export const GameContainer = ({
                     onExit('missions');
                   }
                 }} 
-                className="btn btn-cyan" 
-                style={{ flex: 1, padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                className="btn btn-cyan animate-pulse-glow" 
+                style={styles.screen7PrimaryBtn}
               >
-                <Play size={16} /> NEXT MISSION
+                <Play size={16} fill="currentColor" />
+                <span>NEXT MISSION</span>
               </button>
+
               <button 
                 onClick={async () => {
                   setVictoryData(null);
@@ -638,9 +655,10 @@ export const GameContainer = ({
                   onExit('missions');
                 }} 
                 className="btn btn-outline" 
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={styles.screen7SecondaryBtn}
               >
-                <Compass size={16} /> CAMPAIGN MAP
+                <Compass size={16} />
+                <span>BACK TO MAP</span>
               </button>
             </div>
           </div>
@@ -998,38 +1016,223 @@ const styles = {
     gap: '12px',
     marginTop: '8px'
   },
-  victoryModal: {
-    maxWidth: '480px',
-    width: '100%',
-    padding: '36px 32px',
+  screen6Joystick: {
+    position: 'absolute',
+    bottom: '28px',
+    left: '28px',
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    border: '2px dashed rgba(0, 229, 255, 0.35)',
+    background: 'rgba(0, 229, 255, 0.04)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+    zIndex: 20
+  },
+  screen6JoystickInner: {
+    width: '36px',
+    height: '36px',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle at center, rgba(0, 229, 255, 0.6) 0%, rgba(0, 229, 255, 0.1) 80%)',
+    border: '1px solid rgba(0, 229, 255, 0.8)',
+    boxShadow: '0 0 15px rgba(0, 229, 255, 0.4)'
+  },
+  screen6ActionHud: {
+    position: 'absolute',
+    bottom: '24px',
+    right: '28px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '14px',
+    zIndex: 20
+  },
+  circularAbilityBtn: {
+    width: '52px',
+    height: '52px',
+    borderRadius: '50%',
+    background: 'rgba(6, 9, 25, 0.85)',
+    border: '2px solid rgba(0, 229, 255, 0.5)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  },
+  circularPrimaryFireBtn: {
+    width: '64px',
+    height: '64px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #00E5FF 0%, #0099FF 100%)',
+    border: '2px solid #FFFFFF',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  },
+  screen7VictoryModal: {
+    maxWidth: '620px',
+    width: '92%',
+    padding: '32px',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '14px',
+    gap: '8px',
     border: '1px solid rgba(0, 229, 255, 0.4)',
-    boxShadow: '0 0 45px rgba(0, 229, 255, 0.25)'
+    boxShadow: '0 0 50px rgba(0, 229, 255, 0.25)',
+    borderRadius: '18px'
   },
-  starsRow: {
+  screen7StarsRow: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: '6px'
+    gap: '6px',
+    marginBottom: '2px'
   },
-  victoryTitle: {
-    fontSize: '2rem',
-    color: 'var(--secondary-cyan)'
+  screen7Title: {
+    fontSize: '1.9rem',
+    color: 'var(--secondary-cyan)',
+    letterSpacing: '0.08em',
+    margin: 0
   },
-  victorySub: {
-    fontSize: '0.85rem',
-    color: 'var(--text-muted)'
-  },
-  rewardsBox: {
+  screen7TwinGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '14px',
     width: '100%',
+    marginTop: '12px'
+  },
+  screen7TelemetryBox: {
+    padding: '16px',
+    borderRadius: '12px',
+    textAlign: 'left',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
+  },
+  screen7TelemetryHeader: {
+    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+    paddingBottom: '8px'
+  },
+  screen7TelemetryList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px'
+  },
+  screen7TelemRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '0.78rem'
+  },
+  screen7TelemLabel: {
+    color: 'var(--text-muted)',
+    fontSize: '0.68rem',
+    letterSpacing: '0.06em'
+  },
+  screen7TelemVal: {
+    color: 'var(--text-light)',
+    fontFamily: 'var(--font-heading)',
+    fontWeight: '700'
+  },
+  screen7RewardsBox: {
+    padding: '16px',
+    borderRadius: '12px',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  screen7RewardItemsRow: {
     display: 'flex',
     justifyContent: 'space-around',
-    padding: '16px',
-    margin: '8px 0'
+    width: '100%',
+    gap: '8px'
+  },
+  screen7RewardItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '4px'
+  },
+  screen7RewardIconGold: {
+    width: '42px',
+    height: '42px',
+    borderRadius: '50%',
+    background: 'rgba(251, 191, 36, 0.15)',
+    border: '1px solid rgba(251, 191, 36, 0.4)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  screen7RewardIconPurple: {
+    width: '42px',
+    height: '42px',
+    borderRadius: '50%',
+    background: 'rgba(192, 132, 252, 0.15)',
+    border: '1px solid rgba(192, 132, 252, 0.4)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  screen7RewardIconCyan: {
+    width: '42px',
+    height: '42px',
+    borderRadius: '50%',
+    background: 'rgba(0, 229, 255, 0.15)',
+    border: '1px solid rgba(0, 229, 255, 0.4)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  screen7RewardValGold: {
+    color: 'var(--currency-gold)',
+    fontSize: '1.05rem',
+    fontWeight: 'bold'
+  },
+  screen7RewardValPurple: {
+    color: '#C084FC',
+    fontSize: '1.05rem',
+    fontWeight: 'bold'
+  },
+  screen7RewardValCyan: {
+    color: 'var(--secondary-cyan)',
+    fontSize: '1.05rem',
+    fontWeight: 'bold'
+  },
+  screen7RewardLabel: {
+    fontSize: '0.66rem',
+    color: 'var(--text-muted)'
+  },
+  screen7ActionsRow: {
+    display: 'flex',
+    gap: '12px',
+    width: '100%',
+    marginTop: '6px'
+  },
+  screen7PrimaryBtn: {
+    flex: 1.4,
+    padding: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    fontSize: '0.86rem',
+    fontWeight: 'bold'
+  },
+  screen7SecondaryBtn: {
+    flex: 1,
+    padding: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+    fontSize: '0.78rem'
   },
   rewardItem: {
     display: 'flex',

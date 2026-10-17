@@ -48,7 +48,7 @@ export const LeaderboardPage = ({ onBack }) => {
             <span>COMMAND DECK</span>
           </button>
           <div>
-            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>GLOBAL PILOT LEADERBOARD</h1>
+            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>GLOBAL LEADERBOARD</h1>
             <p style={styles.subTitle}>INTERGALACTIC COMBAT ACES & SECTOR DEFENDERS</p>
           </div>
         </div>
@@ -114,9 +114,9 @@ export const LeaderboardPage = ({ onBack }) => {
       <div style={styles.filtersRow}>
         <div style={styles.filtersGroup}>
           {[
-            { id: 'ALL_TIME', label: 'ALL TIME ACES' },
-            { id: 'WEEKLY', label: 'WEEKLY CYCLE' },
-            { id: 'DAILY', label: 'DAILY DEFENDERS' }
+            { id: 'ALL_TIME', label: 'GLOBAL' },
+            { id: 'WEEKLY', label: 'FRIENDS' },
+            { id: 'DAILY', label: 'DAILY' }
           ].map((tf) => (
             <button
               key={tf.id}

@@ -114,32 +114,30 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
 
   const upgrades = activeShip.upgrades || { weapon: 1, shield: 1, engine: 1, special: 1 };
 
+  // Carousel Navigation Chevrons (Screen 5)
+  const handlePrevShip = () => {
+    if (ships.length === 0) return;
+    const currentIndex = ships.findIndex((s) => s.id === activeShip.id);
+    const prevIndex = (currentIndex - 1 + ships.length) % ships.length;
+    setSelectedShipId(ships[prevIndex].id);
+  };
+
+  const handleNextShip = () => {
+    if (ships.length === 0) return;
+    const currentIndex = ships.findIndex((s) => s.id === activeShip.id);
+    const nextIndex = (currentIndex + 1) % ships.length;
+    setSelectedShipId(ships[nextIndex].id);
+  };
+
   return (
     <div style={styles.pageContainer}>
-      {/* Top Header */}
-      <header style={styles.header}>
-        <div style={styles.headerLeft}>
-          <button onClick={onBack} className="btn btn-outline" style={styles.backBtn}>
-            <ArrowLeft size={16} /> DASHBOARD
-          </button>
-          <div>
-            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>SHIP HANGAR</h1>
-            <p style={styles.pageSubtitle}>Select, upgrade and customize your spacecraft fleet</p>
-          </div>
+      {/* Top Subheader (Screen 5) */}
+      <div style={styles.subHeaderBar} className="glass-panel cyber-box">
+        <div>
+          <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>SHIP HANGAR</h1>
+          <p style={styles.pageSubtitle}>Select, upgrade and customize your spacecraft fleet</p>
         </div>
-
-        {/* Currency Display */}
-        <div style={styles.currencyHeader}>
-          <div className="currency-pill credits">
-            <Coins size={16} color="var(--currency-gold)" />
-            <span>{profile?.credits?.toLocaleString() || 500} Credits</span>
-          </div>
-          <div className="currency-pill cores">
-            <Zap size={16} color="#C084FC" />
-            <span>{profile?.energyCores || 10} Cores</span>
-          </div>
-        </div>
-      </header>
+      </div>
 
       {/* Feedback Alerts */}
       {feedback.error && (
@@ -198,8 +196,27 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
           </div>
         </aside>
 
-        {/* ================= 2. CENTER HOLOGRAPHIC SHOWCASE ================= */}
+        {/* ================= 2. CENTER HOLOGRAPHIC SHOWCASE WITH CHEVRONS (SCREEN 5) ================= */}
         <section style={styles.showcasePanel} className="glass-panel cyber-box">
+          {/* Left / Right Carousel Chevrons */}
+          <button 
+            onClick={handlePrevShip} 
+            style={styles.carouselChevronLeft}
+            className="glass-card"
+            title="Previous Spacecraft"
+          >
+            <ChevronRight size={22} style={{ transform: 'rotate(180deg)' }} />
+          </button>
+
+          <button 
+            onClick={handleNextShip} 
+            style={styles.carouselChevronRight}
+            className="glass-card"
+            title="Next Spacecraft"
+          >
+            <ChevronRight size={22} />
+          </button>
+
           <div style={styles.holoStage}>
             {/* Holographic Glowing Rings */}
             <div style={styles.holoRingOuter} />
@@ -208,8 +225,8 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
             {/* Ship Visual Sprite */}
             <div style={styles.shipSpriteWrapper} className="animate-float">
               {activeShip.id === 'v01-orbitron' && (
-                <svg width="180" height="180" viewBox="0 0 64 64" style={styles.shipSvg}>
-                  <polygon points="32,6 44,28 60,52 48,56 38,48 32,58 26,48 16,56 4,52 20,28" fill="#00E5FF" filter="drop-shadow(0 0 12px #00E5FF)" />
+                <svg width="200" height="200" viewBox="0 0 64 64" style={styles.shipSvg}>
+                  <polygon points="32,6 44,28 60,52 48,56 38,48 32,58 26,48 16,56 4,52 20,28" fill="#00E5FF" filter="drop-shadow(0 0 16px #00E5FF)" />
                   <polygon points="32,10 42,32 52,50 40,48 32,54 24,48 12,50 22,32" fill="#0A1232" />
                   <ellipse cx="32" cy="26" rx="4" ry="10" fill="#FFFFFF" />
                   <circle cx="28" cy="56" r="3" fill="#FF2DFF" />
@@ -217,8 +234,8 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
                 </svg>
               )}
               {activeShip.id === 's02-phoenix' && (
-                <svg width="180" height="180" viewBox="0 0 64 64" style={styles.shipSvg}>
-                  <polygon points="32,4 40,24 62,44 46,60 38,48 32,56 26,48 18,60 2,44 24,24" fill="#F97316" filter="drop-shadow(0 0 12px #EA580C)" />
+                <svg width="200" height="200" viewBox="0 0 64 64" style={styles.shipSvg}>
+                  <polygon points="32,4 40,24 62,44 46,60 38,48 32,56 26,48 18,60 2,44 24,24" fill="#F97316" filter="drop-shadow(0 0 16px #EA580C)" />
                   <polygon points="32,10 38,30 50,46 32,50 14,46 26,30" fill="#18181B" />
                   <rect x="16" y="18" width="4" height="18" fill="#EF4444" />
                   <rect x="44" y="18" width="4" height="18" fill="#EF4444" />
@@ -226,23 +243,23 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
                 </svg>
               )}
               {activeShip.id === 'x03-shadow' && (
-                <svg width="180" height="180" viewBox="0 0 64 64" style={styles.shipSvg}>
-                  <polygon points="32,2 42,34 58,62 44,52 32,58 20,52 6,62 22,34" fill="#A855F7" filter="drop-shadow(0 0 12px #7C3AED)" />
+                <svg width="200" height="200" viewBox="0 0 64 64" style={styles.shipSvg}>
+                  <polygon points="32,2 42,34 58,62 44,52 32,58 20,52 6,62 22,34" fill="#A855F7" filter="drop-shadow(0 0 16px #7C3AED)" />
                   <polygon points="32,8 38,36 46,52 32,52 18,52 26,36" fill="#09090B" />
                   <rect x="30" y="22" width="4" height="14" fill="#00E5FF" />
                 </svg>
               )}
               {activeShip.id === 'r04-titan' && (
-                <svg width="180" height="180" viewBox="0 0 64 64" style={styles.shipSvg}>
-                  <polygon points="32,8 54,20 60,54 48,62 32,54 16,62 4,54 10,20" fill="#D97706" filter="drop-shadow(0 0 12px #FBBF24)" />
+                <svg width="200" height="200" viewBox="0 0 64 64" style={styles.shipSvg}>
+                  <polygon points="32,8 54,20 60,54 48,62 32,54 16,62 4,54 10,20" fill="#D97706" filter="drop-shadow(0 0 16px #FBBF24)" />
                   <rect x="20" y="20" width="24" height="30" fill="#1C1917" />
                   <circle cx="16" cy="30" r="4" fill="#38BDF8" />
                   <circle cx="48" cy="30" r="4" fill="#38BDF8" />
                 </svg>
               )}
               {activeShip.id === 'z05-nova' && (
-                <svg width="180" height="180" viewBox="0 0 64 64" style={styles.shipSvg}>
-                  <polygon points="32,2 46,26 62,48 48,54 38,44 32,60 26,44 16,54 2,48 18,26" fill="#FF2DFF" filter="drop-shadow(0 0 14px #FF2DFF)" />
+                <svg width="200" height="200" viewBox="0 0 64 64" style={styles.shipSvg}>
+                  <polygon points="32,2 46,26 62,48 48,54 38,44 32,60 26,44 16,54 2,48 18,26" fill="#FF2DFF" filter="drop-shadow(0 0 18px #FF2DFF)" />
                   <polygon points="32,8 40,30 32,46 24,30" fill="#FFFFFF" />
                   <circle cx="32" cy="34" r="16" fill="none" stroke="#00E5FF" strokeWidth="2" />
                 </svg>
@@ -340,150 +357,94 @@ export const HangarPage = ({ onBack, onLaunchMission }) => {
       </div>
 
       {/* ================= 4. BOTTOM MODULAR UPGRADES (SCREEN 5) ================= */}
-      <section style={styles.upgradesSection} className="glass-panel">
-        <div style={styles.upgradesHeader}>
-          <div className="font-heading" style={styles.upgradesTitle}>
-            STARSHIP MODULAR UPGRADES // <span style={{ color: 'var(--secondary-cyan)' }}>{activeShip.name}</span>
-          </div>
-          <span style={styles.upgradesNotice}>Server-validated atomic upgrades • Max Level 5</span>
-        </div>
-
+      <section style={styles.upgradesSection}>
         <div style={styles.modulesGrid}>
           {/* Module 1: WEAPON */}
-          <div className="glass-card" style={styles.moduleCard}>
-            <div style={styles.moduleCardTop}>
-              <div style={styles.moduleIconBox}>
-                <Crosshair size={20} color="var(--accent-magenta)" />
-              </div>
-              <div>
-                <div className="font-heading" style={styles.moduleName}>WEAPON CANNONS</div>
-                <div style={styles.moduleLevelText}>LEVEL {upgrades.weapon} / 5</div>
-              </div>
+          <div 
+            onClick={() => handleUpgradeModule('weapon')}
+            className="glass-card glass-card-hover" 
+            style={{
+              ...styles.moduleCard,
+              cursor: upgrades.weapon >= 5 || !activeShip.isUnlocked ? 'default' : 'pointer'
+            }}
+            title={`Upgrade Weapon (${getUpgradeCost(upgrades.weapon)} Credits)`}
+          >
+            <div style={styles.moduleIconBox}>
+              <Crosshair size={22} color="var(--accent-magenta)" />
             </div>
-
-            {/* Level Pips */}
-            <div style={styles.pipsRow}>
-              {[1, 2, 3, 4, 5].map((lvl) => (
-                <div 
-                  key={lvl} 
-                  style={{ 
-                    ...styles.pip, 
-                    background: lvl <= upgrades.weapon ? 'var(--accent-magenta)' : 'rgba(255,255,255,0.1)' 
-                  }} 
-                />
-              ))}
+            <div style={styles.moduleInfo}>
+              <div className="font-heading" style={styles.moduleName}>WEAPON</div>
+              <div style={styles.moduleLevelText}>Lv. {upgrades.weapon}</div>
             </div>
-
-            <button
-              onClick={() => handleUpgradeModule('weapon')}
-              disabled={actionLoading || upgrades.weapon >= 5 || !activeShip.isUnlocked}
-              className="btn btn-purple"
-              style={styles.moduleUpgradeBtn}
-            >
-              {upgrades.weapon >= 5 ? 'MAX LEVEL' : `UPGRADE (${getUpgradeCost(upgrades.weapon)} CR)`}
-            </button>
+            <div style={styles.moduleChevron}>
+              <ChevronRight size={18} color="var(--secondary-cyan)" />
+            </div>
           </div>
 
           {/* Module 2: SHIELD */}
-          <div className="glass-card" style={styles.moduleCard}>
-            <div style={styles.moduleCardTop}>
-              <div style={styles.moduleIconBox}>
-                <Shield size={20} color="var(--secondary-cyan)" />
-              </div>
-              <div>
-                <div className="font-heading" style={styles.moduleName}>DEFLECTOR SHIELDS</div>
-                <div style={styles.moduleLevelText}>LEVEL {upgrades.shield} / 5</div>
-              </div>
+          <div 
+            onClick={() => handleUpgradeModule('shield')}
+            className="glass-card glass-card-hover" 
+            style={{
+              ...styles.moduleCard,
+              cursor: upgrades.shield >= 5 || !activeShip.isUnlocked ? 'default' : 'pointer'
+            }}
+            title={`Upgrade Shield (${getUpgradeCost(upgrades.shield)} Credits)`}
+          >
+            <div style={styles.moduleIconBox}>
+              <Shield size={22} color="var(--secondary-cyan)" />
             </div>
-
-            <div style={styles.pipsRow}>
-              {[1, 2, 3, 4, 5].map((lvl) => (
-                <div 
-                  key={lvl} 
-                  style={{ 
-                    ...styles.pip, 
-                    background: lvl <= upgrades.shield ? 'var(--secondary-cyan)' : 'rgba(255,255,255,0.1)' 
-                  }} 
-                />
-              ))}
+            <div style={styles.moduleInfo}>
+              <div className="font-heading" style={styles.moduleName}>SHIELD</div>
+              <div style={styles.moduleLevelText}>Lv. {upgrades.shield}</div>
             </div>
-
-            <button
-              onClick={() => handleUpgradeModule('shield')}
-              disabled={actionLoading || upgrades.shield >= 5 || !activeShip.isUnlocked}
-              className="btn btn-purple"
-              style={styles.moduleUpgradeBtn}
-            >
-              {upgrades.shield >= 5 ? 'MAX LEVEL' : `UPGRADE (${getUpgradeCost(upgrades.shield)} CR)`}
-            </button>
+            <div style={styles.moduleChevron}>
+              <ChevronRight size={18} color="var(--secondary-cyan)" />
+            </div>
           </div>
 
           {/* Module 3: ENGINE */}
-          <div className="glass-card" style={styles.moduleCard}>
-            <div style={styles.moduleCardTop}>
-              <div style={styles.moduleIconBox}>
-                <Zap size={20} color="var(--currency-gold)" />
-              </div>
-              <div>
-                <div className="font-heading" style={styles.moduleName}>PLASMA ENGINES</div>
-                <div style={styles.moduleLevelText}>LEVEL {upgrades.engine} / 5</div>
-              </div>
+          <div 
+            onClick={() => handleUpgradeModule('engine')}
+            className="glass-card glass-card-hover" 
+            style={{
+              ...styles.moduleCard,
+              cursor: upgrades.engine >= 5 || !activeShip.isUnlocked ? 'default' : 'pointer'
+            }}
+            title={`Upgrade Engine (${getUpgradeCost(upgrades.engine)} Credits)`}
+          >
+            <div style={styles.moduleIconBox}>
+              <Zap size={22} color="var(--currency-gold)" />
             </div>
-
-            <div style={styles.pipsRow}>
-              {[1, 2, 3, 4, 5].map((lvl) => (
-                <div 
-                  key={lvl} 
-                  style={{ 
-                    ...styles.pip, 
-                    background: lvl <= upgrades.engine ? 'var(--currency-gold)' : 'rgba(255,255,255,0.1)' 
-                  }} 
-                />
-              ))}
+            <div style={styles.moduleInfo}>
+              <div className="font-heading" style={styles.moduleName}>ENGINE</div>
+              <div style={styles.moduleLevelText}>Lv. {upgrades.engine}</div>
             </div>
-
-            <button
-              onClick={() => handleUpgradeModule('engine')}
-              disabled={actionLoading || upgrades.engine >= 5 || !activeShip.isUnlocked}
-              className="btn btn-purple"
-              style={styles.moduleUpgradeBtn}
-            >
-              {upgrades.engine >= 5 ? 'MAX LEVEL' : `UPGRADE (${getUpgradeCost(upgrades.engine)} CR)`}
-            </button>
+            <div style={styles.moduleChevron}>
+              <ChevronRight size={18} color="var(--secondary-cyan)" />
+            </div>
           </div>
 
           {/* Module 4: SPECIAL */}
-          <div className="glass-card" style={styles.moduleCard}>
-            <div style={styles.moduleCardTop}>
-              <div style={styles.moduleIconBox}>
-                <Sparkles size={20} color="#C084FC" />
-              </div>
-              <div>
-                <div className="font-heading" style={styles.moduleName}>SPECIAL ABILITIES</div>
-                <div style={styles.moduleLevelText}>LEVEL {upgrades.special} / 5</div>
-              </div>
+          <div 
+            onClick={() => handleUpgradeModule('special')}
+            className="glass-card glass-card-hover" 
+            style={{
+              ...styles.moduleCard,
+              cursor: upgrades.special >= 5 || !activeShip.isUnlocked ? 'default' : 'pointer'
+            }}
+            title={`Upgrade Special (${getUpgradeCost(upgrades.special)} Credits)`}
+          >
+            <div style={styles.moduleIconBox}>
+              <Sparkles size={22} color="#C084FC" />
             </div>
-
-            <div style={styles.pipsRow}>
-              {[1, 2, 3, 4, 5].map((lvl) => (
-                <div 
-                  key={lvl} 
-                  style={{ 
-                    ...styles.pip, 
-                    background: lvl <= upgrades.special ? '#C084FC' : 'rgba(255,255,255,0.1)' 
-                  }} 
-                />
-              ))}
+            <div style={styles.moduleInfo}>
+              <div className="font-heading" style={styles.moduleName}>SPECIAL</div>
+              <div style={styles.moduleLevelText}>Lv. {upgrades.special}</div>
             </div>
-
-            <button
-              onClick={() => handleUpgradeModule('special')}
-              disabled={actionLoading || upgrades.special >= 5 || !activeShip.isUnlocked}
-              className="btn btn-purple"
-              style={styles.moduleUpgradeBtn}
-            >
-              {upgrades.special >= 5 ? 'MAX LEVEL' : `UPGRADE (${getUpgradeCost(upgrades.special)} CR)`}
-            </button>
+            <div style={styles.moduleChevron}>
+              <ChevronRight size={18} color="var(--secondary-cyan)" />
+            </div>
           </div>
         </div>
       </section>
@@ -499,6 +460,50 @@ const styles = {
     flexDirection: 'column',
     gap: '24px',
     background: 'radial-gradient(circle at 50% 10%, rgba(124, 58, 237, 0.1) 0%, rgba(6, 9, 25, 0.98) 70%)'
+  },
+  subHeaderBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '16px 24px',
+    borderRadius: '14px',
+    border: '1px solid var(--border-glass)'
+  },
+  carouselChevronLeft: {
+    position: 'absolute',
+    left: '16px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    zIndex: 20,
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid rgba(0, 229, 255, 0.4)',
+    background: 'rgba(6, 9, 25, 0.7)',
+    color: 'var(--secondary-cyan)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  },
+  carouselChevronRight: {
+    position: 'absolute',
+    right: '16px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    zIndex: 20,
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid rgba(0, 229, 255, 0.4)',
+    background: 'rgba(6, 9, 25, 0.7)',
+    color: 'var(--secondary-cyan)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
   },
   loadingContainer: {
     minHeight: '100vh',
@@ -707,37 +712,52 @@ const styles = {
   },
   modulesGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: '18px'
-  },
-  moduleCard: {
-    padding: '18px',
-    display: 'flex',
-    flexDirection: 'column',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     gap: '14px'
   },
-  moduleCardTop: {
+  moduleCard: {
+    padding: '14px 18px',
     display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: '12px'
+    borderRadius: '12px',
+    border: '1px solid var(--border-glass)',
+    transition: 'all 0.2s ease'
   },
   moduleIconBox: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '8px',
-    background: 'rgba(0, 0, 0, 0.4)',
+    width: '42px',
+    height: '42px',
+    borderRadius: '10px',
+    background: 'rgba(0, 0, 0, 0.45)',
     border: '1px solid var(--border-glass)',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    flexShrink: 0
+  },
+  moduleInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+    flex: 1,
+    marginLeft: '14px'
   },
   moduleName: {
-    fontSize: '0.82rem',
-    fontWeight: '700'
+    fontSize: '0.86rem',
+    fontWeight: '700',
+    color: 'var(--text-light)',
+    letterSpacing: '0.04em'
   },
   moduleLevelText: {
-    fontSize: '0.68rem',
-    color: 'var(--text-muted)'
+    fontSize: '0.74rem',
+    color: 'var(--secondary-cyan)',
+    fontWeight: '600'
+  },
+  moduleChevron: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: '8px'
   },
   pipsRow: {
     display: 'flex',

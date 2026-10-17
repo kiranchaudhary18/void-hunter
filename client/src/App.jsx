@@ -11,6 +11,7 @@ import LeaderboardPage from './pages/LeaderboardPage.jsx';
 import GameContainer from './game/GameContainer.jsx';
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
+import SidebarLayout from './components/SidebarLayout.jsx';
 import api from './services/api.js';
 import { MISSIONS_CATALOG } from './data/missionsData.js';
 import { GAME_NAME, GAME_TAGLINE } from './config/gameConfig.js';
@@ -219,182 +220,13 @@ function MainAppContent() {
     }
   };
 
-  // Universal Authenticated App Shell with Cyber Top Navigation
+  // Universal Authenticated App Shell with Cyber Sidebar & Top Navigation
   return (
-    <div style={styles.appShell}>
-      {/* Top Universal Navbar */}
-      <nav style={styles.navBar} className="glass-panel cyber-box">
-        <div style={styles.navLeft}>
-          <div 
-            style={{ ...styles.logoGroup, cursor: 'pointer' }} 
-            onClick={() => setCurrentScreen(isAuthenticated ? 'dashboard' : 'landing')}
-            title={isAuthenticated ? "Command Deck Dashboard" : "Return to Main Menu"}
-          >
-            <img src="/favicon.svg" alt="Void Hunter Logo" style={styles.navLogo} />
-            <div>
-              <span className="font-heading text-glow-cyan" style={styles.navBrandTitle}>{GAME_NAME}</span>
-              <span className="font-ui" style={styles.navBrandTag}>{GAME_TAGLINE}</span>
-            </div>
-          </div>
-
-          <div style={styles.navLinks}>
-            {!isAuthenticated && (
-              <button 
-                id="nav-btn-home"
-                style={{ ...styles.navLink, ...(currentScreen === 'landing' ? styles.navLinkActive : {}) }}
-                onClick={() => setCurrentScreen('landing')}
-              >
-                HOME
-              </button>
-            )}
-            <button 
-              id="nav-btn-dashboard"
-              style={{ ...styles.navLink, ...(currentScreen === 'dashboard' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('dashboard')}
-            >
-              DASHBOARD
-            </button>
-            <button 
-              id="nav-btn-missions"
-              style={{ ...styles.navLink, ...(currentScreen === 'missions' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('missions')}
-            >
-              MISSIONS (50)
-            </button>
-            <button 
-              id="nav-btn-hangar"
-              style={{ ...styles.navLink, ...(currentScreen === 'hangar' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('hangar')}
-            >
-              HANGAR
-            </button>
-            <button 
-              id="nav-btn-quests"
-              style={{ ...styles.navLink, ...(currentScreen === 'quests' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('quests')}
-            >
-              QUESTS
-            </button>
-            <button 
-              id="nav-btn-leaderboard"
-              style={{ ...styles.navLink, ...(currentScreen === 'leaderboard' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('leaderboard')}
-            >
-              LEADERBOARD
-            </button>
-            <button 
-              id="nav-btn-wallet"
-              style={{ ...styles.navLink, ...(currentScreen === 'wallet' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('wallet')}
-            >
-              WALLET
-            </button>
-            <button 
-              id="nav-btn-admin"
-              style={{ ...styles.navLink, ...(currentScreen === 'admin' ? styles.navLinkActive : {}) }}
-              onClick={() => setCurrentScreen('admin')}
-              title="VELoop Rewards Administrative Audit & Fraud Dashboard (Section 75)"
-            >
-              ADMIN AUDIT
-            </button>
-            <button 
-              id="nav-btn-combat"
-              style={{ 
-                ...styles.navLink, 
-                color: 'var(--secondary-cyan)',
-                border: '1px solid rgba(0, 229, 255, 0.4)',
-                background: 'rgba(0, 229, 255, 0.1)',
-                boxShadow: '0 0 10px rgba(0, 229, 255, 0.25)'
-              }}
-              onClick={() => setCurrentScreen('gameplay')}
-            >
-              COMBAT (PLAY)
-            </button>
-          </div>
-        </div>
-
-        {/* Top Right: Currencies & User Pilot Profile */}
-        <div style={styles.navRight}>
-          {/* Settings Audio & Keybinds Trigger */}
-          <button 
-            id="nav-btn-settings"
-            onClick={() => setIsSettingsOpen(true)}
-            style={{
-              background: 'rgba(0, 229, 255, 0.08)',
-              border: '1px solid var(--border-glass)',
-              borderRadius: '8px',
-              padding: '8px 10px',
-              color: 'var(--secondary-cyan)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.2s ease'
-            }}
-            title="Audio & Control Settings (Section 73)"
-          >
-            <Settings size={16} />
-          </button>
-
-          {isAuthenticated && profile ? (
-            <>
-              {/* Credits Counter - Click to open Wallet */}
-              <div 
-                className="currency-pill credits" 
-                title="In-Game Credits (Click to View Ledger)"
-                onClick={() => setCurrentScreen('wallet')}
-                style={{ cursor: 'pointer', border: '1px solid rgba(251, 191, 36, 0.4)', boxShadow: '0 0 10px rgba(251, 191, 36, 0.2)' }}
-              >
-                <Coins size={16} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
-                <span className="font-heading" style={{ color: 'var(--currency-gold)' }}>{profile.credits?.toLocaleString() || 500}</span>
-              </div>
-
-              {/* Energy Cores Counter - Click to open Wallet */}
-              <div 
-                className="currency-pill cores" 
-                title="Energy Cores (Click to View Ledger)"
-                onClick={() => setCurrentScreen('wallet')}
-                style={{ cursor: 'pointer', border: '1px solid rgba(168, 85, 247, 0.4)', boxShadow: '0 0 10px rgba(168, 85, 247, 0.2)' }}
-              >
-                <Zap size={16} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
-                <span className="font-heading" style={{ color: '#C084FC' }}>{profile.energyCores || 10}</span>
-              </div>
-
-              {/* Pilot Card */}
-              <div 
-                style={{ ...styles.pilotBadge, cursor: 'pointer', border: '1px solid rgba(0, 229, 255, 0.35)', borderRadius: '10px' }} 
-                className="glass-card"
-                onClick={() => setCurrentScreen('dashboard')}
-              >
-                <div style={styles.pilotAvatar}>
-                  <User size={16} color="var(--secondary-cyan)" />
-                </div>
-                <div>
-                  <div style={styles.pilotName}>{user?.name || 'Commander'}</div>
-                  <div style={styles.pilotLevel}>LV. {profile.level || 1} • {profile.pilotRank || 'Star Cadet'}</div>
-                </div>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); logout(); setCurrentScreen('landing'); }} 
-                  style={styles.logoutBtn} 
-                  title="Logout Pilot"
-                >
-                  <LogOut size={15} />
-                </button>
-              </div>
-            </>
-          ) : (
-            <button 
-              onClick={() => setCurrentScreen('auth')} 
-              className="btn btn-cyan"
-              style={{ padding: '8px 18px', fontSize: '0.8rem' }}
-            >
-              LOGIN / REGISTER
-            </button>
-          )}
-        </div>
-      </nav>
-
-      {/* Screen Content */}
+    <SidebarLayout
+      currentScreen={currentScreen}
+      onNavigate={(screen) => setCurrentScreen(screen)}
+      onOpenSettings={() => setIsSettingsOpen(true)}
+    >
       {renderScreenContent()}
 
       {/* Audio & Controls Settings Modal */}
@@ -404,7 +236,7 @@ function MainAppContent() {
           onClose={() => setIsSettingsOpen(false)} 
         />
       )}
-    </div>
+    </SidebarLayout>
   );
 }
 

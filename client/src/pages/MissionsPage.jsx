@@ -4,13 +4,14 @@ import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { SECTORS_LIST, MISSIONS_CATALOG, BOSS_ENCOUNTERS } from '../data/missionsData.js';
 import { 
-  ArrowLeft, Star, Lock, Play, ShieldAlert, Award, 
+  ArrowLeft, Star, Lock, Play, Shield, ShieldAlert, Award, 
   Coins, Zap, Compass, Crosshair, Skull, ChevronRight, RefreshCw 
 } from 'lucide-react';
 
 export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: 'V-01 ORBITRON', speed: 380, damage: 25 } }) => {
   const { user, profile, refreshProfile } = useAuth();
   const [activeSectorId, setActiveSectorId] = useState('sector-1');
+  const [difficulty, setDifficulty] = useState('NORMAL');
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [launchingId, setLaunchingId] = useState(null);
@@ -102,48 +103,47 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
 
   return (
     <div style={styles.pageContainer}>
-      {/* ================= TOP NAVIGATION & STATS BAR ================= */}
-      <header style={styles.header} className="glass-panel">
-        <div style={styles.headerLeft}>
-          <button onClick={onBack} style={styles.backBtn} className="btn-secondary">
-            <ArrowLeft size={18} />
-            <span>BACK TO BASE</span>
-          </button>
-          <div>
-            <h1 className="font-heading" style={styles.pageTitle}>MISSION COMMAND</h1>
-            <p style={styles.subTitle}>50 STRATEGIC DEPLOYMENTS • 5 SECTOR CAMPAIGNS</p>
-          </div>
+      {/* ================= SCREEN 4 SUBHEADER & DIFFICULTY ================= */}
+      <div style={styles.subHeaderBar} className="glass-panel cyber-box">
+        <div>
+          <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>MISSION SELECTION</h1>
+          <p style={styles.subTitle}>Explore different sectors and complete 50 tactical missions</p>
         </div>
 
-        <div style={styles.headerRight}>
-          {/* Total Stars Pill */}
-          <div style={styles.metricPill} className="glass-card">
-            <Star size={16} color="var(--currency-gold)" fill="var(--currency-gold)" />
-            <div>
-              <div style={styles.metricVal}>{totalStars} / 150</div>
-              <div style={styles.metricLabel}>TOTAL STARS</div>
-            </div>
+        <div style={styles.headerRightActions}>
+          {/* Difficulty Tabs: NORMAL, HARD, EXPERT */}
+          <div style={styles.diffGroup}>
+            {['NORMAL', 'HARD', 'EXPERT'].map((diff) => (
+              <button
+                key={diff}
+                onClick={() => {
+                  soundManager.playPickup('core');
+                  setDifficulty(diff);
+                }}
+                style={{
+                  ...styles.diffBtn,
+                  background: difficulty === diff ? 'var(--secondary-cyan)' : 'rgba(255, 255, 255, 0.05)',
+                  color: difficulty === diff ? '#060919' : 'var(--text-muted)',
+                  borderColor: difficulty === diff ? 'var(--secondary-cyan)' : 'rgba(255, 255, 255, 0.12)',
+                  boxShadow: difficulty === diff ? '0 0 12px rgba(0, 229, 255, 0.4)' : 'none'
+                }}
+                className="font-heading"
+              >
+                {diff}
+              </button>
+            ))}
           </div>
 
-          {/* Cleared Missions Pill */}
-          <div style={styles.metricPill} className="glass-card">
-            <Award size={16} color="var(--secondary-cyan)" />
-            <div>
-              <div style={styles.metricVal}>{totalCompleted} / 50</div>
-              <div style={styles.metricLabel}>COMPLETED</div>
-            </div>
-          </div>
-
-          {/* Active Ship Indicator */}
-          <div style={styles.shipPill} className="glass-card">
-            <Crosshair size={15} color="var(--electric-magenta)" />
-            <div>
-              <div style={styles.shipVal}>{selectedShip?.name || 'V-01 ORBITRON'}</div>
-              <div style={styles.metricLabel}>DEPLOYED FIGHTER</div>
-            </div>
+          {/* Quick Metrics */}
+          <div style={styles.sectorStatsBadge} className="glass-card">
+            <Star size={14} color="var(--currency-gold)" fill="var(--currency-gold)" />
+            <span style={{ fontSize: '0.8rem', color: 'var(--currency-gold)', fontWeight: '700' }}>{totalStars}/150</span>
+            <span style={{ color: 'rgba(255, 255, 255, 0.2)' }}>•</span>
+            <Award size={14} color="var(--secondary-cyan)" />
+            <span style={{ fontSize: '0.8rem', color: 'var(--secondary-cyan)', fontWeight: '700' }}>{totalCompleted}/50</span>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Error / Locked Alert */}
       {errorMessage && (
@@ -267,83 +267,82 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                 }}
                 className={`glass-card ${isUnlocked ? 'glass-card-hover cyber-box' : ''}`}
               >
-                {/* Card Top: Number & Objective Badge */}
+                {/* Card Top: Sequence Number & Lock/Status Badge */}
                 <div style={styles.cardHeader}>
                   <div style={{
                     ...styles.missionSeqBadge,
                     borderColor: isBossMission ? '#EF4444' : m.isCompleted ? 'var(--secondary-cyan)' : 'var(--border-glass)',
-                    background: isBossMission ? 'rgba(239, 68, 68, 0.2)' : m.isCompleted ? 'rgba(0, 229, 255, 0.2)' : 'rgba(0, 229, 255, 0.1)'
+                    background: isBossMission ? 'rgba(239, 68, 68, 0.25)' : m.isCompleted ? 'rgba(0, 229, 255, 0.2)' : 'rgba(0, 229, 255, 0.08)'
                   }}>
-                    <span className="font-heading" style={{ color: isBossMission ? '#FCA5A5' : m.isCompleted ? 'var(--secondary-cyan)' : 'var(--text-light)' }}>
+                    <span className="font-heading" style={{ color: isBossMission ? '#FCA5A5' : m.isCompleted ? 'var(--secondary-cyan)' : 'var(--text-light)', fontWeight: '700' }}>
                       {String(m.sequence).padStart(2, '0')}
                     </span>
                   </div>
 
                   <div style={styles.badgeGroup}>
-                    {m.isCompleted && (
-                      <span className="badge badge-cyan" style={{ fontSize: '0.62rem', padding: '2px 8px' }}>
-                        CLEARED
-                      </span>
-                    )}
-                    {isBossMission && (
-                      <span style={styles.bossBadge} className="animate-pulse-magenta">
-                        <Skull size={11} /> BOSS APEX
-                      </span>
-                    )}
-                    <span style={styles.objectiveBadge}>
-                      {m.objectiveType?.replace('_', ' ')?.toUpperCase() || 'COMBAT'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Body: Mission Name & Subtitle */}
-                <div style={styles.cardBody}>
-                  <div style={styles.cardSubtitle}>{m.subtitle}</div>
-                  <h3 className={`font-heading ${isBossMission ? 'text-glow-magenta' : m.isCompleted ? 'text-glow-cyan' : ''}`} style={{
-                    ...styles.cardTitle,
-                    color: isBossMission ? '#FCA5A5' : m.isCompleted ? 'var(--secondary-cyan)' : 'var(--text-light)'
-                  }}>
-                    {m.name}
-                  </h3>
-
-                  {/* Star Rating Display */}
-                  <div style={styles.starsRow}>
-                    {[1, 2, 3].map((starIdx) => (
-                      <Star
-                        key={starIdx}
-                        size={16}
-                        color={starIdx <= (m.stars || 0) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.18)'}
-                        fill={starIdx <= (m.stars || 0) ? 'var(--currency-gold)' : 'transparent'}
-                        style={starIdx <= (m.stars || 0) ? { filter: 'drop-shadow(0 0 3px #FBBF24)' } : {}}
-                      />
-                    ))}
-                    {m.highScore > 0 && (
-                      <span style={styles.highScoreText} className="text-glow-gold">
-                        HIGH: {m.highScore.toLocaleString()}
+                    {isUnlocked ? (
+                      m.isCompleted ? (
+                        <span className="badge badge-cyan" style={{ fontSize: '0.6rem', padding: '2px 6px' }}>CLEARED</span>
+                      ) : (
+                        <span className="badge badge-purple" style={{ fontSize: '0.6rem', padding: '2px 6px' }}>READY</span>
+                      )
+                    ) : (
+                      <span className="badge" style={{ fontSize: '0.6rem', padding: '2px 6px', background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
+                        <Lock size={10} style={{ marginRight: '3px' }} /> LOCKED
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Rewards Preview */}
-                <div style={styles.rewardsRow}>
-                  <div style={styles.rewardPill}>
-                    <Coins size={13} color="var(--currency-gold)" />
-                    <span>+{m.rewards?.credits || 100}</span>
-                  </div>
-                  <div style={styles.rewardPill}>
-                    <Zap size={13} color="var(--secondary-cyan)" />
-                    <span>+{m.rewards?.xp || 50} XP</span>
-                  </div>
-                  {m.rewards?.energyCores > 0 && (
-                    <div style={styles.rewardPill}>
-                      <Compass size={13} color="#C084FC" />
-                      <span>+{m.rewards?.energyCores} CORES</span>
-                    </div>
+                {/* Center Space Graphic / Thumbnail (Screen 4) */}
+                <div style={styles.missionThumbnail}>
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: isBossMission
+                      ? 'radial-gradient(circle at center, rgba(239,68,68,0.3) 0%, transparent 70%)'
+                      : m.isCompleted
+                        ? 'radial-gradient(circle at center, rgba(0,229,255,0.2) 0%, transparent 70%)'
+                        : 'radial-gradient(circle at center, rgba(168,85,247,0.2) 0%, transparent 70%)'
+                  }} />
+                  {isBossMission ? (
+                    <Skull size={36} color="#EF4444" style={{ filter: 'drop-shadow(0 0 10px #EF4444)' }} className="animate-pulse-glow" />
+                  ) : m.sequence % 3 === 1 ? (
+                    <Compass size={32} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 8px #00E5FF)' }} />
+                  ) : m.sequence % 3 === 2 ? (
+                    <Crosshair size={32} color="#FBBF24" style={{ filter: 'drop-shadow(0 0 8px #FBBF24)' }} />
+                  ) : (
+                    <Shield size={32} color="#A855F7" style={{ filter: 'drop-shadow(0 0 8px #A855F7)' }} />
                   )}
                 </div>
 
-                {/* Card Action Button */}
+                {/* Card Body: Mission Name & Star Rating */}
+                <div style={styles.cardBody}>
+                  <h3 className={`font-heading ${isBossMission ? 'text-glow-magenta' : m.isCompleted ? 'text-glow-cyan' : ''}`} style={{
+                    ...styles.cardTitle,
+                    color: isBossMission ? '#FCA5A5' : m.isCompleted ? 'var(--secondary-cyan)' : 'var(--text-light)',
+                    fontSize: '0.92rem',
+                    textAlign: 'center',
+                    margin: '6px 0 4px 0'
+                  }}>
+                    {m.name.replace(/MISSION \d+:\s*/i, '')}
+                  </h3>
+
+                  {/* Star Rating Display */}
+                  <div style={{ ...styles.starsRow, justifyContent: 'center' }}>
+                    {[1, 2, 3].map((starIdx) => (
+                      <Star
+                        key={starIdx}
+                        size={15}
+                        color={starIdx <= (m.stars || 0) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.18)'}
+                        fill={starIdx <= (m.stars || 0) ? 'var(--currency-gold)' : 'transparent'}
+                        style={starIdx <= (m.stars || 0) ? { filter: 'drop-shadow(0 0 4px #FBBF24)' } : {}}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Card Footer: Action Button */}
                 <div style={styles.cardFooter}>
                   {isUnlocked ? (
                     <button
@@ -351,6 +350,8 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                       disabled={isLaunching}
                       style={{
                         ...styles.launchBtn,
+                        padding: '8px 12px',
+                        fontSize: '0.75rem',
                         background: isBossMission
                           ? 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)'
                           : m.isCompleted
@@ -363,20 +364,20 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
                     >
                       {isLaunching ? (
                         <>
-                          <div className="spinner" style={{ width: '14px', height: '14px' }} />
-                          <span>DEPLOYING...</span>
+                          <div className="spinner" style={{ width: '12px', height: '12px' }} />
+                          <span>LAUNCHING...</span>
                         </>
                       ) : (
                         <>
-                          <Play size={14} fill="currentColor" />
-                          <span>{m.isCompleted ? 'REPLAY SORTIE' : 'LAUNCH SORTIE'}</span>
+                          <Play size={13} fill="currentColor" />
+                          <span>{m.isCompleted ? 'REPLAY' : 'LAUNCH'}</span>
                         </>
                       )}
                     </button>
                   ) : (
-                    <div style={styles.lockedBtn}>
-                      <Lock size={14} color="var(--text-muted)" />
-                      <span>LOCKED (COMPLETE M{String(m.sequence - 1).padStart(2, '0')})</span>
+                    <div style={{ ...styles.lockedBtn, padding: '8px 10px', fontSize: '0.68rem' }}>
+                      <Lock size={12} color="var(--text-muted)" />
+                      <span>LOCKED</span>
                     </div>
                   )}
                 </div>
@@ -422,6 +423,47 @@ const styles = {
     fontWeight: 'bold',
     borderRadius: '10px'
   },
+  subHeaderBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '16px 24px',
+    borderRadius: '14px',
+    flexWrap: 'wrap',
+    gap: '16px'
+  },
+  headerRightActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '14px'
+  },
+  diffGroup: {
+    display: 'flex',
+    background: 'rgba(0, 0, 0, 0.4)',
+    padding: '4px',
+    borderRadius: '10px',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    gap: '4px'
+  },
+  diffBtn: {
+    padding: '6px 14px',
+    borderRadius: '7px',
+    fontSize: '0.72rem',
+    fontWeight: '700',
+    letterSpacing: '0.08em',
+    border: '1px solid transparent',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  },
+  sectorStatsBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 14px',
+    borderRadius: '10px',
+    border: '1px solid rgba(251, 191, 36, 0.3)',
+    background: 'rgba(251, 191, 36, 0.08)'
+  },
   pageTitle: {
     fontSize: '1.45rem',
     letterSpacing: '0.08em',
@@ -429,7 +471,7 @@ const styles = {
     margin: 0
   },
   subTitle: {
-    fontSize: '0.72rem',
+    fontSize: '0.74rem',
     color: 'var(--text-muted)',
     letterSpacing: '0.06em',
     margin: 0
@@ -589,17 +631,29 @@ const styles = {
   },
   gridContainer: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-    gap: '16px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+    gap: '14px'
+  },
+  missionThumbnail: {
+    height: '80px',
+    borderRadius: '10px',
+    background: 'rgba(0, 0, 0, 0.45)',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    margin: '10px 0 6px 0'
   },
   missionCard: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: '18px',
+    padding: '14px',
     borderRadius: '14px',
     border: '1px solid var(--border-glass)',
-    minHeight: '230px',
+    minHeight: '210px',
     transition: 'all 0.25s ease'
   },
   cardHeader: {

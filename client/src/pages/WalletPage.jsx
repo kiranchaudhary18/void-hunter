@@ -139,8 +139,8 @@ export const WalletPage = ({ onBack }) => {
             <span>COMMAND DECK</span>
           </button>
           <div>
-            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>VELOOP REWARDS & WALLET</h1>
-            <p style={styles.subTitle}>DOUBLE-ENTRY CRYPTOGRAPHIC TRANSACTION AUDIT</p>
+            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>REWARDS WALLET</h1>
+            <p style={styles.subTitle}>Track your credits, gems and reward history</p>
           </div>
         </div>
 

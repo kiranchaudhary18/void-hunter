@@ -35,162 +35,124 @@ export const MainMenuPage = ({ onNavigate }) => {
       <div style={styles.starsBackdrop} />
       <div style={styles.nebulaGlow} />
 
-      {/* Top Utility Bar: Sound Toggle & Pilot Status */}
+      {/* Screen 1 Top Navigation Bar */}
       <header style={styles.topBar}>
-        <div style={styles.topBarLeft}>
-          <button 
-            onClick={handleToggleMute} 
-            style={styles.soundBtn}
-            className="glass-card"
-            title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
-          >
-            {isMuted ? <VolumeX size={18} color="#EF4444" /> : <Volume2 size={18} color="var(--secondary-cyan)" />}
-            <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-heading)' }}>
-              {isMuted ? 'AUDIO OFF' : 'AUDIO ON'}
-            </span>
-          </button>
+        <div style={styles.brandGroup}>
+          <svg width="28" height="28" viewBox="0 0 64 64" style={{ filter: 'drop-shadow(0 0 8px #00E5FF)' }}>
+            <polygon points="32,6 44,28 60,52 48,56 38,48 32,58 26,48 16,56 4,52 20,28" fill="#00E5FF" />
+            <ellipse cx="32" cy="26" rx="4" ry="10" fill="#FFFFFF" />
+          </svg>
+          <div>
+            <div className="font-heading text-glow-cyan" style={{ fontSize: '1.05rem', lineHeight: 1.1, letterSpacing: '0.08em' }}>
+              VOID HUNTER
+            </div>
+            <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
+              SPACE COMBAT BEYOND LIMITS
+            </div>
+          </div>
         </div>
 
+        {/* Center Nav Links (Screen 1) */}
+        <nav style={styles.centerNavLinks}>
+          <button onClick={() => handleAction('main_menu')} style={{ ...styles.navLink, color: 'var(--secondary-cyan)' }}>HOME</button>
+          <button onClick={() => handleAction('missions')} style={styles.navLink}>MISSIONS</button>
+          <button onClick={() => handleAction('hangar')} style={styles.navLink}>HANGAR</button>
+          <button onClick={() => handleAction('leaderboard')} style={styles.navLink}>LEADERBOARD</button>
+        </nav>
+
+        {/* Top Right Utilities */}
         <div style={styles.topBarRight}>
+          <button 
+            onClick={handleToggleMute} 
+            style={styles.iconCircleBtn}
+            title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
+          >
+            {isMuted ? <VolumeX size={16} color="#EF4444" /> : <Volume2 size={16} color="var(--secondary-cyan)" />}
+          </button>
+
           {isAuthenticated && profile ? (
-            <div style={styles.pilotCard} className="glass-panel">
+            <div style={styles.pilotCard} className="glass-panel" onClick={() => handleAction('dashboard')}>
               <div style={styles.pilotInfo}>
                 <div style={styles.pilotName}>{user?.name || 'Commander'}</div>
-                <div style={styles.pilotRank}>LV. {profile.level} {profile.pilotRank}</div>
+                <div style={styles.pilotRank}>LV. {profile.level}</div>
               </div>
-              <div className="currency-pill credits" style={{ padding: '4px 10px' }}>
-                <Coins size={14} color="var(--currency-gold)" />
-                <span>{profile.credits?.toLocaleString() || 500}</span>
-              </div>
-              <button onClick={logout} style={styles.logoutBtn} title="Logout">
-                <LogOut size={15} />
-              </button>
             </div>
           ) : (
             <button 
               onClick={() => handleAction('auth')} 
-              className="btn btn-cyan"
-              style={{ padding: '8px 20px', fontSize: '0.82rem' }}
+              className="btn btn-cyan animate-pulse-glow"
+              style={{ padding: '8px 22px', fontSize: '0.8rem', fontWeight: 'bold' }}
             >
-              LOGIN / ENLIST
+              LOGIN
             </button>
           )}
         </div>
       </header>
 
-      {/* Center Cinematic Hero Presentation */}
-      <main style={styles.heroContent}>
-        {/* Floating Emblems & Badges */}
-        <div style={styles.badgeRow}>
-          <span className="badge badge-cyan animate-pulse-glow">
-            <Sparkles size={13} style={{ marginRight: '6px' }} />
-            ARCADE ODYSSEY 2.0 • 60 FPS PHASER COMBAT
-          </span>
+      {/* Screen 1 Two-Column Hero Showcase */}
+      <main style={styles.screen1HeroGrid}>
+        {/* Left Column: Mission Control & Deploy CTAs */}
+        <div style={styles.heroLeftCol}>
+          <div style={styles.missionControlBadge}>
+            <span style={styles.onlineDot}>●</span>
+            <span>MISSION CONTROL // ONLINE</span>
+          </div>
+
+          <h1 className="font-heading" style={styles.screen1HeroTitle}>
+            ENTER THE VOID.<br />
+            <span className="text-glow-cyan" style={{ color: 'var(--secondary-cyan)' }}>HUNT THE UNKNOWN.</span>
+          </h1>
+
+          <p style={styles.screen1Subtitle}>
+            Explore hostile sectors. Master advanced spacecraft. Defend the galaxy from the forces beyond known space.
+          </p>
+
+          <div style={styles.screen1ActionsRow}>
+            <button 
+              onClick={() => handleAction('gameplay')}
+              className="btn btn-cyan animate-pulse-glow"
+              style={styles.screen1PlayBtn}
+            >
+              <Play size={20} fill="currentColor" />
+              <span>PLAY NOW</span>
+            </button>
+
+            <button 
+              onClick={() => handleAction('missions')}
+              className="btn btn-outline"
+              style={styles.screen1ContinueBtn}
+            >
+              <span>CONTINUE MISSION</span>
+            </button>
+          </div>
+
+          <div style={styles.pressEnterDeploy}>
+            PRESS ENTER TO DEPLOY
+          </div>
         </div>
 
-        {/* Title & Tagline */}
-        <h1 className="font-heading" style={styles.mainTitle}>
-          {GAME_NAME}
-        </h1>
-        <p style={styles.tagline}>
-          {GAME_TAGLINE}
-        </p>
-
-        {/* Primary CTA Play Button */}
-        <button 
-          onClick={() => handleAction('gameplay')}
-          className="btn btn-cyan animate-pulse-glow"
-          style={styles.mainPlayBtn}
-        >
-          <Play size={24} fill="currentColor" />
-          <span>START COMBAT</span>
-        </button>
-
-        {/* Secondary Navigation Grid */}
-        <div style={styles.menuGrid}>
-          <button 
-            onClick={() => handleAction('missions')} 
-            style={styles.menuBtn}
-            className="glass-card glass-card-hover"
-          >
-            <Compass size={20} color="var(--secondary-cyan)" />
-            <div style={styles.menuBtnText}>
-              <div className="font-heading" style={styles.menuBtnTitle}>CAMPAIGN MISSIONS</div>
-              <div style={styles.menuBtnSub}>50 Strategic Stages & 5 Bosses</div>
-            </div>
-            <ChevronRight size={16} color="var(--text-muted)" />
-          </button>
-
-          <button 
-            onClick={() => handleAction('hangar')} 
-            style={styles.menuBtn}
-            className="glass-card glass-card-hover"
-          >
-            <Shield size={20} color="var(--electric-magenta)" />
-            <div style={styles.menuBtnText}>
-              <div className="font-heading" style={styles.menuBtnTitle}>STARSHIP HANGAR</div>
-              <div style={styles.menuBtnSub}>5 Ship Classes & 7 Modules</div>
-            </div>
-            <ChevronRight size={16} color="var(--text-muted)" />
-          </button>
-
-          <button 
-            onClick={() => handleAction('dashboard')} 
-            style={styles.menuBtn}
-            className="glass-card glass-card-hover"
-          >
-            <User size={20} color="#38BDF8" />
-            <div style={styles.menuBtnText}>
-              <div className="font-heading" style={styles.menuBtnTitle}>COMMAND DECK</div>
-              <div style={styles.menuBtnSub}>Pilot Statistics & Overview</div>
-            </div>
-            <ChevronRight size={16} color="var(--text-muted)" />
-          </button>
-
-          <button 
-            onClick={() => handleAction('quests')} 
-            style={styles.menuBtn}
-            className="glass-card glass-card-hover"
-          >
-            <Award size={20} color="var(--currency-gold)" />
-            <div style={styles.menuBtnText}>
-              <div className="font-heading" style={styles.menuBtnTitle}>DAILY QUESTS</div>
-              <div style={styles.menuBtnSub}>24h Resets & 10 Achievements</div>
-            </div>
-            <ChevronRight size={16} color="var(--text-muted)" />
-          </button>
-
-          <button 
-            onClick={() => handleAction('leaderboard')} 
-            style={styles.menuBtn}
-            className="glass-card glass-card-hover"
-          >
-            <BarChart3 size={20} color="#C084FC" />
-            <div style={styles.menuBtnText}>
-              <div className="font-heading" style={styles.menuBtnTitle}>LEADERBOARD</div>
-              <div style={styles.menuBtnSub}>Global Pilot Rankings</div>
-            </div>
-            <ChevronRight size={16} color="var(--text-muted)" />
-          </button>
-
-          <button 
-            onClick={() => handleAction('wallet')} 
-            style={styles.menuBtn}
-            className="glass-card glass-card-hover"
-          >
-            <Wallet size={20} color="var(--status-green)" />
-            <div style={styles.menuBtnText}>
-              <div className="font-heading" style={styles.menuBtnTitle}>VELOP WALLET</div>
-              <div style={styles.menuBtnSub}>Double-Entry Ledger & Rewards</div>
-            </div>
-            <ChevronRight size={16} color="var(--text-muted)" />
-          </button>
+        {/* Right Column: Hero Starfighter Graphic (Screen 1) */}
+        <div style={styles.heroRightCol}>
+          <div style={styles.heroShipGlowBackdrop} />
+          <div className="animate-float" style={styles.heroShipContainer}>
+            <svg width="340" height="340" viewBox="0 0 64 64" style={{ filter: 'drop-shadow(0 0 28px rgba(0, 229, 255, 0.75))' }}>
+              <polygon points="32,4 46,24 62,48 48,56 36,46 32,58 28,46 16,56 2,48 18,24" fill="#00E5FF" />
+              <polygon points="32,8 42,28 54,46 40,46 32,52 24,46 10,46 22,28" fill="#060919" />
+              <ellipse cx="32" cy="24" rx="4" ry="12" fill="#FFFFFF" />
+              <circle cx="26" cy="56" r="3" fill="#FF2DFF" style={{ filter: 'drop-shadow(0 0 8px #FF2DFF)' }} />
+              <circle cx="38" cy="56" r="3" fill="#FF2DFF" style={{ filter: 'drop-shadow(0 0 8px #FF2DFF)' }} />
+            </svg>
+          </div>
         </div>
       </main>
 
-      {/* Footer System Version */}
-      <footer style={styles.footer}>
-        <span>VOID HUNTER v1.0.0 • HARDENED VELOOP ENGINE • MONGO ATLAS SYNCED</span>
+      {/* Screen 1 Footer Status Bar */}
+      <footer style={styles.screen1Footer}>
+        <span style={styles.footerTag}>VOID HUNTER // EARLY ACCESS</span>
+        <span style={styles.footerTag}>
+          <span style={{ color: '#10B981', marginRight: '6px' }}>●</span>
+          SYSTEM READY // V0.1.0
+        </span>
       </footer>
     </div>
   );
@@ -232,131 +194,180 @@ const styles = {
     position: 'relative',
     zIndex: 10,
     width: '100%',
-    maxWidth: '1200px',
+    maxWidth: '1280px',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    padding: '8px 0'
   },
-  topBarLeft: {},
-  soundBtn: {
+  brandGroup: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    padding: '8px 14px',
-    borderRadius: '10px',
+    gap: '12px'
+  },
+  centerNavLinks: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '32px'
+  },
+  navLink: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--text-muted)',
+    fontFamily: 'var(--font-heading)',
+    fontSize: '0.78rem',
+    letterSpacing: '0.1em',
+    cursor: 'pointer',
+    transition: 'color 0.2s ease'
+  },
+  topBarRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '14px'
+  },
+  iconCircleBtn: {
+    width: '38px',
+    height: '38px',
+    borderRadius: '50%',
     background: 'rgba(10, 15, 40, 0.65)',
     border: '1px solid var(--border-glass)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     cursor: 'pointer',
     color: 'var(--text-light)'
   },
-  topBarRight: {},
   pilotCard: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    padding: '8px 16px',
-    borderRadius: '12px'
+    padding: '6px 14px',
+    borderRadius: '12px',
+    cursor: 'pointer'
   },
   pilotInfo: {
     textAlign: 'left'
   },
   pilotName: {
     fontFamily: 'var(--font-heading)',
-    fontSize: '0.85rem',
+    fontSize: '0.82rem',
     color: 'var(--text-light)'
   },
   pilotRank: {
-    fontSize: '0.65rem',
+    fontSize: '0.62rem',
     color: 'var(--secondary-cyan)'
   },
-  logoutBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: 'var(--text-muted)',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '4px'
-  },
-  heroContent: {
+  screen1HeroGrid: {
     position: 'relative',
     zIndex: 10,
+    display: 'grid',
+    gridTemplateColumns: '1.15fr 0.85fr',
+    alignItems: 'center',
+    maxWidth: '1280px',
+    width: '100%',
+    margin: 'auto',
+    gap: '40px',
+    padding: '20px 0'
+  },
+  heroLeftCol: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    maxWidth: '850px',
-    width: '100%',
-    margin: 'auto 0'
-  },
-  badgeRow: {
-    marginBottom: '16px'
-  },
-  mainTitle: {
-    fontSize: 'clamp(2.8rem, 7vw, 4.8rem)',
-    letterSpacing: '0.12em',
-    color: 'var(--text-light)',
-    textShadow: '0 0 40px rgba(0, 229, 255, 0.45)',
-    margin: 0,
-    lineHeight: 1.1
-  },
-  tagline: {
-    fontSize: 'clamp(0.95rem, 2vw, 1.2rem)',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.08em',
-    margin: '12px 0 32px 0',
-    fontFamily: 'var(--font-subheading)'
-  },
-  mainPlayBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '18px 48px',
-    fontSize: '1.25rem',
-    borderRadius: '16px',
-    letterSpacing: '0.12em',
-    marginBottom: '36px',
-    boxShadow: '0 0 30px rgba(0, 229, 255, 0.45)'
-  },
-  menuGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    gap: '14px',
-    width: '100%'
-  },
-  menuBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '14px',
-    padding: '16px 20px',
-    borderRadius: '14px',
-    cursor: 'pointer',
+    alignItems: 'flex-start',
     textAlign: 'left',
-    transition: 'all 0.25s ease',
-    border: '1px solid var(--border-glass)',
-    background: 'rgba(10, 15, 40, 0.7)'
+    gap: '18px'
   },
-  menuBtnText: {
-    flex: 1
+  missionControlBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '6px 14px',
+    borderRadius: '20px',
+    background: 'rgba(0, 229, 255, 0.1)',
+    border: '1px solid rgba(0, 229, 255, 0.35)',
+    color: 'var(--secondary-cyan)',
+    fontSize: '0.72rem',
+    letterSpacing: '0.08em',
+    fontFamily: 'var(--font-heading)'
   },
-  menuBtnTitle: {
+  onlineDot: {
+    color: '#10B981',
+    fontSize: '0.9rem'
+  },
+  screen1HeroTitle: {
+    fontSize: 'clamp(2.4rem, 4.5vw, 4rem)',
+    lineHeight: 1.08,
+    letterSpacing: '0.06em',
+    margin: 0
+  },
+  screen1Subtitle: {
+    fontSize: '0.95rem',
+    color: 'var(--text-muted)',
+    lineHeight: 1.6,
+    maxWidth: '520px',
+    margin: 0
+  },
+  screen1ActionsRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    marginTop: '10px'
+  },
+  screen1PlayBtn: {
+    padding: '14px 34px',
     fontSize: '0.92rem',
-    color: 'var(--text-light)',
-    letterSpacing: '0.06em'
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    borderRadius: '12px'
   },
-  menuBtnSub: {
+  screen1ContinueBtn: {
+    padding: '14px 28px',
+    fontSize: '0.88rem',
+    fontWeight: 'bold',
+    borderRadius: '12px'
+  },
+  pressEnterDeploy: {
     fontSize: '0.68rem',
     color: 'var(--text-muted)',
-    marginTop: '2px'
+    letterSpacing: '0.12em',
+    fontFamily: 'var(--font-heading)',
+    marginTop: '4px'
   },
-  footer: {
+  heroRightCol: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  heroShipGlowBackdrop: {
+    position: 'absolute',
+    width: '380px',
+    height: '380px',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(0, 229, 255, 0.25) 0%, rgba(124, 58, 237, 0.15) 50%, transparent 75%)',
+    filter: 'blur(30px)',
+    pointerEvents: 'none'
+  },
+  heroShipContainer: {
+    zIndex: 5
+  },
+  screen1Footer: {
     position: 'relative',
     zIndex: 10,
-    fontSize: '0.68rem',
+    width: '100%',
+    maxWidth: '1280px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+    paddingTop: '16px'
+  },
+  footerTag: {
+    fontSize: '0.7rem',
     color: 'var(--text-muted)',
     letterSpacing: '0.08em',
-    fontFamily: 'var(--font-heading)',
-    paddingTop: '20px'
+    fontFamily: 'var(--font-heading)'
   }
 };
 
