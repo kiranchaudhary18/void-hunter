@@ -22,8 +22,9 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
     setErrorMessage(null);
     try {
       const res = await api.get('/missions');
-      if (res.data?.success && res.data?.missions) {
-        setMissions(res.data.missions);
+      const missionList = res.missions || res.data?.missions;
+      if (missionList && missionList.length > 0) {
+        setMissions(missionList);
       } else {
         // Fallback to client catalog with mission 1 unlocked
         setMissions(MISSIONS_CATALOG.map((m) => ({
@@ -78,12 +79,15 @@ export const MissionsPage = ({ onBack, onLaunchMission, selectedShip = { name: '
         shipId: selectedShip?.id || 'v01-orbitron'
       });
 
-      if (res.data?.success) {
+      const isSuccess = res.success || res.data?.success;
+      const sessId = res.sessionId || res.data?.sessionId;
+
+      if (isSuccess && sessId) {
         if (onLaunchMission) {
-          onLaunchMission(mission, res.data.sessionId);
+          onLaunchMission(mission, sessId);
         }
       } else {
-        setErrorMessage(res.data?.message || 'Failed to initialize mission session');
+        setErrorMessage(res.message || res.data?.message || 'Failed to initialize mission session');
       }
     } catch (err) {
       console.error('Launch mission error:', err);

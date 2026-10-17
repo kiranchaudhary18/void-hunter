@@ -38,11 +38,28 @@ class ApiService {
         throw new Error(data.message || `Request failed with status ${response.status}`);
       }
 
-      return data;
+      return { ...data, data };
     } catch (error) {
       console.error(`API Error [${endpoint}]:`, error.message);
       throw error;
     }
+  }
+
+  // REST Verb Helpers (Used across Pages, Combat, and Ledgers)
+  async get(endpoint, options = {}) {
+    return this.request(endpoint, { ...options, method: 'GET' });
+  }
+
+  async post(endpoint, body = {}, options = {}) {
+    return this.request(endpoint, { ...options, method: 'POST', body });
+  }
+
+  async put(endpoint, body = {}, options = {}) {
+    return this.request(endpoint, { ...options, method: 'PUT', body });
+  }
+
+  async delete(endpoint, options = {}) {
+    return this.request(endpoint, { ...options, method: 'DELETE' });
   }
 
   // Authentication Endpoints
