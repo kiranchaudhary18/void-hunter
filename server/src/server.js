@@ -152,4 +152,21 @@ const startServer = async () => {
   }
 };
 
-startServer();
+// Automatic DB connection for serverless environments (Vercel)
+if (process.env.VERCEL === '1') {
+  app.use(async (req, res, next) => {
+    try {
+      await connectDB();
+      next();
+    } catch (e) {
+      console.error('[SERVERLESS DB ERROR]', e);
+      res.status(500).json({ error: 'Database connection failed' });
+    }
+  });
+} else {
+  // Standalone server mode (Render, Local, Docker)
+  startServer();
+}
+
+export { app };
+export default app;
