@@ -31,6 +31,7 @@ export const WalletPage = ({ onBack }) => {
   const [adModalOpen, setAdModalOpen] = useState(false);
   const [adSessionData, setAdSessionData] = useState(null);
   const [adCountdown, setAdCountdown] = useState(5);
+  const [isAdAudioMuted, setIsAdAudioMuted] = useState(true);
   const [adVerifying, setAdVerifying] = useState(false);
 
   // Fetch balances and double-entry transaction ledger
@@ -463,16 +464,95 @@ export const WalletPage = ({ onBack }) => {
               </span>
             </div>
 
-            <div style={styles.adVideoScreen}>
-              <div className="font-heading" style={{ fontSize: '1.4rem', color: 'var(--secondary-cyan)', letterSpacing: '0.1em' }}>
-                VOID HUNTER REWARDS
-              </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', maxWidth: '340px', margin: '10px 0' }}>
-                Simulated sponsor broadcast in progress. Real-time heartbeats sent to backend ledger.
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--currency-gold)' }}>
-                <Coins size={18} />
-                <span className="font-heading" style={{ fontSize: '1.1rem' }}>+150 IN-GAME CREDITS</span>
+            {/* Actual Commercial Video Player Container */}
+            <div style={{
+              ...styles.adVideoScreen,
+              position: 'relative',
+              overflow: 'hidden',
+              padding: 0,
+              background: '#02040A',
+              boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8)'
+            }}>
+              <video
+                src="/videos/ad_commercial.mp4"
+                autoPlay
+                playsInline
+                muted={isAdAudioMuted}
+                loop
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              />
+
+              {/* Video Cyberpunk Overlay Controls */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(6, 9, 25, 0.6) 0%, transparent 40%, rgba(6, 9, 25, 0.85) 100%)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '14px',
+                pointerEvents: 'none'
+              }}>
+                {/* Top overlay line */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pointerEvents: 'auto' }}>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    padding: '2px 8px',
+                    background: 'rgba(0, 0, 0, 0.75)',
+                    border: '1px solid rgba(0, 229, 255, 0.4)',
+                    borderRadius: '4px',
+                    color: 'var(--secondary-cyan)',
+                    fontFamily: 'var(--font-heading)',
+                    letterSpacing: '0.08em'
+                  }}>
+                    4K ULTRA HD STREAM
+                  </span>
+                  <button
+                    onClick={() => setIsAdAudioMuted(!isAdAudioMuted)}
+                    style={{
+                      background: 'rgba(0, 0, 0, 0.75)',
+                      border: '1px solid rgba(255, 255, 255, 0.25)',
+                      borderRadius: '50%',
+                      width: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      color: '#FFF',
+                      transition: 'all 0.2s'
+                    }}
+                    title={isAdAudioMuted ? 'Click to Unmute' : 'Click to Mute'}
+                  >
+                    {isAdAudioMuted ? <VolumeX size={15} color="#EF4444" /> : <Volume2 size={15} color="#10B981" />}
+                  </button>
+                </div>
+
+                {/* Bottom overlay info & scrubber */}
+                <div style={{ pointerEvents: 'auto' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span className="font-heading" style={{ fontSize: '0.78rem', color: '#FFF', letterSpacing: '0.04em' }}>
+                      CYBERNETIC WEAPONS EXPO // SPECIAL PROMO
+                    </span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--secondary-cyan)', fontFamily: 'var(--font-heading)' }}>
+                      0:0${Math.min(5, 5 - adCountdown)} / 0:05
+                    </span>
+                  </div>
+                  {/* Real-time Video Scrubber */}
+                  <div style={{ width: '100%', height: '5px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${Math.min(100, ((5 - adCountdown) / 5) * 100)}%`,
+                      background: 'linear-gradient(90deg, var(--secondary-cyan) 0%, #C084FC 100%)',
+                      transition: 'width 0.8s ease'
+                    }} />
+                  </div>
+                </div>
               </div>
             </div>
 

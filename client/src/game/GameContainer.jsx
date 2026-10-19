@@ -49,6 +49,7 @@ export const GameContainer = ({
   const [adCountdown, setAdCountdown] = useState(5);
   const [adTargetAction, setAdTargetAction] = useState(null); // 'revive' or 'double_credits'
   const [adSessionData, setAdSessionData] = useState(null);
+  const [isAdAudioMuted, setIsAdAudioMuted] = useState(true);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 680 : false);
 
   useEffect(() => {
@@ -886,34 +887,136 @@ export const GameContainer = ({
         </div>
       )}
 
-      {/* ================= SIMULATED REWARDED AD MODAL ================= */}
+      {/* ================= SIMULATED REWARDED AD MODAL WITH ACTUAL VIDEO ================= */}
       {adModalOpen && (
         <div style={styles.adModalBackdrop}>
-          <div className="glass-panel" style={styles.adBox}>
+          <div className="glass-panel" style={{ ...styles.adBox, border: '1px solid rgba(0, 229, 255, 0.4)', boxShadow: '0 0 50px rgba(0, 229, 255, 0.25)' }}>
             <div style={styles.adHeader}>
-              <span className="badge badge-cyan">VELOP SPONSORED TRANSMISSION</span>
-              <span style={styles.countdownPill}>
-                {adCountdown > 0 ? `Reward in ${adCountdown}s` : 'Reward Ready!'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="badge badge-cyan" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Video size={13} /> VELOP SPONSORED TRANSMISSION
+                </span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--currency-gold)', fontFamily: 'var(--font-heading)' }}>
+                  AD • 1 OF 1
+                </span>
+              </div>
+              <span style={{
+                ...styles.countdownPill,
+                background: adCountdown > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                color: adCountdown > 0 ? '#FCA5A5' : '#6EE7B7',
+                border: `1px solid ${adCountdown > 0 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)'}`
+              }}>
+                {adCountdown > 0 ? `Reward in ${adCountdown}s` : '✓ Reward Ready!'}
               </span>
             </div>
 
-            <div style={styles.adVideoScreen}>
-              <Video size={64} color="var(--secondary-cyan)" className="animate-float" />
-              <h3 className="font-heading" style={{ marginTop: '16px', fontSize: '1.2rem' }}>
-                SUPERCHARGE YOUR FLEET
-              </h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', maxWidth: '380px', textAlign: 'center' }}>
-                Simulating verified Velop advertising partner transmission. Complete playback to claim in-game multiplier.
-              </p>
+            {/* Actual Commercial Video Player Container */}
+            <div style={{
+              ...styles.adVideoScreen,
+              position: 'relative',
+              overflow: 'hidden',
+              padding: 0,
+              background: '#02040A',
+              boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8)'
+            }}>
+              <video
+                src="/videos/ad_commercial.mp4"
+                autoPlay
+                playsInline
+                muted={isAdAudioMuted}
+                loop
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              />
+
+              {/* Video Cyberpunk Overlay Controls */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(6, 9, 25, 0.6) 0%, transparent 40%, rgba(6, 9, 25, 0.85) 100%)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '14px',
+                pointerEvents: 'none'
+              }}>
+                {/* Top overlay line */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pointerEvents: 'auto' }}>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    padding: '2px 8px',
+                    background: 'rgba(0, 0, 0, 0.75)',
+                    border: '1px solid rgba(0, 229, 255, 0.4)',
+                    borderRadius: '4px',
+                    color: 'var(--secondary-cyan)',
+                    fontFamily: 'var(--font-heading)',
+                    letterSpacing: '0.08em'
+                  }}>
+                    4K ULTRA HD STREAM
+                  </span>
+                  <button
+                    onClick={() => setIsAdAudioMuted(!isAdAudioMuted)}
+                    style={{
+                      background: 'rgba(0, 0, 0, 0.75)',
+                      border: '1px solid rgba(255, 255, 255, 0.25)',
+                      borderRadius: '50%',
+                      width: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      color: '#FFF',
+                      transition: 'all 0.2s'
+                    }}
+                    title={isAdAudioMuted ? 'Click to Unmute' : 'Click to Mute'}
+                  >
+                    {isAdAudioMuted ? <VolumeX size={15} color="#EF4444" /> : <Volume2 size={15} color="#10B981" />}
+                  </button>
+                </div>
+
+                {/* Bottom overlay info & scrubber */}
+                <div style={{ pointerEvents: 'auto' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span className="font-heading" style={{ fontSize: '0.78rem', color: '#FFF', letterSpacing: '0.04em' }}>
+                      CYBERNETIC WEAPONS EXPO // SPECIAL PROMO
+                    </span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--secondary-cyan)', fontFamily: 'var(--font-heading)' }}>
+                      0:0${Math.min(5, 5 - adCountdown)} / 0:05
+                    </span>
+                  </div>
+                  {/* Real-time Video Scrubber */}
+                  <div style={{ width: '100%', height: '5px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${Math.min(100, ((5 - adCountdown) / 5) * 100)}%`,
+                      background: 'linear-gradient(90deg, var(--secondary-cyan) 0%, #C084FC 100%)',
+                      transition: 'width 0.8s ease'
+                    }} />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <button 
               onClick={claimAdReward}
-              className="btn btn-cyan"
+              className={`btn ${adCountdown > 0 ? 'btn-outline' : 'btn-cyan animate-pulse-glow'}`}
               disabled={adCountdown > 0}
-              style={{ width: '100%', padding: '14px' }}
+              style={{
+                width: '100%',
+                padding: '14px',
+                fontSize: '0.92rem',
+                letterSpacing: '0.06em',
+                fontWeight: 'bold',
+                cursor: adCountdown > 0 ? 'not-allowed' : 'pointer',
+                opacity: adCountdown > 0 ? 0.6 : 1
+              }}
             >
-              {adCountdown > 0 ? `REWARD AVAILABLE IN ${adCountdown}S` : 'CLAIM VERIFIED REWARD'}
+              {adCountdown > 0 ? `LOCKED (WATCH FULL BROADCAST: ${adCountdown}S)` : '✓ CLAIM VERIFIED REWARD'}
             </button>
           </div>
         </div>
