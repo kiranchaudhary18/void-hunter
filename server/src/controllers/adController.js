@@ -23,12 +23,13 @@ export const getProviderInfo = (req, res) => {
 export const offerAd = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { placement, expectedReward, gameSessionId, missionId } = req.body;
+    const { placement, expectedReward, gameSessionId, missionId, durationSeconds } = req.body;
 
     const sessionData = await rewardedAdService.createOpportunity(userId, placement, {
       expectedReward,
       gameSessionId,
-      missionId
+      missionId,
+      durationSeconds: durationSeconds ? Number(durationSeconds) : 5
     });
 
     return res.status(201).json({

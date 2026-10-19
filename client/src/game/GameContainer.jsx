@@ -4,6 +4,7 @@ import BootScene from './scenes/BootScene.js';
 import SpaceCombatScene from './scenes/SpaceCombatScene.js';
 import soundManager from './managers/SoundManager.js';
 import api from '../services/api.js';
+import { getRandomAdCampaign } from '../data/adCampaigns.js';
 import { 
   Shield, Heart, Zap, Pause, Play, RotateCcw, ArrowLeft, Video, Award, Coins, 
   Volume2, VolumeX, AlertTriangle, Compass, Star, Crosshair, Target, Timer, Rocket, Flame 
@@ -50,6 +51,8 @@ export const GameContainer = ({
   const [adTargetAction, setAdTargetAction] = useState(null); // 'revive' or 'double_credits'
   const [adSessionData, setAdSessionData] = useState(null);
   const [isAdAudioMuted, setIsAdAudioMuted] = useState(true);
+  const [activeAdCampaign, setActiveAdCampaign] = useState(() => getRandomAdCampaign());
+  const adTimerRef = useRef(null);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 680 : false);
 
   useEffect(() => {
@@ -182,10 +185,12 @@ export const GameContainer = ({
     onExit('missions');
   };
 
-  // Watch Rewarded Ad flow (Simulated Provider connected to backend 9-state machine)
+  // Watch Rewarded Ad flow (Strict 10s playback across 5 rotating video campaigns)
   const triggerRewardedAd = async (action) => {
+    const campaign = getRandomAdCampaign();
+    setActiveAdCampaign(campaign);
     setAdTargetAction(action);
-    setAdCountdown(5);
+    setAdCountdown(10);
     setAdModalOpen(true);
 
     try {
@@ -203,7 +208,7 @@ export const GameContainer = ({
         expectedReward = { currencyType: 'SHIELD', amount: 100 };
       }
 
-      const res = await api.post('/ads/offer', { placement, expectedReward });
+      const res = await api.post('/ads/offer', { placement, expectedReward, durationSeconds: 10 });
       if (res.data?.success) {
         setAdSessionData(res.data);
       }
@@ -211,10 +216,11 @@ export const GameContainer = ({
       console.warn('Backend ad session fallback:', e.message);
     }
 
-    const timer = setInterval(() => {
+    if (adTimerRef.current) clearInterval(adTimerRef.current);
+    adTimerRef.current = setInterval(() => {
       setAdCountdown((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
+          clearInterval(adTimerRef.current);
           return 0;
         }
         return prev - 1;
@@ -222,10 +228,21 @@ export const GameContainer = ({
     }, 1000);
   };
 
+  const handleAbortAd = () => {
+    if (adTimerRef.current) clearInterval(adTimerRef.current);
+    setAdModalOpen(false);
+    setAdSessionData(null);
+    setAdTargetAction(null);
+  };
+
   const claimAdReward = async () => {
-    // If backend adSession is active, verify and credit ledger
+    // If prematurely claimed before full 10 seconds, reject
+    if (adCountdown > 0) return;
+
     if (adSessionData?.adId) {
       try {
+        // Send full 10-second heartbeat verification
+        await api.post(`/ads/${adSessionData.adId}/heartbeat`, { elapsedSeconds: 10 });
         await api.post(`/ads/${adSessionData.adId}/verify`);
       } catch (e) {
         console.warn('Ad verify fallback:', e.message);
@@ -887,27 +904,52 @@ export const GameContainer = ({
         </div>
       )}
 
-      {/* ================= SIMULATED REWARDED AD MODAL WITH ACTUAL VIDEO ================= */}
+      {/* ================= SIMULATED REWARDED AD MODAL WITH 10S ROTATING VIDEOS ================= */}
       {adModalOpen && (
         <div style={styles.adModalBackdrop}>
           <div className="glass-panel" style={{ ...styles.adBox, border: '1px solid rgba(0, 229, 255, 0.4)', boxShadow: '0 0 50px rgba(0, 229, 255, 0.25)' }}>
             <div style={styles.adHeader}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <span className="badge badge-cyan" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Video size={13} /> VELOP SPONSORED TRANSMISSION
+                  <Video size={13} /> {activeAdCampaign?.sponsor || 'VELOP SPONSORED TRANSMISSION'}
                 </span>
-                <span style={{ fontSize: '0.72rem', color: 'var(--currency-gold)', fontFamily: 'var(--font-heading)' }}>
-                  AD • 1 OF 1
+                <span style={{ fontSize: '0.70rem', color: 'var(--currency-gold)', fontFamily: 'var(--font-heading)' }}>
+                  {activeAdCampaign?.badge || 'AD • 1 OF 1'}
                 </span>
               </div>
-              <span style={{
-                ...styles.countdownPill,
-                background: adCountdown > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
-                color: adCountdown > 0 ? '#FCA5A5' : '#6EE7B7',
-                border: `1px solid ${adCountdown > 0 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)'}`
-              }}>
-                {adCountdown > 0 ? `Reward in ${adCountdown}s` : '✓ Reward Ready!'}
-              </span>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  ...styles.countdownPill,
+                  background: adCountdown > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                  color: adCountdown > 0 ? '#FCA5A5' : '#6EE7B7',
+                  border: `1px solid ${adCountdown > 0 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)'}`
+                }}>
+                  {adCountdown > 0 ? `Reward in ${adCountdown}s` : '✓ Reward Ready!'}
+                </span>
+
+                {/* Abort Ad Button */}
+                <button
+                  onClick={handleAbortAd}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '50%',
+                    width: '26px',
+                    height: '26px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#AAA',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    lineHeight: 1
+                  }}
+                  title="Close Ad (Reward will be forfeited)"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             {/* Actual Commercial Video Player Container */}
@@ -920,7 +962,8 @@ export const GameContainer = ({
               boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8)'
             }}>
               <video
-                src="/videos/ad_commercial.mp4"
+                key={activeAdCampaign?.videoSrc || 'ad-video'}
+                src={activeAdCampaign?.videoSrc || '/videos/ad_commercial.mp4'}
                 autoPlay
                 playsInline
                 muted={isAdAudioMuted}
@@ -983,17 +1026,17 @@ export const GameContainer = ({
                 <div style={{ pointerEvents: 'auto' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span className="font-heading" style={{ fontSize: '0.78rem', color: '#FFF', letterSpacing: '0.04em' }}>
-                      CYBERNETIC WEAPONS EXPO // SPECIAL PROMO
+                      {activeAdCampaign?.title || 'CYBERNETIC WEAPONS EXPO'} // {activeAdCampaign?.tagline || 'SPECIAL PROMO'}
                     </span>
                     <span style={{ fontSize: '0.72rem', color: 'var(--secondary-cyan)', fontFamily: 'var(--font-heading)' }}>
-                      0:0${Math.min(5, 5 - adCountdown)} / 0:05
+                      0:${(10 - adCountdown) < 10 ? '0' : ''}${Math.min(10, 10 - adCountdown)} / 0:10
                     </span>
                   </div>
                   {/* Real-time Video Scrubber */}
                   <div style={{ width: '100%', height: '5px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '3px', overflow: 'hidden' }}>
                     <div style={{
                       height: '100%',
-                      width: `${Math.min(100, ((5 - adCountdown) / 5) * 100)}%`,
+                      width: `${Math.min(100, ((10 - adCountdown) / 10) * 100)}%`,
                       background: 'linear-gradient(90deg, var(--secondary-cyan) 0%, #C084FC 100%)',
                       transition: 'width 0.8s ease'
                     }} />
@@ -1001,6 +1044,13 @@ export const GameContainer = ({
                 </div>
               </div>
             </div>
+
+            {/* Warning if early exit */}
+            {adCountdown > 0 && (
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '-8px' }}>
+                ⚠️ Notice: Watching the full 10-second broadcast is required by Velop anti-cheat to earn rewards.
+              </div>
+            )}
 
             <button 
               onClick={claimAdReward}

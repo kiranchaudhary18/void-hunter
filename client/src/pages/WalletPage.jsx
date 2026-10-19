@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api.js';
+import { getRandomAdCampaign } from '../data/adCampaigns.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import confetti from 'canvas-confetti';
@@ -32,6 +33,8 @@ export const WalletPage = ({ onBack }) => {
   const [adSessionData, setAdSessionData] = useState(null);
   const [adCountdown, setAdCountdown] = useState(5);
   const [isAdAudioMuted, setIsAdAudioMuted] = useState(true);
+  const [activeAdCampaign, setActiveAdCampaign] = useState(() => getRandomAdCampaign());
+  const adTimerRef = useRef(null);
   const [adVerifying, setAdVerifying] = useState(false);
 
   // Fetch balances and double-entry transaction ledger
@@ -68,33 +71,36 @@ export const WalletPage = ({ onBack }) => {
     setSuccessMessage(null);
 
     try {
+      const campaign = getRandomAdCampaign();
+      setActiveAdCampaign(campaign);
+
       const res = await api.post('/ads/offer', {
         placement: 'DAILY_SUPPLY',
-        expectedReward: { currencyType: 'CREDITS', amount: 150 }
+        expectedReward: { currencyType: 'CREDITS', amount: 150 },
+        durationSeconds: 10
       });
 
       if (res.data?.success) {
         setAdSessionData(res.data);
-        setAdCountdown(res.data.durationSeconds || 5);
+        setAdCountdown(10);
         setAdModalOpen(true);
 
-        // Start countdown and heartbeat timer
-        let currentSec = res.data.durationSeconds || 5;
-        const timer = setInterval(async () => {
+        let currentSec = 10;
+        if (adTimerRef.current) clearInterval(adTimerRef.current);
+        adTimerRef.current = setInterval(async () => {
           currentSec -= 1;
           setAdCountdown(currentSec);
 
-          // Heartbeat to prove playback progress
           try {
             await api.post(`/ads/${res.data.adId}/heartbeat`, {
-              elapsedSeconds: (res.data.durationSeconds || 5) - currentSec
+              elapsedSeconds: 10 - currentSec
             });
           } catch {
             // Heartbeat non-blocking
           }
 
           if (currentSec <= 0) {
-            clearInterval(timer);
+            clearInterval(adTimerRef.current);
           }
         }, 1000);
       } else {
@@ -105,9 +111,15 @@ export const WalletPage = ({ onBack }) => {
     }
   };
 
-  // Claim Rewarded Ad after countdown
+  const handleAbortAd = () => {
+    if (adTimerRef.current) clearInterval(adTimerRef.current);
+    setAdModalOpen(false);
+    setAdSessionData(null);
+  };
+
+  // Claim Rewarded Ad after countdown (Strict 10s enforcement)
   const handleClaimAdReward = async () => {
-    if (!adSessionData) return;
+    if (!adSessionData || adCountdown > 0) return;
     setAdVerifying(true);
 
     try {
@@ -453,15 +465,47 @@ export const WalletPage = ({ onBack }) => {
         <div style={styles.adModalBackdrop}>
           <div style={styles.adBox} className="glass-panel animate-scale-up">
             <div style={styles.adHeader}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Video size={18} color="var(--secondary-cyan)" />
-                <span className="font-heading" style={{ fontSize: '1rem', color: 'var(--text-light)' }}>
-                  SIMULATED REWARDED AD BROADCAST
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span className="badge badge-cyan" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Video size={13} /> {activeAdCampaign?.sponsor || 'VELOP SPONSORED TRANSMISSION'}
+                </span>
+                <span style={{ fontSize: '0.70rem', color: 'var(--currency-gold)', fontFamily: 'var(--font-heading)' }}>
+                  {activeAdCampaign?.badge || 'AD • 1 OF 1'}
                 </span>
               </div>
-              <span style={styles.countdownPill}>
-                {adCountdown > 0 ? `REWARD IN: ${adCountdown}s` : 'REWARD READY!'}
-              </span>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  ...styles.countdownPill,
+                  background: adCountdown > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                  color: adCountdown > 0 ? '#FCA5A5' : '#6EE7B7',
+                  border: `1px solid ${adCountdown > 0 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)'}`
+                }}>
+                  {adCountdown > 0 ? `REWARD IN: ${adCountdown}s` : '✓ REWARD READY!'}
+                </span>
+
+                {/* Abort Ad Button */}
+                <button
+                  onClick={handleAbortAd}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '50%',
+                    width: '26px',
+                    height: '26px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#AAA',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    lineHeight: 1
+                  }}
+                  title="Close Ad (Reward will be forfeited)"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             {/* Actual Commercial Video Player Container */}
@@ -474,7 +518,8 @@ export const WalletPage = ({ onBack }) => {
               boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8)'
             }}>
               <video
-                src="/videos/ad_commercial.mp4"
+                key={activeAdCampaign?.videoSrc || 'ad-video'}
+                src={activeAdCampaign?.videoSrc || '/videos/ad_commercial.mp4'}
                 autoPlay
                 playsInline
                 muted={isAdAudioMuted}
@@ -537,17 +582,17 @@ export const WalletPage = ({ onBack }) => {
                 <div style={{ pointerEvents: 'auto' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span className="font-heading" style={{ fontSize: '0.78rem', color: '#FFF', letterSpacing: '0.04em' }}>
-                      CYBERNETIC WEAPONS EXPO // SPECIAL PROMO
+                      {activeAdCampaign?.title || 'CYBERNETIC WEAPONS EXPO'} // {activeAdCampaign?.tagline || 'SPECIAL PROMO'}
                     </span>
                     <span style={{ fontSize: '0.72rem', color: 'var(--secondary-cyan)', fontFamily: 'var(--font-heading)' }}>
-                      0:0${Math.min(5, 5 - adCountdown)} / 0:05
+                      0:${(10 - adCountdown) < 10 ? '0' : ''}${Math.min(10, 10 - adCountdown)} / 0:10
                     </span>
                   </div>
                   {/* Real-time Video Scrubber */}
                   <div style={{ width: '100%', height: '5px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '3px', overflow: 'hidden' }}>
                     <div style={{
                       height: '100%',
-                      width: `${Math.min(100, ((5 - adCountdown) / 5) * 100)}%`,
+                      width: `${Math.min(100, ((10 - adCountdown) / 10) * 100)}%`,
                       background: 'linear-gradient(90deg, var(--secondary-cyan) 0%, #C084FC 100%)',
                       transition: 'width 0.8s ease'
                     }} />
@@ -555,6 +600,13 @@ export const WalletPage = ({ onBack }) => {
                 </div>
               </div>
             </div>
+
+            {/* Notice if watching */}
+            {adCountdown > 0 && (
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '-8px' }}>
+                ⚠️ Notice: Watching the full 10-second broadcast is required by Velop anti-cheat to earn rewards.
+              </div>
+            )}
 
             <button
               onClick={handleClaimAdReward}
@@ -571,10 +623,12 @@ export const WalletPage = ({ onBack }) => {
                   <div className="spinner" style={{ width: '16px', height: '16px' }} />
                   <span>VERIFYING CRYPTOGRAPHIC PROOF...</span>
                 </>
+              ) : adCountdown > 0 ? (
+                <span>LOCKED (WATCH FULL BROADCAST: ${adCountdown}S)</span>
               ) : (
                 <>
                   <Award size={18} />
-                  <span>{adCountdown > 0 ? `WATCHING... (${adCountdown}s)` : 'CLAIM +150 CREDITS'}</span>
+                  <span>CLAIM VERIFIED REWARD (+150 CREDITS)</span>
                 </>
               )}
             </button>
