@@ -12,6 +12,17 @@
   --neon-cyan: #00E5FF;
   --text-offwhite: #EAF0FF;
   --text-blue-grey: #94A3B8;
+  /* MISSIONS REDESIGN BRAND SYSTEM */
+  --space-navy: #05091B;
+  --panel-navy: #0B1230;
+  --panel-elevated: #101A3A;
+  --neon-cyan: #00E5FF;
+  --cosmic-purple: #8B5CF6;
+  --text-primary: #EAF1FF;
+  --text-secondary: #9AA9C7;
+  --color-success: #20D6A0;
+  --color-warning: #FFB84D;
+  --color-error: #FF5577;
 
   /* Color Tokens */
   --bg-deep-space: #0A0F2C;
