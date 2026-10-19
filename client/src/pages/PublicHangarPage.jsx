@@ -393,7 +393,7 @@ const styles = {
     zIndex: 10,
     maxWidth: '1280px',
     margin: '0 auto',
-    padding: '100px 24px 60px 24px',
+    padding: 'clamp(70px, 9vw, 100px) clamp(14px, 3vw, 24px) 60px clamp(14px, 3vw, 24px)',
     display: 'flex',
     flexDirection: 'column',
     gap: '32px'
@@ -438,12 +438,12 @@ const styles = {
   },
   shipSelectorGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
     gap: '14px',
     width: '100%'
   },
   shipTabBtn: {
-    padding: '18px 20px',
+    padding: '14px 16px',
     borderRadius: '12px',
     background: 'rgba(10, 16, 40, 0.65)',
     border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -472,9 +472,9 @@ const styles = {
   },
   showcaseDeck: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1.2fr',
-    gap: '40px',
-    padding: '40px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: 'clamp(20px, 4vw, 40px)',
+    padding: 'clamp(20px, 4vw, 40px)',
     borderRadius: '20px',
     border: '1px solid rgba(0, 229, 255, 0.3)',
     background: 'rgba(8, 14, 38, 0.85)',

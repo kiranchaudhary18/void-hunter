@@ -97,7 +97,7 @@ export const PublicLeaderboardPage = ({ onNavigate }) => {
         </div>
 
         {/* Top 3 Aces Podium */}
-        <div style={styles.podiumGrid}>
+        <div className="leaderboard-podium-grid">
           {/* #2 Silver Ace */}
           <div 
             style={{ ...styles.podiumCard, ...styles.podiumRank2 }} 
@@ -187,7 +187,7 @@ export const PublicLeaderboardPage = ({ onNavigate }) => {
             </button>
           </div>
 
-          <div style={styles.tableWrap}>
+          <div className="responsive-table-scroll" style={styles.tableWrap}>
             <table style={styles.table}>
               <thead>
                 <tr style={styles.theadRow}>
@@ -363,7 +363,7 @@ const styles = {
     zIndex: 10,
     maxWidth: '1280px',
     margin: '0 auto',
-    padding: '100px 24px 60px 24px',
+    padding: 'clamp(70px, 9vw, 100px) clamp(14px, 3vw, 24px) 60px clamp(14px, 3vw, 24px)',
     display: 'flex',
     flexDirection: 'column',
     gap: '32px'

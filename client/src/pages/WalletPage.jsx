@@ -129,7 +129,7 @@ export const WalletPage = ({ onBack }) => {
   };
 
   return (
-    <div style={styles.pageContainer}>
+    <div className="page-responsive-container">
       {/* ================= TOP HEADER BAR ================= */}
       <header style={styles.header} className="glass-panel cyber-box">
         <div style={styles.headerLeft}>
@@ -334,7 +334,7 @@ export const WalletPage = ({ onBack }) => {
             </p>
           </div>
         ) : (
-          <div style={styles.tableResponsive}>
+          <div className="responsive-table-scroll">
             <table style={styles.table}>
               <thead>
                 <tr style={styles.tableHeaderRow}>
@@ -587,7 +587,7 @@ const styles = {
   },
   balanceGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
     gap: '16px'
   },
   balanceCard: {

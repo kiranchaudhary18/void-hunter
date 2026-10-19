@@ -142,7 +142,7 @@ export const HangarPage = ({ onNavigate }) => {
   };
 
   return (
-    <div style={styles.pageContainer}>
+    <div className="page-responsive-container">
       {/* Top Subheader (Screen 5) */}
       <div style={styles.subHeaderBar} className="glass-panel cyber-box">
         <div>
@@ -184,10 +184,41 @@ export const HangarPage = ({ onNavigate }) => {
         </div>
       )}
 
+      {/* Mobile Horizontal Roster Carousel (<= 1024px) */}
+      <div className="hangar-roster-mobile">
+        {ships.map((s) => {
+          const isSelected = s.id === activeShip.id;
+          return (
+            <div
+              key={s.id}
+              onClick={() => setSelectedShipId(s.id)}
+              style={{
+                padding: '8px 14px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                border: isSelected ? '1px solid var(--secondary-cyan)' : '1px solid rgba(255, 255, 255, 0.1)',
+                background: isSelected ? 'rgba(0, 229, 255, 0.15)' : 'rgba(8, 12, 32, 0.85)',
+                boxShadow: isSelected ? '0 0 12px rgba(0, 229, 255, 0.3)' : 'none',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                flexShrink: 0
+              }}
+            >
+              <span className="font-heading" style={{ fontSize: '0.8rem', color: isSelected ? 'var(--secondary-cyan)' : 'var(--text-light)' }}>
+                {s.code} {s.name}
+              </span>
+              {s.isEquipped && <span className="badge badge-cyan" style={{ fontSize: '0.55rem', padding: '2px 5px' }}>EQUIPPED</span>}
+            </div>
+          );
+        })}
+      </div>
+
       {/* Main Hangar Workspace */}
-      <div style={styles.hangarGrid}>
-        {/* ================= 1. LEFT SHIP ROSTER ================= */}
-        <aside style={styles.rosterPanel} className="glass-panel cyber-box">
+      <div className="hangar-main-grid">
+        {/* ================= 1. LEFT SHIP ROSTER (DESKTOP) ================= */}
+        <aside style={styles.rosterPanel} className="glass-panel cyber-box hangar-roster-desktop">
           <div className="font-heading text-glow-cyan" style={styles.rosterTitle}>FLEET ROSTER</div>
 
           <div style={styles.shipList}>
@@ -743,7 +774,7 @@ const styles = {
   },
   modulesGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
     gap: '14px'
   },
   moduleCard: {

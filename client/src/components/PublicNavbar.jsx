@@ -55,7 +55,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
         </div>
 
         {/* Center Nav Links */}
-        <nav style={styles.centerNavLinks}>
+        <nav className="public-center-nav" style={styles.centerNavLinks}>
           {navLinks.map((item) => {
             const isActive = item.match.includes(current);
             return (
@@ -92,7 +92,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
             style={styles.loginBtn}
           >
             <LogIn size={15} />
-            <span>LOGIN / ENLIST</span>
+            <span className="public-login-text-full">LOGIN / ENLIST</span>
           </button>
         </div>
       </div>

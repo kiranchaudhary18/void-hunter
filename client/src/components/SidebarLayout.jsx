@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME } from '../config/gameConfig.js';
 import { 
   LayoutDashboard, Compass, Shield, Wallet, 
   Award, BarChart3, Settings, Coins, Zap, 
-  User, LogOut, Crosshair, ChevronRight, Play, ShieldCheck
+  User, LogOut, Play, ShieldCheck, Menu, X, ChevronRight
 } from 'lucide-react';
 
 export const SidebarLayout = ({ 
@@ -15,6 +15,22 @@ export const SidebarLayout = ({
   children 
 }) => {
   const { user, profile, isAuthenticated, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileScreen, setIsMobileScreen] = useState(
+    typeof window !== 'undefined' ? window.innerWidth <= 1024 : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth <= 1024;
+      setIsMobileScreen(isMobile);
+      if (!isMobile) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const baseNavItems = [
     { id: 'dashboard', label: isAuthenticated ? 'DASHBOARD' : 'MAIN MENU', icon: LayoutDashboard },
@@ -34,6 +50,9 @@ export const SidebarLayout = ({
 
   const handleNavClick = (item) => {
     soundManager.playLaser();
+    if (isMobileScreen) {
+      setIsMobileMenuOpen(false);
+    }
     if (item.isAction) {
       if (item.id === 'settings' && onOpenSettings) onOpenSettings();
     } else {
@@ -56,28 +75,73 @@ export const SidebarLayout = ({
   const credits = profile?.credits?.toLocaleString() || '0';
   const energyCores = profile?.energyCores ?? 0;
 
+  const isNavActive = (id) => {
+    if (id === 'dashboard') return currentScreen === 'dashboard' || currentScreen === 'landing';
+    return currentScreen === id;
+  };
+
   return (
     <div style={styles.shell}>
-      {/* ================= LEFT CYBER SIDEBAR ================= */}
-      <aside style={styles.sidebar}>
-        {/* Brand Logo Header */}
+      {/* Mobile Drawer Backdrop */}
+      {isMobileScreen && isMobileMenuOpen && (
         <div 
-          style={styles.logoBox} 
-          onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')} 
-          title={isAuthenticated ? "Return to Command Deck" : "Return to Main Menu"}
-        >
-          <img src="/favicon.svg" alt="Void Hunter" style={styles.logoIcon} />
-          <div style={styles.logoTextGroup}>
-            <span className="font-heading text-glow-cyan" style={styles.brandTitle}>{GAME_NAME}</span>
-            <span style={styles.brandTag}>SPACE COMBAT BEYOND LIMITS</span>
+          className="mobile-drawer-backdrop" 
+          onClick={() => setIsMobileMenuOpen(false)} 
+        />
+      )}
+
+      {/* ================= LEFT CYBER SIDEBAR / MOBILE DRAWER ================= */}
+      <aside 
+        style={{
+          ...styles.sidebar,
+          ...(isMobileScreen ? {
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: '280px',
+            minWidth: '280px',
+            transform: isMobileMenuOpen ? 'translateX(0)' : 'translateX(-100%)',
+            transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+            zIndex: 1100,
+            boxShadow: isMobileMenuOpen ? '10px 0 35px rgba(0, 0, 0, 0.8)' : 'none'
+          } : {})
+        }}
+      >
+        {/* Brand Logo Header */}
+        <div style={styles.logoBox}>
+          <div 
+            style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, cursor: 'pointer' }}
+            onClick={() => {
+              if (isMobileScreen) setIsMobileMenuOpen(false);
+              onNavigate(isAuthenticated ? 'dashboard' : 'landing');
+            }} 
+            title={isAuthenticated ? "Return to Command Deck" : "Return to Main Menu"}
+          >
+            <img src="/favicon.svg" alt="Void Hunter" style={styles.logoIcon} />
+            <div style={styles.logoTextGroup}>
+              <span className="font-heading text-glow-cyan" style={styles.brandTitle}>{GAME_NAME}</span>
+              <span style={styles.brandTag}>SPACE COMBAT BEYOND LIMITS</span>
+            </div>
           </div>
+
+          {/* Close button on mobile drawer */}
+          {isMobileScreen && (
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)}
+              style={styles.closeDrawerBtn}
+              title="Close Menu"
+            >
+              <X size={18} color="var(--secondary-cyan)" />
+            </button>
+          )}
         </div>
 
         {/* Navigation Rail */}
         <nav style={styles.navRail}>
           {navItems.map((item) => {
             const IconComponent = item.icon;
-            const isActive = currentScreen === item.id || (item.id === 'dashboard' && currentScreen === 'landing');
+            const isActive = isNavActive(item.id);
 
             return (
               <button
@@ -119,7 +183,10 @@ export const SidebarLayout = ({
         <div style={styles.sidebarFooter}>
           <button
             id="sidebar-quick-combat"
-            onClick={() => isAuthenticated ? onNavigate('gameplay') : onNavigate('auth')}
+            onClick={() => {
+              if (isMobileScreen) setIsMobileMenuOpen(false);
+              isAuthenticated ? onNavigate('gameplay') : onNavigate('auth');
+            }}
             style={styles.quickCombatBtn}
             className="btn btn-cyan animate-pulse-glow"
             title="Launch Quick Sortie"
@@ -131,37 +198,73 @@ export const SidebarLayout = ({
       </aside>
 
       {/* ================= RIGHT MAIN APPLICATION COLUMN ================= */}
-      <div style={styles.mainColumn}>
+      <div 
+        style={{
+          ...styles.mainColumn,
+          marginLeft: isMobileScreen ? '0' : '230px',
+          width: isMobileScreen ? '100%' : 'calc(100% - 230px)',
+          paddingBottom: isMobileScreen && currentScreen !== 'gameplay' ? '70px' : '0'
+        }}
+      >
         {/* Top Floating Cyber Navigation & Currency Bar (FIXED at Top) */}
-        <header style={styles.topHeader} className="glass-panel">
-          {/* Left: Quick Nav Links matching Mockup Top Bar */}
+        <header 
+          style={{
+            ...styles.topHeader,
+            left: isMobileScreen ? '0' : '230px',
+            padding: isMobileScreen ? '0 14px' : '0 28px'
+          }} 
+          className="glass-panel"
+        >
+          {/* Left: Mobile Hamburger Toggle + Quick Nav Links */}
           <div style={styles.headerLeft}>
-            <div style={styles.topNavLinks}>
-              <button 
-                onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')} 
-                style={{ ...styles.topNavLink, color: (currentScreen === 'dashboard' || currentScreen === 'landing') ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
+            {isMobileScreen && (
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                style={styles.hamburgerBtn}
+                title="Toggle Menu"
               >
-                HOME
+                <Menu size={22} color="var(--secondary-cyan)" />
               </button>
-              <button 
-                onClick={() => onNavigate('missions')} 
-                style={{ ...styles.topNavLink, color: currentScreen === 'missions' ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
+            )}
+
+            {isMobileScreen ? (
+              <div 
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')}
               >
-                MISSIONS
-              </button>
-              <button 
-                onClick={() => onNavigate('hangar')} 
-                style={{ ...styles.topNavLink, color: currentScreen === 'hangar' ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
-              >
-                HANGAR
-              </button>
-              <button 
-                onClick={() => onNavigate('leaderboard')} 
-                style={{ ...styles.topNavLink, color: currentScreen === 'leaderboard' ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
-              >
-                LEADERBOARD
-              </button>
-            </div>
+                <img src="/favicon.svg" alt="Void Hunter" style={{ width: '24px', height: '24px' }} />
+                <span className="font-heading text-glow-cyan" style={{ fontSize: '0.92rem', fontWeight: 'bold' }}>
+                  {GAME_NAME}
+                </span>
+              </div>
+            ) : (
+              <div style={styles.topNavLinks}>
+                <button 
+                  onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')} 
+                  style={{ ...styles.topNavLink, color: isNavActive('dashboard') ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
+                >
+                  HOME
+                </button>
+                <button 
+                  onClick={() => onNavigate('missions')} 
+                  style={{ ...styles.topNavLink, color: currentScreen === 'missions' ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
+                >
+                  MISSIONS
+                </button>
+                <button 
+                  onClick={() => onNavigate('hangar')} 
+                  style={{ ...styles.topNavLink, color: currentScreen === 'hangar' ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
+                >
+                  HANGAR
+                </button>
+                <button 
+                  onClick={() => onNavigate('leaderboard')} 
+                  style={{ ...styles.topNavLink, color: currentScreen === 'leaderboard' ? 'var(--secondary-cyan)' : 'var(--text-muted)' }}
+                >
+                  LEADERBOARD
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right: Currencies & Pilot Profile */}
@@ -175,7 +278,7 @@ export const SidebarLayout = ({
                 title="Credits Ledger Balance"
               >
                 <div style={styles.currencyIconBoxGold}>
-                  <Coins size={15} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
+                  <Coins size={14} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
                 </div>
                 <span className="font-heading text-glow-gold" style={styles.currencyValGold}>
                   {credits}
@@ -190,7 +293,7 @@ export const SidebarLayout = ({
                 title="Energy Cores (Gems)"
               >
                 <div style={styles.currencyIconBoxPurple}>
-                  <Zap size={15} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
+                  <Zap size={14} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #A855F7)' }} />
                 </div>
                 <span className="font-heading text-glow-purple" style={styles.currencyValPurple}>
                   {energyCores}
@@ -200,18 +303,20 @@ export const SidebarLayout = ({
               {/* Pilot Profile Badge */}
               <div style={styles.profileBadge} className="glass-card">
                 <div style={styles.avatarCircle}>
-                  <User size={16} color="var(--secondary-cyan)" />
+                  <User size={15} color="var(--secondary-cyan)" />
                 </div>
-                <div style={styles.profileInfo}>
-                  <div className="font-heading" style={styles.profileName}>{pilotName}</div>
-                  <div style={styles.profileLevel}>LEVEL {pilotLevel} • {pilotRank}</div>
-                </div>
+                {!isMobileScreen && (
+                  <div style={styles.profileInfo}>
+                    <div className="font-heading" style={styles.profileName}>{pilotName}</div>
+                    <div style={styles.profileLevel}>LVL {pilotLevel} • {pilotRank}</div>
+                  </div>
+                )}
                 <button 
                   onClick={(e) => { e.stopPropagation(); logout(); onNavigate('landing'); }}
                   style={styles.logoutBtn}
                   title="Sign Out Pilot"
                 >
-                  <LogOut size={14} />
+                  <LogOut size={13} />
                 </button>
               </div>
             </div>
@@ -220,9 +325,9 @@ export const SidebarLayout = ({
               <button 
                 onClick={() => onNavigate('auth')} 
                 className="btn btn-cyan animate-pulse-glow"
-                style={{ padding: '8px 24px', fontSize: '0.82rem', fontWeight: 'bold' }}
+                style={{ padding: isMobileScreen ? '6px 14px' : '8px 24px', fontSize: isMobileScreen ? '0.74rem' : '0.82rem', fontWeight: 'bold' }}
               >
-                LOGIN / ENLIST
+                LOGIN
               </button>
             </div>
           )}
@@ -233,6 +338,57 @@ export const SidebarLayout = ({
           {children}
         </main>
       </div>
+
+      {/* ================= MOBILE BOTTOM NAVIGATION BAR ================= */}
+      {isMobileScreen && currentScreen !== 'gameplay' && (
+        <nav className="mobile-bottom-nav">
+          {/* 1. Home / Dashboard */}
+          <button 
+            className={`mobile-nav-item ${isNavActive('dashboard') ? 'active' : ''}`}
+            onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')}
+          >
+            <LayoutDashboard size={18} />
+            <span>HOME</span>
+          </button>
+
+          {/* 2. Missions */}
+          <button 
+            className={`mobile-nav-item ${currentScreen === 'missions' ? 'active' : ''}`}
+            onClick={() => onNavigate('missions')}
+          >
+            <Compass size={18} />
+            <span>MISSIONS</span>
+          </button>
+
+          {/* 3. Center Action: Sortie Combat */}
+          <button 
+            className="mobile-nav-center-btn animate-pulse-glow"
+            onClick={() => isAuthenticated ? onNavigate('gameplay') : onNavigate('auth')}
+            title="Sortie Combat"
+          >
+            <Play size={20} fill="#FFFFFF" />
+            <span style={{ fontSize: '0.48rem', fontWeight: 'bold', marginTop: '1px' }}>SORTIE</span>
+          </button>
+
+          {/* 4. Hangar */}
+          <button 
+            className={`mobile-nav-item ${currentScreen === 'hangar' ? 'active' : ''}`}
+            onClick={() => onNavigate('hangar')}
+          >
+            <Shield size={18} />
+            <span>HANGAR</span>
+          </button>
+
+          {/* 5. More / Drawer Trigger */}
+          <button 
+            className="mobile-nav-item"
+            onClick={() => setIsMobileMenuOpen(true)}
+          >
+            <Menu size={18} />
+            <span>MORE</span>
+          </button>
+        </nav>
+      )}
     </div>
   );
 };
@@ -263,7 +419,7 @@ const styles = {
     width: '230px',
     minWidth: '230px',
     height: '100vh',
-    background: 'rgba(8, 12, 32, 0.94)',
+    background: 'rgba(8, 12, 32, 0.96)',
     backdropFilter: 'blur(16px)',
     borderRight: '1px solid rgba(0, 229, 255, 0.18)',
     display: 'flex',
@@ -276,14 +432,13 @@ const styles = {
   logoBox: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    padding: '20px 18px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-    cursor: 'pointer'
+    justifyContent: 'space-between',
+    padding: '18px 16px',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
   },
   logoIcon: {
-    width: '32px',
-    height: '32px',
+    width: '30px',
+    height: '30px',
     filter: 'drop-shadow(0 0 8px rgba(0, 229, 255, 0.8))'
   },
   logoTextGroup: {
@@ -291,7 +446,7 @@ const styles = {
     flexDirection: 'column'
   },
   brandTitle: {
-    fontSize: '1.05rem',
+    fontSize: '1.02rem',
     fontWeight: '900',
     letterSpacing: '0.08em',
     lineHeight: 1.1,
@@ -300,17 +455,28 @@ const styles = {
     WebkitTextFillColor: 'transparent'
   },
   brandTag: {
-    fontSize: '0.52rem',
+    fontSize: '0.50rem',
     color: 'var(--text-muted)',
     letterSpacing: '0.06em',
     marginTop: '2px'
+  },
+  closeDrawerBtn: {
+    background: 'rgba(0, 229, 255, 0.1)',
+    border: '1px solid rgba(0, 229, 255, 0.3)',
+    borderRadius: '6px',
+    width: '32px',
+    height: '32px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer'
   },
   navRail: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
-    padding: '16px 10px'
+    padding: '14px 10px'
   },
   navButton: {
     position: 'relative',
@@ -341,18 +507,18 @@ const styles = {
     boxShadow: '0 0 10px var(--secondary-cyan)'
   },
   navLabel: {
-    fontSize: '0.78rem',
+    fontSize: '0.76rem',
     letterSpacing: '0.08em',
     transition: 'color 0.2s ease'
   },
   sidebarFooter: {
-    padding: '16px 14px',
+    padding: '14px',
     borderTop: '1px solid rgba(255, 255, 255, 0.06)'
   },
   quickCombatBtn: {
     width: '100%',
-    padding: '12px',
-    fontSize: '0.82rem',
+    padding: '11px',
+    fontSize: '0.80rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -360,60 +526,68 @@ const styles = {
   },
   mainColumn: {
     flex: 1,
-    marginLeft: '230px',
-    width: 'calc(100% - 230px)',
     minWidth: 0,
     minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
-    position: 'relative'
+    position: 'relative',
+    transition: 'margin-left 0.25s ease'
   },
   topHeader: {
     position: 'fixed',
     top: 0,
-    left: '230px',
     right: 0,
-    height: '64px',
+    height: '62px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '0 28px',
     borderBottom: '1px solid rgba(0, 229, 255, 0.18)',
     background: 'rgba(8, 12, 32, 0.96)',
     backdropFilter: 'blur(16px)',
-    zIndex: 90
+    zIndex: 90,
+    transition: 'left 0.25s ease'
   },
   headerLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: '20px'
+    gap: '12px'
+  },
+  hamburgerBtn: {
+    background: 'rgba(0, 229, 255, 0.08)',
+    border: '1px solid rgba(0, 229, 255, 0.25)',
+    borderRadius: '8px',
+    padding: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer'
   },
   topNavLinks: {
     display: 'flex',
     alignItems: 'center',
-    gap: '24px'
+    gap: '20px'
   },
   topNavLink: {
     background: 'none',
     border: 'none',
     fontFamily: 'var(--font-heading)',
-    fontSize: '0.82rem',
+    fontSize: '0.80rem',
     letterSpacing: '0.08em',
     cursor: 'pointer',
     transition: 'color 0.2s ease',
-    padding: '4px 8px'
+    padding: '4px 6px'
   },
   headerRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px'
+    gap: '8px'
   },
   currencyPill: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    padding: '6px 14px',
-    borderRadius: '20px',
+    gap: '6px',
+    padding: '5px 10px',
+    borderRadius: '16px',
     cursor: 'pointer',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     transition: 'all 0.2s ease'
@@ -424,7 +598,7 @@ const styles = {
     justifyContent: 'center'
   },
   currencyValGold: {
-    fontSize: '0.88rem',
+    fontSize: '0.82rem',
     color: 'var(--currency-gold)',
     fontWeight: '700'
   },
@@ -434,22 +608,22 @@ const styles = {
     justifyContent: 'center'
   },
   currencyValPurple: {
-    fontSize: '0.88rem',
+    fontSize: '0.82rem',
     color: '#C084FC',
     fontWeight: '700'
   },
   profileBadge: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
-    padding: '6px 14px',
-    borderRadius: '20px',
+    gap: '8px',
+    padding: '4px 10px',
+    borderRadius: '18px',
     border: '1px solid rgba(0, 229, 255, 0.3)',
     background: 'rgba(10, 16, 42, 0.8)'
   },
   avatarCircle: {
-    width: '28px',
-    height: '28px',
+    width: '26px',
+    height: '26px',
     borderRadius: '50%',
     background: 'rgba(0, 229, 255, 0.15)',
     border: '1px solid var(--secondary-cyan)',
@@ -462,13 +636,13 @@ const styles = {
     flexDirection: 'column'
   },
   profileName: {
-    fontSize: '0.8rem',
+    fontSize: '0.78rem',
     color: 'var(--text-light)',
     fontWeight: '700',
     lineHeight: 1.1
   },
   profileLevel: {
-    fontSize: '0.62rem',
+    fontSize: '0.60rem',
     color: 'var(--text-muted)'
   },
   logoutBtn: {
@@ -476,17 +650,16 @@ const styles = {
     border: 'none',
     color: 'var(--text-muted)',
     cursor: 'pointer',
-    padding: '4px',
+    padding: '3px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: '4px',
     transition: 'color 0.2s ease'
   },
   contentViewport: {
     flex: 1,
     minHeight: 0,
-    paddingTop: '64px'
+    paddingTop: '62px'
   }
 };
 

@@ -286,7 +286,7 @@ const styles = {
     zIndex: 10,
     maxWidth: '1280px',
     margin: '0 auto',
-    padding: '100px 24px 60px 24px',
+    padding: 'clamp(70px, 9vw, 100px) clamp(14px, 3vw, 24px) 60px clamp(14px, 3vw, 24px)',
     display: 'flex',
     flexDirection: 'column',
     gap: '32px'
@@ -337,7 +337,8 @@ const styles = {
     padding: '16px 36px',
     borderRadius: '16px',
     border: '1px solid rgba(0, 229, 255, 0.25)',
-    marginTop: '12px'
+    marginTop: '12px',
+    flexWrap: 'wrap'
   },
   statItem: {
     display: 'flex',
@@ -363,7 +364,7 @@ const styles = {
   },
   sectorsNav: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
     gap: '12px',
     width: '100%'
   },
@@ -456,8 +457,8 @@ const styles = {
   },
   missionsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
-    gap: '20px'
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: '16px'
   },
   missionCard: {
     padding: '24px',

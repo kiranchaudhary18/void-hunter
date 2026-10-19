@@ -112,7 +112,7 @@ export const MissionsPage = ({ onBack, onNavigate, onLaunchMission, selectedShip
   };
 
   return (
-    <div style={styles.pageContainer}>
+    <div className="page-responsive-container">
       {/* ================= SCREEN 4 SUBHEADER & DIFFICULTY ================= */}
       <div style={styles.subHeaderBar} className="glass-panel cyber-box">
         <div>
@@ -183,7 +183,7 @@ export const MissionsPage = ({ onBack, onNavigate, onLaunchMission, selectedShip
       )}
 
       {/* ================= 5 SECTOR TABS ================= */}
-      <div style={styles.sectorsContainer}>
+      <div className="sectors-tabs-scroll">
         {SECTORS_LIST.map((sector, idx) => {
           const isActive = sector.id === activeSectorId;
           const sectorMissionsList = missions.filter((m) => m.sectorId === sector.id);
@@ -262,7 +262,7 @@ export const MissionsPage = ({ onBack, onNavigate, onLaunchMission, selectedShip
           </p>
         </div>
       ) : (
-        <div style={styles.gridContainer}>
+        <div className="missions-grid-responsive">
           {sectorMissions.map((m) => {
             const isBossMission = !!m.boss;
             const isUnlocked = m.isUnlocked;

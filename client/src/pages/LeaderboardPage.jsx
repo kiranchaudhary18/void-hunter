@@ -39,7 +39,7 @@ export const LeaderboardPage = ({ onBack, onNavigate }) => {
   const top3 = leaderboard[2];
 
   return (
-    <div style={styles.pageContainer}>
+    <div className="page-responsive-container">
       {/* ================= HEADER BAR ================= */}
       <header style={styles.header} className="glass-panel cyber-box">
         <div style={styles.headerLeft}>
@@ -163,7 +163,7 @@ export const LeaderboardPage = ({ onBack, onNavigate }) => {
 
       {/* ================= TOP 3 PODIUM ================= */}
       {!loading && leaderboard.length >= 3 && (
-        <div style={styles.podiumContainer}>
+        <div className="leaderboard-podium-grid">
           {/* Rank 2 (Silver) */}
           <div style={{ ...styles.podiumCard, order: 1 }} className="glass-card cyber-box">
             <div style={styles.podiumRankSilver}>
@@ -212,7 +212,7 @@ export const LeaderboardPage = ({ onBack, onNavigate }) => {
             <h3 className="font-heading" style={{ marginTop: '12px' }}>NO PILOT RECORDS REGISTERED</h3>
           </div>
         ) : (
-          <div style={styles.tableResponsive}>
+          <div className="responsive-table-scroll">
             <table style={styles.table}>
               <thead>
                 <tr style={styles.tableHeaderRow}>

@@ -52,9 +52,9 @@ export const MainMenuPage = ({ onNavigate }) => {
       <PublicNavbar current="home" onNavigate={onNavigate} />
 
       {/* Screen 1 Two-Column Hero Showcase */}
-      <main style={styles.screen1HeroGrid}>
+      <main className="main-menu-hero-grid">
         {/* Left Column: Mission Control & Deploy CTAs */}
-        <div style={styles.heroLeftCol}>
+        <div className="hero-left-col" style={styles.heroLeftCol}>
           <div style={styles.missionControlBadge}>
             <span style={styles.onlineDot}>●</span>
             <span>MISSION CONTROL // ONLINE</span>
@@ -69,7 +69,7 @@ export const MainMenuPage = ({ onNavigate }) => {
             Explore hostile sectors. Master advanced spacecraft. Defend the galaxy from the forces beyond known space.
           </p>
 
-          <div style={styles.screen1ActionsRow}>
+          <div className="hero-actions-row" style={styles.screen1ActionsRow}>
             <button 
               onClick={() => handleAction('gameplay')}
               className="btn btn-cyan animate-pulse-glow"

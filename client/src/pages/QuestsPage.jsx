@@ -201,7 +201,7 @@ export const QuestsPage = ({ onBack }) => {
   });
 
   return (
-    <div style={styles.pageContainer}>
+    <div className="page-responsive-container">
       {/* ================= HEADER BAR ================= */}
       <header style={styles.header} className="glass-panel cyber-box">
         <div style={styles.headerLeft}>
@@ -854,7 +854,7 @@ const styles = {
   },
   questsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
     gap: '16px'
   },
   questCard: {

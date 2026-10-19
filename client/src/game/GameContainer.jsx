@@ -291,7 +291,7 @@ export const GameContainer = ({
   return (
     <div style={styles.gameWrapper}>
       {/* ================= SCREEN 6: TOP HUD OVERLAY ================= */}
-      <div style={styles.hudTop} className="glass-panel cyber-box">
+      <div className="glass-panel cyber-box game-hud-top-bar" style={styles.hudTop}>
         <div style={styles.hudLeft}>
           <button 
             onClick={() => {
@@ -325,7 +325,7 @@ export const GameContainer = ({
             {/* Health Bar */}
             <div style={styles.gaugeRow}>
               <Heart size={14} color="var(--status-green)" style={{ filter: 'drop-shadow(0 0 4px #10B981)' }} />
-              <div style={styles.barTrack}>
+              <div className="game-hud-bar-track" style={styles.barTrack}>
                 <div 
                   style={{ 
                     ...styles.barFill, 
@@ -341,7 +341,7 @@ export const GameContainer = ({
             {/* Shield Bar */}
             <div style={styles.gaugeRow}>
               <Shield size={14} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
-              <div style={styles.barTrack}>
+              <div className="game-hud-bar-track" style={styles.barTrack}>
                 <div 
                   style={{ 
                     ...styles.barFill, 
@@ -367,7 +367,7 @@ export const GameContainer = ({
               <Timer size={11} color="var(--currency-gold)" />
               {formatCombatTimer(stats.elapsedTime || 0)}
             </span>
-            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+            <span className="game-hud-hide-mobile" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
               HOSTILE FLEET ENGAGEMENT
             </span>
           </div>
@@ -426,7 +426,7 @@ export const GameContainer = ({
 
       {/* ================= SCREEN 6: TOUCH JOYSTICK & ARCADE TRIGGER BUTTONS ================= */}
       {/* Bottom-Left Tactical Bomb / Missile Launcher Button (Matching Reference Game) */}
-      <div style={{ position: 'absolute', bottom: '28px', left: '28px', zIndex: 40 }}>
+      <div className="game-tactical-bomb">
         <button
           onClick={() => activateAbility('homing_missiles', 12)}
           disabled={cooldowns['homing_missiles'] > 0}
@@ -483,11 +483,12 @@ export const GameContainer = ({
       </div>
 
       {/* Bottom-Right Tactile Circular Arcade Ability Buttons (Screen 6) */}
-      <div style={styles.screen6ActionHud}>
+      <div className="game-action-hud-cluster">
         {/* Ability 1: Spread */}
         <button
           onClick={() => activateAbility('spread_shot', 20)}
           disabled={cooldowns['spread_shot'] > 0}
+          className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
             borderColor: 'var(--secondary-cyan)',
@@ -506,6 +507,7 @@ export const GameContainer = ({
         <button
           onClick={() => activateAbility('shield_pulse', 25)}
           disabled={cooldowns['shield_pulse'] > 0}
+          className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
             borderColor: '#C084FC',
@@ -524,6 +526,7 @@ export const GameContainer = ({
         <button
           onClick={() => activateAbility('emergency_warp', 30)}
           disabled={cooldowns['emergency_warp'] > 0}
+          className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
             borderColor: '#38BDF8',
@@ -541,11 +544,11 @@ export const GameContainer = ({
         {/* Primary Fire Arcade Button (Large Circle) */}
         <button
           onClick={() => activateAbility('homing_missiles', 15)}
+          className="circular-fire-btn animate-pulse-glow"
           style={{
             ...styles.circularPrimaryFireBtn,
             boxShadow: '0 0 25px rgba(0, 229, 255, 0.6)'
           }}
-          className="animate-pulse-glow"
           title="Primary Sortie Fire / Missiles (Space)"
         >
           <Target size={28} color="#060919" />
@@ -1065,6 +1068,8 @@ const styles = {
   defeatModal: {
     maxWidth: '460px',
     width: '100%',
+    maxHeight: '90vh',
+    overflowY: 'auto',
     padding: '36px 32px',
     textAlign: 'center',
     display: 'flex',
@@ -1156,6 +1161,8 @@ const styles = {
   screen7VictoryModal: {
     maxWidth: '620px',
     width: '92%',
+    maxHeight: '90vh',
+    overflowY: 'auto',
     padding: '32px',
     textAlign: 'center',
     display: 'flex',
@@ -1181,7 +1188,7 @@ const styles = {
   },
   screen7TwinGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
     gap: '14px',
     width: '100%',
     marginTop: '12px'

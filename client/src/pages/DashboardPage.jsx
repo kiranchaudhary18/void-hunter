@@ -97,9 +97,9 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
   const unlockedAchievementsCount = achievements.filter((a) => a.isUnlocked).length;
 
   return (
-    <div style={styles.container}>
+    <div className="page-responsive-container">
       {/* ================= TOP SECTION: 2 COLUMNS (JOURNEY HERO + SHIP CARD) ================= */}
-      <div style={styles.topGrid}>
+      <div className="dashboard-top-grid">
         {/* LEFT: CONTINUE YOUR JOURNEY (HERO) */}
         <div style={styles.journeyCard} className="glass-panel cyber-box">
           <div style={styles.journeyHeader}>
@@ -214,7 +214,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
       </div>
 
       {/* ================= BOTTOM SECTION: 3 PANELS ================= */}
-      <div style={styles.bottomGrid}>
+      <div className="dashboard-bottom-grid">
         {/* PANEL 1: UPCOMING MISSIONS (Real Data-Driven Catalog) */}
         <div style={styles.panelCard} className="glass-panel cyber-box">
           <div style={styles.panelHeader}>
@@ -391,11 +391,11 @@ const styles = {
     alignItems: 'stretch'
   },
   journeyCard: {
-    padding: '32px 36px',
+    padding: 'clamp(18px, 3vw, 36px)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    minHeight: '320px',
+    minHeight: '280px',
     background: 'radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.12) 0%, rgba(8, 12, 32, 0.95) 70%)',
     position: 'relative',
     overflow: 'hidden'
@@ -421,7 +421,7 @@ const styles = {
     marginBottom: '6px'
   },
   sectorTitle: {
-    fontSize: '2.4rem',
+    fontSize: 'clamp(1.5rem, 4vw, 2.4rem)',
     fontWeight: '900',
     letterSpacing: '0.06em',
     lineHeight: 1.1,
@@ -437,7 +437,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '14px',
-    marginTop: '12px'
+    marginTop: '12px',
+    flexWrap: 'wrap'
   },
   continueBtn: {
     padding: '14px 28px',
@@ -454,7 +455,7 @@ const styles = {
     gap: '8px'
   },
   currentShipCard: {
-    padding: '24px 28px',
+    padding: 'clamp(18px, 3vw, 28px)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
