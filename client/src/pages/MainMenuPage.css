@@ -1,20 +1,26 @@
 /* ==========================================================================
-   VOID HUNTER - AAA SCI-FI MAIN MENU REDESIGN
-   Brand System:
-   - Deep navy #080A2F (Main Background)
-   - Panel navy #111735 (Interface Panels)
-   - Cosmic purple #7C3AED (Atmospheric Accents)
-   - Neon cyan #00E5FF (Primary Actions & Active States)
-   - Off-white #EAF0FF (Headings)
-   - Muted blue-grey #94A3B8 (Secondary Text)
+   VOID HUNTER - IDENTICAL AAA SCI-FI MAIN MENU
+   Matching User Reference Image:
+   - Full viewport cinematic space background with hero starfighter & blazing thrusters
+   - Authentic navigation bar with active cyan underline & solid cyan LOGIN / ENLIST
+   - Headline: ENTER THE VOID. HUNT THE UNKNOWN.
+   - PLAY NOW (cyan) & CONTINUE MISSION (panel navy with thin cyan border)
+   - 4 Feature Cards: 50 TACTICAL SORTIES, 5 DEEP-SPACE SECTORS, 5 APEX BOSSES, UNLOCK ADVANCED STARSHIPS
+   - Bottom status strip: PROTOCOL v1.0.0 | PHASER 3 ENGINE • EXPLORE • FIGHT • UPGRADE • LEAD • SYSTEM OPERATIONAL
    ========================================================================== */
 
 .main-menu-root {
   position: relative;
   min-height: 100vh;
   width: 100%;
-  background-color: var(--bg-deep-navy, #080A2F);
-  color: var(--text-offwhite, #EAF0FF);
+  background-color: #080A2F;
+  background-image: 
+    linear-gradient(90deg, rgba(8, 10, 47, 0.88) 0%, rgba(8, 10, 47, 0.65) 38%, rgba(8, 10, 47, 0.25) 65%, rgba(8, 10, 47, 0.4) 100%),
+    url('/assets/hero_wallpaper.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+  color: #EAF0FF;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   flex-direction: column;
@@ -23,94 +29,49 @@
   box-sizing: border-box;
 }
 
-/* Background Canvas & Atmospheric Depth */
+/* Subtle Interactive Particle Canvas */
 .main-menu-canvas {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Cosmic Nebulae Layers */
-.nebula-purple-glow {
-  position: absolute;
-  top: 10%;
-  right: -5%;
-  width: clamp(350px, 45vw, 650px);
-  height: clamp(350px, 45vw, 650px);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.22) 0%, rgba(124, 58, 237, 0.05) 55%, transparent 75%);
-  filter: blur(50px);
-  pointer-events: none;
-  z-index: 2;
-  animation: pulseNebulaPurple 12s ease-in-out infinite alternate;
-}
-
-.nebula-cyan-glow {
-  position: absolute;
-  bottom: 8%;
-  left: -5%;
-  width: clamp(320px, 40vw, 580px);
-  height: clamp(320px, 40vw, 580px);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.14) 0%, rgba(0, 229, 255, 0.03) 50%, transparent 70%);
-  filter: blur(45px);
-  pointer-events: none;
-  z-index: 2;
-  animation: pulseNebulaCyan 14s ease-in-out infinite alternate;
-}
-
+/* Atmospheric Space Lighting Layers */
 .screen-vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(8, 10, 47, 0.75) 100%);
+  background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(5, 7, 26, 0.7) 100%);
   pointer-events: none;
-  z-index: 3;
+  z-index: 2;
 }
 
-@keyframes pulseNebulaPurple {
-  0% { transform: scale(1) translateY(0); opacity: 0.8; }
-  100% { transform: scale(1.15) translateY(-25px); opacity: 1; }
-}
-
-@keyframes pulseNebulaCyan {
-  0% { transform: scale(1) translateY(0); opacity: 0.7; }
-  100% { transform: scale(1.12) translateY(20px); opacity: 0.95; }
-}
-
-/* Main Hero Grid Layout */
+/* Main Content Area */
 .main-menu-content {
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 1380px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: clamp(80px, 12vh, 105px) clamp(20px, 4vw, 48px) clamp(20px, 4vh, 36px);
+  padding: 85px clamp(20px, 4vw, 56px) 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
-  justify-content: center;
+  justify-content: space-between;
   box-sizing: border-box;
+  min-height: calc(100vh - 46px);
 }
 
-.hero-main-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 0.95fr;
-  align-items: center;
-  gap: clamp(32px, 5vw, 64px);
-  width: 100%;
-}
-
-/* Left Hero Column: Narrative & Deployment Actions */
-.hero-left-column {
+/* Hero Section (Upper Left Focus) */
+.hero-upper-section {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: clamp(16px, 2.5vh, 24px);
-  z-index: 15;
+  gap: clamp(14px, 2.2vh, 22px);
+  max-width: 620px;
+  padding-top: clamp(20px, 4vh, 48px);
 }
 
 /* Mission Control Status Pill */
@@ -118,37 +79,43 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 16px;
-  background-color: var(--bg-panel-navy, #111735);
-  border: 1px solid rgba(0, 229, 255, 0.35);
+  padding: 6px 18px;
+  background: rgba(17, 23, 53, 0.8);
+  border: 1px solid rgba(0, 229, 255, 0.4);
   border-radius: 9999px;
-  box-shadow: 0 0 15px rgba(0, 229, 255, 0.12), inset 0 0 10px rgba(0, 229, 255, 0.05);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.15), inset 0 0 10px rgba(0, 229, 255, 0.08);
+  backdrop-filter: blur(10px);
 }
 
 .status-beacon-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #10B981;
-  box-shadow: 0 0 10px #10B981;
+  background-color: #00E5FF;
+  box-shadow: 0 0 10px #00E5FF;
   animation: pulseBeacon 2s ease-in-out infinite;
 }
 
 @keyframes pulseBeacon {
-  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px #10B981; }
-  50% { transform: scale(1.3); opacity: 0.7; box-shadow: 0 0 14px #10B981; }
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px #00E5FF; }
+  50% { transform: scale(1.3); opacity: 0.65; box-shadow: 0 0 14px #00E5FF; }
 }
 
 .status-pill-text {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.74rem;
   letter-spacing: 0.14em;
-  color: var(--neon-cyan, #00E5FF);
+  color: #00E5FF;
   text-transform: uppercase;
   font-weight: 700;
 }
 
-/* Hero Typography */
+/* Headline Matching Image:
+   ENTER THE
+   VOID.
+   HUNT THE
+   UNKNOWN.
+*/
 .hero-title-group {
   margin: 0;
 }
@@ -156,41 +123,41 @@
 .hero-main-heading {
   font-family: 'Orbitron', sans-serif;
   font-weight: 900;
-  font-size: clamp(2.3rem, 4.4vw, 4.2rem);
-  line-height: 1.08;
-  letter-spacing: 0.04em;
-  color: var(--text-offwhite, #EAF0FF);
+  font-size: clamp(2.6rem, 5.2vw, 4.4rem);
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  color: #EAF0FF;
   margin: 0;
   text-transform: uppercase;
 }
 
 .hero-cyan-highlight {
-  color: var(--neon-cyan, #00E5FF);
-  text-shadow: 0 0 25px rgba(0, 229, 255, 0.45);
-  display: inline-block;
+  color: #00E5FF;
+  text-shadow: 0 0 30px rgba(0, 229, 255, 0.55), 0 0 15px rgba(0, 229, 255, 0.3);
+  display: block;
 }
 
+/* Supporting Narrative Text */
 .hero-supporting-text {
-  font-size: clamp(0.95rem, 1.15vw, 1.1rem);
+  font-size: clamp(0.92rem, 1.1vw, 1.05rem);
   line-height: 1.68;
-  color: var(--text-blue-grey, #94A3B8);
-  max-width: 580px;
+  color: #94A3B8;
+  max-width: 530px;
   margin: 0;
 }
 
-/* Tactical Actions Row */
+/* Action Buttons Container */
 .hero-actions-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
-  max-width: 540px;
 }
 
 .hero-buttons-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
@@ -200,26 +167,26 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: linear-gradient(135deg, #00E5FF 0%, #00B4D8 100%);
+  background: #00E5FF;
   color: #080A2F;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 15px 34px;
+  padding: 14px 34px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 0 24px rgba(0, 229, 255, 0.4), 0 4px 18px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 26px rgba(0, 229, 255, 0.5), 0 4px 18px rgba(0, 0, 0, 0.5);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 52px;
 }
 
 .btn-hero-primary:hover {
   transform: translateY(-2px);
-  background: linear-gradient(135deg, #33EBFF 0%, #00C6EB 100%);
-  box-shadow: 0 0 32px rgba(0, 229, 255, 0.65), 0 6px 24px rgba(0, 0, 0, 0.6);
+  background: #33EBFF;
+  box-shadow: 0 0 36px rgba(0, 229, 255, 0.75), 0 6px 24px rgba(0, 0, 0, 0.6);
 }
 
 .btn-hero-primary:active {
@@ -232,222 +199,287 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: var(--bg-panel-navy, #111735);
-  color: var(--text-offwhite, #EAF0FF);
+  background: rgba(17, 23, 53, 0.85);
+  color: #EAF0FF;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 15px 26px;
+  padding: 14px 28px;
   border: 1px solid rgba(0, 229, 255, 0.45);
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 52px;
 }
 
 .btn-hero-secondary:hover:not(:disabled) {
   transform: translateY(-2px);
-  background: rgba(22, 33, 84, 0.85);
-  border-color: var(--neon-cyan, #00E5FF);
-  color: var(--neon-cyan, #00E5FF);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25), 0 6px 20px rgba(0, 0, 0, 0.5);
-}
-
-.btn-hero-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  border-color: rgba(148, 163, 184, 0.2);
+  background: rgba(26, 36, 88, 0.9);
+  border-color: #00E5FF;
+  color: #00E5FF;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3), 0 6px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* Keyboard Shortcut Hint */
 .hero-keyboard-hint {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 0.76rem;
   letter-spacing: 0.08em;
-  color: var(--text-blue-grey, #94A3B8);
+  color: #94A3B8;
   font-family: 'Orbitron', sans-serif;
   margin-top: 4px;
 }
 
 .key-badge {
-  padding: 2px 7px;
+  padding: 3px 8px;
   background: rgba(17, 23, 53, 0.9);
-  border: 1px solid rgba(0, 229, 255, 0.3);
+  border: 1px solid rgba(0, 229, 255, 0.4);
   border-radius: 4px;
-  color: var(--neon-cyan, #00E5FF);
+  color: #00E5FF;
   font-size: 0.72rem;
   font-weight: 700;
 }
 
-/* Right Column: Hero Starfighter Viewport */
-.hero-right-column {
+/* ==========================================================================
+   4 FEATURE STATS CARDS (Bottom Row of Hero)
+   ========================================================================== */
+.feature-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  width: 100%;
+  margin-top: clamp(24px, 5vh, 48px);
+  margin-bottom: 8px;
+}
+
+.feature-card {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  perspective: 1200px;
-  z-index: 10;
-}
-
-.starfighter-viewport-card {
-  position: relative;
-  width: 100%;
-  max-width: 580px;
-  aspect-ratio: 16 / 10;
-  background: var(--bg-panel-navy, #111735);
-  border: 1px solid rgba(0, 229, 255, 0.35);
-  border-radius: 18px;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: rgba(17, 23, 53, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 229, 255, 0.15), inset 0 0 20px rgba(124, 58, 237, 0.1);
-  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
-  transform-style: preserve-3d;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 229, 255, 0.05);
+  transition: all 0.25s ease;
+  cursor: pointer;
 }
 
-.starfighter-viewport-card:hover {
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 45px rgba(0, 229, 255, 0.28), inset 0 0 25px rgba(124, 58, 237, 0.2);
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 229, 255, 0.12);
 }
 
-/* Starfighter Image & Vignette Blend */
-.starfighter-hero-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  transform: scale(1.02);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  filter: contrast(1.05) brightness(1.02);
+/* Color Themed Borders */
+.feature-card-cyan {
+  border-color: rgba(0, 229, 255, 0.4);
+}
+.feature-card-cyan:hover {
+  border-color: #00E5FF;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
 }
 
-.starfighter-viewport-card:hover .starfighter-hero-image {
-  transform: scale(1.06);
+.feature-card-purple {
+  border-color: rgba(124, 58, 237, 0.45);
+}
+.feature-card-purple:hover {
+  border-color: #7C3AED;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
 }
 
-/* Edge Softening Vignette */
-.starfighter-image-vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(8, 10, 47, 0.6) 88%, rgba(8, 10, 47, 0.95) 100%);
-  pointer-events: none;
+.feature-card-red {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+.feature-card-red:hover {
+  border-color: #EF4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
 }
 
-/* Sci-Fi Hologram Scanlines */
-.starfighter-scanlines {
-  position: absolute;
-  inset: 0;
+.feature-card-gold {
+  border-color: rgba(251, 191, 36, 0.4);
+}
+.feature-card-gold:hover {
+  border-color: #FBBF24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+/* Card Left Section: Icon + Value & Label */
+.card-left-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 2;
+}
+
+.card-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.badge-cyan {
+  background: rgba(0, 229, 255, 0.15);
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+  color: #00E5FF;
+}
+
+.badge-purple {
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.5);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.35);
+  color: #A855F7;
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+  color: #EF4444;
+}
+
+.badge-gold {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);
+  color: #FBBF24;
+}
+
+.card-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #EAF0FF;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+}
+
+.card-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94A3B8;
+  letter-spacing: 0.12em;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+/* Segmented Progress Bar (Matching Image) */
+.card-segmented-bar {
+  height: 3px;
+  width: 90px;
+  margin-top: 6px;
+  border-radius: 2px;
+}
+
+.bar-cyan {
   background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px,
-    transparent 3px,
-    rgba(0, 229, 255, 0.03) 4px
+    90deg,
+    #00E5FF 0px,
+    #00E5FF 5px,
+    rgba(0, 229, 255, 0.2) 5px,
+    rgba(0, 229, 255, 0.2) 8px
   );
-  pointer-events: none;
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.6);
 }
 
-/* Tactical Telemetry Corner HUD Elements */
-.hud-bracket {
+.bar-purple {
+  background: repeating-linear-gradient(
+    90deg,
+    #A855F7 0px,
+    #A855F7 5px,
+    rgba(168, 85, 247, 0.2) 5px,
+    rgba(168, 85, 247, 0.2) 8px
+  );
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.6);
+}
+
+.bar-red {
+  background: repeating-linear-gradient(
+    90deg,
+    #EF4444 0px,
+    #EF4444 5px,
+    rgba(239, 68, 68, 0.2) 5px,
+    rgba(239, 68, 68, 0.2) 8px
+  );
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+
+.bar-gold {
+  background: repeating-linear-gradient(
+    90deg,
+    #FBBF24 0px,
+    #FBBF24 5px,
+    rgba(251, 191, 36, 0.2) 5px,
+    rgba(251, 191, 36, 0.2) 8px
+  );
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+}
+
+/* Card Right Section: Subtle Graphic Silhouette */
+.card-right-graphic {
   position: absolute;
-  font-family: 'Orbitron', monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  color: var(--neon-cyan, #00E5FF);
-  padding: 4px 10px;
-  background: rgba(8, 10, 47, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 229, 255, 0.3);
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.35;
   pointer-events: none;
-  z-index: 12;
-  text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+  filter: drop-shadow(0 0 8px currentColor);
 }
 
-.hud-top-left {
-  top: 14px;
-  left: 14px;
-  border-radius: 6px 0 6px 0;
-  border-left: 2px solid var(--neon-cyan, #00E5FF);
-}
+.card-cyan .card-right-graphic { color: #00E5FF; }
+.card-purple .card-right-graphic { color: #A855F7; }
+.card-red .card-right-graphic { color: #EF4444; }
+.card-gold .card-right-graphic { color: #FBBF24; }
 
-.hud-top-right {
-  top: 14px;
-  right: 14px;
-  border-radius: 0 6px 0 6px;
-  border-right: 2px solid var(--neon-cyan, #00E5FF);
-}
-
-.hud-bottom-left {
-  bottom: 14px;
-  left: 14px;
-  border-radius: 0 6px 0 6px;
-  border-left: 2px solid var(--neon-cyan, #00E5FF);
-}
-
-.hud-bottom-right {
-  bottom: 14px;
-  right: 14px;
-  border-radius: 6px 0 6px 0;
-  border-right: 2px solid var(--neon-cyan, #00E5FF);
-}
-
-/* Thruster Ion Glow Emitters */
-.thruster-glow-left,
-.thruster-glow-right {
-  position: absolute;
-  bottom: 22%;
-  width: 12px;
-  height: 28px;
-  background: radial-gradient(circle, #00E5FF 0%, rgba(124, 58, 237, 0.8) 60%, transparent 100%);
-  filter: blur(8px);
-  pointer-events: none;
-  animation: thrusterFlicker 0.18s infinite alternate;
-}
-
-.thruster-glow-left { left: 40%; }
-.thruster-glow-right { right: 40%; }
-
-@keyframes thrusterFlicker {
-  0% { transform: scaleY(0.9) scaleX(0.85); opacity: 0.75; }
-  100% { transform: scaleY(1.25) scaleX(1.15); opacity: 1; }
-}
-
-/* Floating Animation Container */
-.starfighter-float-wrap {
-  animation: floatStarfighter 6s ease-in-out infinite;
-  width: 100%;
-}
-
-@keyframes floatStarfighter {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(0.4deg); }
-}
-
-/* Restrained Bottom Status Strip */
+/* ==========================================================================
+   BOTTOM STATUS STRIP (Matching Image)
+   Left: PROTOCOL v1.0.0 | PHASER 3 ENGINE
+   Center: EXPLORE • FIGHT • UPGRADE • LEAD
+   Right: ● SYSTEM OPERATIONAL // 5MS
+   ========================================================================== */
 .main-menu-status-strip {
   position: relative;
   z-index: 20;
   width: 100%;
-  background: rgba(17, 23, 53, 0.85);
+  background: rgba(6, 9, 25, 0.94);
   backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(0, 229, 255, 0.2);
-  padding: 10px clamp(16px, 4vw, 40px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(0, 229, 255, 0.25);
+  padding: 11px clamp(16px, 4vw, 48px);
   box-sizing: border-box;
 }
 
 .status-strip-container {
-  max-width: 1380px;
+  max-width: 1440px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   font-family: 'Orbitron', monospace;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   letter-spacing: 0.12em;
-  color: var(--text-blue-grey, #94A3B8);
+  color: #94A3B8;
 }
 
 .status-item {
@@ -458,7 +490,15 @@
 }
 
 .status-item-highlight {
-  color: var(--neon-cyan, #00E5FF);
+  color: #00E5FF;
+  font-weight: 700;
+}
+
+.status-strip-center {
+  color: #94A3B8;
+  letter-spacing: 0.24em;
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 
 .status-live-dot {
@@ -466,82 +506,52 @@
   height: 7px;
   border-radius: 50%;
   background-color: #10B981;
-  box-shadow: 0 0 8px #10B981;
+  box-shadow: 0 0 10px #10B981;
 }
 
 .status-live-dot.offline {
   background-color: #EF4444;
-  box-shadow: 0 0 8px #EF4444;
+  box-shadow: 0 0 10px #EF4444;
 }
 
 /* Responsive Media Queries */
-@media (max-width: 1080px) {
-  .hero-main-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-  }
-  .hud-bracket {
-    font-size: 0.6rem;
-    padding: 3px 7px;
+@media (max-width: 1200px) {
+  .feature-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
   }
 }
 
 @media (max-width: 900px) {
+  .main-menu-root {
+    background-attachment: scroll;
+  }
   .main-menu-content {
-    padding-top: 85px;
-    padding-bottom: 24px;
+    padding-top: 80px;
   }
-  .hero-main-grid {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
-  .hero-left-column {
-    align-items: center;
-    text-align: center;
-  }
-  .hero-supporting-text {
-    max-width: 95%;
-  }
-  .hero-actions-container {
-    align-items: center;
-  }
-  .hero-buttons-row {
-    justify-content: center;
-    width: 100%;
-  }
-  .btn-hero-primary, .btn-hero-secondary {
-    flex: 1 1 200px;
-  }
-  .starfighter-viewport-card {
-    max-width: 520px;
-    margin: 0 auto;
+  .hero-main-heading {
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
   }
   .status-strip-center {
     display: none;
   }
 }
 
-@media (max-width: 600px) {
-  .main-menu-content {
-    padding-left: 16px;
-    padding-right: 16px;
-    padding-top: 78px;
+@media (max-width: 640px) {
+  .feature-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
   .hero-buttons-row {
     flex-direction: column;
     width: 100%;
-    gap: 12px;
   }
   .btn-hero-primary, .btn-hero-secondary {
     width: 100%;
   }
-  .hud-bracket {
-    display: none;
-  }
   .status-strip-container {
-    font-size: 0.64rem;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     text-align: center;
   }
 }

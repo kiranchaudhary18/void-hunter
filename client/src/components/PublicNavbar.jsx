@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
-import { Volume2, VolumeX, LogIn, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
+import { Volume2, VolumeX, LogIn, LayoutDashboard, LogOut, Menu, X, ArrowRight } from 'lucide-react';
 
 export const PublicNavbar = ({ current = 'home', onNavigate }) => {
   const { user, profile, isAuthenticated, logout } = useAuth();
@@ -57,7 +57,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
         >
           {/* Authentic VOID HUNTER Crest Logo */}
           <div style={styles.logoWrapper}>
-            <svg width="34" height="34" viewBox="0 0 64 64" style={styles.logoSvg}>
+            <svg width="36" height="36" viewBox="0 0 64 64" style={styles.logoSvg}>
               <polygon points="32,6 44,28 60,52 48,56 38,48 32,58 26,48 16,56 4,52 20,28" fill="#00E5FF" />
               <polygon points="32,12 40,30 50,48 38,48 32,52 26,48 14,48 24,30" fill="#080A2F" />
               <ellipse cx="32" cy="26" rx="3.5" ry="9" fill="#EAF0FF" />
@@ -96,15 +96,15 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
 
         {/* Top Right Controls & Auth State */}
         <div style={styles.topBarRight}>
-          {/* Sound Control Toggle */}
+          {/* Sound Control Toggle (Square Button with Cyan Border Matching Image) */}
           <button 
             id="nav-sound-toggle"
             onClick={handleToggleMute} 
-            style={styles.iconCircleBtn}
+            style={styles.iconSquareBtn}
             title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
             aria-label="Toggle Sound"
           >
-            {isMuted ? <VolumeX size={17} color="#EF4444" /> : <Volume2 size={17} color="#00E5FF" />}
+            {isMuted ? <VolumeX size={18} color="#EF4444" /> : <Volume2 size={18} color="#00E5FF" />}
           </button>
 
           {/* Authentication State */}
@@ -136,7 +136,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
               style={styles.loginBtn}
               title="Authenticate Pilot Link"
             >
-              <LogIn size={15} />
+              <LogIn size={16} strokeWidth={2.5} />
               <span className="public-login-text-full">LOGIN / ENLIST</span>
             </button>
           )}
@@ -147,7 +147,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
             style={styles.mobileMenuBtn}
             aria-label="Toggle Navigation Menu"
           >
-            {mobileMenuOpen ? <X size={20} color="#00E5FF" /> : <Menu size={20} color="#EAF0FF" />}
+            {mobileMenuOpen ? <X size={22} color="#00E5FF" /> : <Menu size={22} color="#EAF0FF" />}
           </button>
         </div>
       </div>
@@ -199,8 +199,8 @@ const styles = {
     top: 0,
     left: 0,
     right: 0,
-    height: '70px',
-    background: 'rgba(8, 10, 47, 0.94)',
+    height: '72px',
+    background: 'rgba(8, 10, 47, 0.92)',
     backdropFilter: 'blur(16px)',
     WebkitBackdropFilter: 'blur(16px)',
     borderBottom: '1px solid rgba(0, 229, 255, 0.25)',
@@ -209,11 +209,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '0 clamp(16px, 3.5vw, 36px)',
+    padding: '0 clamp(16px, 4vw, 56px)',
     boxSizing: 'border-box'
   },
   container: {
-    maxWidth: '1380px',
+    maxWidth: '1440px',
     width: '100%',
     display: 'flex',
     justifyContent: 'space-between',
@@ -230,7 +230,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    filter: 'drop-shadow(0 0 8px rgba(0, 229, 255, 0.6))'
+    filter: 'drop-shadow(0 0 10px rgba(0, 229, 255, 0.7))'
   },
   logoSvg: {
     display: 'block'
@@ -241,25 +241,27 @@ const styles = {
   },
   brandTitle: {
     fontFamily: 'Orbitron, sans-serif',
-    fontSize: '1.15rem',
+    fontSize: '1.2rem',
     fontWeight: '900',
     lineHeight: 1.1,
     letterSpacing: '0.08em',
     color: '#EAF0FF',
-    textShadow: '0 0 12px rgba(0, 229, 255, 0.4)'
+    textShadow: '0 0 12px rgba(0, 229, 255, 0.45)'
   },
   brandTag: {
     fontFamily: 'Inter, sans-serif',
     fontSize: '0.62rem',
-    color: '#94A3B8',
-    letterSpacing: '0.12em',
+    color: '#00E5FF',
+    letterSpacing: '0.14em',
     marginTop: '2px',
-    textTransform: 'uppercase'
+    textTransform: 'uppercase',
+    fontWeight: '600',
+    opacity: 0.85
   },
   centerNavLinks: {
     display: 'flex',
     alignItems: 'center',
-    gap: '24px'
+    gap: '32px'
   },
   navLink: {
     position: 'relative',
@@ -267,12 +269,12 @@ const styles = {
     border: 'none',
     color: '#94A3B8',
     fontFamily: 'Orbitron, sans-serif',
-    fontSize: '0.82rem',
+    fontSize: '0.84rem',
+    fontWeight: '700',
     letterSpacing: '0.12em',
     cursor: 'pointer',
-    padding: '8px 12px',
-    transition: 'all 0.2s ease',
-    borderRadius: '6px'
+    padding: '8px 10px',
+    transition: 'all 0.2s ease'
   },
   navLinkActive: {
     color: '#00E5FF',
@@ -280,25 +282,25 @@ const styles = {
   },
   activePill: {
     position: 'absolute',
-    bottom: '-4px',
-    left: '12%',
-    right: '12%',
-    height: '2px',
+    bottom: '-8px',
+    left: '0%',
+    right: '0%',
+    height: '2.5px',
     background: '#00E5FF',
-    boxShadow: '0 0 8px #00E5FF',
+    boxShadow: '0 0 10px #00E5FF',
     borderRadius: '2px'
   },
   topBarRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px'
+    gap: '14px'
   },
-  iconCircleBtn: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
+  iconSquareBtn: {
+    width: '42px',
+    height: '42px',
+    borderRadius: '8px',
     background: 'rgba(17, 23, 53, 0.85)',
-    border: '1px solid rgba(0, 229, 255, 0.3)',
+    border: '1px solid rgba(0, 229, 255, 0.35)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -316,17 +318,17 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     background: '#111735',
-    border: '1px solid rgba(0, 229, 255, 0.4)',
+    border: '1px solid rgba(0, 229, 255, 0.45)',
     color: '#EAF0FF',
     fontFamily: 'Orbitron, sans-serif',
-    fontSize: '0.78rem',
+    fontSize: '0.8rem',
     fontWeight: '700',
     letterSpacing: '0.08em',
-    padding: '8px 16px',
+    padding: '10px 18px',
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    boxShadow: '0 0 12px rgba(0, 229, 255, 0.15)'
+    boxShadow: '0 0 14px rgba(0, 229, 255, 0.2)'
   },
   pilotCallsign: {
     maxWidth: '140px',
@@ -338,8 +340,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '38px',
-    height: '38px',
+    width: '40px',
+    height: '40px',
     background: 'rgba(17, 23, 53, 0.7)',
     border: '1px solid rgba(239, 68, 68, 0.35)',
     color: '#EF4444',
@@ -351,17 +353,17 @@ const styles = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '8px',
-    background: 'linear-gradient(135deg, #00E5FF 0%, #00B4D8 100%)',
+    background: '#00E5FF',
     color: '#080A2F',
     fontFamily: 'Orbitron, sans-serif',
-    fontSize: '0.8rem',
+    fontSize: '0.82rem',
     fontWeight: '800',
     letterSpacing: '0.1em',
-    padding: '9px 20px',
+    padding: '11px 22px',
     borderRadius: '8px',
     border: 'none',
     cursor: 'pointer',
-    boxShadow: '0 0 18px rgba(0, 229, 255, 0.35)',
+    boxShadow: '0 0 20px rgba(0, 229, 255, 0.45)',
     transition: 'all 0.2s ease'
   },
   mobileMenuBtn: {
@@ -373,7 +375,7 @@ const styles = {
   },
   mobileDrawer: {
     position: 'absolute',
-    top: '70px',
+    top: '72px',
     left: 0,
     right: 0,
     background: 'rgba(8, 10, 47, 0.98)',
