@@ -1,14 +1,32 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
-import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
+import soundManager from '../game/managers/SoundManager.js';
+import './AuthPage.css';
+import { 
+  Mail, Lock, User, Eye, EyeOff, Shield, ArrowLeft, 
+  AlertCircle, CheckCircle2, KeyRound, X, ExternalLink, Zap
+} from 'lucide-react';
 
 export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
   const { login, register } = useAuth();
 
-  // Active tab on mobile/desktop: 'login' or 'register'
-  const [activeTab, setActiveTab] = useState(() => { try { const stored = sessionStorage.getItem('void_hunter_auth_tab'); if (stored === 'register' || stored === 'login') { sessionStorage.removeItem('void_hunter_auth_tab'); return stored; } } catch {} return 'login'; });
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 960 : false);
+  // Active tab on mobile: 'login' or 'register'
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('void_hunter_auth_tab');
+      if (stored === 'register' || stored === 'login') {
+        sessionStorage.removeItem('void_hunter_auth_tab');
+        return stored;
+      }
+    } catch {}
+    return 'login';
+  });
+
+  // Track viewport size for mobile tab toggle
+  const [isMobile, setIsMobile] = useState(() => 
+    typeof window !== 'undefined' ? window.innerWidth <= 960 : false
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -16,6 +34,11 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Update Document Title for SEO
+  useEffect(() => {
+    document.title = 'Void Hunter — Pilot Authentication & Fleet Enlistment';
   }, []);
 
   // Login Form State
@@ -30,34 +53,43 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(true);
 
-  // UI State
+  // UI State: Alerts & Loading
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Modals: Terms & Forgot Password
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [forgotModalOpen, setForgotModalOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSubmitted, setForgotSubmitted] = useState(false);
+
+  // ================= FORM HANDLERS =================
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
 
-    if (!loginEmail || !loginPassword) {
-      setErrorMsg('Please enter both email and password.');
+    if (!loginEmail.trim() || !loginPassword) {
+      setErrorMsg('Please enter both email address and password.');
       return;
     }
 
+    try { soundManager.playLaser(); } catch {}
     setSubmitting(true);
-    const result = await login(loginEmail, loginPassword);
+    const result = await login(loginEmail.trim(), loginPassword);
     setSubmitting(false);
 
     if (result.success) {
       setSuccessMsg('Authentication verified. Accessing Command Deck...');
       setTimeout(() => {
         if (onAuthSuccess) onAuthSuccess();
-      }, 300);
+      }, 350);
     } else {
-      setErrorMsg(result.message || 'Invalid email or password.');
+      setErrorMsg(result.message || 'Invalid pilot credentials. Please verify email and password.');
     }
   };
 
@@ -66,605 +98,602 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
     setErrorMsg('');
     setSuccessMsg('');
 
-    if (!regName || !regEmail || !regPassword || !regConfirmPassword) {
-      setErrorMsg('All fields are required to register pilot clearance.');
+    if (!regName.trim() || !regEmail.trim() || !regPassword || !regConfirmPassword) {
+      setErrorMsg('All fields are required to commission your pilot profile.');
       return;
     }
 
     if (regPassword !== regConfirmPassword) {
-      setErrorMsg('Passwords do not match.');
+      setErrorMsg('Password confirmation does not match.');
       return;
     }
 
     if (regPassword.length < 6) {
-      setErrorMsg('Password must be at least 6 characters.');
+      setErrorMsg('Password must be at least 6 characters in length.');
       return;
     }
 
     if (!agreeTerms) {
-      setErrorMsg('You must agree to the Terms of Space Fleet Command.');
+      setErrorMsg('You must accept the Fleet Command Terms of Service & Privacy Policy.');
       return;
     }
 
+    try { soundManager.playLaser(); } catch {}
     setSubmitting(true);
-    const result = await register(regName, regEmail, regPassword);
+    const result = await register(regName.trim(), regEmail.trim(), regPassword);
     setSubmitting(false);
 
     if (result.success) {
       setSuccessMsg('Pilot commission granted! Accessing Command Deck...');
       setTimeout(() => {
         if (onAuthSuccess) onAuthSuccess();
-      }, 300);
+      }, 350);
     } else {
-      setErrorMsg(result.message || 'Registration failed.');
+      setErrorMsg(result.message || 'Pilot registration failed. This email may already be in use.');
     }
   };
 
+  const handleForgotSubmit = (e) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) return;
+    try { soundManager.playLaser(); } catch {}
+    setForgotSubmitted(true);
+  };
+
+  // Inline Validation Helpers for Register Form
+  const isPasswordMismatch = regConfirmPassword.length > 0 && regPassword !== regConfirmPassword;
+  const isPasswordValid = regPassword.length >= 6;
+
   return (
-    <div style={styles.pageContainer}>
-      {/* Top Header Navigation */}
-      <header style={styles.header}>
-        <div style={styles.logoGroup}>
-          <img src="/favicon.svg" alt="Void Hunter Crest" style={styles.logoImg} />
-          <div>
-            <h1 className="font-heading" style={styles.brandTitle}>
-              {GAME_NAME}
-            </h1>
-            <p className="font-ui" style={styles.brandTagline}>
-              {GAME_TAGLINE}
-            </p>
+    <div className="auth-root">
+      {/* Cinematic Space Backdrop */}
+      <div className="auth-backdrop" aria-hidden="true" />
+      <div className="auth-stars" aria-hidden="true" />
+      <div className="auth-nebula-glow" aria-hidden="true" />
+
+      <div className="auth-page-container">
+        {/* ================= TOP HEADER BAR ================= */}
+        <header className="auth-topbar">
+          <div 
+            className="auth-brand" 
+            onClick={() => {
+              try { soundManager.playLaser(); } catch {}
+              if (onBackToGame) onBackToGame();
+            }}
+            title="Return to Main Menu"
+          >
+            <img 
+              src="/favicon.svg" 
+              alt="Void Hunter Emblem" 
+              className="auth-logo-img" 
+            />
+            <div className="auth-brand-text">
+              <span className="auth-brand-title">{GAME_NAME}</span>
+              <span className="auth-brand-tagline">{GAME_TAGLINE}</span>
+            </div>
           </div>
+
+          <button 
+            type="button"
+            onClick={() => {
+              try { soundManager.playLaser(); } catch {}
+              if (onBackToGame) onBackToGame();
+            }}
+            className="auth-back-btn"
+            id="auth-back-to-game-btn"
+            aria-label="Return to game"
+          >
+            <ArrowLeft size={15} />
+            <span>BACK TO GAME</span>
+          </button>
+        </header>
+
+        {/* ================= ALERTS ================= */}
+        <div className="auth-alerts-container" aria-live="polite">
+          {errorMsg && (
+            <div className="auth-alert-error" role="alert">
+              <AlertCircle size={18} color="#EF4444" style={{ flexShrink: 0 }} />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+          {successMsg && (
+            <div className="auth-alert-success" role="status">
+              <CheckCircle2 size={18} color="#20D6A0" style={{ flexShrink: 0 }} />
+              <span>{successMsg}</span>
+            </div>
+          )}
         </div>
 
-        <button 
-          onClick={onBackToGame} 
-          className="btn btn-outline"
-          style={styles.backButton}
-        >
-          <ArrowLeft size={16} /> BACK TO GAME
-        </button>
-      </header>
-
-      {/* Alert Notifications */}
-      {errorMsg && (
-        <div style={styles.alertError} className="glass-panel">
-          <AlertCircle size={18} color="#EF4444" />
-          <span>{errorMsg}</span>
+        {/* ================= MOBILE TAB SWITCHER ================= */}
+        <div className="auth-mobile-switch" role="tablist" aria-label="Sign in or register">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'login'}
+            className={`auth-mobile-tab-btn ${activeTab === 'login' ? 'active-login' : ''}`}
+            onClick={() => {
+              setErrorMsg('');
+              setActiveTab('login');
+            }}
+          >
+            SIGN IN
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'register'}
+            className={`auth-mobile-tab-btn ${activeTab === 'register' ? 'active-register' : ''}`}
+            onClick={() => {
+              setErrorMsg('');
+              setActiveTab('register');
+            }}
+          >
+            JOIN THE FLEET
+          </button>
         </div>
-      )}
-      {successMsg && (
-        <div style={styles.alertSuccess} className="glass-panel">
-          <CheckCircle2 size={18} color="#10B981" />
-          <span>{successMsg}</span>
-        </div>
-      )}
 
-      {/* Mobile / Screen Tab Switcher */}
-      <div 
-        style={{
-          display: isMobile ? 'flex' : 'none',
-          gap: '10px',
-          maxWidth: '480px',
-          width: '100%',
-          margin: '0 auto 20px auto'
-        }}
-      >
-        <button 
-          type="button"
-          style={{
-            ...styles.tabBtn,
-            padding: '12px 14px',
-            fontSize: '0.84rem',
-            fontWeight: 'bold',
-            ...(activeTab === 'login' ? styles.activeTabBtn : {})
-          }}
-          onClick={() => {
-            setErrorMsg('');
-            setActiveTab('login');
-          }}
-        >
-          LOGIN
-        </button>
-        <button 
-          type="button"
-          style={{
-            ...styles.tabBtn,
-            padding: '12px 14px',
-            fontSize: '0.84rem',
-            fontWeight: 'bold',
-            ...(activeTab === 'register' ? styles.activeTabBtn : {})
-          }}
-          onClick={() => {
-            setErrorMsg('');
-            setActiveTab('register');
-          }}
-        >
-          CREATE ACCOUNT (SIGN UP)
-        </button>
+        {/* ================= MAIN DUAL CARD GRID ================= */}
+        <main className={`auth-grid ${isMobile ? (activeTab === 'login' ? 'show-login' : 'show-register') : ''}`}>
+          {/* ================= LEFT PANEL: LOGIN ================= */}
+          <section className="auth-card auth-card-login" aria-label="Pilot Sign In Form">
+            <header className="auth-card-header">
+              <span className="auth-eyebrow-badge auth-eyebrow-cyan">
+                <Zap size={11} color="#00E5FF" aria-hidden="true" />
+                PILOT ACCESS
+              </span>
+              <h2 className="auth-card-heading">
+                WELCOME BACK, PILOT
+              </h2>
+              <p className="auth-card-desc">
+                Your next mission awaits.
+              </p>
+            </header>
+
+            <form onSubmit={handleLoginSubmit} className="auth-form" noValidate>
+              {/* Email Address */}
+              <div className="auth-field-group">
+                <label htmlFor="login-email" className="auth-field-label">
+                  EMAIL ADDRESS
+                </label>
+                <div className="auth-input-wrapper">
+                  <Mail size={16} className="auth-input-icon" aria-hidden="true" />
+                  <input
+                    id="login-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="pilot@voidhunter.com"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    className="auth-input"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="auth-field-group">
+                <label htmlFor="login-password" className="auth-field-label">
+                  PASSWORD
+                </label>
+                <div className="auth-input-wrapper">
+                  <Lock size={16} className="auth-input-icon" aria-hidden="true" />
+                  <input
+                    id="login-password"
+                    name="password"
+                    type={showLoginPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="Enter security access code"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    className="auth-input"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="auth-eye-btn"
+                    aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={0}
+                  >
+                    {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember Me & Forgot Password */}
+              <div className="auth-controls-row">
+                <label htmlFor="login-remember-me" className="auth-checkbox-label">
+                  <input
+                    id="login-remember-me"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="auth-checkbox"
+                  />
+                  <span>Remember me</span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForgotEmail(loginEmail);
+                    setForgotSubmitted(false);
+                    setForgotModalOpen(true);
+                  }}
+                  className="auth-text-link"
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              {/* Primary Action Button */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="auth-btn-primary auth-btn-cyan"
+                id="auth-sign-in-submit"
+              >
+                {submitting ? 'AUTHENTICATING...' : 'SIGN IN'}
+              </button>
+            </form>
+
+            {/* Quick Switch Link on Mobile/Tablet */}
+            <div className="auth-switch-prompt">
+              <span>Don't have an account?</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setErrorMsg('');
+                  setActiveTab('register');
+                }}
+                className="auth-switch-link"
+              >
+                Enlist / Create Profile
+              </button>
+            </div>
+          </section>
+
+          {/* ================= RIGHT PANEL: REGISTRATION ================= */}
+          <section className="auth-card auth-card-register" aria-label="Pilot Registration Form">
+            <header className="auth-card-header">
+              <span className="auth-eyebrow-badge auth-eyebrow-purple">
+                <Shield size={11} color="#A78BFA" aria-hidden="true" />
+                JOIN THE FLEET
+              </span>
+              <h2 className="auth-card-heading">
+                CREATE YOUR PILOT PROFILE
+              </h2>
+              <p className="auth-card-desc">
+                Enlist today. Make your mark across the galaxy.
+              </p>
+            </header>
+
+            <form onSubmit={handleRegisterSubmit} className="auth-form" noValidate>
+              {/* Callsign / Full Name */}
+              <div className="auth-field-group">
+                <label htmlFor="reg-name" className="auth-field-label">
+                  CALLSIGN / PILOT NAME
+                </label>
+                <div className="auth-input-wrapper">
+                  <User size={16} className="auth-input-icon" aria-hidden="true" />
+                  <input
+                    id="reg-name"
+                    name="name"
+                    type="text"
+                    autoComplete="nickname"
+                    placeholder="e.g. Commander Vega"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    className="auth-input"
+                    maxLength={50}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email Address */}
+              <div className="auth-field-group">
+                <label htmlFor="reg-email" className="auth-field-label">
+                  EMAIL ADDRESS
+                </label>
+                <div className="auth-input-wrapper">
+                  <Mail size={16} className="auth-input-icon" aria-hidden="true" />
+                  <input
+                    id="reg-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="pilot@voidhunter.com"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    className="auth-input"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="auth-field-group">
+                <label htmlFor="reg-password" className="auth-field-label">
+                  <span>PASSWORD</span>
+                  {regPassword.length > 0 && (
+                    <span style={{ fontSize: '0.66rem', color: isPasswordValid ? '#20D6A0' : '#EF4444' }}>
+                      {isPasswordValid ? 'Valid Length' : 'Min 6 chars'}
+                    </span>
+                  )}
+                </label>
+                <div className="auth-input-wrapper">
+                  <Lock size={16} className="auth-input-icon" aria-hidden="true" />
+                  <input
+                    id="reg-password"
+                    name="password"
+                    type={showRegPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    placeholder="Minimum 6 characters"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    className="auth-input"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegPassword(!showRegPassword)}
+                    className="auth-eye-btn"
+                    aria-label={showRegPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={0}
+                  >
+                    {showRegPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div className="auth-field-group">
+                <label htmlFor="reg-confirm-password" className="auth-field-label">
+                  <span>CONFIRM PASSWORD</span>
+                  {isPasswordMismatch && (
+                    <span style={{ fontSize: '0.66rem', color: '#EF4444' }}>
+                      Mismatch
+                    </span>
+                  )}
+                </label>
+                <div className="auth-input-wrapper">
+                  <Shield size={16} className="auth-input-icon" aria-hidden="true" />
+                  <input
+                    id="reg-confirm-password"
+                    name="confirmPassword"
+                    type={showRegConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    placeholder="Repeat your password"
+                    value={regConfirmPassword}
+                    onChange={(e) => setRegConfirmPassword(e.target.value)}
+                    className="auth-input"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)}
+                    className="auth-eye-btn"
+                    aria-label={showRegConfirmPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={0}
+                  >
+                    {showRegConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Terms and Privacy Policy Checkbox */}
+              <div className="auth-controls-row">
+                <label htmlFor="reg-agree-terms" className="auth-checkbox-label">
+                  <input
+                    id="reg-agree-terms"
+                    type="checkbox"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="auth-checkbox"
+                    required
+                  />
+                  <span>
+                    I agree to the{' '}
+                    <button
+                      type="button"
+                      onClick={() => setTermsModalOpen(true)}
+                      className="auth-text-link"
+                      style={{ color: '#A78BFA' }}
+                    >
+                      Terms of Service
+                    </button>
+                    {' & '}
+                    <button
+                      type="button"
+                      onClick={() => setTermsModalOpen(true)}
+                      className="auth-text-link"
+                      style={{ color: '#A78BFA' }}
+                    >
+                      Privacy Policy
+                    </button>
+                  </span>
+                </label>
+              </div>
+
+              {/* Primary Action Button */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="auth-btn-primary auth-btn-purple"
+                id="auth-register-submit"
+              >
+                {submitting ? 'COMMISSIONING PILOT...' : 'CREATE ACCOUNT'}
+              </button>
+            </form>
+
+            {/* Quick Switch Link on Mobile/Tablet */}
+            <div className="auth-switch-prompt">
+              <span>Already have an account?</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setErrorMsg('');
+                  setActiveTab('login');
+                }}
+                className="auth-switch-link"
+              >
+                Sign in to Command Deck
+              </button>
+            </div>
+          </section>
+        </main>
       </div>
 
-      {/* Main Dual Card Grid */}
-      <main style={styles.mainGrid}>
-        {/* ================= LEFT CARD: LOGIN ================= */}
-        <section 
-          style={{
-            ...styles.authCard,
-            display: !isMobile || activeTab === 'login' ? 'flex' : 'none'
-          }} 
-          className="glass-panel"
+      {/* ================= TERMS & PRIVACY MODAL ================= */}
+      {termsModalOpen && (
+        <div 
+          className="auth-modal-backdrop" 
+          onClick={() => setTermsModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="terms-modal-title"
         >
-          <div style={styles.cardHeader}>
-            <span className="badge badge-cyan">SIGN IN ACCOUNT</span>
-            <h2 className="font-heading" style={styles.cardTitle}>
-              LOGIN TO <span style={{ color: 'var(--secondary-cyan)' }}>{GAME_NAME}</span>
-            </h2>
-            <p style={styles.cardSubtitle}>Continue your journey. The galaxy awaits.</p>
-          </div>
-
-          <form onSubmit={handleLoginSubmit} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Email Address</label>
-              <div style={styles.inputWrapper}>
-                <Mail size={18} style={styles.inputIcon} />
-                <input
-                  type="email"
-                  placeholder="pilot@voidhunter.com"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  style={styles.input}
-                  required
-                />
-              </div>
+          <div className="auth-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="auth-modal-header">
+              <h3 id="terms-modal-title" className="auth-modal-title">
+                SPACE FLEET COMMAND PROTOCOLS
+              </h3>
+              <button 
+                type="button" 
+                onClick={() => setTermsModalOpen(false)} 
+                className="auth-modal-close-btn"
+                aria-label="Close dialog"
+              >
+                <X size={20} />
+              </button>
             </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Password</label>
-              <div style={styles.inputWrapper}>
-                <Lock size={18} style={styles.inputIcon} />
-                <input
-                  type={showLoginPassword ? 'text' : 'password'}
-                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  style={styles.input}
-                  required
-                />
+            <div className="auth-modal-body">
+              <h4>1. FAIR PLAY & COMBAT INTEGRITY</h4>
+              <p>
+                All flight combat runs, telemetry, weapon heat, and score submissions are validated by the authoritative Void Hunter server. Automated speedhacks, client tampering, or injection tools will result in pilot clearance revocation and score disqualification.
+              </p>
+
+              <h4>2. SECURE ECONOMY & CURRENCY LEDGER</h4>
+              <p>
+                Credits, energy cores, and campaign stars are tracked via double-entry ledger verification. Balance state is stored in your personal account and cannot be transferred or extracted outside fleet command.
+              </p>
+
+              <h4>3. PILOT DATA PRIVACY</h4>
+              <p>
+                Account passwords are encrypted with bcrypt salt rounds prior to persistence. Your combat callsign and high scores are displayed on the public Intergalactic Hall of Fame. Email addresses and security tokens are strictly kept confidential.
+              </p>
+
+              <h4>4. FLIGHT COMMUNICATIONS</h4>
+              <p>
+                Squadron callsigns must adhere to fleet civility standards. Impersonation of Star Fleet Command officers is prohibited.
+              </p>
+            </div>
+
+            <div className="auth-modal-footer">
+              <button
+                type="button"
+                onClick={() => setTermsModalOpen(false)}
+                className="auth-btn-primary auth-btn-cyan"
+                style={{ width: 'auto', padding: '10px 24px', margin: 0 }}
+              >
+                ACKNOWLEDGE & CLOSE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= FORGOT PASSWORD MODAL ================= */}
+      {forgotModalOpen && (
+        <div 
+          className="auth-modal-backdrop" 
+          onClick={() => setForgotModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="forgot-modal-title"
+        >
+          <div className="auth-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="auth-modal-header">
+              <h3 id="forgot-modal-title" className="auth-modal-title">
+                PILOT CREDENTIAL RECOVERY
+              </h3>
+              <button 
+                type="button" 
+                onClick={() => setForgotModalOpen(false)} 
+                className="auth-modal-close-btn"
+                aria-label="Close dialog"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="auth-modal-body">
+              {forgotSubmitted ? (
+                <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                  <CheckCircle2 size={44} color="#20D6A0" style={{ margin: '0 auto 12px auto' }} />
+                  <h4 style={{ color: '#20D6A0', fontSize: '1.1rem' }}>RECOVERY TRANSMISSION LOGGED</h4>
+                  <p style={{ color: '#EAF1FF', marginTop: '8px' }}>
+                    A recovery request for <strong>{forgotEmail}</strong> has been registered with Space Fleet Command.
+                  </p>
+                  <p style={{ fontSize: '0.8rem', color: '#9AA9C7', marginTop: '12px' }}>
+                    In this deployment, pilot passwords can be updated directly or via an administrator.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotSubmit}>
+                  <p style={{ marginTop: 0 }}>
+                    Enter your registered pilot email address to request a secure password recovery transmission.
+                  </p>
+                  <div className="auth-field-group" style={{ marginTop: '16px' }}>
+                    <label htmlFor="forgot-email" className="auth-field-label">
+                      REGISTERED EMAIL
+                    </label>
+                    <div className="auth-input-wrapper">
+                      <Mail size={16} className="auth-input-icon" />
+                      <input
+                        id="forgot-email"
+                        type="email"
+                        placeholder="pilot@voidhunter.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        className="auth-input"
+                        required
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="auth-btn-primary auth-btn-cyan"
+                    style={{ marginTop: '20px' }}
+                  >
+                    DISPATCH RECOVERY LINK
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {forgotSubmitted && (
+              <div className="auth-modal-footer">
                 <button
                   type="button"
-                  onClick={() => setShowLoginPassword(!showLoginPassword)}
-                  style={styles.eyeBtn}
+                  onClick={() => setForgotModalOpen(false)}
+                  className="auth-btn-primary auth-btn-cyan"
+                  style={{ width: 'auto', padding: '10px 24px', margin: 0 }}
                 >
-                  {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  RETURN TO SIGN IN
                 </button>
               </div>
-            </div>
-
-            <div style={styles.rememberRow}>
-              <label style={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  style={styles.checkbox}
-                />
-                Remember me
-              </label>
-              <a href="#forgot" style={styles.forgotLink}>Forgot password?</a>
-            </div>
-
-            <button 
-              type="submit" 
-              className="btn btn-cyan" 
-              disabled={submitting}
-              style={styles.submitBtn}
-            >
-              {submitting ? 'AUTHENTICATING...' : 'LOGIN'}
-            </button>
-          </form>
-
-          {/* Social Logins */}
-          <div style={styles.divider}>
-            <span style={styles.dividerText}>OR CONTINUE WITH</span>
+            )}
           </div>
-          <div style={styles.socialRow}>
-            <button style={styles.socialBtn} title="Google Pilot Login">G</button>
-            <button style={styles.socialBtn} title="GitHub Pilot Login">GH</button>
-            <button style={styles.socialBtn} title="Discord Pilot Login">DC</button>
-          </div>
-
-          {/* Quick Switch to Sign Up on Mobile */}
-          <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-            Don't have an account?{' '}
-            <button
-              type="button"
-              onClick={() => {
-                setErrorMsg('');
-                setActiveTab('register');
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--secondary-cyan)',
-                fontWeight: '700',
-                cursor: 'pointer',
-                textDecoration: 'underline'
-              }}
-            >
-              Sign Up / Create Account
-            </button>
-          </div>
-        </section>
-
-        {/* ================= RIGHT CARD: REGISTER ================= */}
-        <section 
-          style={{
-            ...styles.authCard,
-            display: !isMobile || activeTab === 'register' ? 'flex' : 'none'
-          }} 
-          className="glass-panel"
-        >
-          <div style={styles.cardHeader}>
-            <span className="badge badge-purple">JOIN THE FLEET</span>
-            <h2 className="font-heading" style={styles.cardTitle}>
-              CREATE <span style={{ color: '#C084FC' }}>ACCOUNT</span>
-            </h2>
-            <p style={styles.cardSubtitle}>Join the mission. Become a legend.</p>
-          </div>
-
-          <form onSubmit={handleRegisterSubmit} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Callsign / Full Name</label>
-              <div style={styles.inputWrapper}>
-                <User size={18} style={styles.inputIcon} />
-                <input
-                  type="text"
-                  placeholder="Kiran Commander"
-                  value={regName}
-                  onChange={(e) => setRegName(e.target.value)}
-                  style={styles.input}
-                  required
-                />
-              </div>
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Email Address</label>
-              <div style={styles.inputWrapper}>
-                <Mail size={18} style={styles.inputIcon} />
-                <input
-                  type="email"
-                  placeholder="commander@spacecommand.net"
-                  value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
-                  style={styles.input}
-                  required
-                />
-              </div>
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Password</label>
-              <div style={styles.inputWrapper}>
-                <Lock size={18} style={styles.inputIcon} />
-                <input
-                  type={showRegPassword ? 'text' : 'password'}
-                  placeholder="Min. 6 characters"
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  style={styles.input}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowRegPassword(!showRegPassword)}
-                  style={styles.eyeBtn}
-                >
-                  {showRegPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Confirm Password</label>
-              <div style={styles.inputWrapper}>
-                <Shield size={18} style={styles.inputIcon} />
-                <input
-                  type="password"
-                  placeholder="Repeat password"
-                  value={regConfirmPassword}
-                  onChange={(e) => setRegConfirmPassword(e.target.value)}
-                  style={styles.input}
-                  required
-                />
-              </div>
-            </div>
-
-            <div style={styles.rememberRow}>
-              <label style={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={agreeTerms}
-                  onChange={(e) => setAgreeTerms(e.target.checked)}
-                  style={styles.checkbox}
-                />
-                I agree to the Terms and Privacy Policy
-              </label>
-            </div>
-
-            <button 
-              type="submit" 
-              className="btn btn-purple" 
-              disabled={submitting}
-              style={styles.submitBtn}
-            >
-              {submitting ? 'COMMISSIONING PILOT...' : 'CREATE ACCOUNT'}
-            </button>
-          </form>
-
-          {/* Social Logins */}
-          <div style={styles.divider}>
-            <span style={styles.dividerText}>OR SIGN UP WITH</span>
-          </div>
-          <div style={styles.socialRow}>
-            <button style={styles.socialBtn} title="Google Pilot Signup">G</button>
-            <button style={styles.socialBtn} title="GitHub Pilot Signup">GH</button>
-            <button style={styles.socialBtn} title="Discord Pilot Signup">DC</button>
-          </div>
-
-          {/* Quick Switch to Login */}
-          <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-            Already have an account?{' '}
-            <button
-              type="button"
-              onClick={() => {
-                setErrorMsg('');
-                setActiveTab('login');
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--secondary-cyan)',
-                fontWeight: '700',
-                cursor: 'pointer',
-                textDecoration: 'underline'
-              }}
-            >
-              Login to Command Deck
-            </button>
-          </div>
-        </section>
-      </main>
+        </div>
+      )}
     </div>
   );
 };
 
-const styles = {
-  pageContainer: {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: 'clamp(14px, 3vw, 24px) clamp(12px, 3vw, 32px)',
-    background: 'radial-gradient(ellipse at center, rgba(124, 58, 237, 0.12) 0%, rgba(10, 15, 44, 0.98) 80%)'
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '24px',
-    flexWrap: 'wrap',
-    gap: '12px'
-  },
-  logoGroup: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '14px'
-  },
-  logoImg: {
-    width: '44px',
-    height: '44px',
-    filter: 'drop-shadow(0 0 10px rgba(0, 229, 255, 0.5))'
-  },
-  brandTitle: {
-    fontSize: '1.4rem',
-    fontWeight: '900',
-    letterSpacing: '0.08em',
-    background: 'linear-gradient(90deg, #FFFFFF 0%, #00E5FF 60%, #FF2DFF 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    lineHeight: 1.1
-  },
-  brandTagline: {
-    fontSize: '0.75rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.12em',
-    textTransform: 'uppercase'
-  },
-  backButton: {
-    fontSize: '0.75rem',
-    padding: '8px 16px'
-  },
-  alertError: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '12px 18px',
-    marginBottom: '20px',
-    background: 'rgba(239, 68, 68, 0.15)',
-    borderColor: '#EF4444',
-    color: '#FCA5A5',
-    fontSize: '0.875rem'
-  },
-  alertSuccess: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '12px 18px',
-    marginBottom: '20px',
-    background: 'rgba(16, 185, 129, 0.15)',
-    borderColor: '#10B981',
-    color: '#6EE7B7',
-    fontSize: '0.875rem'
-  },
-  mobileTabs: {
-    display: 'flex',
-    gap: '12px',
-    marginBottom: '20px'
-  },
-  tabBtn: {
-    flex: 1,
-    padding: '10px',
-    background: 'rgba(10, 15, 44, 0.6)',
-    border: '1px solid var(--border-glass)',
-    color: 'var(--text-muted)',
-    borderRadius: '6px',
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.8rem',
-    cursor: 'pointer'
-  },
-  activeTabBtn: {
-    background: 'rgba(0, 229, 255, 0.15)',
-    borderColor: 'var(--secondary-cyan)',
-    color: 'var(--secondary-cyan)'
-  },
-  mainGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '24px',
-    maxWidth: '1080px',
-    margin: 'auto',
-    width: '100%'
-  },
-  authCard: {
-    flexDirection: 'column',
-    padding: 'clamp(24px, 4vw, 36px) clamp(16px, 4vw, 32px)',
-    borderRadius: '16px',
-    border: '1px solid rgba(0, 229, 255, 0.22)',
-    boxShadow: '0 0 35px rgba(0, 0, 0, 0.6)'
-  },
-  cardHeader: {
-    marginBottom: '24px'
-  },
-  cardTitle: {
-    fontSize: '1.5rem',
-    fontWeight: '800',
-    marginTop: '10px',
-    marginBottom: '4px'
-  },
-  cardSubtitle: {
-    fontSize: '0.85rem',
-    color: 'var(--text-muted)'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px'
-  },
-  label: {
-    fontSize: '0.75rem',
-    fontFamily: 'var(--font-heading)',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.05em'
-  },
-  inputWrapper: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center'
-  },
-  inputIcon: {
-    position: 'absolute',
-    left: '12px',
-    color: 'var(--text-muted)'
-  },
-  input: {
-    width: '100%',
-    padding: '11px 40px',
-    background: 'rgba(6, 9, 25, 0.85)',
-    border: '1px solid rgba(124, 58, 237, 0.3)',
-    borderRadius: '6px',
-    color: 'var(--text-light)',
-    fontFamily: 'var(--font-body)',
-    fontSize: '0.9rem',
-    outline: 'none',
-    transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
-  },
-  eyeBtn: {
-    position: 'absolute',
-    right: '12px',
-    background: 'none',
-    border: 'none',
-    color: 'var(--text-muted)',
-    cursor: 'pointer'
-  },
-  rememberRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    fontSize: '0.8rem',
-    color: 'var(--text-muted)',
-    marginTop: '2px'
-  },
-  checkboxLabel: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    cursor: 'pointer'
-  },
-  checkbox: {
-    accentColor: 'var(--secondary-cyan)',
-    cursor: 'pointer'
-  },
-  forgotLink: {
-    color: 'var(--secondary-cyan)',
-    textDecoration: 'none'
-  },
-  submitBtn: {
-    width: '100%',
-    marginTop: '10px',
-    padding: '12px'
-  },
-  divider: {
-    position: 'relative',
-    textAlign: 'center',
-    margin: '24px 0 16px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
-  },
-  dividerText: {
-    position: 'relative',
-    top: '9px',
-    background: '#0B112E',
-    padding: '0 12px',
-    fontSize: '0.7rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.08em',
-    fontFamily: 'var(--font-heading)'
-  },
-  socialRow: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '16px'
-  },
-  socialBtn: {
-    width: '42px',
-    height: '42px',
-    borderRadius: '8px',
-    background: 'rgba(10, 15, 44, 0.8)',
-    border: '1px solid var(--border-glass)',
-    color: 'var(--text-light)',
-    fontWeight: '700',
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.85rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  }
-};
-
 export default AuthPage;
-

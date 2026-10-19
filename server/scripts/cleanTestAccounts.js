@@ -13,7 +13,7 @@ async function clean() {
   const db = mongoose.connection.db;
 
   const testUsers = await db.collection('users').find({
-    email: { $regex: '^(pilota_|pilotb_|hacker_|invariant_|admin_\\d+)', $options: 'i' }
+    email: { $regex: '^(pilota_|pilotb_|hacker_|invariant_|verify_pilot_|admin_\\d+)', $options: 'i' }
   }).toArray();
 
   console.log('Found ' + testUsers.length + ' test runner artifact users to purge.');
@@ -57,3 +57,4 @@ clean().catch(err => {
   console.error('Error during cleanup:', err);
   process.exit(1);
 });
+
