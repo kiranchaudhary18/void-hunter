@@ -244,11 +244,11 @@ export class SpaceCombatScene extends Phaser.Scene {
     // Auto-Targeting & Guidance for Homing Missiles with Rocket Flare Particles
     this.homingMissiles.getChildren().forEach((missile) => {
       // Dynamic rocket engine smoke and spark contrail
-      if (Math.random() < 0.65) {
+      if (Math.random() < 0.75) {
         const spark = this.add.circle(
-          missile.x + Phaser.Math.Between(-2, 2),
-          missile.y + 16,
-          Phaser.Math.Between(2, 3),
+          missile.x + Phaser.Math.Between(-3, 3),
+          missile.y + 26,
+          Phaser.Math.Between(3, 5),
           0xF97316,
           0.85
         );
@@ -257,8 +257,8 @@ export class SpaceCombatScene extends Phaser.Scene {
           targets: spark,
           alpha: 0,
           scale: 0.2,
-          y: spark.y + 12,
-          duration: 200,
+          y: spark.y + 16,
+          duration: 220,
           onComplete: () => spark.destroy()
         });
       }
@@ -981,13 +981,13 @@ export class SpaceCombatScene extends Phaser.Scene {
     soundManager.playExplosion(true);
 
     // Shockwave Blast Ring Graphic
-    const shockwave = this.add.circle(blastX, blastY, 8, 0xF97316, 0.85);
+    const shockwave = this.add.circle(blastX, blastY, 12, 0xF97316, 0.9);
     shockwave.setDepth(20);
     this.tweens.add({
       targets: shockwave,
-      scale: 5,
+      scale: 7,
       alpha: 0,
-      duration: 320,
+      duration: 380,
       ease: 'Power2',
       onComplete: () => shockwave.destroy()
     });
@@ -1070,13 +1070,13 @@ export class SpaceCombatScene extends Phaser.Scene {
       // 4. Homing Missiles: Launches 4 auto-seeking rockets
       case 'homing_missiles':
         for (let i = 0; i < 4; i++) {
-          const offsetX = (i - 1.5) * 26;
+          const offsetX = (i - 1.5) * 30;
           const missile = this.homingMissiles.create(
             this.player.x + offsetX,
             this.player.y - 15,
             'homing_missile'
           );
-          missile.setScale(1.65); // Make rocket substantially larger and punchier
+          missile.setScale(2.1); // Enlarge rocket to commanding 2.1x scale for maximum presence
           missile.setVelocity(offsetX * 10, -450);
           missile.checkWorldBounds = true;
           missile.outOfBoundsKill = true;

@@ -584,75 +584,86 @@ export class BootScene extends Phaser.Scene {
     // 11. Homing Missile (Heavy Sci-Fi Tactical Rocket with Thruster Flare)
     if (!this.textures.exists('homing_missile')) {
       const canvas = document.createElement('canvas');
-      canvas.width = 16;
-      canvas.height = 38;
+      canvas.width = 24;
+      canvas.height = 56;
       const ctx = canvas.getContext('2d');
 
       // Glowing Rocket Booster Flare
       ctx.shadowColor = '#F97316';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 12;
 
       // Rocket Exhaust Plume
-      const exhaustGrad = ctx.createLinearGradient(0, 24, 0, 38);
+      const exhaustGrad = ctx.createLinearGradient(0, 36, 0, 56);
       exhaustGrad.addColorStop(0, '#FFFFFF');
-      exhaustGrad.addColorStop(0.3, '#FBBF24');
-      exhaustGrad.addColorStop(0.7, '#EA580C');
+      exhaustGrad.addColorStop(0.25, '#FDE047');
+      exhaustGrad.addColorStop(0.65, '#EA580C');
       exhaustGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
 
       ctx.fillStyle = exhaustGrad;
       ctx.beginPath();
-      ctx.moveTo(4, 25);
-      ctx.lineTo(8, 38);
-      ctx.lineTo(12, 25);
+      ctx.moveTo(6, 36);
+      ctx.lineTo(12, 56);
+      ctx.lineTo(18, 36);
       ctx.closePath();
       ctx.fill();
 
       // Titanium Rocket Fuselage
-      ctx.shadowBlur = 4;
+      ctx.shadowBlur = 5;
       ctx.shadowColor = '#000000';
-      const bodyGrad = ctx.createLinearGradient(0, 0, 16, 0);
-      bodyGrad.addColorStop(0, '#334155');
-      bodyGrad.addColorStop(0.5, '#CBD5E1');
-      bodyGrad.addColorStop(1, '#1E293B');
+      const bodyGrad = ctx.createLinearGradient(0, 0, 24, 0);
+      bodyGrad.addColorStop(0, '#1E293B');
+      bodyGrad.addColorStop(0.3, '#475569');
+      bodyGrad.addColorStop(0.5, '#E2E8F0');
+      bodyGrad.addColorStop(0.8, '#475569');
+      bodyGrad.addColorStop(1, '#0F172A');
 
       ctx.fillStyle = bodyGrad;
       ctx.beginPath();
-      ctx.moveTo(8, 0);      // Warhead tip
-      ctx.lineTo(12, 9);     // Upper cone
-      ctx.lineTo(12, 25);    // Cylindrical body
-      ctx.lineTo(4, 25);
-      ctx.lineTo(4, 9);
+      ctx.moveTo(12, 0);      // Warhead apex
+      ctx.lineTo(18, 14);     // Upper nose cone
+      ctx.lineTo(18, 38);     // Cylindrical main body
+      ctx.lineTo(6, 38);
+      ctx.lineTo(6, 14);
       ctx.closePath();
       ctx.fill();
 
-      // High-Explosive Warhead Tip (Crimson/Orange Plasma)
-      ctx.fillStyle = '#EF4444';
+      // High-Explosive Warhead Tip (Crimson/Orange Plasma Apex)
+      const tipGrad = ctx.createLinearGradient(0, 0, 0, 14);
+      tipGrad.addColorStop(0, '#FECACA');
+      tipGrad.addColorStop(0.35, '#EF4444');
+      tipGrad.addColorStop(1, '#B91C1C');
+
+      ctx.fillStyle = tipGrad;
       ctx.beginPath();
-      ctx.moveTo(8, 0);
-      ctx.lineTo(12, 9);
-      ctx.lineTo(4, 9);
+      ctx.moveTo(12, 0);
+      ctx.lineTo(18, 14);
+      ctx.lineTo(6, 14);
       ctx.closePath();
       ctx.fill();
 
-      // Aerodynamic Stabilizer Swept Fins
-      ctx.fillStyle = '#B91C1C';
+      // Aerodynamic Swept Stabilizer Wings
+      ctx.fillStyle = '#991B1B';
+      // Left Wing
       ctx.beginPath();
-      ctx.moveTo(4, 16);
-      ctx.lineTo(0, 26);
-      ctx.lineTo(4, 25);
+      ctx.moveTo(6, 22);
+      ctx.lineTo(0, 40);
+      ctx.lineTo(6, 38);
       ctx.closePath();
       ctx.fill();
 
+      // Right Wing
       ctx.beginPath();
-      ctx.moveTo(12, 16);
-      ctx.lineTo(16, 26);
-      ctx.lineTo(12, 25);
+      ctx.moveTo(18, 22);
+      ctx.lineTo(24, 40);
+      ctx.lineTo(18, 38);
       ctx.closePath();
       ctx.fill();
 
-      // Core Navigation Sensor Dot
+      // Cyber Guidance Sensor Array
+      ctx.fillStyle = '#00E5FF';
+      ctx.fillRect(10, 16, 4, 3);
       ctx.fillStyle = '#FDE047';
-      ctx.fillRect(7, 12, 2, 4);
+      ctx.fillRect(11, 22, 2, 8);
 
       this.textures.addCanvas('homing_missile', canvas);
     }

@@ -49,6 +49,15 @@ export const GameContainer = ({
   const [adCountdown, setAdCountdown] = useState(5);
   const [adTargetAction, setAdTargetAction] = useState(null); // 'revive' or 'double_credits'
   const [adSessionData, setAdSessionData] = useState(null);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 680 : false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 680);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (!gameRef.current) return;
@@ -291,101 +300,200 @@ export const GameContainer = ({
   return (
     <div style={styles.gameWrapper}>
       {/* ================= SCREEN 6: TOP HUD OVERLAY ================= */}
-      <div className="glass-panel cyber-box game-hud-top-bar" style={styles.hudTop}>
-        <div style={styles.hudLeft}>
-          <button 
-            onClick={() => {
-              if (!isPaused) handleTogglePause();
-              setIsAbortModalOpen(true);
-            }} 
-            style={styles.iconBtn} 
-            title="Abort Mission & Return to Missions"
-          >
-            <ArrowLeft size={18} color="var(--text-light)" />
-          </button>
+      {isMobile ? (
+        <div className="glass-panel cyber-box game-hud-top-bar" style={styles.hudTopMobile}>
+          {/* Mobile Row 1: Actions, Compact Gauges, Score & Credits */}
+          <div style={styles.hudMobileRow1}>
+            {/* Quick Action Navigation */}
+            <div style={styles.hudMobileBtnGroup}>
+              <button 
+                onClick={() => {
+                  if (!isPaused) handleTogglePause();
+                  setIsAbortModalOpen(true);
+                }} 
+                style={styles.iconBtnMobile} 
+                title="Abort Mission"
+              >
+                <ArrowLeft size={15} color="var(--text-light)" />
+              </button>
 
-          <button 
-            onClick={handleTogglePause} 
-            style={styles.iconBtn} 
-            title={isPaused ? "Resume Combat (Esc/P)" : "Pause Combat (Esc/P)"}
-          >
-            {isPaused ? <Play size={18} color="var(--secondary-cyan)" /> : <Pause size={18} color="var(--secondary-cyan)" />}
-          </button>
+              <button 
+                onClick={handleTogglePause} 
+                style={styles.iconBtnMobile} 
+                title={isPaused ? "Resume" : "Pause"}
+              >
+                {isPaused ? <Play size={15} color="var(--secondary-cyan)" /> : <Pause size={15} color="var(--secondary-cyan)" />}
+              </button>
 
-          <button 
-            onClick={handleToggleMute} 
-            style={styles.iconBtn} 
-            title={isMuted ? "Unmute Audio & Music" : "Mute Audio & Music"}
-          >
-            {isMuted ? <VolumeX size={18} color="#EF4444" /> : <Volume2 size={18} color="var(--secondary-cyan)" />}
-          </button>
-
-          {/* Dual Health & Shield Gauges */}
-          <div style={styles.gaugesContainer}>
-            {/* Health Bar */}
-            <div style={styles.gaugeRow}>
-              <Heart size={14} color="var(--status-green)" style={{ filter: 'drop-shadow(0 0 4px #10B981)' }} />
-              <div className="game-hud-bar-track" style={styles.barTrack}>
-                <div 
-                  style={{ 
-                    ...styles.barFill, 
-                    width: `${Math.max(0, Math.min(100, (stats.health / stats.maxHealth) * 100))}%`, 
-                    background: 'linear-gradient(90deg, #059669 0%, #10B981 60%, #00E5FF 100%)',
-                    boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)'
-                  }} 
-                />
-              </div>
-              <span style={{ ...styles.gaugeVal, color: '#10B981' }}>{Math.round(stats.health)}</span>
+              <button 
+                onClick={handleToggleMute} 
+                style={styles.iconBtnMobile} 
+                title={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted ? <VolumeX size={15} color="#EF4444" /> : <Volume2 size={15} color="var(--secondary-cyan)" />}
+              </button>
             </div>
 
-            {/* Shield Bar */}
-            <div style={styles.gaugeRow}>
-              <Shield size={14} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
-              <div className="game-hud-bar-track" style={styles.barTrack}>
-                <div 
-                  style={{ 
-                    ...styles.barFill, 
-                    width: `${Math.max(0, Math.min(100, (stats.shield / stats.maxShield) * 100))}%`, 
-                    background: 'linear-gradient(90deg, #0099FF 0%, #00E5FF 60%, #C084FC 100%)',
-                    boxShadow: '0 0 8px rgba(0, 229, 255, 0.6)'
-                  }} 
-                />
+            {/* Health & Shield Mini Bars */}
+            <div style={styles.gaugesContainerMobile}>
+              <div style={styles.gaugeRowMobile}>
+                <Heart size={11} color="var(--status-green)" style={{ flexShrink: 0 }} />
+                <div style={styles.barTrackMobile}>
+                  <div 
+                    style={{ 
+                      ...styles.barFill, 
+                      width: `${Math.max(0, Math.min(100, (stats.health / stats.maxHealth) * 100))}%`, 
+                      background: 'linear-gradient(90deg, #059669 0%, #10B981 100%)'
+                    }} 
+                  />
+                </div>
+                <span style={styles.gaugeValMobile}>{Math.round(stats.health)}</span>
               </div>
-              <span style={{ ...styles.gaugeVal, color: 'var(--secondary-cyan)' }}>{Math.round(stats.shield)}</span>
+
+              <div style={styles.gaugeRowMobile}>
+                <Shield size={11} color="var(--secondary-cyan)" style={{ flexShrink: 0 }} />
+                <div style={styles.barTrackMobile}>
+                  <div 
+                    style={{ 
+                      ...styles.barFill, 
+                      width: `${Math.max(0, Math.min(100, (stats.shield / stats.maxShield) * 100))}%`, 
+                      background: 'linear-gradient(90deg, #0099FF 0%, #00E5FF 100%)'
+                    }} 
+                  />
+                </div>
+                <span style={styles.gaugeValMobile}>{Math.round(stats.shield)}</span>
+              </div>
+            </div>
+
+            {/* Score & Credits Counter */}
+            <div style={styles.hudMobileStatsGroup}>
+              <div style={{ textAlign: 'right', lineHeight: 1 }}>
+                <span style={{ fontSize: '0.52rem', color: 'var(--text-muted)', display: 'block', letterSpacing: '0.04em' }}>SCORE</span>
+                <span className="font-heading text-glow-gold" style={{ fontSize: '0.88rem', color: 'var(--currency-gold)', fontWeight: 'bold' }}>
+                  {stats.score.toLocaleString()}
+                </span>
+              </div>
+
+              <div className="currency-pill credits" style={{ padding: '2px 7px', fontSize: '0.72rem', height: '22px' }}>
+                <Coins size={11} color="var(--currency-gold)" />
+                <span>+{stats.credits}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Row 2: Mission Title & Wave & Timer */}
+          <div style={styles.hudMobileRow2}>
+            <span className="font-heading text-glow-cyan" style={styles.missionTitleMobile}>
+              {mission.name}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span className="badge badge-cyan" style={{ fontSize: '0.62rem', padding: '2px 6px', fontWeight: 'bold' }}>
+                WAVE {stats.currentWave}/{stats.maxWaves}
+              </span>
+              <span className="badge badge-gold" style={{ fontSize: '0.62rem', padding: '2px 6px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'monospace' }}>
+                <Timer size={10} color="var(--currency-gold)" />
+                {formatCombatTimer(stats.elapsedTime || 0)}
+              </span>
             </div>
           </div>
         </div>
+      ) : (
+        <div className="glass-panel cyber-box game-hud-top-bar" style={styles.hudTop}>
+          <div style={styles.hudLeft}>
+            <button 
+              onClick={() => {
+                if (!isPaused) handleTogglePause();
+                setIsAbortModalOpen(true);
+              }} 
+              style={styles.iconBtn} 
+              title="Abort Mission & Return to Missions"
+            >
+              <ArrowLeft size={18} color="var(--text-light)" />
+            </button>
 
-        {/* Center: Mission Objective & Live Combat Timer */}
-        <div style={styles.hudCenter}>
-          <div className="font-heading text-glow-cyan" style={styles.missionTitle}>{mission.name}</div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
-            <span className="badge badge-cyan" style={{ fontSize: '0.64rem', padding: '2px 8px' }}>
-              WAVE {stats.currentWave} / {stats.maxWaves}
-            </span>
-            <span className="badge badge-gold" style={{ fontSize: '0.66rem', padding: '2px 8px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'monospace' }}>
-              <Timer size={11} color="var(--currency-gold)" />
-              {formatCombatTimer(stats.elapsedTime || 0)}
-            </span>
-            <span className="game-hud-hide-mobile" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-              HOSTILE FLEET ENGAGEMENT
-            </span>
+            <button 
+              onClick={handleTogglePause} 
+              style={styles.iconBtn} 
+              title={isPaused ? "Resume Combat (Esc/P)" : "Pause Combat (Esc/P)"}
+            >
+              {isPaused ? <Play size={18} color="var(--secondary-cyan)" /> : <Pause size={18} color="var(--secondary-cyan)" />}
+            </button>
+
+            <button 
+              onClick={handleToggleMute} 
+              style={styles.iconBtn} 
+              title={isMuted ? "Unmute Audio & Music" : "Mute Audio & Music"}
+            >
+              {isMuted ? <VolumeX size={18} color="#EF4444" /> : <Volume2 size={18} color="var(--secondary-cyan)" />}
+            </button>
+
+            {/* Dual Health & Shield Gauges */}
+            <div style={styles.gaugesContainer}>
+              {/* Health Bar */}
+              <div style={styles.gaugeRow}>
+                <Heart size={14} color="var(--status-green)" style={{ filter: 'drop-shadow(0 0 4px #10B981)' }} />
+                <div className="game-hud-bar-track" style={styles.barTrack}>
+                  <div 
+                    style={{ 
+                      ...styles.barFill, 
+                      width: `${Math.max(0, Math.min(100, (stats.health / stats.maxHealth) * 100))}%`, 
+                      background: 'linear-gradient(90deg, #059669 0%, #10B981 60%, #00E5FF 100%)',
+                      boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)'
+                    }} 
+                  />
+                </div>
+                <span style={{ ...styles.gaugeVal, color: '#10B981' }}>{Math.round(stats.health)}</span>
+              </div>
+
+              {/* Shield Bar */}
+              <div style={styles.gaugeRow}>
+                <Shield size={14} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
+                <div className="game-hud-bar-track" style={styles.barTrack}>
+                  <div 
+                    style={{ 
+                      ...styles.barFill, 
+                      width: `${Math.max(0, Math.min(100, (stats.shield / stats.maxShield) * 100))}%`, 
+                      background: 'linear-gradient(90deg, #0099FF 0%, #00E5FF 60%, #C084FC 100%)',
+                      boxShadow: '0 0 8px rgba(0, 229, 255, 0.6)'
+                    }} 
+                  />
+                </div>
+                <span style={{ ...styles.gaugeVal, color: 'var(--secondary-cyan)' }}>{Math.round(stats.shield)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Center: Mission Objective & Live Combat Timer */}
+          <div style={styles.hudCenter}>
+            <div className="font-heading text-glow-cyan" style={styles.missionTitle}>{mission.name}</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
+              <span className="badge badge-cyan" style={{ fontSize: '0.64rem', padding: '2px 8px' }}>
+                WAVE {stats.currentWave} / {stats.maxWaves}
+              </span>
+              <span className="badge badge-gold" style={{ fontSize: '0.66rem', padding: '2px 8px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'monospace' }}>
+                <Timer size={11} color="var(--currency-gold)" />
+                {formatCombatTimer(stats.elapsedTime || 0)}
+              </span>
+              <span className="game-hud-hide-mobile" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+                HOSTILE FLEET ENGAGEMENT
+              </span>
+            </div>
+          </div>
+
+          {/* Right: Score & Credits Counters */}
+          <div style={styles.hudRight}>
+            <div style={styles.scoreCounter}>
+              <span style={styles.scoreLabel}>COMBAT SCORE</span>
+              <span className="font-heading text-glow-gold" style={styles.scoreNum}>{stats.score.toLocaleString()}</span>
+            </div>
+
+            <div className="currency-pill credits" style={{ padding: '5px 12px' }}>
+              <Coins size={14} color="var(--currency-gold)" />
+              <span>+{stats.credits}</span>
+            </div>
           </div>
         </div>
-
-        {/* Right: Score & Credits Counters */}
-        <div style={styles.hudRight}>
-          <div style={styles.scoreCounter}>
-            <span style={styles.scoreLabel}>COMBAT SCORE</span>
-            <span className="font-heading text-glow-gold" style={styles.scoreNum}>{stats.score.toLocaleString()}</span>
-          </div>
-
-          <div className="currency-pill credits" style={{ padding: '5px 12px' }}>
-            <Coins size={14} color="var(--currency-gold)" />
-            <span>+{stats.credits}</span>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Sector Boss Dynamic Health Bar Overlay */}
       {stats.boss && (
@@ -469,7 +577,7 @@ export const GameContainer = ({
           }}>
             B
           </div>
-          <Rocket size={24} color={cooldowns['homing_missiles'] > 0 ? '#71717a' : '#fef08a'} />
+          <Rocket size={30} color={cooldowns['homing_missiles'] > 0 ? '#71717a' : '#fef08a'} />
           <span style={{
             fontSize: '10px',
             fontWeight: 'bold',
@@ -878,8 +986,10 @@ export const GameContainer = ({
 const styles = {
   gameWrapper: {
     position: 'relative',
-    width: '100vw',
-    height: '100vh',
+    width: '100%',
+    maxWidth: '100vw',
+    height: '100dvh',
+    minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -900,6 +1010,92 @@ const styles = {
     padding: '12px 24px',
     borderRadius: '14px',
     zIndex: 20
+  },
+  hudTopMobile: {
+    position: 'absolute',
+    top: 'max(6px, env(safe-area-inset-top, 6px))',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '96%',
+    maxWidth: '560px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    padding: '7px 10px',
+    borderRadius: '12px',
+    zIndex: 30
+  },
+  hudMobileRow1: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    gap: '6px'
+  },
+  hudMobileBtnGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px'
+  },
+  iconBtnMobile: {
+    width: '30px',
+    height: '30px',
+    borderRadius: '6px',
+    background: 'rgba(0, 229, 255, 0.12)',
+    border: '1px solid var(--border-glass)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    outline: 'none',
+    padding: 0
+  },
+  gaugesContainerMobile: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '3px'
+  },
+  gaugeRowMobile: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
+  },
+  barTrackMobile: {
+    width: '46px',
+    height: '6px',
+    background: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: '3px',
+    overflow: 'hidden',
+    border: '1px solid rgba(255, 255, 255, 0.14)'
+  },
+  gaugeValMobile: {
+    fontSize: '0.66rem',
+    fontFamily: 'monospace',
+    fontWeight: '700',
+    color: 'var(--text-light)',
+    width: '22px'
+  },
+  hudMobileStatsGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px'
+  },
+  hudMobileRow2: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingTop: '3px',
+    borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+  },
+  missionTitleMobile: {
+    fontSize: '0.74rem',
+    color: 'var(--secondary-cyan)',
+    letterSpacing: '0.04em',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '55%'
   },
   hudLeft: {
     display: 'flex',
@@ -982,10 +1178,10 @@ const styles = {
   },
   canvasEnclosure: {
     position: 'relative',
-    width: '800px',
-    height: '900px',
+    width: '100%',
+    height: '100%',
     maxWidth: '100vw',
-    maxHeight: '100vh',
+    maxHeight: '100dvh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
