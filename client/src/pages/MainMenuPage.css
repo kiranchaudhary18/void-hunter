@@ -1,0 +1,547 @@
+/* ==========================================================================
+   VOID HUNTER - AAA SCI-FI MAIN MENU REDESIGN
+   Brand System:
+   - Deep navy #080A2F (Main Background)
+   - Panel navy #111735 (Interface Panels)
+   - Cosmic purple #7C3AED (Atmospheric Accents)
+   - Neon cyan #00E5FF (Primary Actions & Active States)
+   - Off-white #EAF0FF (Headings)
+   - Muted blue-grey #94A3B8 (Secondary Text)
+   ========================================================================== */
+
+.main-menu-root {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--bg-deep-navy, #080A2F);
+  color: var(--text-offwhite, #EAF0FF);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justifyContent: space-between;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Background Canvas & Atmospheric Depth */
+.main-menu-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Cosmic Nebulae Layers */
+.nebula-purple-glow {
+  position: absolute;
+  top: 10%;
+  right: -5%;
+  width: clamp(350px, 45vw, 650px);
+  height: clamp(350px, 45vw, 650px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.22) 0%, rgba(124, 58, 237, 0.05) 55%, transparent 75%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 2;
+  animation: pulseNebulaPurple 12s ease-in-out infinite alternate;
+}
+
+.nebula-cyan-glow {
+  position: absolute;
+  bottom: 8%;
+  left: -5%;
+  width: clamp(320px, 40vw, 580px);
+  height: clamp(320px, 40vw, 580px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.14) 0%, rgba(0, 229, 255, 0.03) 50%, transparent 70%);
+  filter: blur(45px);
+  pointer-events: none;
+  z-index: 2;
+  animation: pulseNebulaCyan 14s ease-in-out infinite alternate;
+}
+
+.screen-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(8, 10, 47, 0.75) 100%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+@keyframes pulseNebulaPurple {
+  0% { transform: scale(1) translateY(0); opacity: 0.8; }
+  100% { transform: scale(1.15) translateY(-25px); opacity: 1; }
+}
+
+@keyframes pulseNebulaCyan {
+  0% { transform: scale(1) translateY(0); opacity: 0.7; }
+  100% { transform: scale(1.12) translateY(20px); opacity: 0.95; }
+}
+
+/* Main Hero Grid Layout */
+.main-menu-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: clamp(80px, 12vh, 105px) clamp(20px, 4vw, 48px) clamp(20px, 4vh, 36px);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.hero-main-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.95fr;
+  align-items: center;
+  gap: clamp(32px, 5vw, 64px);
+  width: 100%;
+}
+
+/* Left Hero Column: Narrative & Deployment Actions */
+.hero-left-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(16px, 2.5vh, 24px);
+  z-index: 15;
+}
+
+/* Mission Control Status Pill */
+.hero-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  background-color: var(--bg-panel-navy, #111735);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 9999px;
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.12), inset 0 0 10px rgba(0, 229, 255, 0.05);
+}
+
+.status-beacon-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10B981;
+  box-shadow: 0 0 10px #10B981;
+  animation: pulseBeacon 2s ease-in-out infinite;
+}
+
+@keyframes pulseBeacon {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px #10B981; }
+  50% { transform: scale(1.3); opacity: 0.7; box-shadow: 0 0 14px #10B981; }
+}
+
+.status-pill-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  color: var(--neon-cyan, #00E5FF);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Hero Typography */
+.hero-title-group {
+  margin: 0;
+}
+
+.hero-main-heading {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.3rem, 4.4vw, 4.2rem);
+  line-height: 1.08;
+  letter-spacing: 0.04em;
+  color: var(--text-offwhite, #EAF0FF);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.hero-cyan-highlight {
+  color: var(--neon-cyan, #00E5FF);
+  text-shadow: 0 0 25px rgba(0, 229, 255, 0.45);
+  display: inline-block;
+}
+
+.hero-supporting-text {
+  font-size: clamp(0.95rem, 1.15vw, 1.1rem);
+  line-height: 1.68;
+  color: var(--text-blue-grey, #94A3B8);
+  max-width: 580px;
+  margin: 0;
+}
+
+/* Tactical Actions Row */
+.hero-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 540px;
+}
+
+.hero-buttons-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Play Now Primary Button */
+.btn-hero-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #00E5FF 0%, #00B4D8 100%);
+  color: #080A2F;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 15px 34px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.4), 0 4px 18px rgba(0, 0, 0, 0.5);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 52px;
+}
+
+.btn-hero-primary:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #33EBFF 0%, #00C6EB 100%);
+  box-shadow: 0 0 32px rgba(0, 229, 255, 0.65), 0 6px 24px rgba(0, 0, 0, 0.6);
+}
+
+.btn-hero-primary:active {
+  transform: translateY(1px);
+}
+
+/* Continue Mission Button */
+.btn-hero-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--bg-panel-navy, #111735);
+  color: var(--text-offwhite, #EAF0FF);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 15px 26px;
+  border: 1px solid rgba(0, 229, 255, 0.45);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 52px;
+}
+
+.btn-hero-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(22, 33, 84, 0.85);
+  border-color: var(--neon-cyan, #00E5FF);
+  color: var(--neon-cyan, #00E5FF);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25), 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.btn-hero-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+/* Keyboard Shortcut Hint */
+.hero-keyboard-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: var(--text-blue-grey, #94A3B8);
+  font-family: 'Orbitron', sans-serif;
+  margin-top: 4px;
+}
+
+.key-badge {
+  padding: 2px 7px;
+  background: rgba(17, 23, 53, 0.9);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 4px;
+  color: var(--neon-cyan, #00E5FF);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* Right Column: Hero Starfighter Viewport */
+.hero-right-column {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  z-index: 10;
+}
+
+.starfighter-viewport-card {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  aspect-ratio: 16 / 10;
+  background: var(--bg-panel-navy, #111735);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 229, 255, 0.15), inset 0 0 20px rgba(124, 58, 237, 0.1);
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+  transform-style: preserve-3d;
+}
+
+.starfighter-viewport-card:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 45px rgba(0, 229, 255, 0.28), inset 0 0 25px rgba(124, 58, 237, 0.2);
+}
+
+/* Starfighter Image & Vignette Blend */
+.starfighter-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transform: scale(1.02);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: contrast(1.05) brightness(1.02);
+}
+
+.starfighter-viewport-card:hover .starfighter-hero-image {
+  transform: scale(1.06);
+}
+
+/* Edge Softening Vignette */
+.starfighter-image-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(8, 10, 47, 0.6) 88%, rgba(8, 10, 47, 0.95) 100%);
+  pointer-events: none;
+}
+
+/* Sci-Fi Hologram Scanlines */
+.starfighter-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 229, 255, 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Tactical Telemetry Corner HUD Elements */
+.hud-bracket {
+  position: absolute;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--neon-cyan, #00E5FF);
+  padding: 4px 10px;
+  background: rgba(8, 10, 47, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  pointer-events: none;
+  z-index: 12;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+}
+
+.hud-top-left {
+  top: 14px;
+  left: 14px;
+  border-radius: 6px 0 6px 0;
+  border-left: 2px solid var(--neon-cyan, #00E5FF);
+}
+
+.hud-top-right {
+  top: 14px;
+  right: 14px;
+  border-radius: 0 6px 0 6px;
+  border-right: 2px solid var(--neon-cyan, #00E5FF);
+}
+
+.hud-bottom-left {
+  bottom: 14px;
+  left: 14px;
+  border-radius: 0 6px 0 6px;
+  border-left: 2px solid var(--neon-cyan, #00E5FF);
+}
+
+.hud-bottom-right {
+  bottom: 14px;
+  right: 14px;
+  border-radius: 6px 0 6px 0;
+  border-right: 2px solid var(--neon-cyan, #00E5FF);
+}
+
+/* Thruster Ion Glow Emitters */
+.thruster-glow-left,
+.thruster-glow-right {
+  position: absolute;
+  bottom: 22%;
+  width: 12px;
+  height: 28px;
+  background: radial-gradient(circle, #00E5FF 0%, rgba(124, 58, 237, 0.8) 60%, transparent 100%);
+  filter: blur(8px);
+  pointer-events: none;
+  animation: thrusterFlicker 0.18s infinite alternate;
+}
+
+.thruster-glow-left { left: 40%; }
+.thruster-glow-right { right: 40%; }
+
+@keyframes thrusterFlicker {
+  0% { transform: scaleY(0.9) scaleX(0.85); opacity: 0.75; }
+  100% { transform: scaleY(1.25) scaleX(1.15); opacity: 1; }
+}
+
+/* Floating Animation Container */
+.starfighter-float-wrap {
+  animation: floatStarfighter 6s ease-in-out infinite;
+  width: 100%;
+}
+
+@keyframes floatStarfighter {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(0.4deg); }
+}
+
+/* Restrained Bottom Status Strip */
+.main-menu-status-strip {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  background: rgba(17, 23, 53, 0.85);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(0, 229, 255, 0.2);
+  padding: 10px clamp(16px, 4vw, 40px);
+  box-sizing: border-box;
+}
+
+.status-strip-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--text-blue-grey, #94A3B8);
+}
+
+.status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.status-item-highlight {
+  color: var(--neon-cyan, #00E5FF);
+}
+
+.status-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.status-live-dot.offline {
+  background-color: #EF4444;
+  box-shadow: 0 0 8px #EF4444;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1080px) {
+  .hero-main-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .hud-bracket {
+    font-size: 0.6rem;
+    padding: 3px 7px;
+  }
+}
+
+@media (max-width: 900px) {
+  .main-menu-content {
+    padding-top: 85px;
+    padding-bottom: 24px;
+  }
+  .hero-main-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .hero-left-column {
+    align-items: center;
+    text-align: center;
+  }
+  .hero-supporting-text {
+    max-width: 95%;
+  }
+  .hero-actions-container {
+    align-items: center;
+  }
+  .hero-buttons-row {
+    justify-content: center;
+    width: 100%;
+  }
+  .btn-hero-primary, .btn-hero-secondary {
+    flex: 1 1 200px;
+  }
+  .starfighter-viewport-card {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .status-strip-center {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-menu-content {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 78px;
+  }
+  .hero-buttons-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+  .btn-hero-primary, .btn-hero-secondary {
+    width: 100%;
+  }
+  .hud-bracket {
+    display: none;
+  }
+  .status-strip-container {
+    font-size: 0.64rem;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+}

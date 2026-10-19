@@ -59,7 +59,7 @@ export const getScreenFromPath = (pathname, isAuthenticated = false) => {
     case '/landing':
     case '/home':
     default:
-      return isAuthenticated ? 'dashboard' : 'landing';
+      return 'landing';
   }
 };
 
@@ -136,7 +136,7 @@ function MainAppContent() {
   const navigateTo = React.useCallback((screen, replace = false) => {
     let targetScreen = screen;
     if (targetScreen === 'main_menu' || targetScreen === 'home') {
-      targetScreen = isAuthenticated ? 'dashboard' : 'landing';
+      targetScreen = 'landing';
     }
 
     const targetPath = getPathFromScreen(targetScreen);
@@ -167,12 +167,7 @@ function MainAppContent() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [isAuthenticated]);
 
-  // Automatically transition to Dashboard upon authentication if on root landing
-  React.useEffect(() => {
-    if (isAuthenticated && currentScreen === 'landing') {
-      navigateTo('dashboard', true);
-    }
-  }, [isAuthenticated, currentScreen, navigateTo]);
+  // Preserve Main Menu landing page accessibility for authenticated pilots
 
   // Security Guard: Prevent non-administrators from accessing admin panel
   React.useEffect(() => {
@@ -212,6 +207,30 @@ function MainAppContent() {
       speed: speeds[id] || 390,
       damage: damages[id] || 28
     };
+  };
+
+  // Launch a specified mission directly from Main Menu or Campaign
+  const handleStartMission = async (mission) => {
+    if (!isAuthenticated) {
+      setActiveMission(mission);
+      navigateTo('auth');
+      return;
+    }
+    try {
+      const ship = getSelectedShipData();
+      const res = await api.post(`/missions/${mission.id}/start`, {
+        shipId: ship?.id || 'v01-orbitron'
+      });
+      const newSessionId = res.data?.sessionId || res.data?.session?.id || `local-${Date.now()}`;
+      setActiveMission(mission);
+      setActiveSessionId(newSessionId);
+      navigateTo('gameplay');
+    } catch (e) {
+      console.warn('Could not start mission online:', e.message);
+      setActiveMission(mission);
+      setActiveSessionId(`local-${Date.now()}`);
+      navigateTo('gameplay');
+    }
   };
 
   // Launch next sequential campaign mission directly
@@ -283,15 +302,18 @@ function MainAppContent() {
     );
   }
 
+  // Screen 1: Home / Main Menu Page (Full-width AAA sci-fi space layout)
+  if (currentScreen === 'landing') {
+    return (
+      <MainMenuPage 
+        onNavigate={(screen) => navigateTo(screen)}
+        onLaunchMission={handleStartMission}
+      />
+    );
+  }
+
   // Dedicated Public Showcase Pages for Unauthenticated Guests (NO Sidebar, Top Cyber Header Only)
   if (!isAuthenticated) {
-    if (currentScreen === 'landing') {
-      return (
-        <MainMenuPage 
-          onNavigate={(screen) => navigateTo(screen)}
-        />
-      );
-    }
 
     if (currentScreen === 'missions') {
       return (

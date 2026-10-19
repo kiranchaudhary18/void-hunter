@@ -1,30 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import PublicNavbar from '../components/PublicNavbar.jsx';
-import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
-import { 
-  Play, Compass, Shield, Award, BarChart3, Wallet, 
-  User, ChevronRight, Zap, Coins, Sparkles 
-} from 'lucide-react';
+import { GAME_NAME, GAME_TAGLINE, GAME_VERSION, API_BASE_URL } from '../config/gameConfig.js';
+import { MISSIONS_CATALOG } from '../data/missionsData.js';
+import { Play, RotateCcw, Shield, Zap, Crosshair } from 'lucide-react';
+import './MainMenuPage.css';
 
-export const MainMenuPage = ({ onNavigate }) => {
-  const { user, profile, isAuthenticated, logout } = useAuth();
+export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
+  const { user, profile, isAuthenticated } = useAuth();
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [serverStatus, setServerStatus] = useState({ online: true, latency: 18 });
+  const [explanatoryTip, setExplanatoryTip] = useState(null);
+  const canvasRef = useRef(null);
+  const heroCardRef = useRef(null);
 
-  const handleAction = (screenName) => {
-    soundManager.playLaser();
-    if (onNavigate) onNavigate(screenName);
-  };
+  // Compute player's real active mission based on backend profile progress
+  const completedCount = profile?.stats?.missionsCompleted || 0;
+  const currentMissionNumber = Math.min(50, completedCount + 1);
+  const activeMission = MISSIONS_CATALOG.find(m => m.globalSequence === currentMissionNumber) || MISSIONS_CATALOG[0];
 
-  // If user is already authenticated, redirect straight to Command Deck
-  React.useEffect(() => {
-    if (isAuthenticated && onNavigate) {
-      onNavigate('dashboard');
-    }
-  }, [isAuthenticated, onNavigate]);
+  // Real backend health check for the bottom status strip
+  useEffect(() => {
+    let isMounted = true;
+    const checkServerHealth = async () => {
+      const startTime = performance.now();
+      try {
+        const response = await fetch(`${API_BASE_URL}/health`);
+        const elapsed = Math.round(performance.now() - startTime);
+        if (response.ok && isMounted) {
+          setServerStatus({ online: true, latency: Math.max(1, elapsed) });
+        } else if (isMounted) {
+          setServerStatus({ online: false, latency: 0 });
+        }
+      } catch (e) {
+        if (isMounted) {
+          setServerStatus({ online: false, latency: 0 });
+        }
+      }
+    };
+
+    checkServerHealth();
+    const interval = setInterval(checkServerHealth, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Ambient Sci-Fi Music on First User Gesture
-  React.useEffect(() => {
+  useEffect(() => {
     const handleFirstGesture = () => {
       if (!soundManager.muted && !soundManager.bgmPlaying) {
         soundManager.startBGM('menu');
@@ -42,301 +67,303 @@ export const MainMenuPage = ({ onNavigate }) => {
     };
   }, []);
 
-  return (
-    <div style={styles.mainWrapper}>
-      {/* Dynamic Starry Space Backdrop */}
-      <div style={styles.starsBackdrop} />
-      <div style={styles.nebulaGlow} />
+  // HTML5 Starfield & Cosmic Dust Canvas Animation
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
 
-      {/* Screen 1 Top Cyber Navigation Bar (Unified Public Navbar) */}
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Generate layered stars and floating motes
+    const starCount = Math.floor(Math.min(180, window.innerWidth / 9));
+    const stars = Array.from({ length: starCount }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 1.5 + 0.3,
+      alpha: Math.random() * 0.8 + 0.2,
+      twinkleSpeed: (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
+      speedY: Math.random() * 0.15 + 0.05
+    }));
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < stars.length; i++) {
+        const star = stars[i];
+        star.alpha += star.twinkleSpeed;
+        if (star.alpha > 0.95 || star.alpha < 0.15) {
+          star.twinkleSpeed = -star.twinkleSpeed;
+        }
+        star.y -= star.speedY;
+        if (star.y < 0) {
+          star.y = canvas.height;
+          star.x = Math.random() * canvas.width;
+        }
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(234, 240, 255, ${Math.max(0.1, star.alpha)})`;
+        ctx.shadowBlur = star.radius > 1.2 ? 6 : 0;
+        ctx.shadowColor = '#00E5FF';
+        ctx.fill();
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, []);
+
+  // 3D Interactive Mouse Parallax Tilt for Hero Starfighter Card
+  const handleMouseMove = (e) => {
+    if (!heroCardRef.current) return;
+    const rect = heroCardRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const mouseX = e.clientX - centerX;
+    const mouseY = e.clientY - centerY;
+    
+    // Smooth bounded tilt (-12deg to +12deg)
+    const tiltX = -(mouseY / (rect.height / 2)) * 8;
+    const tiltY = (mouseX / (rect.width / 2)) * 10;
+    setTilt({ x: tiltX, y: tiltY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
+
+  // Primary Action: PLAY NOW
+  const handlePlayNow = () => {
+    soundManager.playLaser();
+    if (isAuthenticated) {
+      if (onLaunchMission) {
+        onLaunchMission(activeMission);
+      } else if (onNavigate) {
+        onNavigate('gameplay');
+      }
+    } else {
+      // Unauthenticated pilots enter the onboarding / auth enlistment flow
+      if (onNavigate) onNavigate('auth');
+    }
+  };
+
+  // Secondary Action: CONTINUE MISSION
+  const handleContinueMission = () => {
+    soundManager.playLaser();
+    if (isAuthenticated) {
+      if (completedCount > 0) {
+        // Resume saved progress
+        if (onLaunchMission) {
+          onLaunchMission(activeMission);
+        } else if (onNavigate) {
+          onNavigate('gameplay');
+        }
+      } else {
+        // Authenticated but zero completions: deploy initial mission
+        if (onLaunchMission) {
+          onLaunchMission(MISSIONS_CATALOG[0]);
+        } else if (onNavigate) {
+          onNavigate('gameplay');
+        }
+      }
+    } else {
+      // Guest: show explanatory feedback and offer login
+      setExplanatoryTip('Enlist pilot credentials to resume saved checkpoint.');
+      setTimeout(() => {
+        if (onNavigate) onNavigate('auth');
+      }, 1200);
+    }
+  };
+
+  // Global Keyboard Navigation (Enter engages sortie)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        handlePlayNow();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAuthenticated, activeMission]);
+
+  return (
+    <div className="main-menu-root">
+      {/* Dynamic Starry Space Backdrop Canvas */}
+      <canvas ref={canvasRef} className="main-menu-canvas" />
+
+      {/* Layered Cosmic Nebula Atmospheric Accents */}
+      <div className="nebula-purple-glow" />
+      <div className="nebula-cyan-glow" />
+      <div className="screen-vignette" />
+
+      {/* Premium Horizontal Navigation Bar */}
       <PublicNavbar current="home" onNavigate={onNavigate} />
 
-      {/* Screen 1 Two-Column Hero Showcase */}
-      <main className="main-menu-hero-grid">
-        {/* Left Column: Mission Control & Deploy CTAs */}
-        <div className="hero-left-col" style={styles.heroLeftCol}>
-          <div style={styles.missionControlBadge}>
-            <span style={styles.onlineDot}>●</span>
-            <span>MISSION CONTROL // ONLINE</span>
+      {/* Hero Section */}
+      <main className="main-menu-content" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+        <div className="hero-main-grid">
+          
+          {/* Left Column: Mission Status & CTAs */}
+          <div className="hero-left-column">
+            {/* Small Mission Status Label */}
+            <div className="hero-status-pill">
+              <span className="status-beacon-dot" />
+              <span className="status-pill-text">
+                {isAuthenticated 
+                  ? `// PILOT: ${user?.pilotName || user?.username || 'HUNTER-1'} • MISSION CONTROL READY` 
+                  : '// MISSION CONTROL: OPERATIONAL • READY FOR SORTIE'}
+              </span>
+            </div>
+
+            {/* Headline */}
+            <div className="hero-title-group">
+              <h1 className="hero-main-heading">
+                ENTER THE VOID.<br />
+                <span className="hero-cyan-highlight">HUNT THE UNKNOWN.</span>
+              </h1>
+            </div>
+
+            {/* Concise Supporting Text */}
+            <p className="hero-supporting-text">
+              Command advanced starfighters across 50 hostile sorties and 5 deep-space sectors. 
+              Engage ruthless alien fleets, master tactical power-ups, and neutralize apex Void bosses to defend the galaxy.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="hero-actions-container">
+              <div className="hero-buttons-row">
+                {/* Play Now Button */}
+                <button
+                  id="btn-play-now"
+                  onClick={handlePlayNow}
+                  className="btn-hero-primary"
+                  title="Deploy immediately into tactical combat"
+                >
+                  <Play size={20} fill="#080A2F" strokeWidth={0} />
+                  <span>PLAY NOW</span>
+                </button>
+
+                {/* Continue Mission Button */}
+                <button
+                  id="btn-continue-mission"
+                  onClick={handleContinueMission}
+                  className="btn-hero-secondary"
+                  title={isAuthenticated 
+                    ? `Resume Campaign at Mission ${currentMissionNumber}` 
+                    : 'Enlist to resume saved campaign progress'}
+                >
+                  <RotateCcw size={18} />
+                  <span>
+                    {isAuthenticated 
+                      ? (completedCount > 0 
+                          ? `CONTINUE: M-${String(currentMissionNumber).padStart(2, '0')}` 
+                          : 'START CAMPAIGN')
+                      : 'CONTINUE MISSION'}
+                  </span>
+                </button>
+              </div>
+
+              {/* Explanatory Message / Keyboard Shortcut Cue */}
+              {explanatoryTip ? (
+                <div style={{ color: '#00E5FF', fontSize: '0.82rem', fontFamily: 'Orbitron', marginTop: '6px' }}>
+                  ℹ {explanatoryTip}
+                </div>
+              ) : (
+                <div className="hero-keyboard-hint">
+                  <span className="key-badge">ENTER</span>
+                  <span>PRESS ENTER TO ENGAGE SORTIE</span>
+                </div>
+              )}
+            </div>
           </div>
 
-          <h1 className="font-heading" style={styles.screen1HeroTitle}>
-            ENTER THE VOID.<br />
-            <span className="text-glow-cyan" style={{ color: 'var(--secondary-cyan)' }}>HUNT THE UNKNOWN.</span>
-          </h1>
+          {/* Right Column: Hero Starfighter Showcase */}
+          <div className="hero-right-column">
+            <div className="starfighter-float-wrap">
+              <div 
+                ref={heroCardRef}
+                className="starfighter-viewport-card"
+                style={{
+                  transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`
+                }}
+              >
+                {/* Tactical Telemetry HUD Corner Brackets */}
+                <div className="hud-bracket hud-top-left">
+                  + REG: V-01 ORBITRON
+                </div>
+                <div className="hud-bracket hud-top-right">
+                  CLASS: INTERCEPTOR +
+                </div>
+                <div className="hud-bracket hud-bottom-left">
+                  + SHIELD MATRIX: 100%
+                </div>
+                <div className="hud-bracket hud-bottom-right">
+                  TWIN ION PROPULSION +
+                </div>
 
-          <p style={styles.screen1Subtitle}>
-            Explore hostile sectors. Master advanced spacecraft. Defend the galaxy from the forces beyond known space.
-          </p>
+                {/* Detailed Original 3D-Style Starfighter Visual */}
+                <img 
+                  src="/assets/hero_starfighter.jpg" 
+                  alt="V-01 Orbitron Advanced Tactical Starfighter"
+                  className="starfighter-hero-image"
+                />
 
-          <div className="hero-actions-row" style={styles.screen1ActionsRow}>
-            <button 
-              onClick={() => handleAction('gameplay')}
-              className="btn btn-cyan animate-pulse-glow"
-              style={styles.screen1PlayBtn}
-            >
-              <Play size={20} fill="currentColor" />
-              <span>PLAY NOW</span>
-            </button>
+                {/* Soft Edge Vignette Masking & Scanlines */}
+                <div className="starfighter-image-vignette" />
+                <div className="starfighter-scanlines" />
 
-            <button 
-              onClick={() => handleAction('missions')}
-              className="btn btn-outline"
-              style={styles.screen1ContinueBtn}
-            >
-              <span>CONTINUE MISSION</span>
-            </button>
+                {/* Glowing Ion Thruster Emitters */}
+                <div className="thruster-glow-left" />
+                <div className="thruster-glow-right" />
+              </div>
+            </div>
           </div>
 
-          <div style={styles.pressEnterDeploy}>
-            PRESS ENTER TO DEPLOY
-          </div>
-        </div>
-
-        {/* Right Column: Hero Starfighter Graphic (Screen 1) */}
-        <div style={styles.heroRightCol}>
-          <div style={styles.heroShipGlowBackdrop} />
-          <div className="animate-float" style={styles.heroShipContainer}>
-            <svg viewBox="0 0 64 64" style={styles.heroShipSvg}>
-              <polygon points="32,4 46,24 62,48 48,56 36,46 32,58 28,46 16,56 2,48 18,24" fill="#00E5FF" />
-              <polygon points="32,8 42,28 54,46 40,46 32,52 24,46 10,46 22,28" fill="#060919" />
-              <ellipse cx="32" cy="24" rx="4" ry="12" fill="#FFFFFF" />
-              <circle cx="26" cy="56" r="3" fill="#FF2DFF" style={{ filter: 'drop-shadow(0 0 8px #FF2DFF)' }} />
-              <circle cx="38" cy="56" r="3" fill="#FF2DFF" style={{ filter: 'drop-shadow(0 0 8px #FF2DFF)' }} />
-            </svg>
-          </div>
         </div>
       </main>
 
-      {/* Screen 1 Footer Status Bar */}
-      <footer style={styles.screen1Footer}>
-        <span style={styles.footerTag}>VOID HUNTER // EARLY ACCESS</span>
-        <span style={styles.footerTag}>
-          <span style={{ color: '#10B981', marginRight: '6px' }}>●</span>
-          SYSTEM READY // V0.1.0
-        </span>
+      {/* Restrained Bottom Status Strip */}
+      <footer className="main-menu-status-strip">
+        <div className="status-strip-container">
+          <div className="status-item">
+            <span>PROTOCOL <span className="status-item-highlight">{GAME_VERSION}</span></span>
+            <span>•</span>
+            <span>PHASER 3 ENGINE</span>
+          </div>
+
+          <div className="status-item status-strip-center">
+            <span>50 TACTICAL SORTIES</span>
+            <span>•</span>
+            <span>5 SECTORS</span>
+            <span>•</span>
+            <span>5 APEX BOSSES</span>
+          </div>
+
+          <div className="status-item">
+            <span className={`status-live-dot ${serverStatus.online ? '' : 'offline'}`} />
+            <span>
+              {serverStatus.online 
+                ? `SYSTEM OPERATIONAL // ${serverStatus.latency}MS` 
+                : 'SYSTEM LINK OFFLINE'}
+            </span>
+          </div>
+        </div>
       </footer>
     </div>
   );
-};
-
-const styles = {
-  mainWrapper: {
-    position: 'relative',
-    minHeight: '100vh',
-    width: '100%',
-    maxWidth: '100%',
-    backgroundColor: '#060919',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 'clamp(76px, 11vh, 100px) clamp(16px, 4vw, 32px) 24px clamp(16px, 4vw, 32px)',
-    overflow: 'hidden'
-  },
-  starsBackdrop: {
-    position: 'absolute',
-    inset: 0,
-    background: 'radial-gradient(ellipse at 50% 30%, rgba(14, 23, 60, 0.75) 0%, #060919 80%)',
-    zIndex: 1
-  },
-  nebulaGlow: {
-    position: 'absolute',
-    width: '650px',
-    height: '650px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, rgba(0, 229, 255, 0.08) 50%, transparent 80%)',
-    top: '15%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    filter: 'blur(40px)',
-    zIndex: 2,
-    pointerEvents: 'none'
-  },
-  topBar: {
-    position: 'relative',
-    zIndex: 10,
-    width: '100%',
-    maxWidth: '1280px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '8px 0'
-  },
-  brandGroup: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px'
-  },
-  centerNavLinks: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '32px'
-  },
-  navLink: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--text-muted)',
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.78rem',
-    letterSpacing: '0.1em',
-    cursor: 'pointer',
-    transition: 'color 0.2s ease'
-  },
-  topBarRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '14px'
-  },
-  iconCircleBtn: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '50%',
-    background: 'rgba(10, 15, 40, 0.65)',
-    border: '1px solid var(--border-glass)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    color: 'var(--text-light)'
-  },
-  pilotCard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '6px 14px',
-    borderRadius: '12px',
-    cursor: 'pointer'
-  },
-  pilotInfo: {
-    textAlign: 'left'
-  },
-  pilotName: {
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.82rem',
-    color: 'var(--text-light)'
-  },
-  pilotRank: {
-    fontSize: '0.62rem',
-    color: 'var(--secondary-cyan)'
-  },
-  screen1HeroGrid: {
-    position: 'relative',
-    zIndex: 10,
-    display: 'grid',
-    gridTemplateColumns: '1.15fr 0.85fr',
-    alignItems: 'center',
-    maxWidth: '1280px',
-    width: '100%',
-    margin: 'auto',
-    gap: '40px',
-    padding: '20px 0'
-  },
-  heroLeftCol: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    textAlign: 'left',
-    gap: '18px'
-  },
-  missionControlBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '6px 14px',
-    borderRadius: '20px',
-    background: 'rgba(0, 229, 255, 0.1)',
-    border: '1px solid rgba(0, 229, 255, 0.35)',
-    color: 'var(--secondary-cyan)',
-    fontSize: '0.72rem',
-    letterSpacing: '0.08em',
-    fontFamily: 'var(--font-heading)'
-  },
-  onlineDot: {
-    color: '#10B981',
-    fontSize: '0.9rem'
-  },
-  screen1HeroTitle: {
-    fontSize: 'clamp(1.8rem, 5vw, 3.8rem)',
-    lineHeight: 1.1,
-    letterSpacing: '0.06em',
-    margin: 0
-  },
-  screen1Subtitle: {
-    fontSize: '0.95rem',
-    color: 'var(--text-muted)',
-    lineHeight: 1.6,
-    maxWidth: '520px',
-    margin: 0
-  },
-  screen1ActionsRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-    marginTop: '10px'
-  },
-  screen1PlayBtn: {
-    padding: '14px 34px',
-    fontSize: '0.92rem',
-    fontWeight: 'bold',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    borderRadius: '12px'
-  },
-  screen1ContinueBtn: {
-    padding: '14px 28px',
-    fontSize: '0.88rem',
-    fontWeight: 'bold',
-    borderRadius: '12px'
-  },
-  pressEnterDeploy: {
-    fontSize: '0.68rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.12em',
-    fontFamily: 'var(--font-heading)',
-    marginTop: '4px'
-  },
-  heroRightCol: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  heroShipGlowBackdrop: {
-    position: 'absolute',
-    width: 'clamp(220px, 45vw, 380px)',
-    height: 'clamp(220px, 45vw, 380px)',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(0, 229, 255, 0.25) 0%, rgba(124, 58, 237, 0.15) 50%, transparent 75%)',
-    filter: 'blur(30px)',
-    pointerEvents: 'none'
-  },
-  heroShipContainer: {
-    zIndex: 5
-  },
-  heroShipSvg: {
-    width: 'clamp(200px, 45vw, 340px)',
-    height: 'clamp(200px, 45vw, 340px)',
-    filter: 'drop-shadow(0 0 28px rgba(0, 229, 255, 0.75))'
-  },
-  screen1Footer: {
-    position: 'relative',
-    zIndex: 10,
-    width: '100%',
-    maxWidth: '1280px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-    paddingTop: '16px'
-  },
-  footerTag: {
-    fontSize: '0.7rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.08em',
-    fontFamily: 'var(--font-heading)'
-  }
 };
 
 export default MainMenuPage;

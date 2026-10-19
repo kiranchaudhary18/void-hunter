@@ -5,6 +5,14 @@
    ========================================================================== */
 
 :root {
+  /* BRAND SYSTEM - AAA Redesign Spec */
+  --bg-deep-navy: #080A2F;
+  --bg-panel-navy: #111735;
+  --accent-cosmic-purple: #7C3AED;
+  --neon-cyan: #00E5FF;
+  --text-offwhite: #EAF0FF;
+  --text-blue-grey: #94A3B8;
+
   /* Color Tokens */
   --bg-deep-space: #0A0F2C;
   --bg-void-dark: #060919;
