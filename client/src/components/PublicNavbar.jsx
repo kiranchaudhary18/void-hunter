@@ -199,7 +199,7 @@ const styles = {
     top: 0,
     left: 0,
     right: 0,
-    height: '72px',
+    height: '64px',
     background: 'rgba(8, 10, 47, 0.92)',
     backdropFilter: 'blur(16px)',
     WebkitBackdropFilter: 'blur(16px)',
@@ -375,7 +375,7 @@ const styles = {
   },
   mobileDrawer: {
     position: 'absolute',
-    top: '72px',
+    top: '64px',
     left: 0,
     right: 0,
     background: 'rgba(8, 10, 47, 0.98)',
