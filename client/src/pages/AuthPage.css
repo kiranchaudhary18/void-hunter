@@ -1,9 +1,10 @@
 /* ==========================================================================
-   VOID HUNTER — PREMIUM AUTHENTICATION STYLES (MATCHES REFERENCE IMAGE)
+   VOID HUNTER — 100% CODE-BASED SCI-FI CARRIER ENVIRONMENT
+   No background image files. Built completely via CSS, Canvas & SVG.
    Zero-Scroll Single-Screen Desktop Layout
    ========================================================================== */
 
-/* Reset & Root Frame */
+/* Root Frame */
 .auth-root-wrapper {
   position: relative;
   width: 100vw;
@@ -11,7 +12,7 @@
   min-height: 100vh;
   max-height: 100vh;
   overflow: hidden;
-  background-color: #05081A;
+  background-color: #030616;
   color: #EAF1FF;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   display: flex;
@@ -20,26 +21,407 @@
   box-sizing: border-box;
 }
 
-/* Background Carrier Wallpaper (Cleaned: Astronaut removed, hangar & space intact) */
-.auth-carrier-wallpaper {
+/* ================= 100% CODE PROCEDURAL ENVIRONMENT ================= */
+.auth-code-environment {
   position: absolute;
   inset: 0;
-  background-image: url('/assets/auth_carrier_bg.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
+  z-index: 0;
 }
 
-/* Top Navigation Bar */
+/* 1. Dynamic Canvas Starfield */
+.auth-canvas-stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* 2. Nebulae & Space Lighting */
+.auth-nebula-cyan {
+  position: absolute;
+  top: 15%;
+  left: 5%;
+  width: 600px;
+  height: 500px;
+  background: radial-gradient(circle at 40% 40%, rgba(0, 229, 255, 0.14) 0%, rgba(37, 99, 235, 0.08) 45%, transparent 70%);
+  filter: blur(55px);
+  z-index: 2;
+}
+
+.auth-nebula-purple {
+  position: absolute;
+  top: 10%;
+  right: 5%;
+  width: 750px;
+  height: 600px;
+  background: radial-gradient(circle at 60% 40%, rgba(139, 92, 246, 0.16) 0%, rgba(124, 58, 237, 0.09) 45%, transparent 75%);
+  filter: blur(60px);
+  z-index: 2;
+}
+
+.auth-space-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(2, 5, 18, 0.75) 85%, #020412 100%);
+  z-index: 2;
+}
+
+/* 3. Outer Space Vista (Planet, Warship, Laser) */
+.auth-space-vista {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+/* Planetary Sphere (Upper Right) */
+.auth-planet-orb {
+  position: absolute;
+  top: -60px;
+  right: 25px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #2563EB 0%, #1E3A8A 40%, #0F172A 75%, #030712 100%);
+  box-shadow: 
+    0 0 50px rgba(0, 229, 255, 0.4),
+    inset -30px -30px 60px rgba(0, 0, 0, 0.9),
+    inset 15px 15px 35px rgba(56, 189, 248, 0.6);
+  opacity: 0.85;
+}
+
+.auth-planet-atmosphere {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.7);
+  opacity: 0.7;
+}
+
+.auth-planet-ring-front {
+  position: absolute;
+  top: 50%;
+  left: -40px;
+  width: 360px;
+  height: 65px;
+  border: 4px solid rgba(0, 229, 255, 0.6);
+  border-top: none;
+  border-radius: 50%;
+  transform: translateY(-50%) rotate(-25deg);
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
+}
+
+.auth-planet-ring-back {
+  position: absolute;
+  top: 50%;
+  left: -40px;
+  width: 360px;
+  height: 65px;
+  border: 2px solid rgba(0, 229, 255, 0.25);
+  border-bottom: none;
+  border-radius: 50%;
+  transform: translateY(-50%) rotate(-25deg);
+  opacity: 0.35;
+}
+
+/* Dreadnought Warship in Deep Space */
+.auth-vector-dreadnought {
+  position: absolute;
+  top: 80px;
+  right: 15px;
+  width: 340px;
+  height: 150px;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.25));
+}
+
+/* Starfighters in Space */
+.auth-starfighter-left {
+  position: absolute;
+  top: 140px;
+  left: 60px;
+  transform: rotate(-15deg);
+  animation: fighterHoverLeft 6s ease-in-out infinite alternate;
+}
+
+@keyframes fighterHoverLeft {
+  0% { transform: translateY(0px) rotate(-15deg); }
+  100% { transform: translateY(-8px) rotate(-13deg); }
+}
+
+.fighter-trail-cyan {
+  position: absolute;
+  top: 20px;
+  left: -50px;
+  width: 60px;
+  height: 5px;
+  background: linear-gradient(270deg, rgba(0, 229, 255, 0.9), transparent);
+  filter: blur(1.5px);
+  border-radius: 9999px;
+}
+
+.auth-starfighter-right {
+  position: absolute;
+  bottom: 220px;
+  right: 90px;
+  transform: rotate(18deg);
+  animation: fighterHoverRight 7s ease-in-out infinite alternate;
+}
+
+@keyframes fighterHoverRight {
+  0% { transform: translateY(0px) rotate(18deg); }
+  100% { transform: translateY(10px) rotate(20deg); }
+}
+
+.fighter-trail-purple {
+  position: absolute;
+  top: 17px;
+  left: -45px;
+  width: 50px;
+  height: 5px;
+  background: linear-gradient(270deg, rgba(168, 85, 247, 0.9), transparent);
+  filter: blur(1.5px);
+  border-radius: 9999px;
+}
+
+/* Laser Horizon Pulse across Deep Space */
+.auth-horizon-laser-beam {
+  position: absolute;
+  bottom: 185px;
+  left: 0;
+  width: 100%;
+  height: 12px;
+}
+
+.laser-halo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 136, 0, 0.15) 15%, rgba(255, 150, 0, 0.4) 30%, rgba(255, 120, 0, 0.1) 70%, transparent 100%);
+  filter: blur(8px);
+}
+
+.laser-streak {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 100, 0, 0.2) 0%, rgba(255, 180, 50, 0.8) 20%, rgba(255, 240, 200, 1) 32%, rgba(255, 160, 40, 0.6) 55%, transparent 100%);
+  box-shadow: 0 0 10px rgba(255, 160, 0, 0.8);
+}
+
+.laser-flare {
+  position: absolute;
+  top: 0px;
+  left: 28%;
+  width: 10px;
+  height: 10px;
+  background: #FFFBEB;
+  border-radius: 50%;
+  box-shadow: 0 0 25px 8px rgba(255, 160, 0, 0.9), 0 0 50px 15px rgba(255, 200, 50, 0.5);
+}
+
+/* 4. Carrier Interior Architecture (Gantry, Deck, Terminal) */
+.auth-carrier-architecture {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+/* Top Ceiling Girders */
+.auth-ceiling-rafters {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55px;
+  background: 
+    linear-gradient(180deg, #090E24 0%, rgba(9, 14, 36, 0.85) 60%, transparent 100%),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 110px, rgba(0, 229, 255, 0.15) 111px, rgba(0, 229, 255, 0.15) 113px, transparent 114px);
+  border-bottom: 1.5px solid rgba(0, 229, 255, 0.2);
+}
+
+/* Left Gantry Column (Clean structural frame, astronaut removed) */
+.auth-left-gantry {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 65px;
+  background: linear-gradient(90deg, #05091C 0%, #0A112E 70%, rgba(10, 17, 46, 0.3) 100%);
+  border-right: 1.5px solid rgba(0, 229, 255, 0.3);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.7);
+}
+
+.gantry-light-channel {
+  position: absolute;
+  top: 80px;
+  left: 18px;
+  width: 4px;
+  height: 140px;
+  background: #00E5FF;
+  border-radius: 2px;
+  box-shadow: 0 0 12px #00E5FF, 0 0 24px rgba(0, 229, 255, 0.6);
+}
+
+.channel-lower {
+  top: 260px;
+  height: 180px;
+}
+
+.gantry-amber-node {
+  position: absolute;
+  top: 235px;
+  left: 14px;
+  width: 12px;
+  height: 12px;
+  background: #FF8800;
+  border-radius: 3px;
+  box-shadow: 0 0 12px #FF8800;
+}
+
+.gantry-truss-cross {
+  position: absolute;
+  bottom: 120px;
+  left: 10px;
+  width: 35px;
+  height: 70px;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  transform: skewY(-15deg);
+}
+
+/* Bottom Reflective Catwalk Deck Floor */
+.auth-carrier-floor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 95px;
+  background: linear-gradient(180deg, rgba(8, 14, 38, 0.7) 0%, #060B20 40%, #030612 100%);
+  border-top: 1px solid rgba(0, 229, 255, 0.35);
+  box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.85);
+}
+
+.catwalk-rail-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(139, 155, 195, 0.3);
+}
+
+.catwalk-cyan-track {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #00E5FF;
+  box-shadow: 0 0 14px #00E5FF, 0 0 28px rgba(0, 229, 255, 0.7);
+}
+
+.catwalk-deck-plates {
+  position: absolute;
+  inset: 14px 0 0 0;
+  background-image: 
+    repeating-linear-gradient(90deg, transparent 0px, transparent 140px, rgba(0, 229, 255, 0.08) 141px, transparent 142px),
+    repeating-linear-gradient(0deg, transparent 0px, transparent 25px, rgba(139, 155, 195, 0.06) 26px, transparent 27px);
+}
+
+.catwalk-laser-reflection {
+  position: absolute;
+  top: 0;
+  left: 15%;
+  width: 300px;
+  height: 60px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 136, 0, 0.25) 0%, transparent 70%);
+  filter: blur(10px);
+}
+
+/* Right Holographic Tactical Terminal (Matches reference image) */
+.auth-tactical-terminal-box {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  width: 175px;
+  padding: 12px 14px;
+  background: rgba(8, 14, 38, 0.88);
+  border: 1.5px solid #00E5FF;
+  border-radius: 10px;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.35), inset 0 0 15px rgba(0, 229, 255, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.terminal-header-strip {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #00E5FF;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.terminal-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: #C0CDE5;
+}
+
+.bold-cyan {
+  font-weight: 900;
+  color: #00E5FF;
+}
+
+.bright-accent {
+  font-weight: 800;
+  color: #EAF1FF;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+  margin-top: 2px;
+}
+
+.terminal-delta-crest {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.terminal-telemetry-status {
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #20D6A0;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pulse-dot {
+  animation: pulseLight 1.5s infinite;
+}
+
+@keyframes pulseLight {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px #20D6A0); }
+  50% { opacity: 0.3; }
+}
+
+/* ================= TOP NAVIGATION BAR ================= */
 .auth-header-bar {
   position: relative;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 36px 8px 36px;
+  padding: 16px 42px 6px 42px;
   flex-shrink: 0;
 }
 
@@ -168,7 +550,7 @@
   display: none;
 }
 
-/* Main Cards Layout: Zero-Scroll Centered Grid */
+/* ================= DUAL CARDS LAYOUT ================= */
 .auth-cards-layout {
   position: relative;
   z-index: 10;
@@ -737,7 +1119,7 @@
 /* ================= RESPONSIVE ADJUSTMENTS ================= */
 @media (max-height: 820px) {
   .auth-header-bar {
-    padding: 10px 28px 4px 28px;
+    padding: 10px 32px 4px 32px;
   }
   .auth-card-inner {
     padding: 16px 22px 14px 22px;
@@ -758,6 +1140,18 @@
   .auth-switch-footer {
     margin-top: 10px;
   }
+  .auth-tactical-terminal-box {
+    display: none;
+  }
+}
+
+@media (max-width: 1200px) {
+  .auth-tactical-terminal-box {
+    display: none;
+  }
+  .auth-vector-dreadnought {
+    display: none;
+  }
 }
 
 @media (max-width: 960px) {
@@ -770,6 +1164,10 @@
 
   .auth-header-bar {
     padding: 14px 20px 8px 20px;
+  }
+
+  .auth-left-gantry {
+    display: none;
   }
 
   .auth-mobile-tabs {

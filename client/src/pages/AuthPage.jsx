@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import './AuthPage.css';
@@ -43,7 +43,7 @@ const GithubIcon = () => (
   </svg>
 );
 
-// Faint Watermark Ships matching reference image
+// Faint Watermark Ships
 const FighterSilhouette = () => (
   <svg viewBox="0 0 140 140" width="130" height="130" className="auth-card-watermark" aria-hidden="true">
     <path d="M70 10 L82 45 L130 80 L95 90 L100 125 L70 105 L40 125 L45 90 L10 80 L58 45 Z" fill="currentColor" />
@@ -52,6 +52,7 @@ const FighterSilhouette = () => (
 
 export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
   const { login, register } = useAuth();
+  const canvasRef = useRef(null);
 
   // Active tab on mobile: 'login' or 'register'
   const [activeTab, setActiveTab] = useState(() => {
@@ -83,6 +84,118 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
     document.title = 'Void Hunter - Pilot Authentication & Fleet Enlistment';
   }, []);
 
+  // Dynamic Animated Starfield Background via Code
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const onResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', onResize);
+
+    // Initialize Starfield particles
+    const starCount = 140;
+    const stars = [];
+    const colors = ['#FFFFFF', '#A5F3FC', '#67E8F9', '#C084FC', '#818CF8'];
+    for (let i = 0; i < starCount; i++) {
+      stars.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.6 + 0.4,
+        alpha: Math.random() * 0.8 + 0.2,
+        twinkleSpeed: (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vy: (Math.random() * 0.15 + 0.05)
+      });
+    }
+
+    // Shooting stars
+    const shootingStars = [];
+    let lastShoot = Date.now();
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Render Stars
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        s.alpha += s.twinkleSpeed;
+        if (s.alpha > 0.95 || s.alpha < 0.2) {
+          s.twinkleSpeed = -s.twinkleSpeed;
+        }
+        s.y -= s.vy;
+        if (s.y < 0) {
+          s.y = height;
+          s.x = Math.random() * width;
+        }
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = Math.max(0.1, Math.min(1, s.alpha));
+        ctx.fill();
+      }
+
+      // Spawn shooting stars periodically
+      if (Date.now() - lastShoot > 4500 && Math.random() > 0.6) {
+        lastShoot = Date.now();
+        shootingStars.push({
+          x: Math.random() * (width * 0.7),
+          y: Math.random() * (height * 0.4),
+          len: Math.random() * 80 + 40,
+          speed: Math.random() * 6 + 7,
+          angle: (Math.PI / 6) + (Math.random() * 0.2 - 0.1),
+          alpha: 1
+        });
+      }
+
+      // Render shooting stars
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const st = shootingStars[i];
+        st.x += Math.cos(st.angle) * st.speed;
+        st.y += Math.sin(st.angle) * st.speed;
+        st.alpha -= 0.025;
+
+        if (st.alpha <= 0) {
+          shootingStars.splice(i, 1);
+          continue;
+        }
+
+        const tailX = st.x - Math.cos(st.angle) * st.len;
+        const tailY = st.y - Math.sin(st.angle) * st.len;
+        const grad = ctx.createLinearGradient(tailX, tailY, st.x, st.y);
+        grad.addColorStop(0, 'rgba(0, 229, 255, 0)');
+        grad.addColorStop(1, `rgba(0, 229, 255, ${st.alpha})`);
+
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(st.x, st.y);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.8;
+        ctx.globalAlpha = 1;
+        ctx.stroke();
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
   // Login Form State
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -112,7 +225,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
   // Social Auth Feedback
   const handleSocialAuth = (provider) => {
     try { soundManager.playLaser(); } catch {}
-    setSuccessMsg(`${provider} pilot uplink initialized. Redirecting to Command Deck...`);
+    setSuccessMsg(`${provider} pilot uplink initialized. Connecting to Command Deck...`);
     setTimeout(() => {
       setSuccessMsg('');
     }, 3200);
@@ -193,9 +306,126 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
 
   return (
     <div className="auth-root-wrapper" id="auth-page-root">
-      {/* Carrier Hangar Wallpaper Background */}
-      <div className="auth-carrier-wallpaper" aria-hidden="true" />
-      
+      {/* 100% CODE-BASED DYNAMIC PROCEDURAL BACKGROUND */}
+      <div className="auth-code-environment" aria-hidden="true">
+        {/* Animated Canvas Starfield */}
+        <canvas ref={canvasRef} className="auth-canvas-stars" />
+        
+        {/* Layered Nebula Glows */}
+        <div className="auth-nebula-cyan" />
+        <div className="auth-nebula-purple" />
+        <div className="auth-space-vignette" />
+
+        {/* Outer Space Scene: Planet, Battlecruiser, Starfighters, Laser */}
+        <div className="auth-space-vista">
+          {/* Glowing Planetary Sphere (Upper Right) */}
+          <div className="auth-planet-orb">
+            <div className="auth-planet-atmosphere" />
+            <div className="auth-planet-ring-front" />
+            <div className="auth-planet-ring-back" />
+          </div>
+
+          {/* Fleet Battlecruiser Warship (Upper Right Silhouette) */}
+          <svg viewBox="0 0 400 180" className="auth-vector-dreadnought">
+            <defs>
+              <linearGradient id="cruiserHull" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#0B1330" />
+                <stop offset="50%" stopColor="#121D42" />
+                <stop offset="100%" stopColor="#09102A" />
+              </linearGradient>
+            </defs>
+            {/* Main Hull Blocks */}
+            <polygon points="50,90 80,70 280,65 360,85 390,105 350,120 180,125 70,115" fill="url(#cruiserHull)" stroke="rgba(0, 229, 255, 0.3)" strokeWidth="1" />
+            <polygon points="120,65 150,45 250,42 275,65" fill="#0E193C" stroke="rgba(139, 92, 246, 0.4)" strokeWidth="1" />
+            <polygon points="170,42 190,28 220,28 230,42" fill="#14234E" />
+            {/* Glowing Hangar Ports & Windows */}
+            <rect x="130" y="78" width="45" height="6" fill="#00E5FF" filter="drop-shadow(0 0 5px #00E5FF)" />
+            <circle cx="210" cy="80" r="2.5" fill="#00E5FF" />
+            <circle cx="225" cy="80" r="2.5" fill="#00E5FF" />
+            <circle cx="240" cy="80" r="2.5" fill="#00E5FF" />
+            <circle cx="255" cy="80" r="2.5" fill="#00E5FF" />
+            <rect x="290" y="85" width="30" height="4" fill="#A855F7" filter="drop-shadow(0 0 4px #A855F7)" />
+            {/* Engine Glows */}
+            <ellipse cx="50" cy="88" rx="5" ry="8" fill="#FF8800" filter="drop-shadow(-4px 0 8px #FF6600)" />
+            <ellipse cx="55" cy="102" rx="4" ry="6" fill="#FF8800" filter="drop-shadow(-4px 0 8px #FF6600)" />
+          </svg>
+
+          {/* Starfighter Patrol in Space (Left Viewport) */}
+          <div className="auth-starfighter-left">
+            <svg viewBox="0 0 80 50" width="76" height="46" className="fighter-svg">
+              <polygon points="75,25 45,10 30,12 10,5 15,22 5,25 15,28 10,45 30,38 45,40" fill="#0D1636" stroke="rgba(0, 229, 255, 0.5)" strokeWidth="1.2" />
+              <polygon points="50,25 35,18 25,25 35,32" fill="#00E5FF" opacity="0.8" />
+              <circle cx="10" cy="22" r="3" fill="#00E5FF" filter="drop-shadow(-6px 0 8px #00E5FF)" />
+              <circle cx="10" cy="28" r="3" fill="#00E5FF" filter="drop-shadow(-6px 0 8px #00E5FF)" />
+            </svg>
+            <div className="fighter-trail-cyan" />
+          </div>
+
+          {/* Starfighter Escort (Right Space Viewport) */}
+          <div className="auth-starfighter-right">
+            <svg viewBox="0 0 80 50" width="60" height="38" className="fighter-svg">
+              <polygon points="70,25 40,12 25,14 8,8 12,22 4,25 12,28 8,42 25,36 40,38" fill="#120E30" stroke="rgba(168, 85, 247, 0.6)" strokeWidth="1.2" />
+              <polygon points="45,25 32,19 22,25 32,31" fill="#A855F7" opacity="0.8" />
+              <circle cx="8" cy="22" r="3" fill="#8B5CF6" filter="drop-shadow(-6px 0 8px #8B5CF6)" />
+              <circle cx="8" cy="28" r="3" fill="#00E5FF" filter="drop-shadow(-6px 0 8px #00E5FF)" />
+            </svg>
+            <div className="fighter-trail-purple" />
+          </div>
+
+          {/* Continuous Orange Laser Horizon Pulse */}
+          <div className="auth-horizon-laser-beam">
+            <div className="laser-halo" />
+            <div className="laser-streak" />
+            <div className="laser-flare" />
+          </div>
+        </div>
+
+        {/* Carrier Hangar Architecture: Pillars, Girders & Catwalk Floor */}
+        <div className="auth-carrier-architecture">
+          {/* Top Ceiling Girders */}
+          <div className="auth-ceiling-rafters" />
+          
+          {/* Left Gantry Pillar with Cyan Light Strips (Astronaut removed, clean observation bay) */}
+          <div className="auth-left-gantry">
+            <div className="gantry-column" />
+            <div className="gantry-light-channel" />
+            <div className="gantry-light-channel channel-lower" />
+            <div className="gantry-amber-node" />
+            <div className="gantry-truss-cross" />
+          </div>
+
+          {/* Bottom Reflective Metallic Deck Floor */}
+          <div className="auth-carrier-floor">
+            <div className="catwalk-rail-top" />
+            <div className="catwalk-cyan-track" />
+            <div className="catwalk-deck-plates" />
+            <div className="catwalk-laser-reflection" />
+          </div>
+
+          {/* Right Holographic Tactical Terminal */}
+          <div className="auth-tactical-terminal-box">
+            <div className="terminal-screen-glow">
+              <div className="terminal-header-strip">// PILOT FLEET DECK //</div>
+              <div className="terminal-text-block">
+                <span className="term-line bold-cyan">JOIN</span>
+                <span className="term-line bold-cyan">THE FLEET</span>
+                <span className="term-line">EXPLORE</span>
+                <span className="term-line">CONQUER</span>
+                <span className="term-line bright-accent">BECOME A LEGEND</span>
+              </div>
+              <div className="terminal-delta-crest">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                  <polygon points="12,2 22,20 16,20 12,13 8,20 2,20" fill="#00E5FF" filter="drop-shadow(0 0 6px #00E5FF)" />
+                </svg>
+              </div>
+              <div className="terminal-telemetry-status">
+                <span className="pulse-dot">●</span> SYSTEM READY 100%
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Top Navigation Bar */}
       <header className="auth-header-bar">
         <div 
@@ -259,7 +489,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
         </div>
       )}
 
-      {/* Main Dual Cards Grid */}
+      {/* Main Dual Cards Grid (Zero-Scroll Centered) */}
       <main className={`auth-cards-layout ${isMobile ? (activeTab === 'login' ? 'show-login-tab' : 'show-register-tab') : ''}`}>
         
         {/* ================= LEFT CARD: PILOT ACCESS (SIGN IN) ================= */}
