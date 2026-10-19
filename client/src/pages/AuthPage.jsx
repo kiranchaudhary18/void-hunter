@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
 import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -7,7 +7,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
   const { login, register } = useAuth();
 
   // Active tab on mobile/desktop: 'login' or 'register'
-  const [activeTab, setActiveTab] = useState('login');
+  const [activeTab, setActiveTab] = useState(() => { try { const stored = sessionStorage.getItem('void_hunter_auth_tab'); if (stored === 'register' || stored === 'login') { sessionStorage.removeItem('void_hunter_auth_tab'); return stored; } } catch {} return 'login'; });
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 960 : false);
 
   useEffect(() => {
@@ -223,7 +223,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
                 <Lock size={18} style={styles.inputIcon} />
                 <input
                   type={showLoginPassword ? 'text' : 'password'}
-                  placeholder="••••••••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   style={styles.input}
@@ -667,3 +667,4 @@ const styles = {
 };
 
 export default AuthPage;
+
