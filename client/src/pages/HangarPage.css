@@ -1,0 +1,785 @@
+/* ==========================================================================
+   VOID HUNTER - AAA SCI-FI STARSHIP HANGAR DESIGN SYSTEM
+   Brand System:
+   - Deep space navy: #05091B
+   - Panel navy: #0B1230
+   - Elevated panels: #101A3A
+   - Neon cyan: #00E5FF
+   - Cosmic purple: #8B5CF6
+   - Primary text: #EAF1FF
+   - Secondary text: #9AA9C7
+   - Success: #20D6A0
+   - Warning: #FFB84D
+   ========================================================================== */
+
+.hangar-page-root {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--space-navy, #05091B);
+  background-image: 
+    radial-gradient(ellipse at 50% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
+    radial-gradient(circle at 80% 60%, rgba(0, 229, 255, 0.08) 0%, transparent 50%),
+    url('/assets/missions_bg.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  color: var(--text-primary, #EAF1FF);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Background Atmosphere Vignette */
+.hangar-vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 65%, rgba(5, 9, 27, 0.85) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Main Container Layout */
+.hangar-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: clamp(76px, 11vh, 92px) clamp(16px, 3.5vw, 48px) 60px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ==========================================================================
+   A. PAGE HEADING COMMAND BAR
+   ========================================================================== */
+.hangar-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel-navy, #0B1230);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 14px;
+  padding: 16px 24px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), inset 0 0 16px rgba(0, 229, 255, 0.04);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hangar-title-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hangar-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--neon-cyan, #00E5FF);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.hangar-beacon-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--neon-cyan, #00E5FF);
+  box-shadow: 0 0 8px var(--neon-cyan, #00E5FF);
+  animation: pulseBeacon 2s infinite;
+}
+
+@keyframes pulseBeacon {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+}
+
+.hangar-main-heading {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--text-primary, #EAF1FF);
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hangar-subtext {
+  font-size: 0.84rem;
+  color: var(--text-secondary, #9AA9C7);
+  margin: 0;
+}
+
+/* Fleet Summary Badge */
+.fleet-summary-strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--panel-elevated, #101A3A);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.fleet-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.fleet-stat-val {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--neon-cyan, #00E5FF);
+  line-height: 1.1;
+}
+
+.fleet-stat-lbl {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary, #9AA9C7);
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   B. 5-SHIP HORIZONTAL SELECTOR
+   ========================================================================== */
+.ships-selector-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+
+.ship-selector-card {
+  position: relative;
+  background: var(--panel-navy, #0B1230);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justifyContent: space-between;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  text-align: left;
+  min-height: 96px;
+}
+
+.ship-selector-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 14px rgba(0, 229, 255, 0.15);
+}
+
+.ship-selector-card:focus-visible {
+  outline: 2px solid var(--neon-cyan, #00E5FF);
+  outline-offset: 2px;
+}
+
+/* Selected Ship Card Highlight */
+.ship-selector-card.selected {
+  background: var(--panel-elevated, #101A3A);
+  border-color: var(--neon-cyan, #00E5FF);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3), inset 0 0 12px rgba(0, 229, 255, 0.08);
+}
+
+.selector-thumb-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.22;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.ship-selector-card.selected .selector-thumb-bg,
+.ship-selector-card:hover .selector-thumb-bg {
+  opacity: 0.38;
+  transform: scale(1.04);
+}
+
+.selector-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 18, 48, 0.7) 0%, rgba(11, 18, 48, 0.95) 100%);
+}
+
+.selector-top-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ship-code-pill {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--neon-cyan, #00E5FF);
+}
+
+.ship-role-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary, #9AA9C7);
+}
+
+.selector-mid-row {
+  position: relative;
+  z-index: 2;
+}
+
+.ship-selector-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-primary, #EAF1FF);
+  margin: 0;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.ship-selector-card.selected .ship-selector-name {
+  color: var(--neon-cyan, #00E5FF);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+.selector-bottom-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.status-tag-equipped {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--color-success, #20D6A0);
+}
+
+.status-tag-unlocked {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.62rem;
+  color: var(--text-secondary, #9AA9C7);
+}
+
+.status-tag-locked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.62rem;
+  color: var(--color-warning, #FFB84D);
+}
+
+/* ==========================================================================
+   C. MAIN FEATURED-SHIP PANEL (TWO-COLUMN COMPOSITION)
+   ========================================================================== */
+.featured-ship-panel {
+  display: grid;
+  grid-template-columns: 1.15fr 0.95fr;
+  gap: 28px;
+  background: var(--panel-navy, #0B1230);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 16px;
+  padding: clamp(20px, 3.5vw, 36px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), inset 0 0 24px rgba(0, 229, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.featured-ship-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan, #00E5FF), transparent);
+}
+
+/* LEFT COLUMN: FEATURED SPACECRAFT SHOWCASE */
+.featured-ship-showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justifyContent: space-between;
+  background: var(--panel-elevated, #101A3A);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 20px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+  min-height: 480px;
+}
+
+/* Viewport Image Backdrop */
+.ship-artwork-container {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.featured-ship-image {
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+  filter: contrast(1.1) brightness(1.02);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.featured-ship-showcase:hover .featured-ship-image {
+  transform: scale(1.03);
+}
+
+/* Radial Vignette Mask */
+.ship-artwork-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(16, 26, 58, 0.7) 90%, rgba(11, 18, 48, 0.95) 100%);
+  pointer-events: none;
+}
+
+/* Tactical HUD Telemetry Callouts */
+.ship-hud-callout {
+  position: absolute;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--neon-cyan, #00E5FF);
+  background: rgba(11, 18, 48, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  pointer-events: none;
+  z-index: 5;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+.hud-callout-top-left {
+  top: 14px;
+  left: 14px;
+  border-radius: 6px 0 6px 0;
+  border-left: 2px solid var(--neon-cyan, #00E5FF);
+}
+
+.hud-callout-top-right {
+  top: 14px;
+  right: 14px;
+  border-radius: 0 6px 0 6px;
+  border-right: 2px solid var(--neon-cyan, #00E5FF);
+}
+
+.hud-callout-bottom-left {
+  bottom: 14px;
+  left: 14px;
+  border-radius: 0 6px 0 6px;
+  border-left: 2px solid var(--neon-cyan, #00E5FF);
+}
+
+.hud-callout-bottom-right {
+  bottom: 14px;
+  right: 14px;
+  border-radius: 6px 0 6px 0;
+  border-right: 2px solid var(--neon-cyan, #00E5FF);
+}
+
+/* RIGHT COLUMN: SHIP SPECIFICATIONS & MODULES */
+.featured-ship-specs {
+  display: flex;
+  flex-direction: column;
+  justifyContent: space-between;
+  gap: 20px;
+}
+
+.specs-header-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.specs-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.specs-ship-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  font-weight: 900;
+  color: var(--text-primary, #EAF1FF);
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.specs-class-pill {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--neon-cyan, #00E5FF);
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  padding: 3px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.specs-description {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary, #9AA9C7);
+  margin: 0;
+}
+
+/* Combat Statistics Bars */
+.combat-stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--panel-elevated, #101A3A);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.stat-row-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-label-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.stat-lbl-firepower { color: var(--neon-cyan, #00E5FF); }
+.stat-lbl-defense { color: var(--color-success, #20D6A0); }
+.stat-lbl-speed { color: var(--color-warning, #FFB84D); }
+.stat-lbl-special { color: var(--cosmic-purple, #8B5CF6); }
+
+.stat-val-text {
+  color: var(--text-primary, #EAF1FF);
+}
+
+.stat-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(5, 9, 27, 0.8);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.fill-firepower {
+  background: linear-gradient(90deg, #00B4D8, #00E5FF);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+}
+
+.fill-defense {
+  background: linear-gradient(90deg, #059669, #20D6A0);
+  box-shadow: 0 0 8px rgba(32, 214, 160, 0.6);
+}
+
+.fill-speed {
+  background: linear-gradient(90deg, #D97706, #FFB84D);
+  box-shadow: 0 0 8px rgba(255, 184, 77, 0.6);
+}
+
+.fill-special {
+  background: linear-gradient(90deg, #6D28D9, #8B5CF6);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+}
+
+/* Weapons & Ordnance Tactical Grid */
+.weapons-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.weapon-spec-box {
+  background: var(--panel-elevated, #101A3A);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weapon-box-lbl {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary, #9AA9C7);
+  text-transform: uppercase;
+}
+
+.weapon-box-val {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary, #EAF1FF);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Module Upgrades Strip (Section 25 Atomic Engine) */
+.modules-upgrade-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.module-item-card {
+  background: var(--panel-elevated, #101A3A);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.module-card-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary, #9AA9C7);
+  text-transform: uppercase;
+}
+
+.module-card-lvl {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--neon-cyan, #00E5FF);
+}
+
+.btn-module-upgrade {
+  width: 100%;
+  background: rgba(0, 229, 255, 0.15);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  color: var(--neon-cyan, #00E5FF);
+  font-family: 'Orbitron', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-module-upgrade:hover:not(:disabled) {
+  background: var(--neon-cyan, #00E5FF);
+  color: #05091B;
+}
+
+.btn-module-upgrade:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   D. ACTION AREA (Equip & Launch)
+   ========================================================================== */
+.hangar-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-equip-primary {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--neon-cyan, #00E5FF);
+  color: #05091B;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 48px;
+}
+
+.btn-equip-primary:hover:not(:disabled) {
+  background: #33EBFF;
+  box-shadow: 0 0 28px rgba(0, 229, 255, 0.65);
+  transform: translateY(-1px);
+}
+
+.btn-equipped-active {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(32, 214, 160, 0.15);
+  border: 1px solid var(--color-success, #20D6A0);
+  color: var(--color-success, #20D6A0);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 14px 28px;
+  border-radius: 8px;
+  cursor: default;
+  min-height: 48px;
+  box-shadow: 0 0 14px rgba(32, 214, 160, 0.25);
+}
+
+.btn-unlock-gold {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
+  color: #05091B;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+  transition: all 0.2s ease;
+  min-height: 48px;
+}
+
+.btn-unlock-gold:hover {
+  background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
+  box-shadow: 0 0 26px rgba(251, 191, 36, 0.6);
+  transform: translateY(-1px);
+}
+
+.btn-launch-missions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--panel-elevated, #101A3A);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary, #EAF1FF);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 14px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+}
+
+.btn-launch-missions:hover {
+  border-color: var(--neon-cyan, #00E5FF);
+  color: var(--neon-cyan, #00E5FF);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.25);
+}
+
+/* ==========================================================================
+   RESPONSIVE MEDIA QUERIES
+   ========================================================================== */
+@media (max-width: 1100px) {
+  .featured-ship-panel {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .featured-ship-showcase {
+    min-height: 380px;
+  }
+}
+
+@media (max-width: 900px) {
+  .ships-selector-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .ships-selector-row {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+  }
+  .ship-selector-card {
+    min-width: 160px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+  .weapons-specs-grid {
+    grid-template-columns: 1fr;
+  }
+  .modules-upgrade-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hangar-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
