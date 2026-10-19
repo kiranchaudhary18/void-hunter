@@ -188,12 +188,15 @@ const styles = {
   },
   modalBox: {
     maxWidth: '500px',
-    width: '100%',
-    padding: '28px',
+    width: '95%',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    padding: 'clamp(18px, 4vw, 28px)',
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '18px',
     border: '1px solid var(--border-glass)',
+    borderRadius: '16px',
     boxShadow: '0 0 45px rgba(0, 229, 255, 0.2)'
   },
   header: {
@@ -202,7 +205,7 @@ const styles = {
     alignItems: 'center'
   },
   title: {
-    fontSize: '1.25rem',
+    fontSize: 'clamp(1.05rem, 3.5vw, 1.25rem)',
     color: 'var(--secondary-cyan)',
     letterSpacing: '0.06em'
   },

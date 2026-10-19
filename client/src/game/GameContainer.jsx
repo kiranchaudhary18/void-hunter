@@ -705,119 +705,128 @@ export const GameContainer = ({
           <div className="glass-panel cyber-box animate-pulse-glow" style={styles.screen7VictoryModal}>
             {/* 3 Golden Stars */}
             <div style={styles.screen7StarsRow}>
-              <Star size={44} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 12px #FBBF24)' }} />
-              <Star size={58} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 20px #F59E0B)', margin: '0 8px', transform: 'translateY(-4px)' }} />
-              <Star size={44} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 12px #FBBF24)' }} />
+              <Star size={isMobile ? 32 : 44} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 12px #FBBF24)' }} />
+              <Star size={isMobile ? 44 : 58} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 20px #F59E0B)', margin: '0 8px', transform: 'translateY(-4px)' }} />
+              <Star size={isMobile ? 32 : 44} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 12px #FBBF24)' }} />
             </div>
 
-            <h2 className="font-heading text-glow-cyan" style={styles.screen7Title}>MISSION COMPLETE</h2>
+            <h2 className="font-heading text-glow-cyan" style={{ ...styles.screen7Title, fontSize: isMobile ? '1.4rem' : '1.85rem' }}>
+              MISSION COMPLETE
+            </h2>
             <div style={{ height: '4px' }} />
 
             {/* Twin Panels: Left Telemetry vs Right Rewards */}
-            <div style={styles.screen7TwinGrid}>
+            <div style={{
+              ...styles.screen7TwinGrid,
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))'
+            }}>
               {/* Left Box: Mission Telemetry */}
               <div style={styles.screen7TelemetryBox} className="glass-card">
                 <div style={styles.screen7TelemetryHeader}>
-                  <div className="font-heading text-glow-cyan" style={{ fontSize: '0.98rem' }}>
-                    {mission.name || 'MISSION 12'}
+                  <div className="font-heading text-glow-cyan" style={{ fontSize: '0.92rem' }}>
+                    {mission.name || 'MISSION 01'}
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                    {mission.sector || 'Asteroid Belt'} • Difficulty: Normal
+                  <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)' }}>
+                    {mission.sector || 'Nebula Outpost'} • Difficulty: Normal
                   </div>
                 </div>
 
                 <div style={styles.screen7TelemetryList}>
                   <div style={styles.screen7TelemRow}>
-                    <span style={styles.screen7TelemLabel}>TIME TAKEN</span>
-                    <span style={styles.screen7TelemVal}>02:35</span>
+                    <span style={styles.screen7TelemLabel}>COMBAT SCORE</span>
+                    <span style={{ ...styles.screen7TelemVal, color: 'var(--currency-gold)' }}>
+                      {(victoryData.score || stats.score || 0).toLocaleString()}
+                    </span>
                   </div>
                   <div style={styles.screen7TelemRow}>
                     <span style={styles.screen7TelemLabel}>ENEMIES DESTROYED</span>
-                    <span style={styles.screen7TelemVal}>{victoryData.enemiesKilled || 48}</span>
+                    <span style={styles.screen7TelemVal}>{victoryData.enemiesKilled || stats.enemiesKilled || 0}</span>
                   </div>
                   <div style={styles.screen7TelemRow}>
-                    <span style={styles.screen7TelemLabel}>ACCURACY</span>
-                    <span style={styles.screen7TelemVal}>92%</span>
+                    <span style={styles.screen7TelemLabel}>WAVE CLEARED</span>
+                    <span style={styles.screen7TelemVal}>{stats.currentWave} / {stats.maxWaves}</span>
                   </div>
                   <div style={styles.screen7TelemRow}>
-                    <span style={styles.screen7TelemLabel}>DAMAGE TAKEN</span>
-                    <span style={styles.screen7TelemVal}>12%</span>
+                    <span style={styles.screen7TelemLabel}>HULL INTEGRITY</span>
+                    <span style={{ ...styles.screen7TelemVal, color: '#10B981' }}>{Math.round(stats.health)}%</span>
                   </div>
                 </div>
               </div>
 
               {/* Right Box: Rewards */}
               <div style={styles.screen7RewardsBox} className="glass-card">
-                <div className="font-heading text-glow-gold" style={{ fontSize: '0.92rem', marginBottom: '14px', letterSpacing: '0.08em' }}>
+                <div className="font-heading text-glow-gold" style={{ fontSize: '0.90rem', marginBottom: '12px', letterSpacing: '0.08em' }}>
                   REWARDS
                 </div>
 
                 <div style={styles.screen7RewardItemsRow}>
                   <div style={styles.screen7RewardItem}>
                     <div style={styles.screen7RewardIconGold}>
-                      <Coins size={24} color="var(--currency-gold)" />
+                      <Coins size={isMobile ? 18 : 22} color="var(--currency-gold)" />
                     </div>
                     <div className="font-heading text-glow-gold" style={styles.screen7RewardValGold}>
-                      {victoryData.creditsEarned || 350}
+                      +{victoryData.creditsEarned || 150}
                     </div>
                     <div style={styles.screen7RewardLabel}>Credits</div>
                   </div>
 
                   <div style={styles.screen7RewardItem}>
                     <div style={styles.screen7RewardIconPurple}>
-                      <Zap size={24} color="#C084FC" />
+                      <Zap size={isMobile ? 18 : 22} color="#C084FC" />
                     </div>
                     <div className="font-heading text-glow-purple" style={styles.screen7RewardValPurple}>
-                      5
+                      +2
                     </div>
                     <div style={styles.screen7RewardLabel}>Gems</div>
                   </div>
 
                   <div style={styles.screen7RewardItem}>
                     <div style={styles.screen7RewardIconCyan}>
-                      <Award size={24} color="var(--secondary-cyan)" />
+                      <Award size={isMobile ? 18 : 22} color="var(--secondary-cyan)" />
                     </div>
                     <div className="font-heading text-glow-cyan" style={styles.screen7RewardValCyan}>
-                      500
+                      +300
                     </div>
-                    <div style={styles.screen7RewardLabel}>Experience</div>
+                    <div style={styles.screen7RewardLabel}>Exp</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Rewarded Multipliers */}
-            <div style={{ display: 'flex', gap: '10px', width: '100%', margin: '14px 0 10px 0' }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              gap: '8px',
+              width: '100%',
+              margin: '12px 0 10px 0'
+            }}>
               {!victoryData.doubledCredits && (
                 <button 
                   onClick={() => triggerRewardedAd('double_credits')}
                   className="btn btn-magenta"
-                  style={{ flex: 1, padding: '10px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  <Video size={15} /> 2X CREDITS (+{(victoryData.creditsEarned || 350) * 2})
+                  <Video size={15} /> 2X CREDITS (+{(victoryData.creditsEarned || 150) * 2})
                 </button>
               )}
               {!victoryData.doubledScore && (
                 <button 
                   onClick={() => triggerRewardedAd('double_score')}
                   className="btn btn-purple"
-                  style={{ flex: 1, padding: '10px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  <Video size={15} /> 2X SCORE (+{(victoryData.score || 12450).toLocaleString()})
+                  <Video size={15} /> 2X SCORE (+{((victoryData.score || stats.score || 1000) * 2).toLocaleString()})
                 </button>
               )}
             </div>
 
-            {/* Screen 7 Bottom Buttons: RETRY MISSION / NEXT MISSION (Cyan) / BACK TO MAP */}
-            <div style={styles.screen7ActionsRow}>
-              <button 
-                onClick={handleRestart} 
-                className="btn btn-outline" 
-                style={styles.screen7SecondaryBtn}
-              >
-                RETRY MISSION
-              </button>
-
+            {/* Screen 7 Bottom Buttons: NEXT MISSION (Primary) / RETRY / BACK TO MAP */}
+            <div style={{
+              ...styles.screen7ActionsRow,
+              flexDirection: isMobile ? 'column' : 'row',
+              gap: isMobile ? '8px' : '12px'
+            }}>
               <button 
                 onClick={async () => {
                   setVictoryData(null);
@@ -831,26 +840,47 @@ export const GameContainer = ({
                   }
                 }} 
                 className="btn btn-cyan animate-pulse-glow" 
-                style={styles.screen7PrimaryBtn}
+                style={{
+                  ...styles.screen7PrimaryBtn,
+                  width: isMobile ? '100%' : 'auto',
+                  order: isMobile ? 1 : 2
+                }}
               >
                 <Play size={16} fill="currentColor" />
                 <span>NEXT MISSION</span>
               </button>
 
-              <button 
-                onClick={async () => {
-                  setVictoryData(null);
-                  if (onCompleteMission) {
-                    await onCompleteMission(victoryData);
-                  }
-                  onExit('missions');
-                }} 
-                className="btn btn-outline" 
-                style={styles.screen7SecondaryBtn}
-              >
-                <Compass size={16} />
-                <span>BACK TO MAP</span>
-              </button>
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                width: isMobile ? '100%' : 'auto',
+                flex: isMobile ? 'none' : 2,
+                order: isMobile ? 2 : 1
+              }}>
+                <button 
+                  onClick={handleRestart} 
+                  className="btn btn-outline" 
+                  style={{ ...styles.screen7SecondaryBtn, flex: 1 }}
+                >
+                  <RotateCcw size={14} />
+                  <span>RETRY</span>
+                </button>
+
+                <button 
+                  onClick={async () => {
+                    setVictoryData(null);
+                    if (onCompleteMission) {
+                      await onCompleteMission(victoryData);
+                    }
+                    onExit('missions');
+                  }} 
+                  className="btn btn-outline" 
+                  style={{ ...styles.screen7SecondaryBtn, flex: 1 }}
+                >
+                  <Compass size={14} />
+                  <span>MISSIONS</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1263,32 +1293,36 @@ const styles = {
   },
   defeatModal: {
     maxWidth: '460px',
-    width: '100%',
-    maxHeight: '90vh',
+    width: '95%',
+    maxHeight: '92vh',
     overflowY: 'auto',
-    padding: '36px 32px',
+    padding: 'clamp(20px, 4vw, 36px) clamp(16px, 4vw, 32px)',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '16px',
+    gap: '14px',
     border: '1px solid rgba(239, 68, 68, 0.4)',
-    boxShadow: '0 0 40px rgba(239, 68, 68, 0.25)'
+    boxShadow: '0 0 40px rgba(239, 68, 68, 0.25)',
+    borderRadius: '16px'
   },
   defeatTitle: {
-    fontSize: '1.8rem',
+    fontSize: '1.6rem',
     color: '#EF4444'
   },
   defeatSubtitle: {
-    fontSize: '0.85rem',
+    fontSize: '0.82rem',
     color: 'var(--text-muted)'
   },
   statsSummaryBox: {
     width: '100%',
     display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
     justifyContent: 'space-around',
-    fontSize: '0.85rem',
-    padding: '14px'
+    fontSize: '0.82rem',
+    padding: '12px',
+    borderRadius: '10px'
   },
   modalActions: {
     width: '100%',
@@ -1355,11 +1389,11 @@ const styles = {
     transition: 'all 0.2s ease'
   },
   screen7VictoryModal: {
-    maxWidth: '620px',
-    width: '92%',
-    maxHeight: '90vh',
+    maxWidth: '580px',
+    width: '95%',
+    maxHeight: '92vh',
     overflowY: 'auto',
-    padding: '32px',
+    padding: 'clamp(18px, 4vw, 32px) clamp(14px, 4vw, 28px)',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -1367,7 +1401,7 @@ const styles = {
     gap: '8px',
     border: '1px solid rgba(0, 229, 255, 0.4)',
     boxShadow: '0 0 50px rgba(0, 229, 255, 0.25)',
-    borderRadius: '18px'
+    borderRadius: '16px'
   },
   screen7StarsRow: {
     display: 'flex',
@@ -1377,17 +1411,17 @@ const styles = {
     marginBottom: '2px'
   },
   screen7Title: {
-    fontSize: '1.9rem',
+    fontSize: '1.85rem',
     color: 'var(--secondary-cyan)',
     letterSpacing: '0.08em',
     margin: 0
   },
   screen7TwinGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-    gap: '14px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '12px',
     width: '100%',
-    marginTop: '12px'
+    marginTop: '10px'
   },
   screen7TelemetryBox: {
     padding: '16px',

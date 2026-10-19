@@ -1378,7 +1378,7 @@ const styles = {
   },
   twoColumnGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: '20px'
   },
   panelCard: {
@@ -1561,7 +1561,7 @@ const styles = {
   },
   formRow: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
     gap: '16px'
   },
   formField: {

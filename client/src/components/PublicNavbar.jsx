@@ -93,6 +93,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
           >
             <LogIn size={15} />
             <span className="public-login-text-full">LOGIN / ENLIST</span>
+            <span className="public-login-text-mobile" style={{ display: 'none' }}>LOGIN</span>
           </button>
         </div>
       </div>
@@ -115,7 +116,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '0 24px'
+    padding: '0 clamp(12px, 3vw, 24px)'
   },
   container: {
     maxWidth: '1320px',

@@ -157,9 +157,9 @@ export const MissionsPage = ({ onBack, onNavigate, onLaunchMission, selectedShip
 
       {/* Guest Mode Banner */}
       {!isAuthenticated && (
-        <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', border: '1px solid rgba(0, 229, 255, 0.35)', background: 'rgba(0, 229, 255, 0.08)', borderRadius: '8px', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Sparkles size={18} color="var(--secondary-cyan)" />
+        <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px clamp(12px, 3vw, 20px)', border: '1px solid rgba(0, 229, 255, 0.35)', background: 'rgba(0, 229, 255, 0.08)', borderRadius: '10px', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '240px', flex: 1 }}>
+            <Sparkles size={18} color="var(--secondary-cyan)" style={{ flexShrink: 0 }} />
             <span style={{ fontSize: '0.82rem', color: 'var(--text-light)' }}>
               TACTICAL MISSIONS PREVIEW // Browse 50 campaign missions across 5 sectors. Enlist or login to launch combat sorties and log sector stars.
             </span>
@@ -167,7 +167,7 @@ export const MissionsPage = ({ onBack, onNavigate, onLaunchMission, selectedShip
           <button 
             onClick={() => onNavigate && onNavigate('auth')} 
             className="btn btn-cyan animate-pulse-glow" 
-            style={{ padding: '6px 18px', fontSize: '0.76rem', fontWeight: 'bold' }}
+            style={{ padding: '8px 18px', fontSize: '0.78rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}
           >
             LOGIN / ENLIST
           </button>
