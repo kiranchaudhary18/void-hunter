@@ -247,10 +247,12 @@ function MainAppContent() {
       if (activeSessionId && !activeSessionId.startsWith('local-')) {
         await api.post(`/missions/${activeSessionId}/complete`, {
           finalScore: result.score || 0,
-          durationSeconds: 45,
+          durationSeconds: Math.max(12, result.durationSeconds || 45),
+          damageTaken: Math.max(0, 100 - (result.healthRemaining !== undefined ? result.healthRemaining : 100)),
           telemetry: {
             enemiesDestroyed: result.enemiesKilled || 0,
-            accuracyPercentage: 85
+            accuracyPercentage: result.enemiesKilled >= 10 ? 88 : 65,
+            healthRemaining: result.healthRemaining !== undefined ? result.healthRemaining : 100
           }
         });
       }

@@ -964,12 +964,23 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.isGameOver = true;
     this.player.setVelocity(0, -250); // Hyperspace jump forward
 
+    // Calculate dynamic 1 to 3 Star Rating (Section 19 Criteria)
+    let earnedStars = 1; // Star 1: Mission Completed (Base)
+    if (this.enemiesKilled >= 10 || this.score >= 3500) {
+      earnedStars++; // Star 2: Combat Mastery (Destroy 10+ Hostiles or High Score)
+    }
+    if (this.playerHealth >= 70 && this.elapsedCombatSeconds <= 90) {
+      earnedStars++; // Star 3: Ace Pilot Defense & Speed (Hull >= 70% in under 90s)
+    }
+
     if (this.callbacks.onVictory) {
       this.callbacks.onVictory({
         score: this.score,
         creditsEarned: this.creditsCollected + 100, // +100 mission clear bonus
         enemiesKilled: this.enemiesKilled,
-        stars: this.playerHealth > 80 ? 3 : this.playerHealth > 40 ? 2 : 1
+        stars: earnedStars,
+        healthRemaining: Math.round(this.playerHealth),
+        durationSeconds: Math.max(12, Math.round(this.elapsedCombatSeconds))
       });
     }
   }

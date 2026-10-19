@@ -721,11 +721,66 @@ export const GameContainer = ({
       {victoryData && (
         <div style={styles.modalBackdrop}>
           <div className="glass-panel cyber-box animate-pulse-glow" style={styles.screen7VictoryModal}>
-            {/* 3 Golden Stars */}
+            {/* Dynamic 1 to 3 Stars with Criteria */}
             <div style={styles.screen7StarsRow}>
-              <Star size={isMobile ? 32 : 44} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 12px #FBBF24)' }} />
-              <Star size={isMobile ? 44 : 58} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 20px #F59E0B)', margin: '0 8px', transform: 'translateY(-4px)' }} />
-              <Star size={isMobile ? 32 : 44} color="#FBBF24" fill="#FBBF24" style={{ filter: 'drop-shadow(0 0 12px #FBBF24)' }} />
+              {[1, 2, 3].map((starIdx) => {
+                const earned = starIdx <= (victoryData.stars || 1);
+                const isCenter = starIdx === 2;
+                return (
+                  <Star
+                    key={starIdx}
+                    size={isCenter ? (isMobile ? 40 : 54) : (isMobile ? 30 : 40)}
+                    color={earned ? "#FBBF24" : "rgba(255, 255, 255, 0.22)"}
+                    fill={earned ? "#FBBF24" : "transparent"}
+                    style={{
+                      filter: earned ? 'drop-shadow(0 0 14px #FBBF24)' : 'none',
+                      margin: isCenter ? '0 8px' : '0',
+                      transform: isCenter ? 'translateY(-4px)' : 'none',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Transparent Star Criteria Badges */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '6px',
+              flexWrap: 'wrap',
+              margin: '6px 0 10px 0'
+            }}>
+              <span style={{
+                fontSize: '0.68rem',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                background: (victoryData.stars >= 1) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                border: `1px solid ${(victoryData.stars >= 1) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
+                color: (victoryData.stars >= 1) ? 'var(--currency-gold)' : 'var(--text-muted)'
+              }}>
+                ⭐ Complete Sortie
+              </span>
+              <span style={{
+                fontSize: '0.68rem',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                background: (victoryData.stars >= 2) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                border: `1px solid ${(victoryData.stars >= 2) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
+                color: (victoryData.stars >= 2) ? 'var(--currency-gold)' : 'var(--text-muted)'
+              }}>
+                ⭐ 10+ Kills / 3.5k Score
+              </span>
+              <span style={{
+                fontSize: '0.68rem',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                background: (victoryData.stars >= 3) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                border: `1px solid ${(victoryData.stars >= 3) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
+                color: (victoryData.stars >= 3) ? 'var(--currency-gold)' : 'var(--text-muted)'
+              }}>
+                ⭐ Hull ≥ 70% & Time ≤ 90s
+              </span>
             </div>
 
             <h2 className="font-heading text-glow-cyan" style={{ ...styles.screen7Title, fontSize: isMobile ? '1.4rem' : '1.85rem' }}>

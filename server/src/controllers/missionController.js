@@ -127,12 +127,23 @@ export const completeMission = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Telemetry rejected: Mission duration too short' });
     }
 
-    // Calculate Star Rating (1 to 3 stars - Section 19)
+    // Calculate Dynamic Star Rating (1 to 3 stars - Section 19 Criteria)
+    // Star 1: Mission Victory (Guaranteed base for completion)
     let stars = 1;
-    if (finalScore >= 12000 || (telemetry && telemetry.accuracyPercentage >= 75)) {
+
+    // Star 2: Combat Mastery (Kill count >= 10, score >= 3500, or high accuracy)
+    const kills = telemetry?.enemiesDestroyed || 0;
+    const accuracy = telemetry?.accuracyPercentage || 0;
+    if (kills >= 10 || finalScore >= 3500 || accuracy >= 75) {
       stars++;
     }
-    if ((damageTaken !== undefined && damageTaken <= 25) || finalScore >= 20000) {
+
+    // Star 3: Ace Pilot Mastery (Damage taken <= 30% and cleared under 90s, or high score)
+    const effectiveDamage = damageTaken !== undefined 
+      ? damageTaken 
+      : (telemetry?.healthRemaining !== undefined ? Math.max(0, 100 - telemetry.healthRemaining) : 20);
+    const duration = durationSeconds || 45;
+    if ((effectiveDamage <= 30 && duration <= 90) || finalScore >= 20000) {
       stars++;
     }
 
