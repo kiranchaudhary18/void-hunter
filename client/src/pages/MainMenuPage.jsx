@@ -97,7 +97,7 @@ export const MainMenuPage = ({ onNavigate }) => {
         <div style={styles.heroRightCol}>
           <div style={styles.heroShipGlowBackdrop} />
           <div className="animate-float" style={styles.heroShipContainer}>
-            <svg width="340" height="340" viewBox="0 0 64 64" style={{ filter: 'drop-shadow(0 0 28px rgba(0, 229, 255, 0.75))' }}>
+            <svg viewBox="0 0 64 64" style={styles.heroShipSvg}>
               <polygon points="32,4 46,24 62,48 48,56 36,46 32,58 28,46 16,56 2,48 18,24" fill="#00E5FF" />
               <polygon points="32,8 42,28 54,46 40,46 32,52 24,46 10,46 22,28" fill="#060919" />
               <ellipse cx="32" cy="24" rx="4" ry="12" fill="#FFFFFF" />
@@ -124,13 +124,14 @@ const styles = {
   mainWrapper: {
     position: 'relative',
     minHeight: '100vh',
-    width: '100vw',
+    width: '100%',
+    maxWidth: '100%',
     backgroundColor: '#060919',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '90px 32px 24px 32px',
+    padding: 'clamp(76px, 11vh, 100px) clamp(16px, 4vw, 32px) 24px clamp(16px, 4vw, 32px)',
     overflow: 'hidden'
   },
   starsBackdrop: {
@@ -256,8 +257,8 @@ const styles = {
     fontSize: '0.9rem'
   },
   screen1HeroTitle: {
-    fontSize: 'clamp(2.4rem, 4.5vw, 4rem)',
-    lineHeight: 1.08,
+    fontSize: 'clamp(1.8rem, 5vw, 3.8rem)',
+    lineHeight: 1.1,
     letterSpacing: '0.06em',
     margin: 0
   },
@@ -304,8 +305,8 @@ const styles = {
   },
   heroShipGlowBackdrop: {
     position: 'absolute',
-    width: '380px',
-    height: '380px',
+    width: 'clamp(220px, 45vw, 380px)',
+    height: 'clamp(220px, 45vw, 380px)',
     borderRadius: '50%',
     background: 'radial-gradient(circle, rgba(0, 229, 255, 0.25) 0%, rgba(124, 58, 237, 0.15) 50%, transparent 75%)',
     filter: 'blur(30px)',
@@ -313,6 +314,11 @@ const styles = {
   },
   heroShipContainer: {
     zIndex: 5
+  },
+  heroShipSvg: {
+    width: 'clamp(200px, 45vw, 340px)',
+    height: 'clamp(200px, 45vw, 340px)',
+    filter: 'drop-shadow(0 0 28px rgba(0, 229, 255, 0.75))'
   },
   screen1Footer: {
     position: 'relative',

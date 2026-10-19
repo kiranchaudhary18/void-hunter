@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
 import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -6,8 +6,17 @@ import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowLeft, AlertCircle, CheckCir
 export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
   const { login, register } = useAuth();
 
-  // Active tab on mobile/desktop: 'both' (desktop dual-card) or 'login' / 'register'
+  // Active tab on mobile/desktop: 'login' or 'register'
   const [activeTab, setActiveTab] = useState('login');
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 960 : false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 960);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Login Form State
   const [loginEmail, setLoginEmail] = useState('');
@@ -130,19 +139,47 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
         </div>
       )}
 
-      {/* Mobile Tab Switcher */}
-      <div style={styles.mobileTabs}>
+      {/* Mobile / Screen Tab Switcher */}
+      <div 
+        style={{
+          display: isMobile ? 'flex' : 'none',
+          gap: '10px',
+          maxWidth: '480px',
+          width: '100%',
+          margin: '0 auto 20px auto'
+        }}
+      >
         <button 
-          style={{ ...styles.tabBtn, ...(activeTab === 'login' ? styles.activeTabBtn : {}) }}
-          onClick={() => setActiveTab('login')}
+          type="button"
+          style={{
+            ...styles.tabBtn,
+            padding: '12px 14px',
+            fontSize: '0.84rem',
+            fontWeight: 'bold',
+            ...(activeTab === 'login' ? styles.activeTabBtn : {})
+          }}
+          onClick={() => {
+            setErrorMsg('');
+            setActiveTab('login');
+          }}
         >
           LOGIN
         </button>
         <button 
-          style={{ ...styles.tabBtn, ...(activeTab === 'register' ? styles.activeTabBtn : {}) }}
-          onClick={() => setActiveTab('register')}
+          type="button"
+          style={{
+            ...styles.tabBtn,
+            padding: '12px 14px',
+            fontSize: '0.84rem',
+            fontWeight: 'bold',
+            ...(activeTab === 'register' ? styles.activeTabBtn : {})
+          }}
+          onClick={() => {
+            setErrorMsg('');
+            setActiveTab('register');
+          }}
         >
-          CREATE ACCOUNT
+          CREATE ACCOUNT (SIGN UP)
         </button>
       </div>
 
@@ -152,7 +189,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
         <section 
           style={{
             ...styles.authCard,
-            display: activeTab === 'login' || window.innerWidth > 960 ? 'flex' : 'none'
+            display: !isMobile || activeTab === 'login' ? 'flex' : 'none'
           }} 
           className="glass-panel"
         >
@@ -234,13 +271,35 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
             <button style={styles.socialBtn} title="GitHub Pilot Login">GH</button>
             <button style={styles.socialBtn} title="Discord Pilot Login">DC</button>
           </div>
+
+          {/* Quick Switch to Sign Up on Mobile */}
+          <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
+            Don't have an account?{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setErrorMsg('');
+                setActiveTab('register');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--secondary-cyan)',
+                fontWeight: '700',
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              Sign Up / Create Account
+            </button>
+          </div>
         </section>
 
         {/* ================= RIGHT CARD: REGISTER ================= */}
         <section 
           style={{
             ...styles.authCard,
-            display: activeTab === 'register' || window.innerWidth > 960 ? 'flex' : 'none'
+            display: !isMobile || activeTab === 'register' ? 'flex' : 'none'
           }} 
           className="glass-panel"
         >
@@ -351,6 +410,28 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
             <button style={styles.socialBtn} title="GitHub Pilot Signup">GH</button>
             <button style={styles.socialBtn} title="Discord Pilot Signup">DC</button>
           </div>
+
+          {/* Quick Switch to Login */}
+          <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setErrorMsg('');
+                setActiveTab('login');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--secondary-cyan)',
+                fontWeight: '700',
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              Login to Command Deck
+            </button>
+          </div>
         </section>
       </main>
     </div>
@@ -362,14 +443,16 @@ const styles = {
     minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
-    padding: '24px 32px',
+    padding: 'clamp(14px, 3vw, 24px) clamp(12px, 3vw, 32px)',
     background: 'radial-gradient(ellipse at center, rgba(124, 58, 237, 0.12) 0%, rgba(10, 15, 44, 0.98) 80%)'
   },
   header: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '24px'
+    marginBottom: '24px',
+    flexWrap: 'wrap',
+    gap: '12px'
   },
   logoGroup: {
     display: 'flex',
@@ -423,7 +506,7 @@ const styles = {
     fontSize: '0.875rem'
   },
   mobileTabs: {
-    display: 'none',
+    display: 'flex',
     gap: '12px',
     marginBottom: '20px'
   },
@@ -445,15 +528,15 @@ const styles = {
   },
   mainGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-    gap: '32px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '24px',
     maxWidth: '1080px',
     margin: 'auto',
     width: '100%'
   },
   authCard: {
     flexDirection: 'column',
-    padding: '36px 32px',
+    padding: 'clamp(24px, 4vw, 36px) clamp(16px, 4vw, 32px)',
     borderRadius: '16px',
     border: '1px solid rgba(0, 229, 255, 0.22)',
     boxShadow: '0 0 35px rgba(0, 0, 0, 0.6)'

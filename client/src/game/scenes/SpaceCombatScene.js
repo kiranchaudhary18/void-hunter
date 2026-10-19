@@ -69,10 +69,12 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.player = this.physics.add.sprite(width / 2, height - 100, shipTexture);
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(10);
+    this.player.setScale(1.2);
 
     // Forcefield Shield Bubble
     this.shieldSprite = this.add.sprite(this.player.x, this.player.y, 'shield_bubble');
     this.shieldSprite.setDepth(11);
+    this.shieldSprite.setScale(1.2);
     this.shieldSprite.setVisible(false);
 
     // Orbiting Repair Drone Sprite
@@ -404,13 +406,16 @@ export class SpaceCombatScene extends Phaser.Scene {
       const angles = [-0.35, -0.18, 0, 0.18, 0.35];
       angles.forEach((angle) => {
         const laser = this.playerLasers.create(x, y, 'player_laser');
+        laser.setScale(1.35);
         laser.setVelocity(Math.sin(angle) * 700, -Math.cos(angle) * 700);
         laser.setRotation(angle);
       });
     } else {
       // Twin parallel lasers
-      const l1 = this.playerLasers.create(x - 12, y, 'player_laser');
-      const l2 = this.playerLasers.create(x + 12, y, 'player_laser');
+      const l1 = this.playerLasers.create(x - 14, y, 'player_laser');
+      const l2 = this.playerLasers.create(x + 14, y, 'player_laser');
+      l1.setScale(1.35);
+      l2.setScale(1.35);
       l1.setVelocityY(-750);
       l2.setVelocityY(-750);
     }
@@ -537,6 +542,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.bossSprite.scoreValue = 2000;
     this.bossSprite.isBoss = true;
     this.bossSprite.setDepth(8);
+    this.bossSprite.setScale(1.38);
     this.bossSprite.setCollideWorldBounds(true);
     this.bossSprite.setBounce(1);
 
@@ -642,6 +648,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     enemy.maxHp = health;
     enemy.scoreValue = scoreVal;
     enemy.setDepth(5);
+    enemy.setScale(1.35); // Enlarge enemy sprites by 35% for high visibility on all devices
 
     // Section 9: Long-Range Gunship AI (maintains distance, snipes player)
     if (texture === 'enemy_gunship') {
@@ -1063,12 +1070,13 @@ export class SpaceCombatScene extends Phaser.Scene {
       // 4. Homing Missiles: Launches 4 auto-seeking rockets
       case 'homing_missiles':
         for (let i = 0; i < 4; i++) {
-          const offsetX = (i - 1.5) * 24;
+          const offsetX = (i - 1.5) * 26;
           const missile = this.homingMissiles.create(
             this.player.x + offsetX,
             this.player.y - 15,
             'homing_missile'
           );
+          missile.setScale(1.65); // Make rocket substantially larger and punchier
           missile.setVelocity(offsetX * 10, -450);
           missile.checkWorldBounds = true;
           missile.outOfBoundsKill = true;

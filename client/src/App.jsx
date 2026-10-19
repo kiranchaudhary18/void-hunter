@@ -434,6 +434,9 @@ function MainAppContent() {
           onClose={() => setIsSettingsOpen(false)} 
         />
       )}
+
+      {/* Global Audio Widget (Hidden during active combat sortie) */}
+      {currentScreen !== 'gameplay' && <GlobalAudioPlayer />}
     </SidebarLayout>
   );
 }
@@ -442,7 +445,6 @@ export function App() {
   return (
     <AuthProvider>
       <MainAppContent />
-      <GlobalAudioPlayer />
     </AuthProvider>
   );
 }

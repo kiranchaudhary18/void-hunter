@@ -92,6 +92,11 @@ export const GlobalAudioPlayer = () => {
   // Current track metadata
   const currentTrack = soundManager.playlist.find((p) => p.id === (audioState.bgmMode || 'vocal')) || soundManager.playlist[0];
 
+  // Safeguard: Hide audio widget during combat sorties so it never blocks the game canvas or touch buttons
+  if (typeof window !== 'undefined' && (window.location.pathname.includes('/gameplay') || window.location.pathname.includes('/combat'))) {
+    return null;
+  }
+
   return (
     <div 
       className={`global-audio-widget glass-panel cyber-box ${!audioState.bgmPlaying ? 'audio-prompt-glow' : 'animate-pulse-glow'}`}
