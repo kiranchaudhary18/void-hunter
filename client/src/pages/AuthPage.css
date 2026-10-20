@@ -221,8 +221,8 @@
   position: relative;
   z-index: 10;
   display: grid;
-  grid-template-columns: 390px 390px;
-  gap: 28px;
+  grid-template-columns: 440px 440px;
+  gap: 32px;
   align-items: center;
   justify-content: center;
   margin: auto 0;
@@ -246,7 +246,7 @@
 .auth-panel-body {
   position: relative;
   z-index: 2;
-  padding: 24px 28px 20px 28px;
+  padding: 26px 32px 22px 32px;
   display: flex;
   flex-direction: column;
 }
@@ -346,7 +346,7 @@
 /* Headings & Descriptions */
 .auth-heading {
   font-family: 'Orbitron', -apple-system, sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: 0.03em;
@@ -365,7 +365,7 @@
 }
 
 .auth-description {
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   line-height: 1.4;
   color: #96A6C8;
   margin: 0 0 16px 0;
@@ -392,7 +392,7 @@
 
 .auth-field-label {
   font-family: 'Orbitron', monospace;
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -423,7 +423,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  height: 42px;
+  height: 46px;
   background: #060C22;
   border: 1px solid rgba(150, 166, 200, 0.22);
   border-radius: 8px;
@@ -541,7 +541,7 @@
 }
 
 .check-cyan:checked::after {
-  content: '✓';
+  content: '\2713';
   position: absolute;
   top: -1px;
   left: 2px;
@@ -560,7 +560,7 @@
 }
 
 .check-purple:checked::after {
-  content: '✓';
+  content: '\2713';
   position: absolute;
   top: -1px;
   left: 2px;
@@ -595,7 +595,7 @@
 /* Action Buttons */
 .auth-submit-btn {
   width: 100%;
-  height: 44px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -604,7 +604,7 @@
   border: none;
   cursor: pointer;
   font-family: 'Orbitron', -apple-system, sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -857,7 +857,7 @@
 /* Tablet / Landscape Layout (<= 1024px width) */
 @media (max-width: 1024px) {
   .auth-dual-panels {
-    grid-template-columns: 350px 350px;
+    grid-template-columns: 380px 380px;
     gap: 18px;
     padding: 0 16px;
   }
@@ -918,7 +918,7 @@
 
   .auth-dual-panels {
     grid-template-columns: 1fr;
-    max-width: 440px;
+    max-width: 460px;
     margin: 10px auto 30px auto;
   }
 
