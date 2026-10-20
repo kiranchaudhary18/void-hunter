@@ -1339,3 +1339,42 @@
     max-width: 100%;
   }
 }
+
+/* Extra Mobile Responsive Refinements */
+@media (max-width: 768px) {
+  .treasury-shell {
+    padding: 16px 12px 84px 12px !important;
+    gap: 16px !important;
+  }
+  .treasury-table-wrap {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .treasury-shell {
+    padding: 12px 8px 84px 8px !important;
+    gap: 14px !important;
+  }
+  .treasury-main-title {
+    font-size: 1.35rem !important;
+  }
+  .treasury-summary-footer {
+    grid-template-columns: 1fr 1fr !important;
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+  .summary-stat-num {
+    font-size: 0.95rem !important;
+  }
+  .resource-value-text {
+    font-size: 1.5rem !important;
+  }
+  .overview-metric-val {
+    font-size: 1.35rem !important;
+  }
+  .ad-modal-box {
+    padding: 14px !important;
+    width: 96% !important;
+  }
+}

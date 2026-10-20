@@ -1170,7 +1170,7 @@ export const AdminDashboardPage = ({ onBack }) => {
 const styles = {
   container: {
     minHeight: '100vh',
-    padding: '30px 40px',
+    padding: 'clamp(14px, 3vw, 30px) clamp(10px, 3vw, 36px) 84px', boxSizing: 'border-box',
     background: 'radial-gradient(circle at 50% 10%, #0d153a 0%, #060919 90%)',
     color: '#E6F1FF'
   },
@@ -1237,7 +1237,7 @@ const styles = {
     padding: '6px 10px',
     marginBottom: '24px',
     borderRadius: '10px',
-    border: '1px solid rgba(0, 229, 255, 0.15)'
+    border: '1px solid rgba(0, 229, 255, 0.15)', overflowX: 'auto', WebkitOverflowScrolling: 'touch'
   },
   tabBtn: {
     display: 'flex',

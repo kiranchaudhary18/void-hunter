@@ -942,3 +942,44 @@ html, body {
   }
 }
 
+
+/* ==========================================================================
+   GLOBAL RESPONSIVE RESETS & UTILITIES
+   ========================================================================== */
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Touch-device Smooth Table Scrolling */
+.responsive-table-scroll,
+.treasury-table-wrap,
+.leaderboard-table-wrapper {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Public Navbar Responsive Styles */
+@media (max-width: 900px) {
+  .public-center-nav {
+    display: none !important;
+  }
+  .public-mobile-menu-btn {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .public-login-text-full {
+    display: none !important;
+  }
+  .public-login-text-mobile {
+    display: inline !important;
+  }
+}

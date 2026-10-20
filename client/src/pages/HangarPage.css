@@ -49,6 +49,7 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
   box-sizing: border-box;
+  scroll-snap-align: start;
 }
 
 /* Layer 1: Procedural Multi-Cluster Starfield (Pure CSS) */
@@ -388,6 +389,8 @@
   gap: 14px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
   padding: 4px 2px 8px;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 229, 255, 0.3) rgba(5, 9, 27, 0.6);
@@ -427,6 +430,7 @@
   text-align: left;
   transition: all 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
   box-sizing: border-box;
+  scroll-snap-align: start;
 }
 
 .ship-selector-card:hover {
@@ -886,6 +890,7 @@
     0 16px 48px rgba(0, 0, 0, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   box-sizing: border-box;
+  scroll-snap-align: start;
 }
 
 /* Console Header */
@@ -1473,5 +1478,33 @@
   }
   .hangar-laser-scan {
     animation: none !important;
+  }
+}
+
+/* Mobile (<= 768px) Touch and Padding Adjustments */
+@media (max-width: 768px) {
+  .hangar-container {
+    padding: 16px 12px 84px 12px !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hangar-container {
+    padding: 12px 8px 84px 8px !important;
+    gap: 12px !important;
+  }
+  .coating-options-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .hangar-main-heading {
+    font-size: 1.28rem !important;
+  }
+  .showcase-tab-btn {
+    padding: 5px 8px !important;
+    font-size: 0.60rem !important;
+  }
+  .console-ship-name {
+    font-size: 1.15rem !important;
   }
 }

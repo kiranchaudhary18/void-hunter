@@ -1678,3 +1678,35 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Extra Mobile Responsive Refinements */
+@media (max-width: 768px) {
+  .quests-shell {
+    padding: 16px 12px 84px 12px !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .quests-shell {
+    padding: 12px 8px 84px 8px !important;
+    gap: 14px !important;
+  }
+  .quests-main-heading {
+    font-size: 1.35rem !important;
+  }
+  .streak-nodes-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .quests-tab-btn {
+    padding: 10px 14px !important;
+    font-size: 0.74rem !important;
+  }
+  .supply-stage-heading {
+    font-size: 1.05rem !important;
+  }
+  .prob-tier-card {
+    padding: 8px 10px !important;
+  }
+}

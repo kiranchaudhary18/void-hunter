@@ -138,13 +138,14 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
             >
               <LogIn size={16} strokeWidth={2.5} />
               <span className="public-login-text-full">LOGIN / ENLIST</span>
+              <span className="public-login-text-mobile" style={{ display: 'none' }}>LOGIN</span>
             </button>
           )}
 
           {/* Mobile Menu Toggle Button */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={styles.mobileMenuBtn}
+            className="public-mobile-menu-btn" style={styles.mobileMenuBtn}
             aria-label="Toggle Navigation Menu"
           >
             {mobileMenuOpen ? <X size={22} color="#00E5FF" /> : <Menu size={22} color="#EAF0FF" />}

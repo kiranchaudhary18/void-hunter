@@ -1226,3 +1226,39 @@
   border-color: rgba(255, 194, 71, 0.3) !important;
   background: rgba(255, 194, 71, 0.04) !important;
 }
+
+/* Extra Mobile Sector Progression Refinements */
+@media (max-width: 768px) {
+  .sector-progression-shell {
+    padding: 16px 12px 84px 12px !important;
+  }
+  .sector-map-canvas-card {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .sector-progression-shell {
+    padding: 12px 8px 84px 8px !important;
+    gap: 14px !important;
+  }
+  .sector-selector-bar {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+  .sector-tab-pill {
+    padding: 8px 10px !important;
+  }
+  .sector-pill-num {
+    font-size: 0.60rem !important;
+  }
+  .sector-pill-name {
+    font-size: 0.66rem !important;
+  }
+  .briefing-mission-title {
+    font-size: 1rem !important;
+  }
+  .briefing-telemetry-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

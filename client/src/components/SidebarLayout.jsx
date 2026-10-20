@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME } from '../config/gameConfig.js';
@@ -306,7 +306,7 @@ export const SidebarLayout = ({
                   <Coins size={14} color="#FBBF24" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
                 </div>
                 <span className="hud-currency-text-gold">
-                  {credits} CREDITS
+                  <span className="hud-currency-val">{credits}</span><span className="hud-currency-lbl"> CREDITS</span>
                 </span>
               </div>
 
@@ -320,7 +320,7 @@ export const SidebarLayout = ({
                   <Zap size={14} color="#C084FC" style={{ filter: 'drop-shadow(0 0 4px #8B5CF6)' }} />
                 </div>
                 <span className="hud-currency-text-purple">
-                  {energyCores} CORES
+                  <span className="hud-currency-val">{energyCores}</span><span className="hud-currency-lbl"> CORES</span>
                 </span>
               </div>
 
@@ -331,7 +331,7 @@ export const SidebarLayout = ({
                 </div>
                 <div className="hud-pilot-meta">
                   <span className="hud-pilot-name">{pilotName}</span>
-                  <span className="hud-pilot-rank">LVL {pilotLevel} • {pilotRank}</span>
+                  <span className="hud-pilot-rank">LVL {pilotLevel} · {pilotRank}</span>
                 </div>
                 <button 
                   onClick={(e) => { e.stopPropagation(); logout(); onNavigate('landing'); }}

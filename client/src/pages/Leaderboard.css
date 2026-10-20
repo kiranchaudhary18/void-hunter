@@ -1180,3 +1180,28 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Extra Mobile Responsive Refinements */
+@media (max-width: 768px) {
+  .leaderboard-content {
+    padding: 16px 12px 84px 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .leaderboard-content {
+    padding: 12px 8px 84px 8px !important;
+  }
+  .leaderboard-title {
+    font-size: 1.35rem !important;
+  }
+  .podium-score-val {
+    font-size: 1.25rem !important;
+  }
+  .leaderboard-cta-heading {
+    font-size: 1.15rem !important;
+  }
+  .leaderboard-cta-panel {
+    padding: 18px 14px !important;
+  }
+}

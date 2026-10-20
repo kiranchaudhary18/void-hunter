@@ -12,6 +12,7 @@
    ========================================================================== */
 
 .dashboard-root {
+  padding: 24px 28px 60px 28px;
   max-width: 1440px;
   margin: 0 auto;
   display: flex;
@@ -846,5 +847,42 @@
   }
   .starfighter-panel {
     padding: 20px 18px;
+  }
+}
+
+/* Mobile (<= 768px) Dashboard Refinements */
+@media (max-width: 768px) {
+  .dashboard-root {
+    padding: 16px 14px 84px 14px !important;
+    gap: 16px !important;
+  }
+}
+
+/* Mini Mobile (<= 480px) */
+@media (max-width: 480px) {
+  .dashboard-root {
+    padding: 12px 10px 84px 10px !important;
+    gap: 12px !important;
+  }
+  .ship-stat-label {
+    width: 85px !important;
+    font-size: 0.56rem !important;
+  }
+  .hero-sector-title {
+    font-size: 1.25rem !important;
+  }
+  .starfighter-name {
+    font-size: 1.05rem !important;
+  }
+  .module-card {
+    padding: 16px 14px !important;
+    min-height: auto !important;
+  }
+  .achievements-icons-grid {
+    gap: 6px !important;
+  }
+  .achievement-icon-slot {
+    width: 28px !important;
+    height: 28px !important;
   }
 }
