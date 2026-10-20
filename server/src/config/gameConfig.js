@@ -43,3 +43,12 @@ export default {
   CLIENT_URL,
   ECONOMY_CONFIG
 };
+
+export const getPilotRankForLevel = (level = 1) => {
+  if (level >= 10) return 'Fleet Admiral';
+  if (level >= 8) return 'Wing Commander';
+  if (level >= 6) return 'Squadron Leader';
+  if (level >= 4) return 'Flight Officer';
+  if (level >= 2) return 'Star Aviator';
+  return 'Star Cadet';
+};

@@ -87,16 +87,18 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshProfile = async () => {
-    if (!token) return;
+    if (!token) return null;
     try {
       const response = await api.auth.getMe();
       if (response.success) {
         setUser(response.user);
         setProfile(response.profile);
+        return response.profile;
       }
     } catch (err) {
       console.error('Error refreshing profile:', err);
     }
+    return null;
   };
 
   return (

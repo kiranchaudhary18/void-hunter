@@ -23,6 +23,16 @@ const DeltaLogo = () => (
   </svg>
 );
 
+// Helper to map pilot levels to authentic sci-fi military flight ranks
+export const getPilotRank = (level = 1, currentRank) => {
+  if (level >= 10) return 'Fleet Admiral';
+  if (level >= 8) return 'Wing Commander';
+  if (level >= 6) return 'Squadron Leader';
+  if (level >= 4) return 'Flight Officer';
+  if (level >= 2) return 'Star Aviator';
+  return currentRank || 'Star Cadet';
+};
+
 export const SidebarLayout = ({ 
   currentScreen, 
   onNavigate, 
@@ -89,7 +99,7 @@ export const SidebarLayout = ({
 
   const pilotName = user?.name || 'Commander';
   const pilotLevel = profile?.level || 1;
-  const pilotRank = profile?.pilotRank || 'Star Cadet';
+  const pilotRank = getPilotRank(pilotLevel, profile?.pilotRank);
   const credits = profile?.credits?.toLocaleString() || '0';
   const energyCores = profile?.energyCores ?? 0;
 
@@ -209,7 +219,11 @@ export const SidebarLayout = ({
             id="sidebar-quick-combat"
             onClick={() => {
               if (isMobileScreen) setIsMobileMenuOpen(false);
-              isAuthenticated ? onNavigate('gameplay') : onNavigate('auth');
+              if (onLaunchCombat) {
+                onLaunchCombat();
+              } else {
+                isAuthenticated ? onNavigate('gameplay') : onNavigate('auth');
+              }
             }}
             className="sidebar-launch-combat-btn"
             title="Launch Combat Sortie"

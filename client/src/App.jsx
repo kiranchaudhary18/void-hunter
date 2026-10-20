@@ -263,22 +263,38 @@ function MainAppContent() {
   const handleMissionCompleted = async (result) => {
     console.log('[COMBAT ENGINE] Mission Complete Result:', result);
     try {
-      if (activeSessionId && !activeSessionId.startsWith('local-')) {
-        await api.post(`/missions/${activeSessionId}/complete`, {
-          finalScore: result.score || 0,
-          durationSeconds: Math.max(12, result.durationSeconds || 45),
-          damageTaken: Math.max(0, 100 - (result.healthRemaining !== undefined ? result.healthRemaining : 100)),
-          telemetry: {
-            enemiesDestroyed: result.enemiesKilled || 0,
-            accuracyPercentage: result.enemiesKilled >= 10 ? 88 : 65,
-            healthRemaining: result.healthRemaining !== undefined ? result.healthRemaining : 100
-          }
-        });
-      }
+      const sessionIdToUse = activeSessionId || `session-auto-${Date.now()}`;
+      const res = await api.post(`/missions/${sessionIdToUse}/complete`, {
+        missionId: activeMission?.id || 'sector-1-mission-1',
+        finalScore: result.score || 0,
+        durationSeconds: Math.max(12, result.durationSeconds || 45),
+        damageTaken: Math.max(0, 100 - (result.healthRemaining !== undefined ? result.healthRemaining : 100)),
+        telemetry: {
+          enemiesDestroyed: result.enemiesKilled || 0,
+          accuracyPercentage: result.enemiesKilled >= 10 ? 88 : 65,
+          healthRemaining: result.healthRemaining !== undefined ? result.healthRemaining : 100,
+          missionId: activeMission?.id || 'sector-1-mission-1'
+        }
+      });
+      console.log('[COMBAT ENGINE] Mission Completion Server Response:', res);
     } catch (err) {
       console.warn('Could not post mission completion telemetry:', err.message);
     }
-    if (refreshProfile) refreshProfile();
+    if (refreshProfile) {
+      await refreshProfile();
+    }
+  };
+
+  // Helper to start the next recommended or active mission with a real backend session
+  const handleQuickCombatLaunch = async () => {
+    if (!isAuthenticated) {
+      navigateTo('auth');
+      return;
+    }
+    const completedCount = profile?.stats?.missionsCompleted || 0;
+    const nextSeq = Math.min(50, completedCount + 1);
+    const targetMission = MISSIONS_CATALOG.find((m) => m.globalSequence === nextSeq) || MISSIONS_CATALOG[0];
+    await handleStartMission(targetMission);
   };
 
   // Screens that strictly require pilot login
@@ -429,13 +445,7 @@ function MainAppContent() {
         return (
           <DashboardPage 
             onNavigate={(screen) => navigateTo(screen)}
-            onLaunchQuickCombat={() => {
-              if (!isAuthenticated) {
-                navigateTo('auth');
-              } else {
-                navigateTo('gameplay');
-              }
-            }}
+            onLaunchQuickCombat={handleQuickCombatLaunch}
             selectedShip={getSelectedShipData()}
           />
         );
@@ -447,6 +457,7 @@ function MainAppContent() {
     <SidebarLayout
       currentScreen={currentScreen}
       onNavigate={(screen) => navigateTo(screen)}
+      onLaunchCombat={handleQuickCombatLaunch}
       onOpenSettings={() => setIsSettingsOpen(true)}
     >
       {renderScreenContent()}

@@ -53,6 +53,7 @@ export const GameContainer = ({
   const [isAdAudioMuted, setIsAdAudioMuted] = useState(true);
   const [activeAdCampaign, setActiveAdCampaign] = useState(() => getRandomAdCampaign());
   const adTimerRef = useRef(null);
+  const isCompletedReportedRef = useRef(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 680 : false);
 
   useEffect(() => {
@@ -117,7 +118,10 @@ export const GameContainer = ({
               soundManager.stopBGM();
               setVictoryData(result);
               confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-              if (onCompleteMission) onCompleteMission(result);
+              if (onCompleteMission && !isCompletedReportedRef.current) {
+                isCompletedReportedRef.current = true;
+                onCompleteMission(result);
+              }
             }
           }
         });
@@ -903,7 +907,8 @@ export const GameContainer = ({
               <button 
                 onClick={async () => {
                   setVictoryData(null);
-                  if (onCompleteMission) {
+                  if (onCompleteMission && !isCompletedReportedRef.current) {
+                    isCompletedReportedRef.current = true;
                     await onCompleteMission(victoryData);
                   }
                   if (onNextMission) {
@@ -942,7 +947,8 @@ export const GameContainer = ({
                 <button 
                   onClick={async () => {
                     setVictoryData(null);
-                    if (onCompleteMission) {
+                    if (onCompleteMission && !isCompletedReportedRef.current) {
+                      isCompletedReportedRef.current = true;
                       await onCompleteMission(victoryData);
                     }
                     onExit('missions');

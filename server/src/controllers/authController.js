@@ -3,7 +3,7 @@ import User from '../models/User.js';
 import PlayerProfile from '../models/PlayerProfile.js';
 import PlayerShip from '../models/PlayerShip.js';
 import WalletTransaction from '../models/WalletTransaction.js';
-import { JWT_SECRET, JWT_EXPIRES_IN, ECONOMY_CONFIG } from '../config/gameConfig.js';
+import { JWT_SECRET, JWT_EXPIRES_IN, ECONOMY_CONFIG, getPilotRankForLevel } from '../config/gameConfig.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const generateToken = (id) => {
@@ -138,6 +138,13 @@ export const login = async (req, res) => {
 
     // Fetch up-to-date player profile
     let profile = await PlayerProfile.findOne({ user: user._id });
+    if (profile) {
+      const correctRank = getPilotRankForLevel(profile.level);
+      if (profile.pilotRank !== correctRank) {
+        profile.pilotRank = correctRank;
+        await profile.save();
+      }
+    }
     if (!profile) {
       // Self-heal profile if missing
       profile = await PlayerProfile.create({
@@ -178,6 +185,13 @@ export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     const profile = await PlayerProfile.findOne({ user: req.user.id });
+    if (profile) {
+      const correctRank = getPilotRankForLevel(profile.level);
+      if (profile.pilotRank !== correctRank) {
+        profile.pilotRank = correctRank;
+        await profile.save();
+      }
+    }
     const ships = await PlayerShip.find({ user: req.user.id });
 
     return res.status(200).json({
