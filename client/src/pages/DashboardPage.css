@@ -1,0 +1,850 @@
+/* ==========================================================================
+   VOID HUNTER - PREMIUM PILOT COMMAND CENTER (DASHBOARD)
+   Theme:
+   - Deep space: #050817
+   - Midnight navy: #0A1028
+   - Elevated panel: #0D1733
+   - Neon cyan: #00E5FF
+   - Cosmic purple: #8B5CF6
+   - Currency gold: #FBBF24
+   - Primary text: #EAF1FF
+   - Secondary text: #96A6C8
+   ========================================================================== */
+
+.dashboard-root {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Glassmorphic Cyber Panel */
+.cyber-panel {
+  position: relative;
+  background: rgba(13, 23, 51, 0.88);
+  border: 1px solid rgba(0, 229, 255, 0.20);
+  border-radius: 14px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), inset 0 0 16px rgba(0, 229, 255, 0.04);
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cyber-panel:hover {
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+/* Corner HUD Brackets */
+.hud-corner {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0.8;
+  border-color: #00E5FF;
+}
+
+.hud-tl { top: 6px; left: 6px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.hud-tr { top: 6px; right: 6px; border-top: 1.5px solid; border-right: 1.5px solid; }
+.hud-bl { bottom: 6px; left: 6px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+.hud-br { bottom: 6px; right: 6px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+
+/* ================= 1. TOP HERO GRID (2 COLUMNS) ================= */
+.dashboard-top-hero-grid {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 22px;
+  align-items: stretch;
+}
+
+/* LEFT: CINEMATIC MISSION BRIEFING HERO */
+.hero-mission-briefing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 380px;
+  border-color: rgba(0, 229, 255, 0.32);
+}
+
+.hero-backdrop-artwork {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 65%;
+  background-size: cover;
+  background-position: center right;
+  z-index: 1;
+  opacity: 0.45;
+  mask-image: linear-gradient(to right, transparent 0%, black 50%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 50%);
+  transition: transform 12s ease-out, opacity 0.5s ease;
+}
+
+.hero-mission-briefing:hover .hero-backdrop-artwork {
+  transform: scale(1.04);
+  opacity: 0.55;
+}
+
+.hero-backdrop-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #0D1733 32%, rgba(13, 23, 51, 0.88) 65%, rgba(13, 23, 51, 0.35) 100%);
+  z-index: 2;
+}
+
+.hero-content-layer {
+  position: relative;
+  z-index: 3;
+  padding: 30px 32px 26px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Hero Header */
+.hero-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.hero-eyebrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 9999px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #00E5FF;
+}
+
+.hero-mission-counter {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #FBBF24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* Hero Titles */
+.hero-body {
+  margin: auto 0;
+}
+
+.hero-sector-subtitle {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #8B5CF6;
+  margin-bottom: 6px;
+}
+
+.hero-sector-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.85rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #EAF1FF;
+  line-height: 1.15;
+  margin: 0 0 12px 0;
+  text-shadow: 0 0 18px rgba(0, 229, 255, 0.4);
+}
+
+.hero-sector-desc {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #96A6C8;
+  max-width: 540px;
+  margin: 0 0 20px 0;
+}
+
+/* Hero Tactical Telemetry Chips */
+.hero-telemetry-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.hero-telemetry-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(6, 12, 34, 0.7);
+  border: 1px solid rgba(150, 166, 200, 0.22);
+  border-radius: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #96A6C8;
+  letter-spacing: 0.06em;
+}
+
+.hero-telemetry-chip.chip-gold {
+  color: #FBBF24;
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.06);
+}
+
+.hero-telemetry-chip.chip-cyan {
+  color: #00E5FF;
+  border-color: rgba(0, 229, 255, 0.35);
+  background: rgba(0, 229, 255, 0.06);
+}
+
+/* Hero Action Buttons */
+.hero-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-continue-mission {
+  height: 46px;
+  padding: 0 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #00E5FF;
+  border: none;
+  border-radius: 8px;
+  color: #04081E;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-continue-mission:hover {
+  background: #33ECFF;
+  box-shadow: 0 0 32px rgba(0, 229, 255, 0.75);
+  transform: translateY(-1.5px);
+}
+
+.btn-sector-map {
+  height: 46px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(11, 20, 48, 0.6);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 8px;
+  color: #00E5FF;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sector-map:hover {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: #00E5FF;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* RIGHT: ACTIVE STARFIGHTER PANEL */
+.starfighter-panel {
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-color: rgba(139, 92, 246, 0.32);
+}
+
+.starfighter-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.starfighter-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.38);
+  border-radius: 9999px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #C084FC;
+  margin-bottom: 6px;
+}
+
+.starfighter-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #EAF1FF;
+  margin: 0 0 3px 0;
+  text-shadow: 0 0 14px rgba(139, 92, 246, 0.5);
+}
+
+.starfighter-class-tag {
+  font-size: 0.68rem;
+  color: #96A6C8;
+  font-weight: 600;
+}
+
+.btn-open-hangar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 6px;
+  color: #C084FC;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-open-hangar:hover {
+  background: rgba(139, 92, 246, 0.22);
+  border-color: #8B5CF6;
+  box-shadow: 0 0 14px rgba(139, 92, 246, 0.35);
+}
+
+/* Holographic Ship Viewport */
+.starfighter-viewport {
+  position: relative;
+  height: 160px;
+  margin: 12px 0 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.09) 0%, rgba(10, 16, 40, 0) 70%);
+  border-radius: 10px;
+  border: 1px dashed rgba(139, 92, 246, 0.25);
+  overflow: hidden;
+}
+
+.hologram-grid-floor {
+  position: absolute;
+  bottom: 10px;
+  width: 140px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
+  transform: rotateX(65deg);
+  pointer-events: none;
+}
+
+.starfighter-render-image {
+  max-height: 130px;
+  max-width: 85%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.65));
+  animation: shipFloat 4s ease-in-out infinite alternate;
+  z-index: 2;
+}
+
+@keyframes shipFloat {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(0.5deg); }
+  100% { transform: translateY(2px) rotate(-0.5deg); }
+}
+
+/* Equipment Loadout Chips */
+.starfighter-loadout-chips {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 6px 8px;
+  background: rgba(6, 12, 34, 0.6);
+  border-radius: 6px;
+  border: 1px solid rgba(150, 166, 200, 0.12);
+}
+
+.loadout-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.loadout-chip-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.50rem;
+  font-weight: 800;
+  color: #5A6D96;
+  letter-spacing: 0.08em;
+}
+
+.loadout-chip-name {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #EAF1FF;
+  white-space: nowrap;
+}
+
+/* Ship Module Stat Bars */
+.starfighter-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ship-stat-track-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.62rem;
+}
+
+.ship-stat-label {
+  font-family: 'Orbitron', monospace;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #96A6C8;
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.ship-stat-bar-slot {
+  flex: 1;
+  height: 6px;
+  background: rgba(6, 12, 34, 0.9);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(150, 166, 200, 0.15);
+}
+
+.ship-stat-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ship-stat-value {
+  font-family: 'Orbitron', monospace;
+  font-weight: 800;
+  color: #EAF1FF;
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ================= 2. LOWER DASHBOARD MODULES (3 COLUMNS) ================= */
+.dashboard-lower-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.module-card {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 320px;
+}
+
+.module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.module-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.module-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #EAF1FF;
+}
+
+.module-action-link {
+  background: transparent;
+  border: none;
+  color: #00E5FF;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.15s ease;
+}
+
+.module-action-link:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+/* MODULE 1: UPCOMING MISSIONS */
+.missions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+}
+
+.mission-row-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(6, 12, 34, 0.7);
+  border: 1px solid rgba(150, 166, 200, 0.15);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mission-row-card:hover {
+  background: rgba(0, 229, 255, 0.06);
+  border-color: rgba(0, 229, 255, 0.4);
+  transform: translateX(2px);
+}
+
+.mission-row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mission-row-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00E5FF;
+  flex-shrink: 0;
+}
+
+.mission-row-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #EAF1FF;
+  line-height: 1.2;
+}
+
+.mission-row-sub {
+  font-size: 0.62rem;
+  color: #96A6C8;
+  margin-top: 2px;
+}
+
+.mission-row-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mission-reward-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #FBBF24;
+}
+
+/* MODULE 2: DAILY MISSIONS & CONTRACTS */
+.daily-contracts-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.contract-card {
+  padding: 10px 12px;
+  background: rgba(6, 12, 34, 0.7);
+  border: 1px solid rgba(150, 166, 200, 0.15);
+  border-radius: 8px;
+}
+
+.contract-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.contract-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #EAF1FF;
+}
+
+.contract-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #FBBF24;
+}
+
+.contract-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contract-bar-slot {
+  flex: 1;
+  height: 5px;
+  background: rgba(10, 16, 40, 0.9);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.contract-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.contract-progress-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #96A6C8;
+  white-space: nowrap;
+}
+
+.contract-claimed-badge {
+  color: #20D6A0;
+}
+
+/* MODULE 3: RECENT REWARDS & ACHIEVEMENTS */
+.telemetry-module-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.recent-rewards-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reward-feed-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(6, 12, 34, 0.7);
+  border: 1px solid rgba(150, 166, 200, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.reward-feed-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.reward-feed-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feed-icon-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feed-icon-gold {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #FBBF24;
+}
+
+.feed-icon-purple {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #C084FC;
+}
+
+.feed-source-text {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #EAF1FF;
+}
+
+.feed-time-text {
+  font-size: 0.56rem;
+  color: #5A6D96;
+}
+
+.feed-amount-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.amount-gold { color: #FBBF24; }
+.amount-purple { color: #C084FC; }
+
+/* Achievements Preview Rack */
+.achievements-preview-rack {
+  padding-top: 10px;
+  border-top: 1px solid rgba(150, 166, 200, 0.12);
+}
+
+.achievements-rack-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #96A6C8;
+}
+
+.achievements-icons-grid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.achievement-icon-slot {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid;
+}
+
+.achievement-icon-slot.unlocked {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: rgba(0, 229, 255, 0.45);
+  color: #00E5FF;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+}
+
+.achievement-icon-slot.unlocked:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
+}
+
+.achievement-icon-slot.locked {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(150, 166, 200, 0.12);
+  color: #5A6D96;
+  opacity: 0.6;
+}
+
+.module-empty-notice {
+  font-size: 0.72rem;
+  color: #5A6D96;
+  text-align: center;
+  padding: 24px 10px;
+  font-style: italic;
+}
+
+/* ================= 3. RESPONSIVE MEDIA QUERIES ================= */
+/* Tablet (<= 1100px) */
+@media (max-width: 1100px) {
+  .dashboard-top-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-lower-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .hero-backdrop-artwork {
+    width: 100%;
+    opacity: 0.3;
+  }
+  .hero-sector-title {
+    font-size: 1.4rem;
+  }
+  .hero-content-layer {
+    padding: 20px 18px;
+  }
+  .hero-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-continue-mission, .btn-sector-map {
+    width: 100%;
+    justify-content: center;
+  }
+  .dashboard-lower-grid {
+    grid-template-columns: 1fr;
+  }
+  .starfighter-panel {
+    padding: 20px 18px;
+  }
+}

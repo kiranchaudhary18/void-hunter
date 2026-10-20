@@ -1,0 +1,532 @@
+/* ==========================================================================
+   VOID HUNTER - SPACECRAFT PILOT COMMAND NAVIGATION SYSTEM
+   Brand Colors:
+   - Deep space: #050817
+   - Midnight navy: #0A1028
+   - Elevated panel: #0D1733
+   - Neon cyan: #00E5FF
+   - Cosmic purple: #8B5CF6
+   - Currency gold: #FBBF24
+   - Primary text: #EAF1FF
+   - Secondary text: #96A6C8
+   ========================================================================== */
+
+/* Shell Layout */
+.command-deck-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #050817;
+  background-image: 
+    radial-gradient(circle at 18% 12%, rgba(139, 92, 246, 0.08) 0%, transparent 48%),
+    radial-gradient(circle at 82% 88%, rgba(0, 229, 255, 0.06) 0%, transparent 48%),
+    radial-gradient(1.5px 1.5px at 35px 55px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 145px 190px, rgba(0, 229, 255, 0.75), transparent),
+    radial-gradient(1.5px 1.5px at 270px 110px, rgba(139, 92, 246, 0.6), transparent);
+  background-size: 100% 100%, 100% 100%, 420px 420px, 320px 320px, 480px 480px;
+  color: #EAF1FF;
+  position: relative;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* ================= 1. SPACECRAFT SIDEBAR CONSOLE ================= */
+.spacecraft-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 250px;
+  min-width: 250px;
+  background: rgba(10, 16, 40, 0.96);
+  border-right: 1px solid rgba(0, 229, 255, 0.14);
+  box-shadow: 4px 0 28px rgba(0, 0, 0, 0.6), inset -1px 0 0 rgba(0, 229, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Sidebar Brand Header */
+.sidebar-brand-box {
+  padding: 20px 20px 16px 20px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.12);
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.04) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-brand-interactive {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sidebar-brand-logo {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
+  transition: transform 0.25s ease;
+}
+
+.sidebar-brand-interactive:hover .sidebar-brand-logo {
+  transform: scale(1.05);
+}
+
+.sidebar-brand-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #EAF1FF;
+  line-height: 1.1;
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.5);
+}
+
+.sidebar-brand-tag {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #00E5FF;
+  margin-top: 3px;
+  opacity: 0.85;
+}
+
+/* Tasteful Status Indicator: COMMAND LINK ONLINE */
+.sidebar-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  background: rgba(32, 214, 160, 0.08);
+  border: 1px solid rgba(32, 214, 160, 0.25);
+  border-radius: 9999px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #20D6A0;
+}
+
+.sidebar-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #20D6A0;
+  box-shadow: 0 0 8px #20D6A0;
+  animation: pulseGreen 1.8s infinite;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Navigation Groups */
+.sidebar-nav-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebar-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sidebar-group-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #5A6D96;
+  padding: 0 10px 6px 10px;
+  user-select: none;
+}
+
+/* Nav Buttons */
+.sidebar-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #96A6C8;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  user-select: none;
+}
+
+.sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(150, 166, 200, 0.18);
+  color: #EAF1FF;
+}
+
+.sidebar-nav-item:focus-visible {
+  outline: 2px solid #00E5FF;
+  outline-offset: 1px;
+}
+
+.sidebar-nav-item.active {
+  background: rgba(0, 229, 255, 0.09);
+  border-color: rgba(0, 229, 255, 0.28);
+  color: #00E5FF;
+  box-shadow: inset 0 0 16px rgba(0, 229, 255, 0.07);
+}
+
+.sidebar-active-indicator {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: #00E5FF;
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 10px #00E5FF, 0 0 18px rgba(0, 229, 255, 0.8);
+}
+
+.sidebar-item-icon {
+  flex-shrink: 0;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-nav-item.active .sidebar-item-icon {
+  filter: drop-shadow(0 0 8px #00E5FF);
+  transform: scale(1.08);
+}
+
+/* Sidebar Footer & LAUNCH COMBAT Action */
+.sidebar-footer-action {
+  padding: 16px 14px 18px 14px;
+  border-top: 1px solid rgba(0, 229, 255, 0.12);
+  background: linear-gradient(0deg, rgba(0, 229, 255, 0.06) 0%, transparent 100%);
+}
+
+.sidebar-launch-combat-btn {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: #00E5FF;
+  border: none;
+  border-radius: 8px;
+  color: #04081E;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 0 22px rgba(0, 229, 255, 0.45);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-launch-combat-btn:hover {
+  background: #33ECFF;
+  box-shadow: 0 0 32px rgba(0, 229, 255, 0.75);
+  transform: translateY(-1.5px);
+}
+
+/* ================= 2. TOP COMMAND BAR HUD ================= */
+.command-viewport-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.command-top-hud {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(10, 16, 40, 0.88);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  z-index: 990;
+  box-sizing: border-box;
+}
+
+/* Header Left Area */
+.hud-left-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hud-location-badge {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-location-sub {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #00E5FF;
+  opacity: 0.85;
+}
+
+.hud-location-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #EAF1FF;
+}
+
+.hud-quick-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+}
+
+.hud-quick-link {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 5px 12px;
+  border-radius: 6px;
+  color: #96A6C8;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hud-quick-link:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #EAF1FF;
+  border-color: rgba(150, 166, 200, 0.15);
+}
+
+.hud-quick-link.active {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.3);
+  color: #00E5FF;
+}
+
+/* Header Right Area */
+.hud-right-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Currency Pills */
+.hud-currency-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(13, 23, 51, 0.85);
+  border: 1px solid rgba(150, 166, 200, 0.2);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.hud-currency-pill:hover {
+  transform: translateY(-1px);
+}
+
+.pill-gold {
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.pill-gold:hover {
+  border-color: #FBBF24;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.3);
+}
+
+.pill-purple {
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+.pill-purple:hover {
+  border-color: #8B5CF6;
+  box-shadow: 0 0 14px rgba(139, 92, 246, 0.3);
+}
+
+.hud-currency-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-currency-text-gold {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #FBBF24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+
+.hud-currency-text-purple {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #C084FC;
+  text-shadow: 0 0 8px rgba(192, 132, 252, 0.5);
+}
+
+/* Pilot Profile HUD Badge */
+.hud-pilot-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px 4px 12px;
+  background: rgba(13, 23, 51, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 9999px;
+  user-select: none;
+}
+
+.hud-pilot-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid #00E5FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00E5FF;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
+.hud-pilot-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-pilot-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #EAF1FF;
+  line-height: 1.1;
+}
+
+.hud-pilot-rank {
+  font-size: 0.60rem;
+  color: #00E5FF;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.hud-logout-btn {
+  background: transparent;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #96A6C8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hud-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+}
+
+/* Drawer Toggle & Mobile Close */
+.hud-hamburger-btn {
+  background: transparent;
+  border: none;
+  color: #00E5FF;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.sidebar-close-btn {
+  background: transparent;
+  border: none;
+  color: #96A6C8;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.sidebar-close-btn:hover {
+  color: #EAF1FF;
+}
+
+.sidebar-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 6, 20, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 999;
+}
+
+/* Content Viewport */
+.command-content-viewport {
+  margin-top: 64px;
+  flex: 1;
+  padding: 24px 28px 32px 28px;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .hud-quick-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .command-content-viewport {
+    padding: 16px 14px 80px 14px;
+  }
+  .hud-pilot-meta {
+    display: none;
+  }
+  .hud-currency-text-gold, .hud-currency-text-purple {
+    font-size: 0.68rem;
+  }
+}

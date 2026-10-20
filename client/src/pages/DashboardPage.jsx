@@ -3,12 +3,14 @@ import { useAuth } from '../context/AuthContext.jsx';
 import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import { MISSIONS_CATALOG } from '../data/missionsData.js';
+import './DashboardPage.css';
 import { 
   Play, Compass, Award, ChevronRight, 
-  Coins, Zap, Crosshair 
+  Coins, Zap, Crosshair, Shield, Activity, 
+  Flame, Gauge, ShieldCheck, Target, ArrowRight
 } from 'lucide-react';
 
-export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
+export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip }) => {
   const { profile } = useAuth();
 
   // Real backend-driven state
@@ -16,23 +18,66 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
   const [dailyQuests, setDailyQuests] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
-  const [_loadingStats, setLoadingStats] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   const handleNav = (screenName) => {
-    soundManager.playLaser();
+    try { soundManager.playLaser(); } catch {}
     if (onNavigate) onNavigate(screenName);
   };
 
   const completedCount = profile?.stats?.missionsCompleted || 0;
   const currentMissionNumber = Math.min(50, completedCount + 1);
 
-  // Sector title calculation
+  // Sector title, briefing, and background artwork mapping
   const getSectorInfo = (num) => {
-    if (num <= 10) return { sector: 'SECTOR 1', name: 'NEBULA OUTPOST', desc: 'Secure forward recon outposts against Void Vanguard advance scouts.' };
-    if (num <= 20) return { sector: 'SECTOR 2', name: 'DARK ORBIT', desc: 'Navigate dense planetary orbital defenses and intercept stealth strike craft.' };
-    if (num <= 30) return { sector: 'SECTOR 3', name: 'ASTEROID BELT', desc: 'Navigate through dangerous asteroid fields and eliminate hostile vanguard forces.' };
-    if (num <= 40) return { sector: 'SECTOR 4', name: 'VOID RIFT', desc: 'Penetrate deep dimensional anomalies and survive multi-wave heavy cruisers.' };
-    return { sector: 'SECTOR 5', name: 'FINAL FRONTIER', desc: 'Assault the sovereign flagship citadel and defeat the apex Void Overlord.' };
+    if (num <= 10) {
+      return { 
+        sector: 'SECTOR 1', 
+        name: 'NEBULA OUTPOST', 
+        desc: 'Secure forward recon outposts against Void Vanguard advance scouts in the ionized gaseous borderlands.',
+        image: '/assets/sectors/sector_1_nebula.jpg',
+        threat: 'CLASS-D RECON',
+        reward: '+100 CREDITS'
+      };
+    }
+    if (num <= 20) {
+      return { 
+        sector: 'SECTOR 2', 
+        name: 'DARK ORBIT', 
+        desc: 'Navigate dense planetary orbital defenses and intercept stealth strike craft attempting to infiltrate low-orbit satellites.',
+        image: '/assets/sectors/sector_2_orbit.jpg',
+        threat: 'CLASS-C ESCALATION',
+        reward: '+150 CREDITS'
+      };
+    }
+    if (num <= 30) {
+      return { 
+        sector: 'SECTOR 3', 
+        name: 'ASTEROID BELT', 
+        desc: 'Navigate through dangerous asteroid debris fields and eliminate hostile vanguard raiders establishing hidden jump relays.',
+        image: '/assets/sectors/sector_3_asteroid.jpg',
+        threat: 'CLASS-B HAZARD',
+        reward: '+200 CREDITS'
+      };
+    }
+    if (num <= 40) {
+      return { 
+        sector: 'SECTOR 4', 
+        name: 'VOID RIFT', 
+        desc: 'Penetrate deep dimensional anomalies and survive multi-wave heavy cruisers operating with experimental hyper-weaponry.',
+        image: '/assets/sectors/sector_4_rift.jpg',
+        threat: 'CLASS-A CRITICAL',
+        reward: '+300 CREDITS'
+      };
+    }
+    return { 
+      sector: 'SECTOR 5', 
+      name: 'FINAL FRONTIER', 
+      desc: 'Assault the sovereign flagship citadel and defeat the apex Void Overlord to liberate the outer star systems.',
+      image: '/assets/sectors/sector_5_citadel.jpg',
+      threat: 'APEX OVERLORD',
+      reward: '+500 CREDITS'
+    };
   };
 
   const activeSector = getSectorInfo(currentMissionNumber);
@@ -56,9 +101,9 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
       }
 
       // 3. Fetch real recent wallet ledger transactions
-      const ledgerRes = await api.get('/wallet/ledger?limit=3');
+      const ledgerRes = await api.get('/wallet/ledger?limit=4');
       if (ledgerRes.data?.success && ledgerRes.data.transactions) {
-        setRecentTransactions(ledgerRes.data.transactions.slice(0, 3));
+        setRecentTransactions(ledgerRes.data.transactions.slice(0, 4));
       }
     } catch (err) {
       console.warn('Dashboard real-time data sync error:', err.message);
@@ -80,6 +125,17 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
   const liveSpeed = Math.min(100, (baseStats.speed || 82) + ((upgrades.engine || 1) - 1) * 4);
   const liveManeuver = Math.min(100, (baseStats.maneuver || 76) + ((upgrades.special || 1) - 1) * 4);
 
+  // Authentic ship artwork mapping
+  const getShipIllustration = (shipId, shipCode) => {
+    const combined = `${shipId || ''} ${shipCode || ''}`.toLowerCase();
+    if (combined.includes('nova') || combined.includes('z05') || combined.includes('z-05')) return '/assets/ships/ship_nova.jpg';
+    if (combined.includes('phoenix') || combined.includes('s02') || combined.includes('s-02')) return '/assets/ships/ship_phoenix.jpg';
+    if (combined.includes('shadow') || combined.includes('x03') || combined.includes('x-03')) return '/assets/ships/ship_shadow.jpg';
+    if (combined.includes('titan') || combined.includes('r04') || combined.includes('r-04')) return '/assets/ships/ship_titan.jpg';
+    return '/assets/ships/ship_orbitron.jpg';
+  };
+
+  const shipImage = getShipIllustration(activeShip?.id || profile?.selectedShipId, activeShip?.code);
   const currentShipName = activeShip?.name ? `${activeShip.code || 'V-01'} ${activeShip.name}` : (profile?.selectedShipId?.toUpperCase() || 'V-01 ORBITRON');
   const currentShipClass = activeShip?.classType ? `${activeShip.classType} • ${activeShip.tagline || 'Combat Ready'}` : 'Balanced Fighter • All-Rounder';
 
@@ -88,7 +144,6 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
     (m) => m.globalSequence >= currentMissionNumber
   ).slice(0, 3);
 
-  // If at mission 50, show the final 3 missions
   const displayedMissions = upcomingMissions.length > 0 
     ? upcomingMissions 
     : MISSIONS_CATALOG.slice(-3);
@@ -97,202 +152,281 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
   const unlockedAchievementsCount = achievements.filter((a) => a.isUnlocked).length;
 
   return (
-    <div className="page-responsive-container">
-      {/* ================= TOP SECTION: 2 COLUMNS (JOURNEY HERO + SHIP CARD) ================= */}
-      <div className="dashboard-top-grid">
-        {/* LEFT: CONTINUE YOUR JOURNEY (HERO) */}
-        <div style={styles.journeyCard} className="glass-panel cyber-box">
-          <div style={styles.journeyHeader}>
-            <span className="badge badge-cyan">CONTINUE YOUR JOURNEY</span>
-            <span style={styles.missionProgressTag}>
-              MISSION {String(currentMissionNumber).padStart(2, '0')} / 50
-            </span>
-          </div>
+    <div className="dashboard-root">
+      {/* ================= 1. TOP HERO SECTION (2 BALANCED COLUMNS) ================= */}
+      <div className="dashboard-top-hero-grid">
+        {/* LEFT: CINEMATIC MISSION BRIEFING (HERO) */}
+        <section className="cyber-panel hero-mission-briefing" aria-label="Current Mission Briefing">
+          {/* Tactical Corner HUD Brackets */}
+          <span className="hud-corner hud-tl" aria-hidden="true" />
+          <span className="hud-corner hud-tr" aria-hidden="true" />
+          <span className="hud-corner hud-bl" aria-hidden="true" />
+          <span className="hud-corner hud-br" aria-hidden="true" />
 
-          <div style={styles.journeyBody}>
-            <div className="font-heading" style={styles.sectorSubTitle}>
-              {activeSector.sector}
-            </div>
-            <h1 className="font-heading text-glow-cyan" style={styles.sectorTitle}>
-              {activeSector.name}
-            </h1>
-            <p style={styles.sectorDesc}>
-              {activeSector.desc}
-            </p>
-          </div>
+          {/* Deep Space / Asteroid Field Sector Artwork */}
+          <div 
+            className="hero-backdrop-artwork" 
+            style={{ backgroundImage: `url(${activeSector.image})` }} 
+            aria-hidden="true"
+          />
+          <div className="hero-backdrop-overlay" aria-hidden="true" />
 
-          <div style={styles.journeyFooter}>
-            <button
-              id="dashboard-btn-continue"
-              onClick={() => onLaunchQuickCombat ? onLaunchQuickCombat() : handleNav('gameplay')}
-              className="btn btn-cyan animate-pulse-glow"
-              style={styles.continueBtn}
-            >
-              <Play size={18} fill="currentColor" />
-              <span>CONTINUE MISSION</span>
-            </button>
-            <button
-              onClick={() => handleNav('missions')}
-              className="btn btn-outline"
-              style={styles.sectorMapBtn}
-            >
-              <Compass size={16} />
-              <span>SECTOR MAP</span>
-            </button>
-          </div>
-        </div>
-
-        {/* RIGHT: YOUR CURRENT SHIP (PODIUM & STATS) */}
-        <div style={styles.currentShipCard} className="glass-panel cyber-box">
-          <div style={styles.shipCardHeader}>
-            <div>
-              <span className="badge badge-purple" style={{ fontSize: '0.62rem' }}>YOUR CURRENT SHIP</span>
-              <h2 className="font-heading text-glow-cyan" style={styles.shipName}>
-                {currentShipName}
-              </h2>
-              <span style={styles.shipClass}>{currentShipClass}</span>
-            </div>
-            <button
-              onClick={() => handleNav('hangar')}
-              style={styles.goToHangarBtn}
-              className="btn btn-outline"
-            >
-              <span>HANGAR</span>
-              <ChevronRight size={14} />
-            </button>
-          </div>
-
-          {/* Rendered Spaceship Graphic */}
-          <div style={styles.shipPreviewContainer}>
-            <div style={styles.holoRing} />
-            <div className="animate-float" style={styles.shipWrapper}>
-              <svg width="150" height="150" viewBox="0 0 64 64" style={{ filter: 'drop-shadow(0 0 16px rgba(0, 229, 255, 0.7))' }}>
-                <polygon points="32,6 44,28 60,52 48,56 38,48 32,58 26,48 16,56 4,52 20,28" fill="#00E5FF" />
-                <polygon points="32,10 42,32 52,50 40,48 32,54 24,48 12,50 22,32" fill="#0A1232" />
-                <ellipse cx="32" cy="26" rx="4" ry="10" fill="#FFFFFF" />
-                <circle cx="28" cy="56" r="3" fill="#FF2DFF" />
-                <circle cx="36" cy="56" r="3" fill="#FF2DFF" />
-              </svg>
-            </div>
-          </div>
-
-          {/* 4 Stat Tracks - Powered by Real Module Upgrades */}
-          <div style={styles.shipStatsList}>
-            <div style={styles.statRow}>
-              <span style={styles.statLabel}>FIREPOWER (LVL {upgrades.weapon || 1})</span>
-              <div style={styles.statBarTrack}>
-                <div style={{ ...styles.statBarFill, width: `${liveFirepower}%`, background: 'linear-gradient(90deg, #6D28D9, #A855F7)' }} />
+          <div className="hero-content-layer">
+            {/* Header row */}
+            <div className="hero-header-row">
+              <div className="hero-eyebrow-badge">
+                <Target size={13} />
+                <span>CONTINUE YOUR JOURNEY</span>
               </div>
-              <span style={styles.statVal}>{liveFirepower}</span>
+              <div className="hero-mission-counter">
+                MISSION {String(currentMissionNumber).padStart(2, '0')} / 50
+              </div>
             </div>
 
-            <div style={styles.statRow}>
-              <span style={styles.statLabel}>SHIELD (LVL {upgrades.shield || 1})</span>
-              <div style={styles.statBarTrack}>
-                <div style={{ ...styles.statBarFill, width: `${liveShield}%`, background: 'linear-gradient(90deg, #0099FF, #00E5FF)' }} />
+            {/* Mission Briefing Body */}
+            <div className="hero-body">
+              <div className="hero-sector-subtitle">
+                // {activeSector.sector} OVERWATCH
               </div>
-              <span style={styles.statVal}>{liveShield}</span>
+              <h1 className="hero-sector-title">
+                {activeSector.name}
+              </h1>
+              <p className="hero-sector-desc">
+                {activeSector.desc}
+              </p>
+
+              {/* Tactical Telemetry Chips */}
+              <div className="hero-telemetry-row">
+                <span className="hero-telemetry-chip chip-cyan">
+                  <Activity size={12} />
+                  <span>THREAT: {activeSector.threat}</span>
+                </span>
+                <span className="hero-telemetry-chip chip-gold">
+                  <Coins size={12} />
+                  <span>ESTIMATED: {activeSector.reward}</span>
+                </span>
+                <span className="hero-telemetry-chip">
+                  <ShieldCheck size={12} />
+                  <span>SECTOR GATE: RECON READY</span>
+                </span>
+              </div>
             </div>
 
-            <div style={styles.statRow}>
-              <span style={styles.statLabel}>SPEED (LVL {upgrades.engine || 1})</span>
-              <div style={styles.statBarTrack}>
-                <div style={{ ...styles.statBarFill, width: `${liveSpeed}%`, background: 'linear-gradient(90deg, #D97706, #FBBF24)' }} />
-              </div>
-              <span style={styles.statVal}>{liveSpeed}</span>
-            </div>
+            {/* Primary & Secondary Action Buttons */}
+            <div className="hero-actions-row">
+              <button
+                id="dashboard-btn-continue"
+                onClick={() => onLaunchQuickCombat ? onLaunchQuickCombat() : handleNav('gameplay')}
+                className="btn-continue-mission"
+                title="Launch Combat Sortie"
+              >
+                <Play size={16} fill="currentColor" />
+                <span>CONTINUE MISSION</span>
+              </button>
 
-            <div style={styles.statRow}>
-              <span style={styles.statLabel}>MANEUVER (LVL {upgrades.special || 1})</span>
-              <div style={styles.statBarTrack}>
-                <div style={{ ...styles.statBarFill, width: `${liveManeuver}%`, background: 'linear-gradient(90deg, #059669, #10B981)' }} />
-              </div>
-              <span style={styles.statVal}>{liveManeuver}</span>
+              <button
+                onClick={() => handleNav('missions')}
+                className="btn-sector-map"
+                title="Open Galactic Campaign Map"
+              >
+                <Compass size={15} />
+                <span>SECTOR MAP</span>
+              </button>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* RIGHT: ACTIVE STARFIGHTER PANEL */}
+        <section className="cyber-panel starfighter-panel" aria-label="Active Starfighter Viewport">
+          <span className="hud-corner hud-tl" style={{ borderColor: '#8B5CF6' }} aria-hidden="true" />
+          <span className="hud-corner hud-tr" style={{ borderColor: '#8B5CF6' }} aria-hidden="true" />
+          <span className="hud-corner hud-bl" style={{ borderColor: '#8B5CF6' }} aria-hidden="true" />
+          <span className="hud-corner hud-br" style={{ borderColor: '#8B5CF6' }} aria-hidden="true" />
+
+          {/* Panel Header */}
+          <div>
+            <div className="starfighter-panel-header">
+              <div>
+                <span className="starfighter-eyebrow">// ACTIVE STARFIGHTER</span>
+                <h2 className="starfighter-name">{currentShipName}</h2>
+                <span className="starfighter-class-tag">{currentShipClass}</span>
+              </div>
+              <button
+                onClick={() => handleNav('hangar')}
+                className="btn-open-hangar"
+                title="Go to Hangar"
+              >
+                <span>OPEN HANGAR</span>
+                <ChevronRight size={13} />
+              </button>
+            </div>
+
+            {/* Holographic Ship Viewport Card with Authentic Render */}
+            <div className="starfighter-viewport">
+              <div className="hologram-grid-floor" aria-hidden="true" />
+              <img 
+                src={shipImage} 
+                alt={currentShipName}
+                className="starfighter-render-image"
+              />
+            </div>
+
+            {/* Equipment Loadout Chips */}
+            <div className="starfighter-loadout-chips">
+              <div className="loadout-chip">
+                <span className="loadout-chip-label">PRIMARY WEAPON</span>
+                <span className="loadout-chip-name">{activeShip?.primaryWeapon || 'Plasma Cannon'}</span>
+              </div>
+              <div className="loadout-chip">
+                <span className="loadout-chip-label">DEFLECTOR</span>
+                <span className="loadout-chip-name">{activeShip?.defensiveSystem || 'Kinetic Shield'}</span>
+              </div>
+              <div className="loadout-chip">
+                <span className="loadout-chip-label">ENGINE</span>
+                <span className="loadout-chip-name">{activeShip?.propulsion || 'Hyper-Ion Drive'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 Tactical Module Stat Tracks */}
+          <div className="starfighter-stats-list">
+            <div className="ship-stat-track-row">
+              <span className="ship-stat-label">FIREPOWER (LVL {upgrades.weapon || 1})</span>
+              <div className="ship-stat-bar-slot">
+                <div 
+                  className="ship-stat-bar-fill" 
+                  style={{ width: `${liveFirepower}%`, background: 'linear-gradient(90deg, #6D28D9, #A855F7)' }} 
+                />
+              </div>
+              <span className="ship-stat-value">{liveFirepower}</span>
+            </div>
+
+            <div className="ship-stat-track-row">
+              <span className="ship-stat-label">SHIELD (LVL {upgrades.shield || 1})</span>
+              <div className="ship-stat-bar-slot">
+                <div 
+                  className="ship-stat-bar-fill" 
+                  style={{ width: `${liveShield}%`, background: 'linear-gradient(90deg, #0088FF, #00E5FF)' }} 
+                />
+              </div>
+              <span className="ship-stat-value">{liveShield}</span>
+            </div>
+
+            <div className="ship-stat-track-row">
+              <span className="ship-stat-label">SPEED (LVL {upgrades.engine || 1})</span>
+              <div className="ship-stat-bar-slot">
+                <div 
+                  className="ship-stat-bar-fill" 
+                  style={{ width: `${liveSpeed}%`, background: 'linear-gradient(90deg, #D97706, #FBBF24)' }} 
+                />
+              </div>
+              <span className="ship-stat-value">{liveSpeed}</span>
+            </div>
+
+            <div className="ship-stat-track-row">
+              <span className="ship-stat-label">MANEUVER (LVL {upgrades.special || 1})</span>
+              <div className="ship-stat-bar-slot">
+                <div 
+                  className="ship-stat-bar-fill" 
+                  style={{ width: `${liveManeuver}%`, background: 'linear-gradient(90deg, #059669, #20D6A0)' }} 
+                />
+              </div>
+              <span className="ship-stat-value">{liveManeuver}</span>
+            </div>
+          </div>
+        </section>
       </div>
 
-      {/* ================= BOTTOM SECTION: 3 PANELS ================= */}
-      <div className="dashboard-bottom-grid">
-        {/* PANEL 1: UPCOMING MISSIONS (Real Data-Driven Catalog) */}
-        <div style={styles.panelCard} className="glass-panel cyber-box">
-          <div style={styles.panelHeader}>
-            <span className="font-heading" style={styles.panelTitle}>UPCOMING MISSIONS</span>
-            <button onClick={() => handleNav('missions')} style={styles.panelLink}>VIEW ALL &rarr;</button>
+      {/* ================= 2. LOWER DASHBOARD MODULES (3 BALANCED COLUMNS) ================= */}
+      <div className="dashboard-lower-grid">
+        
+        {/* MODULE 1: UPCOMING MISSIONS */}
+        <section className="cyber-panel module-card" aria-label="Upcoming Missions Module">
+          <div className="module-header">
+            <div className="module-title-group">
+              <Crosshair size={15} color="#00E5FF" />
+              <h3 className="module-title">UPCOMING MISSIONS</h3>
+            </div>
+            <button onClick={() => handleNav('missions')} className="module-action-link">
+              ALL MISSIONS &rarr;
+            </button>
           </div>
 
-          <div style={styles.missionsList}>
+          <div className="missions-stack">
             {displayedMissions.map((m) => (
               <div 
                 key={m.id} 
-                style={styles.missionItem} 
-                className="glass-card"
+                className="mission-row-card"
                 onClick={() => handleNav('missions')}
+                title={`Launch ${m.name || 'Mission'}`}
               >
-                <div style={styles.missionItemLeft}>
-                  <div style={styles.missionItemIcon}>
-                    <Crosshair size={14} color="var(--secondary-cyan)" />
+                <div className="mission-row-left">
+                  <div className="mission-row-icon-box">
+                    <Crosshair size={14} />
                   </div>
                   <div>
-                    <div className="font-heading" style={styles.missionItemTitle}>
+                    <div className="mission-row-name">
                       {m.name || `MISSION ${String(m.globalSequence).padStart(2, '0')}`}
                     </div>
-                    <div style={styles.missionItemSub}>
+                    <div className="mission-row-sub">
                       {m.sectorName || 'Nebula Outpost'} • {m.objectiveType?.replace('_', ' ').toUpperCase() || 'COMBAT'}
                     </div>
                   </div>
                 </div>
 
-                <div style={styles.missionItemRight}>
-                  <div style={styles.rewardTag}>
-                    <Coins size={12} color="var(--currency-gold)" />
+                <div className="mission-row-right">
+                  <div className="mission-reward-badge">
+                    <Coins size={12} />
                     <span>+{m.rewards?.credits || 100}</span>
                   </div>
-                  <div style={styles.arrowIcon}>
-                    <ChevronRight size={14} />
-                  </div>
+                  <ChevronRight size={14} color="#96A6C8" />
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* PANEL 2: DAILY MISSIONS & ACHIEVEMENTS (Real User Quests) */}
-        <div style={styles.panelCard} className="glass-panel cyber-box">
-          <div style={styles.panelHeader}>
-            <span className="font-heading" style={styles.panelTitle}>DAILY MISSIONS</span>
-            <button onClick={() => handleNav('quests')} style={styles.panelLink}>QUESTS &rarr;</button>
+        {/* MODULE 2: DAILY MISSIONS & CONTRACTS */}
+        <section className="cyber-panel module-card" aria-label="Daily Directives Module">
+          <div className="module-header">
+            <div className="module-title-group">
+              <Target size={15} color="#00E5FF" />
+              <h3 className="module-title">DAILY DIRECTIVES</h3>
+            </div>
+            <button onClick={() => handleNav('quests')} className="module-action-link">
+              DIRECTIVES &rarr;
+            </button>
           </div>
 
-          <div style={styles.dailyTasksList}>
+          <div className="daily-contracts-stack">
             {dailyQuests.length === 0 ? (
-              <div style={styles.emptyNotice}>Loading active daily mission telemetry...</div>
+              <div className="module-empty-notice">
+                Synchronizing daily flight contracts with fleet server...
+              </div>
             ) : (
               dailyQuests.slice(0, 3).map((q) => {
                 const pct = Math.min(100, Math.round(((q.progress || 0) / (q.target || 1)) * 100));
                 return (
-                  <div key={q.id} style={styles.taskItem}>
-                    <div style={styles.taskItemHeader}>
-                      <span style={styles.taskName}>{q.title}</span>
-                      <span style={styles.taskReward}>
-                        +{q.rewardCredits || 100}{' '}
-                        <Coins size={11} color="var(--currency-gold)" style={{ verticalAlign: 'middle' }} />
+                  <div key={q.id} className="contract-card">
+                    <div className="contract-header">
+                      <span className="contract-title">{q.title}</span>
+                      <span className="contract-reward">
+                        +{q.rewardCredits || 100} <Coins size={11} />
                       </span>
                     </div>
-                    <div style={styles.taskProgressRow}>
-                      <div style={styles.taskBarTrack}>
+                    <div className="contract-bar-row">
+                      <div className="contract-bar-slot">
                         <div 
+                          className="contract-bar-fill" 
                           style={{ 
-                            ...styles.taskBarFill, 
                             width: `${pct}%`, 
                             background: q.isClaimed 
-                              ? 'var(--status-green)' 
-                              : 'linear-gradient(90deg, #00E5FF, #0099FF)' 
+                              ? '#20D6A0' 
+                              : 'linear-gradient(90deg, #00E5FF, #8B5CF6)' 
                           }} 
                         />
                       </div>
-                      <span style={styles.taskProgressText}>
+                      <span className={`contract-progress-text ${q.isClaimed ? 'contract-claimed-badge' : ''}`}>
                         {q.isClaimed ? 'CLAIMED' : `${q.progress || 0} / ${q.target}`}
                       </span>
                     </div>
@@ -301,470 +435,79 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat }) => {
               })
             )}
           </div>
+        </section>
 
-          {/* Achievement Badges Row (Live Unlocks) */}
-          <div style={styles.achievementRow}>
-            <span style={styles.achieveLabel}>
-              ACHIEVEMENTS ({unlockedAchievementsCount} / {achievements.length || 10})
-            </span>
-            <div style={styles.badgeIconsGroup}>
-              {achievements.slice(0, 5).map((a) => (
-                <div 
-                  key={a.id} 
-                  style={{
-                    ...styles.achieveBadgeIcon,
-                    background: a.isUnlocked ? 'rgba(0, 229, 255, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                    borderColor: a.isUnlocked ? 'var(--secondary-cyan)' : 'rgba(255, 255, 255, 0.08)'
-                  }} 
-                  title={`${a.title} - ${a.description} (${a.isUnlocked ? 'UNLOCKED' : 'LOCKED'})`}
-                  onClick={() => handleNav('quests')}
-                >
-                  <Award size={14} color={a.isUnlocked ? 'var(--secondary-cyan)' : 'var(--text-muted)'} />
+        {/* MODULE 3: RECENT REWARDS & ACHIEVEMENTS */}
+        <section className="cyber-panel module-card" aria-label="Rewards and Achievements Module">
+          <div className="module-header">
+            <div className="module-title-group">
+              <Award size={15} color="#FBBF24" />
+              <h3 className="module-title">REWARDS & LEDGER</h3>
+            </div>
+            <button onClick={() => handleNav('wallet')} className="module-action-link">
+              VIEW WALLET &rarr;
+            </button>
+          </div>
+
+          <div className="telemetry-module-body">
+            {/* Recent Ledger Transactions */}
+            <div className="recent-rewards-feed">
+              {recentTransactions.length === 0 ? (
+                <div className="module-empty-notice" style={{ padding: '10px 0' }}>
+                  No recent ledger transactions recorded. Complete sorties to earn credits.
                 </div>
-              ))}
+              ) : (
+                recentTransactions.slice(0, 3).map((tx) => {
+                  const isCredit = tx.transactionType === 'CREDIT';
+                  return (
+                    <div 
+                      key={tx._id || tx.id || Math.random()} 
+                      className="reward-feed-row"
+                      onClick={() => handleNav('wallet')}
+                    >
+                      <div className="reward-feed-left">
+                        <div className={`feed-icon-box ${tx.currencyType === 'ENERGY_CORES' ? 'feed-icon-purple' : 'feed-icon-gold'}`}>
+                          {tx.currencyType === 'ENERGY_CORES' ? <Zap size={12} /> : <Coins size={12} />}
+                        </div>
+                        <div>
+                          <div className="feed-source-text">{tx.description || tx.source || 'Flight Reward'}</div>
+                          <div className="feed-time-text">{new Date(tx.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                      </div>
+                      <span className={`feed-amount-badge ${tx.currencyType === 'ENERGY_CORES' ? 'amount-purple' : 'amount-gold'}`}>
+                        {isCredit ? `+${tx.amount}` : `-${tx.amount}`} {tx.currencyType === 'ENERGY_CORES' ? 'CORES' : 'CR'}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Achievements Preview Rack */}
+            <div className="achievements-preview-rack">
+              <div className="achievements-rack-header">
+                <span>ACHIEVEMENTS PREVIEW</span>
+                <span style={{ color: '#00E5FF' }}>{unlockedAchievementsCount} / {achievements.length || 10}</span>
+              </div>
+              <div className="achievements-icons-grid">
+                {achievements.slice(0, 6).map((a) => (
+                  <div 
+                    key={a.id} 
+                    className={`achievement-icon-slot ${a.isUnlocked ? 'unlocked' : 'locked'}`}
+                    title={`${a.title}: ${a.description} (${a.isUnlocked ? 'UNLOCKED' : 'LOCKED'})`}
+                    onClick={() => handleNav('quests')}
+                  >
+                    <Award size={16} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* PANEL 3: RECENT REWARDS & LEDGER (Real Transactions) */}
-        <div style={styles.panelCard} className="glass-panel cyber-box">
-          <div style={styles.panelHeader}>
-            <span className="font-heading" style={styles.panelTitle}>RECENT REWARDS</span>
-            <button onClick={() => handleNav('wallet')} style={styles.panelLink}>WALLET &rarr;</button>
-          </div>
-
-          <div style={styles.rewardsFeed}>
-            {recentTransactions.length === 0 ? (
-              <div style={styles.emptyNotice}>
-                No wallet transactions recorded yet. Complete sorties or claim daily supplies to earn rewards.
-              </div>
-            ) : (
-              recentTransactions.map((tx) => {
-                const isCredit = tx.transactionType === 'CREDIT';
-                return (
-                  <div key={tx._id} style={styles.rewardFeedItem} className="glass-card" onClick={() => handleNav('wallet')}>
-                    <div style={isCredit ? styles.feedIconBoxGold : styles.feedIconBoxPurple}>
-                      {tx.currencyType === 'ENERGY_CORES' ? (
-                        <Zap size={14} color="#C084FC" />
-                      ) : (
-                        <Coins size={14} color={isCredit ? 'var(--currency-gold)' : '#EF4444'} />
-                      )}
-                    </div>
-                    <div style={styles.feedInfo}>
-                      <div style={styles.feedTitle}>{tx.description || tx.source || 'Wallet Adjustment'}</div>
-                      <div style={styles.feedSub}>{new Date(tx.createdAt).toLocaleTimeString()}</div>
-                    </div>
-                    <span 
-                      className="font-heading" 
-                      style={{
-                        ...(isCredit ? styles.feedAmountGold : styles.feedAmountPurple),
-                        color: isCredit ? 'var(--currency-gold)' : '#EF4444'
-                      }}
-                    >
-                      {isCredit ? `+${tx.amount}` : `-${tx.amount}`} {tx.currencyType}
-                    </span>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: '24px 32px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
-    maxWidth: '1440px',
-    margin: '0 auto',
-    width: '100%'
-  },
-  topGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1.45fr 1fr',
-    gap: '20px',
-    alignItems: 'stretch'
-  },
-  journeyCard: {
-    padding: 'clamp(18px, 3vw, 36px)',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    minHeight: '280px',
-    background: 'radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.12) 0%, rgba(8, 12, 32, 0.95) 70%)',
-    position: 'relative',
-    overflow: 'hidden'
-  },
-  journeyHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  missionProgressTag: {
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.82rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.08em'
-  },
-  journeyBody: {
-    margin: '20px 0'
-  },
-  sectorSubTitle: {
-    fontSize: '0.88rem',
-    color: 'var(--secondary-cyan)',
-    letterSpacing: '0.12em',
-    marginBottom: '6px'
-  },
-  sectorTitle: {
-    fontSize: 'clamp(1.5rem, 4vw, 2.4rem)',
-    fontWeight: '900',
-    letterSpacing: '0.06em',
-    lineHeight: 1.1,
-    marginBottom: '12px'
-  },
-  sectorDesc: {
-    fontSize: '0.92rem',
-    color: 'var(--text-muted)',
-    lineHeight: 1.5,
-    maxWidth: '540px'
-  },
-  journeyFooter: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '14px',
-    marginTop: '12px',
-    flexWrap: 'wrap'
-  },
-  continueBtn: {
-    padding: '14px 28px',
-    fontSize: '0.92rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  },
-  sectorMapBtn: {
-    padding: '14px 22px',
-    fontSize: '0.92rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  },
-  currentShipCard: {
-    padding: 'clamp(18px, 3vw, 28px)',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    background: 'radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.15) 0%, rgba(8, 12, 32, 0.95) 75%)',
-    position: 'relative',
-    overflow: 'hidden'
-  },
-  shipCardHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start'
-  },
-  shipName: {
-    fontSize: '1.35rem',
-    marginTop: '4px',
-    letterSpacing: '0.06em'
-  },
-  shipClass: {
-    fontSize: '0.72rem',
-    color: 'var(--text-muted)'
-  },
-  goToHangarBtn: {
-    padding: '6px 12px',
-    fontSize: '0.74rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px'
-  },
-  shipPreviewContainer: {
-    position: 'relative',
-    height: '140px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '10px 0'
-  },
-  holoRing: {
-    position: 'absolute',
-    width: '160px',
-    height: '40px',
-    borderRadius: '50%',
-    border: '1.5px solid rgba(0, 229, 255, 0.35)',
-    boxShadow: '0 0 20px rgba(0, 229, 255, 0.25)',
-    transform: 'rotateX(65deg)',
-    bottom: '15px'
-  },
-  shipWrapper: {
-    zIndex: 2
-  },
-  shipStatsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  statRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  },
-  statLabel: {
-    width: '130px',
-    fontSize: '0.68rem',
-    color: 'var(--text-muted)',
-    fontFamily: 'var(--font-heading)',
-    letterSpacing: '0.05em'
-  },
-  statBarTrack: {
-    flex: 1,
-    height: '6px',
-    background: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: '3px',
-    overflow: 'hidden'
-  },
-  statBarFill: {
-    height: '100%',
-    borderRadius: '3px',
-    transition: 'width 0.4s ease'
-  },
-  statVal: {
-    width: '28px',
-    fontSize: '0.74rem',
-    fontWeight: '700',
-    color: 'var(--text-light)',
-    textAlign: 'right'
-  },
-  bottomGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '20px'
-  },
-  panelCard: {
-    padding: '22px 24px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-    minHeight: '280px',
-    background: 'rgba(8, 12, 32, 0.92)'
-  },
-  panelHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-    paddingBottom: '10px'
-  },
-  panelTitle: {
-    fontSize: '0.84rem',
-    letterSpacing: '0.08em',
-    color: 'var(--text-light)'
-  },
-  panelLink: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--secondary-cyan)',
-    fontSize: '0.72rem',
-    fontFamily: 'var(--font-heading)',
-    cursor: 'pointer',
-    padding: '2px 4px'
-  },
-  missionsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px'
-  },
-  missionItem: {
-    padding: '12px 14px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    borderRadius: '8px',
-    border: '1px solid rgba(255, 255, 255, 0.06)'
-  },
-  missionItemLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px'
-  },
-  missionItemIcon: {
-    width: '28px',
-    height: '28px',
-    borderRadius: '6px',
-    background: 'rgba(0, 229, 255, 0.1)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  missionItemTitle: {
-    fontSize: '0.82rem',
-    color: 'var(--text-light)'
-  },
-  missionItemSub: {
-    fontSize: '0.68rem',
-    color: 'var(--text-muted)'
-  },
-  missionItemRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  },
-  rewardTag: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    fontSize: '0.74rem',
-    color: 'var(--currency-gold)',
-    fontWeight: '700'
-  },
-  arrowIcon: {
-    color: 'var(--text-muted)'
-  },
-  dailyTasksList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px',
-    flex: 1
-  },
-  taskItem: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px'
-  },
-  taskItemHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    fontSize: '0.78rem'
-  },
-  taskName: {
-    color: 'var(--text-light)'
-  },
-  taskReward: {
-    color: 'var(--currency-gold)',
-    fontWeight: '700',
-    fontSize: '0.74rem'
-  },
-  taskProgressRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  },
-  taskBarTrack: {
-    flex: 1,
-    height: '6px',
-    background: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: '3px',
-    overflow: 'hidden'
-  },
-  taskBarFill: {
-    height: '100%',
-    borderRadius: '3px',
-    transition: 'width 0.3s ease'
-  },
-  taskProgressText: {
-    fontSize: '0.7rem',
-    color: 'var(--text-muted)',
-    minWidth: '45px',
-    textAlign: 'right'
-  },
-  achievementRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-    paddingTop: '12px',
-    marginTop: 'auto'
-  },
-  achieveLabel: {
-    fontSize: '0.68rem',
-    fontFamily: 'var(--font-heading)',
-    letterSpacing: '0.06em',
-    color: 'var(--text-muted)'
-  },
-  badgeIconsGroup: {
-    display: 'flex',
-    gap: '6px'
-  },
-  achieveBadgeIcon: {
-    width: '26px',
-    height: '26px',
-    borderRadius: '6px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: '1px solid',
-    cursor: 'pointer',
-    transition: 'transform 0.15s ease'
-  },
-  rewardsFeed: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px'
-  },
-  rewardFeedItem: {
-    padding: '12px 14px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    borderRadius: '8px',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  },
-  feedIconBoxGold: {
-    width: '28px',
-    height: '28px',
-    borderRadius: '6px',
-    background: 'rgba(251, 191, 36, 0.15)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  feedIconBoxPurple: {
-    width: '28px',
-    height: '28px',
-    borderRadius: '6px',
-    background: 'rgba(168, 85, 247, 0.15)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  feedInfo: {
-    flex: 1
-  },
-  feedTitle: {
-    fontSize: '0.8rem',
-    color: 'var(--text-light)',
-    fontWeight: '600'
-  },
-  feedSub: {
-    fontSize: '0.68rem',
-    color: 'var(--text-muted)'
-  },
-  feedAmountGold: {
-    fontSize: '0.8rem',
-    fontWeight: '700'
-  },
-  feedAmountPurple: {
-    fontSize: '0.8rem',
-    fontWeight: '700'
-  },
-  emptyNotice: {
-    padding: '24px 10px',
-    textAlign: 'center',
-    fontSize: '0.78rem',
-    color: 'var(--text-muted)',
-    lineHeight: '1.4'
-  }
 };
 
 export default DashboardPage;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import soundManager from '../game/managers/SoundManager.js';
 import { 
-  Volume2, VolumeX, Play, Pause, Music, ChevronDown, ChevronUp, 
+  Volume2, VolumeX, Play, Pause, Music, ChevronDown, ChevronUp, Minus, 
   SkipForward, SkipBack, Mic, Radio, Disc 
 } from 'lucide-react';
 
@@ -25,6 +25,7 @@ export const GlobalAudioPlayer = () => {
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [lyricIndex, setLyricIndex] = useState(0);
 
   useEffect(() => {
@@ -32,7 +33,37 @@ export const GlobalAudioPlayer = () => {
     const unsubscribe = soundManager.subscribe((state) => {
       setAudioState((prev) => ({ ...prev, ...state }));
     });
-    return () => unsubscribe();
+    if (isMinimized) {
+    return (
+      <button 
+        type="button"
+        onClick={() => setIsMinimized(false)}
+        className="global-audio-minimized-orb animate-pulse-glow"
+        title="Expand Soundtrack Player"
+        style={{
+          position: 'fixed',
+          bottom: '22px',
+          right: '22px',
+          width: '42px',
+          height: '42px',
+          borderRadius: '50%',
+          background: 'rgba(6, 9, 25, 0.94)',
+          border: '1.5px solid #00E5FF',
+          color: '#00E5FF',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 0 16px rgba(0, 229, 255, 0.45)',
+          zIndex: 9999,
+          cursor: 'pointer'
+        }}
+      >
+        <Music size={18} />
+      </button>
+    );
+  }
+
+  return () => unsubscribe();
   }, []);
 
   // Cycle lyric snippets every 5 seconds when vocal track is active
@@ -192,6 +223,17 @@ export const GlobalAudioPlayer = () => {
             )}
           </button>
 
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMinimized(true);
+            }}
+            style={styles.chevronBtn}
+            title="Minimize Soundtrack Widget"
+          >
+            <Minus size={13} />
+          </button>
           <button 
             onClick={(e) => {
               e.stopPropagation();
