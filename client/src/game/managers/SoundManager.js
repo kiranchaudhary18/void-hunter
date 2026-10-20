@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WebAudio & HTML5 Dual-Engine Arcade Sound Synthesizer & BGM Player
  * Provides cinematic, rich soundtrack playback and authentic retro-modern sci-fi SFX.
  */
@@ -62,6 +62,18 @@ class SoundManager {
       window.addEventListener('keydown', handleUserGesture, { capture: true });
       window.addEventListener('touchstart', handleUserGesture, { capture: true });
     }
+  }
+
+  getState() {
+    return {
+      bgmPlaying: this.bgmPlaying,
+      bgmMode: this.bgmMode || this.desiredBgmMode || 'vocal',
+      muted: this.muted,
+      bgmVolume: this.bgmVolume,
+      sfxVolume: this.sfxVolume,
+      autoplayBlocked: this.autoplayBlocked,
+      playlist: this.playlist || []
+    };
   }
 
   subscribe(listener) {

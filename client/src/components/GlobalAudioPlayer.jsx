@@ -16,7 +16,19 @@ const LYRIC_SNIPPETS = [
 ];
 
 export const GlobalAudioPlayer = () => {
-  const [audioState, setAudioState] = useState(() => soundManager.getState());
+  const [audioState, setAudioState] = useState(() => {
+    if (soundManager && typeof soundManager.getState === 'function') {
+      return soundManager.getState();
+    }
+    return {
+      bgmPlaying: soundManager?.bgmPlaying || false,
+      bgmMode: soundManager?.bgmMode || soundManager?.desiredBgmMode || 'vocal',
+      muted: soundManager?.muted || false,
+      bgmVolume: soundManager?.bgmVolume ?? 0.85,
+      autoplayBlocked: soundManager?.autoplayBlocked || false,
+      playlist: soundManager?.playlist || []
+    };
+  });
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [lyricIndex, setLyricIndex] = useState(0);
