@@ -7,7 +7,12 @@ import './HangarPage.css';
 export const PublicHangarPage = ({ onNavigate }) => {
   return (
     <div className="hangar-page-root">
-      {/* Background Atmosphere Vignette */}
+      {/* 100% Pure-Code Atmospheric Background Layers */}
+      <div className="hangar-starfield" />
+      <div className="hangar-structural-gantries" />
+      <div className="hangar-light-shafts" />
+      <div className="hangar-docking-runway" />
+      <div className="hangar-laser-scan" />
       <div className="hangar-vignette" />
 
       {/* Top Cyber Navigation Bar */}

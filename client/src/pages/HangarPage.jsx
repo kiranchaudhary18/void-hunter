@@ -8,8 +8,13 @@ export const HangarPage = ({
   onLaunchMission 
 }) => {
   return (
-    <div className="hangar-page-root" style={{ backgroundAttachment: 'scroll' }}>
-      {/* Background Atmosphere Vignette */}
+    <div className="hangar-page-root">
+      {/* 100% Pure-Code Atmospheric Background Layers */}
+      <div className="hangar-starfield" />
+      <div className="hangar-structural-gantries" />
+      <div className="hangar-light-shafts" />
+      <div className="hangar-docking-runway" />
+      <div className="hangar-laser-scan" />
       <div className="hangar-vignette" />
 
       {/* Unified AAA Fleet Hangar Operations */}
