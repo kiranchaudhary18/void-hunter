@@ -1,36 +1,79 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useMemo, useRef } from 'react';
 import api from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import confetti from 'canvas-confetti';
 import { 
   ArrowLeft, Award, Clock, Zap, Coins, 
-  CheckCircle2, Lock, Calendar, Gift, AlertCircle, Package, Flame 
+  CheckCircle2, Lock, Calendar, Gift, AlertCircle, Package, Flame,
+  Crosshair, Compass, Target, Radio, Star, Shield, Trophy, RefreshCw, X,
+  ChevronRight, Sparkles, Check, CheckCheck, Skull, Cpu
 } from 'lucide-react';
+import './QuestsPage.css';
+
+// Fallback reward tiers for 7-Day Streak
+const DEFAULT_STREAK_TIERS = [
+  { day: 1, credits: 100, cores: 0, label: 'Day 1: Scout Supply' },
+  { day: 2, credits: 150, cores: 1, label: 'Day 2: Core Infusion' },
+  { day: 3, credits: 200, cores: 1, label: 'Day 3: Weapon Battery' },
+  { day: 4, credits: 250, cores: 2, label: 'Day 4: Shield Booster' },
+  { day: 5, credits: 350, cores: 2, label: 'Day 5: Plasma Crate' },
+  { day: 6, credits: 500, cores: 3, label: 'Day 6: Apex Shipment' },
+  { day: 7, credits: 1000, cores: 5, label: 'Day 7: Imperial Jackpot' }
+];
+
+// Fallback reward probabilities for Orbital Supply Drop (Section 57)
+const DEFAULT_SUPPLY_DROP_TIERS = [
+  { type: 'CREDITS', amount: 250, label: 'Standard Credits Cache', probability: '45%', color: '#FBBF24', barWidth: '45%' },
+  { type: 'CREDITS', amount: 600, label: 'Heavy Credits Vault', probability: '25%', color: '#F59E0B', barWidth: '25%' },
+  { type: 'ENERGY_CORES', amount: 3, label: 'Energy Core Cluster', probability: '18%', color: '#A855F7', barWidth: '18%' },
+  { type: 'ENERGY_CORES', amount: 8, label: 'Supercharged Cores', probability: '8%', color: '#C084FC', barWidth: '8%' },
+  { type: 'VELOP_COINS', amount: 50, label: 'Jackpot: 50 VELOOP Coins', probability: '4%', color: '#FF2DFF', barWidth: '4%' }
+];
 
 export const QuestsPage = ({ onBack }) => {
-  const { refreshProfile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
+  
   const [questsData, setQuestsData] = useState({
     dailyQuests: [],
     achievements: [],
-    streak: { currentStreak: 1, streakDay: 1, canClaimToday: false, rewardsTable: [] }
+    streak: { currentStreak: 1, streakDay: 1, canClaimToday: false, rewardsTable: DEFAULT_STREAK_TIERS }
   });
-  const [supplyDrop, setSupplyDrop] = useState({ canClaim: false, nextAvailableAt: null, rewardTiers: [] });
+  
+  const [supplyDrop, setSupplyDrop] = useState({ 
+    canClaim: false, 
+    nextAvailableAt: null, 
+    rewardTiers: DEFAULT_SUPPLY_DROP_TIERS 
+  });
+  
   const [supplyDropLoading, setSupplyDropLoading] = useState(false);
   const [events, setEvents] = useState([]);
   const [activeTab, setActiveTab] = useState('QUESTS'); // 'QUESTS', 'ACHIEVEMENTS', or 'EVENTS'
   const [achievementFilter, setAchievementFilter] = useState('ALL');
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [claimingId, setClaimingId] = useState(null);
   const [feedbackMessage, setFeedbackMessage] = useState(null);
-  const [countdown, setCountdown] = useState('');
+  const [countdown, setCountdown] = useState('24:00:00');
+  const [supplyCountdown, setSupplyCountdown] = useState('');
+  const feedbackTimeoutRef = useRef(null);
 
-  // 24h Countdown to midnight UTC
+  // 1. 24h Countdown to Midnight UTC (Daily Reset Clock)
   useEffect(() => {
     const updateCountdown = () => {
       const now = new Date();
-      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      const diff = tomorrow - now;
+      const tomorrowUTC = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 1,
+        0, 0, 0
+      ));
+      const diff = tomorrowUTC - now;
+
+      if (diff <= 0) {
+        setCountdown('00H 00M 00S');
+        return;
+      }
 
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -46,23 +89,85 @@ export const QuestsPage = ({ onBack }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch quests, achievements, login streak, supply drops, and events
-  const fetchQuestsData = async () => {
-    setLoading(true);
-    setFeedbackMessage(null);
+  // 2. Supply Drop Cooldown Countdown
+  useEffect(() => {
+    const updateSupplyTimer = () => {
+      if (supplyDrop.canClaim) {
+        setSupplyCountdown('READY');
+        return;
+      }
+
+      if (!supplyDrop.nextAvailableAt) {
+        setSupplyCountdown('STANDBY');
+        return;
+      }
+
+      const target = new Date(supplyDrop.nextAvailableAt).getTime();
+      const now = Date.now();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        setSupplyCountdown('READY');
+        setSupplyDrop(prev => ({ ...prev, canClaim: true }));
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setSupplyCountdown(
+        `${String(hours).padStart(2, '0')}H ${String(mins).padStart(2, '0')}M ${String(secs).padStart(2, '0')}S`
+      );
+    };
+
+    updateSupplyTimer();
+    const interval = setInterval(updateSupplyTimer, 1000);
+    return () => clearInterval(interval);
+  }, [supplyDrop.canClaim, supplyDrop.nextAvailableAt]);
+
+  // Show Feedback Toast with Auto-Dismiss
+  const showFeedback = (type, text) => {
+    if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
+    setFeedbackMessage({ type, text });
+    feedbackTimeoutRef.current = setTimeout(() => {
+      setFeedbackMessage(null);
+    }, 6000);
+  };
+
+  // Fetch all Quests, Achievements, Supply Drop, and Events
+  const fetchQuestsData = async (isManualSync = false) => {
+    if (isManualSync) setIsSyncing(true);
+    else setLoading(true);
+
     try {
       const res = await api.get('/quests');
-      if (res.data?.success) {
-        setQuestsData(res.data);
+      if (res.data?.success || res.success) {
+        const payload = res.data || res;
+        setQuestsData({
+          dailyQuests: payload.dailyQuests || [],
+          achievements: payload.achievements || [],
+          streak: {
+            currentStreak: payload.streak?.currentStreak || 1,
+            streakDay: payload.streak?.streakDay || 1,
+            canClaimToday: !!payload.streak?.canClaimToday,
+            rewardsTable: (payload.streak?.rewardsTable?.length) ? payload.streak.rewardsTable : DEFAULT_STREAK_TIERS
+          }
+        });
       }
     } catch (err) {
-      console.warn('Quests API error:', err.message);
+      console.warn('Quests API retrieval error:', err.message);
     }
 
     try {
       const dropRes = await api.get('/supply-drop/status');
-      if (dropRes.data?.success) {
-        setSupplyDrop(dropRes.data);
+      if (dropRes.data?.success || dropRes.success) {
+        const payload = dropRes.data || dropRes;
+        setSupplyDrop({
+          canClaim: !!payload.canClaim,
+          nextAvailableAt: payload.nextAvailableAt || null,
+          rewardTiers: (payload.rewardTiers?.length) ? payload.rewardTiers : DEFAULT_SUPPLY_DROP_TIERS
+        });
       }
     } catch (err) {
       console.warn('Supply drop status error:', err.message);
@@ -70,13 +175,15 @@ export const QuestsPage = ({ onBack }) => {
 
     try {
       const evRes = await api.get('/events');
-      if (evRes.data?.success) {
-        setEvents(evRes.data.events || []);
+      if (evRes.data?.success || evRes.success) {
+        const payload = evRes.data || evRes;
+        setEvents(payload.events || []);
       }
     } catch (err) {
       console.warn('Events API error:', err.message);
     } finally {
       setLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -84,172 +191,326 @@ export const QuestsPage = ({ onBack }) => {
     fetchQuestsData();
   }, []);
 
-  // Claim Daily Login Streak
+  // 1. Claim Daily Login Streak
   const handleClaimStreak = async () => {
     soundManager.playPickup('core');
     setClaimingId('streak');
     try {
       const res = await api.post('/quests/streak/claim');
-      if (res.data?.success) {
+      if (res.data?.success || res.success) {
+        const payload = res.data || res;
         soundManager.playPowerUp();
-        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
-        setFeedbackMessage({ type: 'success', text: res.data.message });
+        confetti({ particleCount: 75, spread: 65, origin: { y: 0.6 } });
+        showFeedback('success', payload.message || '7-Day Deployment reward secured!');
         fetchQuestsData();
         if (refreshProfile) refreshProfile();
       }
     } catch (err) {
-      setFeedbackMessage({ 
-        type: 'error', 
-        text: err.response?.data?.message || 'Failed to claim daily streak bonus' 
-      });
+      showFeedback('error', err.response?.data?.message || err.message || 'Failed to claim daily streak bonus');
     } finally {
       setClaimingId(null);
     }
   };
 
-  // Section 57: Claim Orbital Supply Drop
+  // 2. Claim Orbital Supply Drop
   const handleClaimSupplyDrop = async () => {
     soundManager.playPowerUp();
     setSupplyDropLoading(true);
+    setClaimingId('supplyDrop');
     try {
       const res = await api.post('/supply-drop/claim');
-      if (res.data?.success) {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-        setFeedbackMessage({ type: 'success', text: res.data.message });
+      if (res.data?.success || res.success) {
+        const payload = res.data || res;
+        confetti({ particleCount: 90, spread: 70, origin: { y: 0.55 } });
+        showFeedback('success', payload.message || 'Orbital Supply Drop extracted successfully!');
         fetchQuestsData();
         if (refreshProfile) refreshProfile();
       }
     } catch (err) {
-      setFeedbackMessage({ 
-        type: 'error', 
-        text: err.response?.data?.message || 'Failed to claim orbital supply drop' 
-      });
+      showFeedback('error', err.response?.data?.message || err.message || 'Orbital cargo drop is refueling');
     } finally {
       setSupplyDropLoading(false);
-    }
-  };
-
-  // Section 58: Claim Limited-Time Event Reward
-  const handleClaimEvent = async (eventId) => {
-    soundManager.playPowerUp();
-    setClaimingId(eventId);
-    try {
-      const res = await api.post(`/events/${eventId}/claim`);
-      if (res.data?.success) {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        setFeedbackMessage({ type: 'success', text: res.data.message });
-        fetchQuestsData();
-        if (refreshProfile) refreshProfile();
-      }
-    } catch (err) {
-      setFeedbackMessage({ 
-        type: 'error', 
-        text: err.response?.data?.message || 'Error claiming event reward' 
-      });
-    } finally {
       setClaimingId(null);
     }
   };
 
-  // Claim Daily Quest Reward
+  // 3. Claim Daily Quest
   const handleClaimQuest = async (questId) => {
     soundManager.playPickup('credit');
     setClaimingId(questId);
     try {
       const res = await api.post(`/quests/${questId}/claim`);
-      if (res.data?.success) {
-        confetti({ particleCount: 60, spread: 50, origin: { y: 0.6 } });
-        setFeedbackMessage({ type: 'success', text: res.data.message });
+      if (res.data?.success || res.success) {
+        const payload = res.data || res;
+        confetti({ particleCount: 65, spread: 55, origin: { y: 0.6 } });
+        showFeedback('success', payload.message || 'Combat objective bounty authorized!');
         fetchQuestsData();
         if (refreshProfile) refreshProfile();
       }
     } catch (err) {
-      setFeedbackMessage({ 
-        type: 'error', 
-        text: err.response?.data?.message || 'Error claiming quest reward' 
-      });
+      showFeedback('error', err.response?.data?.message || err.message || 'Failed to claim quest bounty');
     } finally {
       setClaimingId(null);
     }
   };
 
-  // Claim Achievement Reward
+  // 4. Claim Lifetime Merit Achievement
   const handleClaimAchievement = async (achievementId) => {
     soundManager.playPowerUp();
     setClaimingId(achievementId);
     try {
       const res = await api.post(`/quests/achievements/${achievementId}/claim`);
-      if (res.data?.success) {
-        confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-        setFeedbackMessage({ type: 'success', text: res.data.message });
+      if (res.data?.success || res.success) {
+        const payload = res.data || res;
+        confetti({ particleCount: 95, spread: 75, origin: { y: 0.6 } });
+        showFeedback('success', payload.message || 'Military merit commendation officially granted!');
         fetchQuestsData();
         if (refreshProfile) refreshProfile();
       }
     } catch (err) {
-      setFeedbackMessage({ 
-        type: 'error', 
-        text: err.response?.data?.message || 'Error claiming achievement reward' 
-      });
+      showFeedback('error', err.response?.data?.message || err.message || 'Failed to claim merit reward');
     } finally {
       setClaimingId(null);
     }
   };
 
-  const filteredAchievements = questsData.achievements.filter((a) => {
-    if (achievementFilter === 'ALL') return true;
-    return a.category === achievementFilter;
-  });
+  // 5. Claim Limited-Time Event Reward
+  const handleClaimEvent = async (eventId) => {
+    soundManager.playPowerUp();
+    setClaimingId(eventId);
+    try {
+      const res = await api.post(`/events/${eventId}/claim`);
+      if (res.data?.success || res.success) {
+        const payload = res.data || res;
+        confetti({ particleCount: 110, spread: 80, origin: { y: 0.6 } });
+        showFeedback('success', payload.message || 'Special operation campaign reward secured!');
+        fetchQuestsData();
+        if (refreshProfile) refreshProfile();
+      }
+    } catch (err) {
+      showFeedback('error', err.response?.data?.message || err.message || 'Failed to claim event reward');
+    } finally {
+      setClaimingId(null);
+    }
+  };
+
+  // Pilot Career Progress Telemetry
+  const pilotLevel = user?.level || profile?.level || 1;
+  const pilotRank = user?.pilotRank || profile?.pilotRank || 'Flight Cadet';
+  const pilotXp = user?.xp || profile?.xp || 0;
+  const xpThreshold = pilotLevel * 250;
+  const xpCurrentLevel = pilotXp % xpThreshold;
+  const xpPct = Math.min(100, Math.round((xpCurrentLevel / xpThreshold) * 100));
+
+  const unlockedAchCount = questsData.achievements.filter(a => a.unlocked).length;
+  const totalAchCount = questsData.achievements.length || 10;
+  const achCompletionPct = Math.round((unlockedAchCount / totalAchCount) * 100);
+
+  // Total unclaimed rewards available right now
+  const readyToClaimCount = useMemo(() => {
+    let count = 0;
+    if (questsData.streak.canClaimToday) count++;
+    if (supplyDrop.canClaim) count++;
+    count += questsData.dailyQuests.filter(q => q.completed && !q.claimed).length;
+    count += questsData.achievements.filter(a => a.unlocked && !a.claimed).length;
+    count += events.filter(e => e.isCompleted && !e.isClaimed).length;
+    return count;
+  }, [questsData, supplyDrop.canClaim, events]);
+
+  // Filtered Achievements
+  const filteredAchievements = useMemo(() => {
+    return questsData.achievements.filter(ach => {
+      if (achievementFilter === 'ALL') return true;
+      if (achievementFilter === 'UNLOCKED') return ach.unlocked;
+      if (achievementFilter === 'LOCKED') return !ach.unlocked;
+      return ach.category === achievementFilter;
+    });
+  }, [questsData.achievements, achievementFilter]);
+
+  // Quest Icon Resolver
+  const getQuestIcon = (metric, title = '') => {
+    if (metric === 'enemiesDestroyed' || title.toLowerCase().includes('annihilation')) {
+      return <Crosshair size={22} color="#00E5FF" />;
+    }
+    if (metric === 'missionsCompleted' || title.toLowerCase().includes('patrol')) {
+      return <Compass size={22} color="#00E5FF" />;
+    }
+    if (metric === 'adsWatched' || title.toLowerCase().includes('comms')) {
+      return <Radio size={22} color="#00E5FF" />;
+    }
+    if (metric === 'highestScore' || title.toLowerCase().includes('ace')) {
+      return <Target size={22} color="#FBBF24" />;
+    }
+    return <Award size={22} color="#00E5FF" />;
+  };
+
+  // Achievement Icon Resolver
+  const getAchievementIcon = (ach) => {
+    if (ach.category === 'BOSS' || ach.id.includes('boss') || ach.id.includes('apex')) {
+      return <Skull size={22} color={ach.unlocked ? '#FF2DFF' : '#64748B'} />;
+    }
+    if (ach.category === 'HANGAR' || ach.id.includes('fleet')) {
+      return <Shield size={22} color={ach.unlocked ? '#C084FC' : '#64748B'} />;
+    }
+    if (ach.category === 'CAMPAIGN' || ach.id.includes('conqueror')) {
+      return <Compass size={22} color={ach.unlocked ? '#00E5FF' : '#64748B'} />;
+    }
+    if (ach.category === 'STARS' || ach.id.includes('star')) {
+      return <Star size={22} color={ach.unlocked ? '#FBBF24' : '#64748B'} />;
+    }
+    if (ach.category === 'ECONOMY' || ach.id.includes('credit')) {
+      return <Coins size={22} color={ach.unlocked ? '#FBBF24' : '#64748B'} />;
+    }
+    if (ach.category === 'UPGRADES' || ach.id.includes('overdrive')) {
+      return <Zap size={22} color={ach.unlocked ? '#C084FC' : '#64748B'} />;
+    }
+    if (ach.category === 'APEX' || ach.id.includes('sovereign')) {
+      return <Trophy size={22} color={ach.unlocked ? '#FBBF24' : '#64748B'} />;
+    }
+    return <Award size={22} color={ach.unlocked ? '#C084FC' : '#64748B'} />;
+  };
 
   return (
-    <div className="page-responsive-container">
-      {/* ================= HEADER BAR ================= */}
-      <header style={styles.header} className="glass-panel cyber-box">
-        <div style={styles.headerLeft}>
-          <button onClick={onBack} style={styles.backBtn} className="btn-secondary">
-            <ArrowLeft size={18} />
-            <span>COMMAND DECK</span>
-          </button>
-          <div>
-            <h1 className="font-heading text-glow-cyan" style={styles.pageTitle}>QUESTS & ACHIEVEMENTS</h1>
-            <p style={styles.subTitle}>DAILY 24H REWARDS & REPUTATION MERIT LEDGER</p>
-          </div>
-        </div>
-
-        <div style={styles.headerRight}>
-          <div style={styles.countdownBadge} className="glass-card cyber-box">
-            <Clock size={16} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
-            <div>
-              <div style={styles.countdownVal} className="text-glow-cyan">{countdown}</div>
-              <div style={styles.countdownLabel}>DAILY ROTATION RESET</div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Feedback Alert */}
+    <div className="quests-shell">
+      {/* ================= TOAST NOTIFICATION ================= */}
       {feedbackMessage && (
-        <div style={{
-          ...styles.feedbackAlert,
-          borderColor: feedbackMessage.type === 'success' ? 'var(--status-green)' : '#EF4444',
-          background: feedbackMessage.type === 'success' ? 'rgba(6, 78, 59, 0.85)' : 'rgba(69, 10, 10, 0.85)',
-          color: feedbackMessage.type === 'success' ? '#A7F3D0' : '#FCA5A5'
-        }} className="glass-panel animate-pulse-glow">
-          {feedbackMessage.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-          <span>{feedbackMessage.text}</span>
+        <div className={`quests-feedback-toast ${feedbackMessage.type}`}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {feedbackMessage.type === 'success' ? (
+              <CheckCircle2 size={18} color="#20D6A0" />
+            ) : (
+              <AlertCircle size={18} color="#EF4444" />
+            )}
+            <span style={{ fontWeight: 600 }}>{feedbackMessage.text}</span>
+          </div>
+          <button 
+            onClick={() => setFeedbackMessage(null)} 
+            className="toast-close-btn"
+            title="Dismiss notification"
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
 
-      {/* ================= 7-DAY LOGIN STREAK REWARDS ================= */}
-      <div style={styles.streakCard} className="glass-panel cyber-box">
-        <div style={styles.streakHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Calendar size={20} color="var(--currency-gold)" style={{ filter: 'drop-shadow(0 0 4px #FBBF24)' }} />
+      {/* ================= 1. COMMAND CONSOLE HEADER ================= */}
+      <header className="quests-header-shell">
+        <div className="quests-header-left">
+          {onBack && (
+            <button onClick={onBack} className="quests-back-btn">
+              <ArrowLeft size={16} />
+              <span>COMMAND DECK</span>
+            </button>
+          )}
+          <div>
+            <div className="quests-eyebrow">
+              <span className="quests-eyebrow-blip" />
+              <span>PILOT OPERATIONS // REWARD PROTOCOL</span>
+            </div>
+            <h1 className="quests-title">QUESTS & ACHIEVEMENTS</h1>
+            <p className="quests-subtitle">
+              Complete tactical objectives, maintain your deployment streak, and earn rewards across the galaxy.
+            </p>
+          </div>
+        </div>
+
+        <div className="quests-header-right">
+          <div className="quests-reset-badge">
+            <Clock size={18} color="#00E5FF" />
             <div>
-              <h2 className="font-heading text-glow-gold" style={styles.streakTitle}>
-                7-DAY DEPLOYMENT STREAK // DAY {questsData.streak.streakDay}
-              </h2>
-              <p style={styles.streakSubtitle}>
-                Consecutive daily logins grant escalating credits & energy core caches.
+              <div className="quests-reset-time">{countdown}</div>
+              <div className="quests-reset-label">DAILY ROTATION RESET</div>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => fetchQuestsData(true)} 
+            disabled={isSyncing}
+            className={`quests-refresh-btn ${isSyncing ? 'rotating' : ''}`}
+            title="Sync Protocols & Validate Ledger"
+          >
+            <RefreshCw size={18} />
+          </button>
+        </div>
+      </header>
+
+      {/* ================= 2. PILOT CAREER PROGRESSION PANEL ================= */}
+      <section className="career-progress-panel">
+        <div className="career-stat-card">
+          <div className="career-stat-icon">
+            <Shield size={20} color="#00E5FF" />
+          </div>
+          <div className="career-stat-info">
+            <span className="career-stat-label">PILOT RANK // LEVEL</span>
+            <span className="career-stat-val">{pilotRank} · LVL {pilotLevel}</span>
+          </div>
+        </div>
+
+        <div className="career-stat-card">
+          <div className="career-stat-icon">
+            <Zap size={20} color="#C084FC" />
+          </div>
+          <div className="career-stat-info" style={{ width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="career-stat-label">PILOT XP PROGRESS</span>
+              <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-heading)', color: '#00E5FF' }}>
+                {xpCurrentLevel} / {xpThreshold} XP
+              </span>
+            </div>
+            <div className="career-xp-track">
+              <div className="career-xp-fill" style={{ width: `${xpPct}%` }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="career-stat-card">
+          <div className="career-stat-icon">
+            <Flame size={20} color="#FBBF24" />
+          </div>
+          <div className="career-stat-info">
+            <span className="career-stat-label">DEPLOYMENT STREAK</span>
+            <span className="career-stat-val" style={{ color: '#FBBF24' }}>
+              {questsData.streak.currentStreak} CONSECUTIVE {questsData.streak.currentStreak === 1 ? 'DAY' : 'DAYS'}
+            </span>
+          </div>
+        </div>
+
+        <div className="career-stat-card">
+          <div className="career-stat-icon">
+            <Award size={20} color="#FF2DFF" />
+          </div>
+          <div className="career-stat-info">
+            <span className="career-stat-label">COMMENDATIONS UNLOCKED</span>
+            <span className="career-stat-val">
+              {unlockedAchCount} / {totalAchCount} ({achCompletionPct}%)
+            </span>
+          </div>
+        </div>
+
+        {readyToClaimCount > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <span className="career-badge-ready">
+              <Sparkles size={14} />
+              <span>{readyToClaimCount} REWARD{readyToClaimCount > 1 ? 'S' : ''} READY TO CLAIM</span>
+            </span>
+          </div>
+        )}
+      </section>
+
+      {/* ================= 3. 7-DAY GALACTIC LOGIN STREAK ================= */}
+      <section className="streak-command-panel">
+        <div className="streak-panel-header">
+          <div className="streak-header-info">
+            <div className="streak-flame-icon">
+              <Calendar size={22} color="#FBBF24" />
+            </div>
+            <div>
+              <div className="streak-title-row">
+                <h2 className="streak-title">GALACTIC DEPLOYMENT STREAK</h2>
+                <span className="streak-tag">DAY 0{questsData.streak.streakDay} ACTIVE</span>
+              </div>
+              <p className="streak-subtitle">
+                Consecutive daily sorties deliver escalating combat credits and high-density plasma energy cores.
               </p>
             </div>
           </div>
@@ -257,221 +518,301 @@ export const QuestsPage = ({ onBack }) => {
           <button
             onClick={handleClaimStreak}
             disabled={!questsData.streak.canClaimToday || claimingId === 'streak'}
-            style={{
-              ...styles.streakClaimBtn,
-              opacity: questsData.streak.canClaimToday ? 1 : 0.5,
-              cursor: questsData.streak.canClaimToday ? 'pointer' : 'not-allowed'
-            }}
-            className={questsData.streak.canClaimToday ? 'btn btn-cyan animate-pulse-glow' : 'btn-secondary'}
+            className={`streak-claim-action ${questsData.streak.canClaimToday ? 'claimable' : 'claimed'}`}
           >
-            <Gift size={16} />
-            <span>
-              {questsData.streak.canClaimToday ? 'CLAIM TODAY\'S SUPPLY' : 'CLAIMED FOR TODAY'}
-            </span>
+            {questsData.streak.canClaimToday ? (
+              <>
+                <Gift size={16} />
+                <span>{claimingId === 'streak' ? 'SECURING SUPPLY...' : "CLAIM TODAY'S CACHE"}</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 size={16} />
+                <span>TODAY'S CACHE SECURED</span>
+              </>
+            )}
           </button>
         </div>
 
-        {/* 7 Days Row */}
-        <div style={styles.streakDaysGrid}>
-          {questsData.streak.rewardsTable.map((tier) => {
-            const isToday = tier.day === questsData.streak.streakDay;
-            const isPast = tier.day < questsData.streak.streakDay;
+        {/* 7 Connected Capsule Nodes Track */}
+        <div className="streak-timeline-wrapper">
+          <div className="streak-timeline-conduit" />
+          <div className="streak-nodes-grid">
+            {questsData.streak.rewardsTable.map((tier) => {
+              const isToday = tier.day === questsData.streak.streakDay;
+              const isCompleted = tier.day < questsData.streak.streakDay || (isToday && !questsData.streak.canClaimToday);
+              const isClaimableToday = isToday && questsData.streak.canClaimToday;
+              const isUpcoming = tier.day > questsData.streak.streakDay;
+              const isDay7 = tier.day === 7;
 
-            return (
-              <div
-                key={tier.day}
-                style={{
-                  ...styles.streakDayBox,
-                  borderColor: isToday ? 'var(--secondary-cyan)' : 'var(--border-glass)',
-                  background: isToday 
-                    ? 'linear-gradient(180deg, rgba(0, 229, 255, 0.16) 0%, rgba(10, 15, 44, 0.85) 100%)' 
-                    : 'rgba(6, 9, 25, 0.6)'
-                }}
-                className="glass-card"
-              >
-                <div style={styles.streakDayNum}>DAY 0{tier.day}</div>
-                <div style={styles.streakDayRewards}>
-                  <div style={styles.streakRewardRow}>
-                    <Coins size={12} color="var(--currency-gold)" />
-                    <span>+{tier.credits}</span>
+              let nodeClass = 'streak-capsule-node';
+              if (isDay7) nodeClass += ' day-7';
+              if (isClaimableToday) nodeClass += ' today';
+              else if (isCompleted) nodeClass += ' completed';
+              else if (isUpcoming) nodeClass += ' upcoming';
+
+              return (
+                <div key={tier.day} className={nodeClass}>
+                  <div className="streak-day-badge">
+                    {isDay7 ? <Trophy size={12} color="#FBBF24" /> : null}
+                    <span>DAY 0{tier.day}</span>
                   </div>
-                  {tier.cores > 0 && (
-                    <div style={styles.streakRewardRow}>
-                      <Zap size={12} color="#C084FC" />
-                      <span>+{tier.cores} CORES</span>
+
+                  <div className="streak-capsule-icon-wrap">
+                    {isCompleted ? (
+                      <Check size={20} color="#20D6A0" />
+                    ) : isClaimableToday ? (
+                      <Gift size={20} color="#00E5FF" />
+                    ) : isDay7 ? (
+                      <Sparkles size={20} color="#FBBF24" />
+                    ) : (
+                      <Package size={20} color="#94A3B8" />
+                    )}
+                  </div>
+
+                  <div className="streak-rewards-stack">
+                    <div className="streak-reward-chip credits">
+                      <Coins size={11} />
+                      <span>+{tier.credits}</span>
                     </div>
+                    {tier.cores > 0 ? (
+                      <div className="streak-reward-chip cores">
+                        <Zap size={11} />
+                        <span>+{tier.cores} CORES</span>
+                      </div>
+                    ) : (
+                      <div style={{ height: '22px' }} />
+                    )}
+                  </div>
+
+                  {isClaimableToday ? (
+                    <span className="streak-status-tag today">CLAIMABLE</span>
+                  ) : isCompleted ? (
+                    <span className="streak-status-tag completed">SECURED</span>
+                  ) : (
+                    <span className="streak-status-tag upcoming">SCHEDULED</span>
                   )}
                 </div>
-                {isPast ? (
-                  <span style={styles.checkedPill}>COMPLETED</span>
-                ) : isToday ? (
-                  <span style={styles.todayPill}>TODAY</span>
-                ) : (
-                  <span style={styles.lockedPill}>UPCOMING</span>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* ================= SECTION 57: ORBITAL SUPPLY DROP CRATE ================= */}
-      <div style={styles.supplyDropCard} className="glass-panel">
-        <div style={styles.supplyDropHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={styles.crateIconContainer} className="animate-pulse-glow">
-              <Package size={26} color="var(--secondary-cyan)" />
+      {/* ================= 4. ORBITAL SUPPLY DROP CENTERPIECE ================= */}
+      <section className="orbital-supply-panel">
+        {/* Left Column: Holographic Cargo Pod Stage & Action */}
+        <div className="supply-pod-stage">
+          <div className="hologram-crate-visual">
+            <div className="orbital-ring-outer" />
+            <div className="orbital-ring-inner" />
+            <div className="orbital-laser-sweep" />
+            <div className="central-crate-core">
+              <Package size={38} color="#00E5FF" />
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h2 className="font-heading" style={styles.streakTitle}>ORBITAL SUPPLY DROP</h2>
-                <span className="badge badge-cyan" style={{ fontSize: '0.65rem' }}>SECTION 57</span>
-              </div>
-              <p style={styles.streakSubtitle}>
-                Orbital cargo drops deliver randomized resources every 4 hours. Probabilities disclosed transparently below.
-              </p>
+          </div>
+
+          <div className="supply-stage-meta">
+            <h2 className="supply-stage-heading">
+              <span>ORBITAL SUPPLY DROP</span>
+              <span className="badge badge-cyan" style={{ fontSize: '0.62rem' }}>SECTION 57</span>
+            </h2>
+            <p className="supply-stage-desc">
+              Automated high-altitude supply shuttles deliver randomized resource caches every 4 hours.
+            </p>
+
+            <div className={`supply-cooldown-timer ${supplyDrop.canClaim ? 'ready' : ''}`}>
+              <Clock size={14} />
+              <span>
+                {supplyDrop.canClaim ? 'ORBITAL POD READY FOR EXTRACTION' : `REFUELING SHUTTLE // ${supplyCountdown}`}
+              </span>
             </div>
           </div>
 
           <button
             onClick={handleClaimSupplyDrop}
             disabled={!supplyDrop.canClaim || supplyDropLoading}
-            style={{
-              ...styles.supplyClaimBtn,
-              opacity: supplyDrop.canClaim ? 1 : 0.6,
-              cursor: supplyDrop.canClaim ? 'pointer' : 'not-allowed'
-            }}
-            className={supplyDrop.canClaim ? "btn btn-cyan animate-pulse-glow" : "btn btn-secondary"}
+            className={`supply-claim-btn ${supplyDrop.canClaim ? 'ready' : 'cooldown'}`}
           >
-            <Gift size={16} />
-            <span>
-              {supplyDropLoading ? 'OPENING ORBITAL CRATE...' : supplyDrop.canClaim ? 'OPEN SUPPLY DROP' : 'REFUELING ORBITAL DROP'}
-            </span>
+            {supplyDropLoading ? (
+              <>
+                <RefreshCw size={18} className="rotating" />
+                <span>OPENING ORBITAL POD...</span>
+              </>
+            ) : supplyDrop.canClaim ? (
+              <>
+                <Gift size={18} />
+                <span>OPEN ORBITAL SUPPLY DROP</span>
+              </>
+            ) : (
+              <>
+                <Lock size={16} />
+                <span>REFUELING ORBITAL DROP</span>
+              </>
+            )}
           </button>
         </div>
 
-        {/* Probability Tables Disclosed (Section 57 mandate: Do not describe a random reward as guaranteed) */}
-        <div style={styles.probGrid}>
-          {supplyDrop.rewardTiers?.map((tier, idx) => (
-            <div key={idx} style={styles.probPill} className="glass-card">
-              <span style={{ color: 'var(--currency-gold)', fontWeight: 'bold' }}>{tier.probability}</span>
-              <span style={{ color: 'var(--text-light)', fontSize: '0.82rem' }}>{tier.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+        {/* Right Column: Transparent Probability Distribution Matrix */}
+        <div className="probability-matrix-wrap">
+          <div className="prob-matrix-header">
+            <span className="prob-matrix-title">TRANSPARENT REWARD PROBABILITIES</span>
+            <span className="prob-matrix-note">Server-Authoritative Weights</span>
+          </div>
 
-      {/* ================= PRIMARY TABS: QUESTS, ACHIEVEMENTS & EVENTS ================= */}
-      <div style={styles.primaryTabs}>
-        <button
-          onClick={() => setActiveTab('QUESTS')}
-          style={{
-            ...styles.primaryTabBtn,
-            borderColor: activeTab === 'QUESTS' ? 'var(--secondary-cyan)' : 'var(--border-glass)',
-            background: activeTab === 'QUESTS' ? 'rgba(0, 229, 255, 0.15)' : 'rgba(10, 15, 40, 0.5)',
-            color: activeTab === 'QUESTS' ? 'var(--secondary-cyan)' : 'var(--text-muted)'
-          }}
-          className="font-heading"
-        >
-          DAILY ROTATING QUESTS ({questsData.dailyQuests.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('ACHIEVEMENTS')}
-          style={{
-            ...styles.primaryTabBtn,
-            borderColor: activeTab === 'ACHIEVEMENTS' ? 'var(--electric-magenta)' : 'var(--border-glass)',
-            background: activeTab === 'ACHIEVEMENTS' ? 'rgba(255, 45, 255, 0.15)' : 'rgba(10, 15, 40, 0.5)',
-            color: activeTab === 'ACHIEVEMENTS' ? 'var(--electric-magenta)' : 'var(--text-muted)'
-          }}
-          className="font-heading"
-        >
-          LIFETIME MERIT ACHIEVEMENTS ({questsData.achievements.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('EVENTS')}
-          style={{
-            ...styles.primaryTabBtn,
-            borderColor: activeTab === 'EVENTS' ? 'var(--currency-gold)' : 'var(--border-glass)',
-            background: activeTab === 'EVENTS' ? 'rgba(251, 191, 36, 0.15)' : 'rgba(10, 15, 40, 0.5)',
-            color: activeTab === 'EVENTS' ? 'var(--currency-gold)' : 'var(--text-muted)'
-          }}
-          className="font-heading"
-        >
-          LIMITED-TIME EVENTS ({events.length})
-        </button>
-      </div>
+          <div className="prob-tier-list">
+            {(supplyDrop.rewardTiers?.length ? supplyDrop.rewardTiers : DEFAULT_SUPPLY_DROP_TIERS).map((tier, idx) => {
+              const isCredits = tier.type === 'CREDITS';
+              const isCores = tier.type === 'ENERGY_CORES';
+              const isVelop = tier.type === 'VELOP_COINS';
 
-      {/* ================= TAB 1: DAILY QUESTS ================= */}
-      {activeTab === 'QUESTS' && (
-        <div style={styles.questsGrid}>
-          {questsData.dailyQuests.map((q) => {
-            const isCompleted = q.completed;
-            const isClaimed = q.claimed;
-            const pct = Math.min(100, (q.progress / q.target) * 100);
+              const barColor = isVelop ? '#FF2DFF' : isCores ? '#C084FC' : '#FBBF24';
+              const rateNum = tier.probability || `${tier.weight}%`;
 
-            return (
-              <div key={q.id} style={styles.questCard} className="glass-card glass-card-hover">
-                <div style={styles.questHeader}>
-                  <div>
-                    <h3 className="font-heading" style={styles.questTitle}>{q.title}</h3>
-                    <p style={styles.questDesc}>{q.description}</p>
-                  </div>
-                  <div style={styles.questRewards}>
-                    <div style={styles.questRewardPill}>
-                      <Coins size={13} color="var(--currency-gold)" />
-                      <span>+{q.rewards?.credits}</span>
-                    </div>
-                    <div style={styles.questRewardPill}>
-                      <Zap size={13} color="var(--secondary-cyan)" />
-                      <span>+{q.rewards?.xp} XP</span>
-                    </div>
-                    {q.rewards?.energyCores > 0 && (
-                      <div style={styles.questRewardPill}>
-                        <Zap size={13} color="#C084FC" />
-                        <span>+{q.rewards?.energyCores} CORE</span>
+              return (
+                <div key={idx} className="prob-tier-card">
+                  <div className="prob-tier-top">
+                    <div className="prob-tier-identity">
+                      <div className="prob-tier-icon" style={{ background: `${barColor}18`, color: barColor }}>
+                        {isCredits ? <Coins size={14} /> : isCores ? <Zap size={14} /> : <Sparkles size={14} />}
                       </div>
-                    )}
+                      <span className="prob-tier-label">{tier.label}</span>
+                    </div>
+                    <span className="prob-tier-rate" style={{ color: barColor }}>{rateNum}</span>
                   </div>
-                </div>
 
-                {/* Progress Bar Track */}
-                <div style={styles.questProgressSection}>
-                  <div style={styles.progressInfo}>
-                    <span style={styles.progressLabel}>OBJECTIVE PROGRESS</span>
-                    <span style={styles.progressNums}>
-                      {q.progress.toLocaleString()} / {q.target.toLocaleString()}
-                    </span>
-                  </div>
-                  <div style={styles.questProgressBarTrack}>
+                  <div className="prob-tier-bar-track">
                     <div 
-                      style={{
-                        ...styles.questProgressBarFill,
-                        width: `${pct}%`,
-                        background: isCompleted ? 'var(--status-green)' : 'var(--secondary-cyan)'
+                      className="prob-tier-bar-fill" 
+                      style={{ 
+                        width: rateNum, 
+                        background: `linear-gradient(90deg, ${barColor} 0%, #00E5FF 100%)` 
                       }} 
                     />
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                {/* Quest Action Button */}
-                <div style={styles.questFooter}>
+          <div className="prob-simulated-notice">
+            <strong>NOTICE:</strong> VELOOP Coins in supply drops are simulated testnet assets for gameplay progression and upgrades. Not redeemable for fiat currency.
+          </div>
+        </div>
+      </section>
+
+      {/* ================= 5. TACTICAL SECTION NAVIGATION TABS ================= */}
+      <nav className="quests-nav-tabs">
+        <button
+          onClick={() => setActiveTab('QUESTS')}
+          className={`quests-tab-btn tab-quests ${activeTab === 'QUESTS' ? 'active' : ''}`}
+        >
+          <Target size={16} />
+          <span>DAILY QUESTS</span>
+          <span className="quests-tab-count">{questsData.dailyQuests.length}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('ACHIEVEMENTS')}
+          className={`quests-tab-btn tab-achievements ${activeTab === 'ACHIEVEMENTS' ? 'active' : ''}`}
+        >
+          <Award size={16} />
+          <span>LIFETIME ACHIEVEMENTS</span>
+          <span className="quests-tab-count">{unlockedAchCount}/{totalAchCount}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('EVENTS')}
+          className={`quests-tab-btn tab-events ${activeTab === 'EVENTS' ? 'active' : ''}`}
+        >
+          <Flame size={16} />
+          <span>LIMITED-TIME EVENTS</span>
+          <span className="quests-tab-count">{events.length}</span>
+        </button>
+      </nav>
+
+      {/* ================= TAB 1: DAILY QUESTS ================= */}
+      {activeTab === 'QUESTS' && (
+        <div className="quests-cards-grid">
+          {questsData.dailyQuests.map((q) => {
+            const isCompleted = q.completed;
+            const isClaimed = q.claimed;
+            const pct = Math.min(100, Math.round(((q.progress || 0) / (q.target || 1)) * 100));
+            const isReadyToClaim = isCompleted && !isClaimed;
+
+            let cardClass = 'tactical-quest-card';
+            if (isReadyToClaim) cardClass += ' ready-to-claim';
+            else if (isClaimed) cardClass += ' claimed';
+
+            return (
+              <div key={q.id} className={cardClass}>
+                <div className="quest-card-header">
+                  <div className="quest-category-icon">
+                    {getQuestIcon(q.metric, q.title)}
+                  </div>
+                  <div className="quest-card-info">
+                    <h3 className="quest-title-text">{q.title}</h3>
+                    <p className="quest-desc-text">{q.description}</p>
+                  </div>
+                </div>
+
+                <div className="quest-rewards-row">
+                  {q.rewards?.credits > 0 && (
+                    <div className="quest-reward-pill credits">
+                      <Coins size={12} />
+                      <span>+{q.rewards.credits} CREDITS</span>
+                    </div>
+                  )}
+                  {q.rewards?.xp > 0 && (
+                    <div className="quest-reward-pill xp">
+                      <Zap size={12} />
+                      <span>+{q.rewards.xp} XP</span>
+                    </div>
+                  )}
+                  {q.rewards?.energyCores > 0 && (
+                    <div className="quest-reward-pill cores">
+                      <Zap size={12} />
+                      <span>+{q.rewards.energyCores} CORES</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Progress Bar Track */}
+                <div className="quest-progress-section">
+                  <div className="quest-progress-meta">
+                    <span className="quest-progress-label">OBJECTIVE PROGRESS</span>
+                    <span className="quest-progress-val">
+                      {(q.progress || 0).toLocaleString()} / {(q.target || 0).toLocaleString()} ({pct}%)
+                    </span>
+                  </div>
+                  <div className="quest-meter-track">
+                    <div 
+                      className={`quest-meter-fill ${isCompleted ? 'completed' : ''}`}
+                      style={{ width: `${pct}%` }} 
+                    />
+                  </div>
+                </div>
+
+                {/* Quest Card Footer Action */}
+                <div className="quest-card-footer">
                   {isClaimed ? (
-                    <div style={styles.claimedBadge}>
-                      <CheckCircle2 size={15} color="var(--status-green)" />
+                    <div className="quest-status-badge claimed">
+                      <CheckCircle2 size={14} color="#20D6A0" />
                       <span>REWARD CLAIMED</span>
                     </div>
                   ) : isCompleted ? (
                     <button
                       onClick={() => handleClaimQuest(q.id)}
                       disabled={claimingId === q.id}
-                      style={styles.claimQuestBtn}
-                      className="btn btn-cyan animate-pulse-glow"
+                      className="quest-claim-btn"
                     >
-                      {claimingId === q.id ? 'CLAIMING...' : 'CLAIM REWARD'}
+                      <Sparkles size={14} />
+                      <span>{claimingId === q.id ? 'AUTHORIZING...' : 'CLAIM REWARD'}</span>
                     </button>
                   ) : (
-                    <div style={styles.inProgressBadge}>
-                      <span>IN PROGRESS ({Math.round(pct)}%)</span>
+                    <div className="quest-status-badge in-progress">
+                      <Clock size={13} color="#94A3B8" />
+                      <span>IN PROGRESS ({pct}%)</span>
                     </div>
                   )}
                 </div>
@@ -481,94 +822,104 @@ export const QuestsPage = ({ onBack }) => {
         </div>
       )}
 
-      {/* ================= TAB 2: ACHIEVEMENTS ================= */}
+      {/* ================= TAB 2: LIFETIME ACHIEVEMENTS ================= */}
       {activeTab === 'ACHIEVEMENTS' && (
-        <div style={styles.achievementsContainer}>
+        <div className="achievements-shell">
+          {/* Commendation Summary Meter */}
+          <div className="achievements-summary-bar">
+            <div className="ach-summary-top">
+              <div className="ach-summary-title">
+                <Trophy size={18} color="#C084FC" />
+                <span>PILOT COMMENDATION MATRIX</span>
+              </div>
+              <span className="ach-summary-score">
+                {unlockedAchCount} OF {totalAchCount} COMMENDATIONS EARNED ({achCompletionPct}%)
+              </span>
+            </div>
+            <div className="ach-summary-meter">
+              <div className="ach-summary-fill" style={{ width: `${achCompletionPct}%` }} />
+            </div>
+          </div>
+
           {/* Category Filter Pills */}
-          <div style={styles.achFilterRow}>
-            {['ALL', 'COMBAT', 'HANGAR', 'BOSS', 'CAMPAIGN', 'APEX'].map((cat) => (
+          <div className="ach-filter-pills">
+            {['ALL', 'UNLOCKED', 'LOCKED', 'COMBAT', 'HANGAR', 'BOSS', 'CAMPAIGN', 'APEX', 'ECONOMY'].map((filterKey) => (
               <button
-                key={cat}
-                onClick={() => setAchievementFilter(cat)}
-                style={{
-                  ...styles.achFilterBtn,
-                  background: achievementFilter === cat ? 'var(--electric-magenta)' : 'rgba(255, 255, 255, 0.05)',
-                  color: achievementFilter === cat ? '#060919' : 'var(--text-light)',
-                  fontWeight: achievementFilter === cat ? 'bold' : 'normal'
-                }}
+                key={filterKey}
+                onClick={() => setAchievementFilter(filterKey)}
+                className={`ach-pill-btn ${achievementFilter === filterKey ? 'active' : ''}`}
               >
-                {cat}
+                {filterKey}
               </button>
             ))}
           </div>
 
-          <div style={styles.achievementsGrid}>
+          {/* Achievements Cards Grid */}
+          <div className="achievements-cards-grid">
             {filteredAchievements.map((ach) => {
               const isUnlocked = ach.unlocked;
               const isClaimed = ach.claimed;
+              const isApex = ach.category === 'APEX' || ach.id.includes('sovereign');
+
+              let cardClass = 'ach-commendation-card';
+              if (isApex) cardClass += ' apex';
+              if (isUnlocked) cardClass += ' unlocked';
+              else cardClass += ' locked';
 
               return (
-                <div
-                  key={ach.id}
-                  style={{
-                    ...styles.achCard,
-                    borderColor: isUnlocked ? 'rgba(255, 45, 255, 0.4)' : 'var(--border-glass)',
-                    opacity: isUnlocked ? 1 : 0.65
-                  }}
-                  className="glass-card"
-                >
-                  <div style={styles.achCardHeader}>
-                    <div style={{
-                      ...styles.achIconBox,
-                      background: isUnlocked ? 'rgba(255, 45, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                      borderColor: isUnlocked ? 'var(--electric-magenta)' : 'var(--border-glass)'
-                    }}>
-                      <Award size={22} color={isUnlocked ? 'var(--electric-magenta)' : 'var(--text-muted)'} />
+                <div key={ach.id} className={cardClass}>
+                  <div className="ach-card-top">
+                    <div className="medal-insignia-frame">
+                      {getAchievementIcon(ach)}
                     </div>
-                    <span style={styles.achCategoryBadge}>{ach.category}</span>
+                    <span className="medal-category-tag">{ach.category}</span>
                   </div>
 
-                  <div style={styles.achBody}>
-                    <h3 className="font-heading" style={styles.achTitle}>{ach.name}</h3>
-                    <p style={styles.achDesc}>{ach.description}</p>
+                  <div className="ach-card-body">
+                    <h3 className="ach-title-text">{ach.name}</h3>
+                    <p className="ach-desc-text">{ach.description}</p>
 
-                    <div style={styles.achRewardsRow}>
-                      <div style={styles.questRewardPill}>
-                        <Coins size={12} color="var(--currency-gold)" />
-                        <span>+{ach.rewards?.credits}</span>
-                      </div>
-                      {ach.rewards?.energyCores > 0 && (
-                        <div style={styles.questRewardPill}>
-                          <Zap size={12} color="#C084FC" />
-                          <span>+{ach.rewards?.energyCores} CORES</span>
+                    <div className="ach-rewards-row">
+                      {ach.rewards?.credits > 0 && (
+                        <div className="quest-reward-pill credits">
+                          <Coins size={11} />
+                          <span>+{ach.rewards.credits}</span>
                         </div>
                       )}
-                      <div style={styles.questRewardPill}>
-                        <Zap size={12} color="var(--secondary-cyan)" />
-                        <span>+{ach.rewards?.xp} XP</span>
-                      </div>
+                      {ach.rewards?.energyCores > 0 && (
+                        <div className="quest-reward-pill cores">
+                          <Zap size={11} />
+                          <span>+{ach.rewards.energyCores} CORES</span>
+                        </div>
+                      )}
+                      {ach.rewards?.xp > 0 && (
+                        <div className="quest-reward-pill xp">
+                          <Zap size={11} />
+                          <span>+{ach.rewards.xp} XP</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div style={styles.achFooter}>
+                  <div style={{ marginTop: 'auto' }}>
                     {isClaimed ? (
-                      <div style={styles.claimedBadge}>
-                        <CheckCircle2 size={15} color="var(--status-green)" />
+                      <div className="quest-status-badge claimed" style={{ width: '100%', justifyContent: 'center' }}>
+                        <CheckCheck size={14} color="#20D6A0" />
                         <span>MERIT GRANTED</span>
                       </div>
                     ) : isUnlocked ? (
                       <button
                         onClick={() => handleClaimAchievement(ach.id)}
                         disabled={claimingId === ach.id}
-                        style={styles.claimAchBtn}
-                        className="animate-pulse-glow"
+                        className="ach-claim-btn"
                       >
-                        {claimingId === ach.id ? 'AUTHORIZING...' : 'CLAIM MERIT'}
+                        <Sparkles size={14} />
+                        <span>{claimingId === ach.id ? 'AUTHORIZING...' : 'CLAIM MERIT'}</span>
                       </button>
                     ) : (
-                      <div style={styles.lockedBadge}>
-                        <Lock size={14} color="var(--text-muted)" />
-                        <span>LOCKED CRITERIA</span>
+                      <div className="quest-status-badge in-progress" style={{ width: '100%', justifyContent: 'center' }}>
+                        <Lock size={13} color="#64748B" />
+                        <span>CRITERIA LOCKED</span>
                       </div>
                     )}
                   </div>
@@ -579,86 +930,104 @@ export const QuestsPage = ({ onBack }) => {
         </div>
       )}
 
-      {/* ================= TAB 3: LIMITED-TIME EVENTS (SECTION 58) ================= */}
+      {/* ================= TAB 3: LIMITED-TIME EVENTS ================= */}
       {activeTab === 'EVENTS' && (
-        <div style={styles.questsGrid}>
+        <div className="events-container">
           {events.length === 0 ? (
-            <div style={{ ...styles.questCard, textAlign: 'center', padding: '36px' }} className="glass-card">
-              <p style={{ color: 'var(--text-muted)' }}>No active limited-time campaigns at this moment. Stand by for fleet transmissions.</p>
+            <div style={{ 
+              background: 'rgba(8, 14, 40, 0.7)', 
+              borderRadius: '14px', 
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              padding: '48px 24px', 
+              textAlign: 'center' 
+            }}>
+              <Flame size={36} color="#64748B" style={{ margin: '0 auto 12px' }} />
+              <h3 style={{ fontFamily: 'var(--font-heading)', color: '#FFFFFF', margin: 0 }}>
+                NO ACTIVE CAMPAIGN TRANSMISSIONS
+              </h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.85rem', marginTop: '6px' }}>
+                All special sector operations are currently concluded. Stand by for high-command fleet dispatches.
+              </p>
             </div>
           ) : (
             events.map((ev) => {
-              const pct = Math.min(100, (ev.currentProgress / ev.objective.target) * 100);
+              const currentProg = ev.currentProgress || 0;
+              const targetProg = ev.objective?.target || 1;
+              const pct = Math.min(100, Math.round((currentProg / targetProg) * 100));
+
               return (
-                <div key={ev.id} style={styles.questCard} className="glass-card glass-card-hover">
-                  <div style={styles.questHeader}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(251, 191, 36, 0.15)', border: '1px solid var(--currency-gold)' }}>
-                        <Flame size={24} color="var(--currency-gold)" />
-                      </div>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <h3 className="font-heading" style={styles.questTitle}>{ev.name}</h3>
-                          <span className="badge badge-gold" style={{ fontSize: '0.65rem' }}>SPECIAL EVENT</span>
+                <div key={ev.id} className="event-campaign-card">
+                  <div className="event-header-row">
+                    <div>
+                      <div className="event-badge-group">
+                        <span className="event-type-badge">LIMITED-TIME SORTIE</span>
+                        <div className="event-timer-pill">
+                          <Clock size={13} />
+                          <span>ACTIVE FLEET CAMPAIGN</span>
                         </div>
-                        <p style={styles.questDesc}>{ev.description}</p>
                       </div>
+                      <h2 className="event-title-text">{ev.name}</h2>
+                      <p className="event-desc-text">{ev.description}</p>
                     </div>
 
-                    <div style={styles.questRewards}>
-                      <div style={styles.questRewardPill}>
-                        <Coins size={13} color="var(--currency-gold)" />
-                        <span>+{ev.reward?.credits}</span>
-                      </div>
-                      <div style={styles.questRewardPill}>
-                        <Zap size={13} color="#C084FC" />
-                        <span>+{ev.reward?.energyCores} CORES</span>
-                      </div>
-                      <div style={styles.questRewardPill}>
-                        <Award size={13} color="var(--electric-magenta)" />
-                        <span>+{ev.reward?.velopRewardCoins} VELOOP COINS</span>
-                      </div>
+                    <div className="quest-rewards-row" style={{ alignSelf: 'flex-start' }}>
+                      {ev.reward?.credits > 0 && (
+                        <div className="quest-reward-pill credits">
+                          <Coins size={12} />
+                          <span>+{ev.reward.credits} CREDITS</span>
+                        </div>
+                      )}
+                      {ev.reward?.energyCores > 0 && (
+                        <div className="quest-reward-pill cores">
+                          <Zap size={12} />
+                          <span>+{ev.reward.energyCores} CORES</span>
+                        </div>
+                      )}
+                      {ev.reward?.velopRewardCoins > 0 && (
+                        <div className="quest-reward-pill" style={{ color: '#FF2DFF', borderColor: 'rgba(255, 45, 255, 0.3)' }}>
+                          <Award size={12} />
+                          <span>+{ev.reward.velopRewardCoins} VELOOP COINS</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Objective Progress Bar Track */}
-                  <div style={styles.questProgressSection}>
-                    <div style={styles.progressInfo}>
-                      <span style={styles.progressLabel}>OBJECTIVE PROGRESS</span>
-                      <span style={styles.progressNums}>
-                        {ev.currentProgress} / {ev.objective.target}
+                  <div className="quest-progress-section">
+                    <div className="quest-progress-meta">
+                      <span className="quest-progress-label">TACTICAL TARGET ELIMINATIONS</span>
+                      <span className="quest-progress-val">
+                        {currentProg.toLocaleString()} / {targetProg.toLocaleString()} ({pct}%)
                       </span>
                     </div>
-                    <div style={styles.questProgressBarTrack}>
+                    <div className="quest-meter-track">
                       <div 
-                        style={{
-                          ...styles.questProgressBarFill,
-                          width: `${pct}%`,
-                          background: ev.isCompleted ? 'var(--status-green)' : 'var(--currency-gold)'
-                        }} 
+                        className={`quest-meter-fill ${ev.isCompleted ? 'completed' : ''}`}
+                        style={{ width: `${pct}%`, background: ev.isCompleted ? 'linear-gradient(90deg, #20D6A0, #059669)' : 'linear-gradient(90deg, #FBBF24, #D97706)' }} 
                       />
                     </div>
                   </div>
 
                   {/* Event Claim Action Button */}
-                  <div style={styles.questFooter}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     {ev.isClaimed ? (
-                      <div style={styles.claimedBadge}>
-                        <CheckCircle2 size={15} color="var(--status-green)" />
-                        <span>EVENT REWARDS CLAIMED</span>
+                      <div className="quest-status-badge claimed">
+                        <CheckCircle2 size={16} color="#20D6A0" />
+                        <span>EVENT REWARDS SECURED</span>
                       </div>
                     ) : ev.isCompleted ? (
                       <button
                         onClick={() => handleClaimEvent(ev.id)}
                         disabled={claimingId === ev.id}
-                        style={{ ...styles.claimQuestBtn, background: 'linear-gradient(135deg, var(--currency-gold) 0%, #D97706 100%)', color: '#000' }}
-                        className="animate-pulse-glow"
+                        className="event-claim-btn"
                       >
-                        {claimingId === ev.id ? 'AUTHORIZING...' : 'CLAIM OPERATION REWARD'}
+                        <Sparkles size={16} />
+                        <span>{claimingId === ev.id ? 'AUTHORIZING...' : 'CLAIM OPERATION REWARD'}</span>
                       </button>
                     ) : (
-                      <div style={styles.inProgressBadge}>
-                        <span>IN PROGRESS ({Math.round(pct)}%)</span>
+                      <div className="quest-status-badge in-progress">
+                        <Crosshair size={14} color="#94A3B8" />
+                        <span>IN ACTIVE SORTIE ({pct}%)</span>
                       </div>
                     )}
                   </div>
@@ -670,439 +1039,6 @@ export const QuestsPage = ({ onBack }) => {
       )}
     </div>
   );
-};
-
-const styles = {
-  pageContainer: {
-    minHeight: '100vh',
-    background: 'radial-gradient(circle at 50% 12%, #0F1738 0%, #060919 75%)',
-    color: 'var(--text-light)',
-    padding: '24px 32px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px'
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 24px',
-    borderRadius: '16px',
-    flexWrap: 'wrap',
-    gap: '16px'
-  },
-  headerLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '20px'
-  },
-  backBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 16px',
-    fontSize: '0.82rem',
-    fontWeight: 'bold',
-    borderRadius: '10px'
-  },
-  pageTitle: {
-    fontSize: '1.45rem',
-    letterSpacing: '0.08em',
-    color: 'var(--secondary-cyan)',
-    margin: 0
-  },
-  subTitle: {
-    fontSize: '0.72rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.06em',
-    margin: 0
-  },
-  headerRight: {},
-  countdownBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '8px 16px',
-    borderRadius: '10px',
-    border: '1px solid var(--secondary-cyan)'
-  },
-  countdownVal: {
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.95rem',
-    color: 'var(--secondary-cyan)',
-    letterSpacing: '0.06em'
-  },
-  countdownLabel: {
-    fontSize: '0.62rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.08em'
-  },
-  feedbackAlert: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '12px 20px',
-    borderRadius: '10px',
-    border: '1px solid',
-    fontSize: '0.88rem'
-  },
-  streakCard: {
-    padding: '20px 24px',
-    borderRadius: '16px',
-    border: '1px solid var(--border-glass)'
-  },
-  streakHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '16px',
-    marginBottom: '16px'
-  },
-  streakTitle: {
-    fontSize: '1.15rem',
-    color: 'var(--text-light)',
-    margin: 0
-  },
-  streakSubtitle: {
-    fontSize: '0.75rem',
-    color: 'var(--text-muted)',
-    margin: '2px 0 0 0'
-  },
-  streakClaimBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '10px 18px',
-    fontSize: '0.82rem',
-    fontWeight: 'bold',
-    borderRadius: '10px'
-  },
-  streakDaysGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-    gap: '10px'
-  },
-  streakDayBox: {
-    padding: '14px 12px',
-    borderRadius: '12px',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-    border: '1px solid var(--border-glass)'
-  },
-  streakDayNum: {
-    fontSize: '0.7rem',
-    fontFamily: 'var(--font-heading)',
-    color: 'var(--secondary-cyan)',
-    letterSpacing: '0.08em'
-  },
-  streakDayRewards: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '3px'
-  },
-  streakRewardRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    fontSize: '0.72rem',
-    fontFamily: 'var(--font-heading)'
-  },
-  todayPill: {
-    fontSize: '0.62rem',
-    padding: '2px 8px',
-    borderRadius: '6px',
-    background: 'rgba(0, 229, 255, 0.25)',
-    border: '1px solid var(--secondary-cyan)',
-    color: 'var(--secondary-cyan)',
-    fontFamily: 'var(--font-heading)'
-  },
-  checkedPill: {
-    fontSize: '0.62rem',
-    padding: '2px 8px',
-    borderRadius: '6px',
-    background: 'rgba(16, 185, 129, 0.2)',
-    border: '1px solid var(--status-green)',
-    color: 'var(--status-green)',
-    fontFamily: 'var(--font-heading)'
-  },
-  lockedPill: {
-    fontSize: '0.62rem',
-    padding: '2px 8px',
-    borderRadius: '6px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: 'var(--text-muted)',
-    fontFamily: 'var(--font-heading)'
-  },
-  primaryTabs: {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '6px'
-  },
-  primaryTabBtn: {
-    flex: 1,
-    padding: '14px',
-    borderRadius: '12px',
-    border: '1px solid',
-    cursor: 'pointer',
-    fontSize: '0.92rem',
-    letterSpacing: '0.08em',
-    transition: 'all 0.2s ease'
-  },
-  questsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    gap: '16px'
-  },
-  questCard: {
-    padding: '20px',
-    borderRadius: '14px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    minHeight: '200px',
-    border: '1px solid var(--border-glass)'
-  },
-  questHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: '12px'
-  },
-  questTitle: {
-    fontSize: '1.05rem',
-    color: 'var(--text-light)',
-    margin: '0 0 4px 0'
-  },
-  questDesc: {
-    fontSize: '0.8rem',
-    color: 'var(--text-muted)',
-    margin: 0,
-    lineHeight: 1.4
-  },
-  questRewards: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    gap: '4px'
-  },
-  questRewardPill: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    padding: '2px 8px',
-    borderRadius: '6px',
-    background: 'rgba(255, 255, 255, 0.06)',
-    fontSize: '0.72rem',
-    fontFamily: 'var(--font-heading)'
-  },
-  questProgressSection: {
-    margin: '16px 0'
-  },
-  progressInfo: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '0.72rem',
-    marginBottom: '6px'
-  },
-  progressLabel: {
-    color: 'var(--text-muted)',
-    fontFamily: 'var(--font-heading)'
-  },
-  progressNums: {
-    color: 'var(--secondary-cyan)',
-    fontFamily: 'var(--font-heading)'
-  },
-  questProgressBarTrack: {
-    width: '100%',
-    height: '8px',
-    background: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: '4px',
-    overflow: 'hidden',
-    border: '1px solid rgba(255, 255, 255, 0.08)'
-  },
-  questProgressBarFill: {
-    height: '100%',
-    borderRadius: '4px',
-    transition: 'width 0.25s ease'
-  },
-  questFooter: {},
-  claimQuestBtn: {
-    width: '100%',
-    padding: '10px',
-    fontSize: '0.85rem'
-  },
-  claimedBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '6px',
-    padding: '10px',
-    borderRadius: '10px',
-    background: 'rgba(16, 185, 129, 0.12)',
-    border: '1px solid var(--status-green)',
-    color: 'var(--status-green)',
-    fontSize: '0.78rem',
-    fontFamily: 'var(--font-heading)'
-  },
-  inProgressBadge: {
-    textAlign: 'center',
-    padding: '10px',
-    borderRadius: '10px',
-    background: 'rgba(255, 255, 255, 0.04)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    color: 'var(--text-muted)',
-    fontSize: '0.75rem',
-    fontFamily: 'var(--font-heading)'
-  },
-  achievementsContainer: {},
-  achFilterRow: {
-    display: 'flex',
-    gap: '8px',
-    marginBottom: '16px',
-    flexWrap: 'wrap'
-  },
-  achFilterBtn: {
-    padding: '6px 14px',
-    borderRadius: '8px',
-    border: '1px solid var(--border-glass)',
-    fontSize: '0.75rem',
-    fontFamily: 'var(--font-heading)',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  },
-  achievementsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '16px'
-  },
-  achCard: {
-    padding: '18px',
-    borderRadius: '14px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    minHeight: '220px',
-    border: '1px solid var(--border-glass)'
-  },
-  achCardHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  achIconBox: {
-    width: '42px',
-    height: '42px',
-    borderRadius: '10px',
-    border: '1px solid',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  achCategoryBadge: {
-    fontSize: '0.62rem',
-    padding: '2px 8px',
-    borderRadius: '6px',
-    background: 'rgba(255, 255, 255, 0.06)',
-    color: 'var(--text-muted)',
-    fontFamily: 'var(--font-heading)'
-  },
-  achBody: {
-    margin: '12px 0'
-  },
-  achTitle: {
-    fontSize: '1.05rem',
-    color: 'var(--text-light)',
-    margin: '0 0 4px 0'
-  },
-  achDesc: {
-    fontSize: '0.8rem',
-    color: 'var(--text-muted)',
-    margin: 0,
-    lineHeight: 1.4
-  },
-  achRewardsRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    marginTop: '12px',
-    flexWrap: 'wrap'
-  },
-  achFooter: {},
-  claimAchBtn: {
-    width: '100%',
-    padding: '10px',
-    borderRadius: '10px',
-    background: 'linear-gradient(135deg, var(--electric-magenta) 0%, #A855F7 100%)',
-    color: '#FFFFFF',
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.82rem',
-    fontWeight: 'bold',
-    border: 'none',
-    cursor: 'pointer'
-  },
-  lockedBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '6px',
-    padding: '10px',
-    borderRadius: '10px',
-    background: 'rgba(255, 255, 255, 0.04)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    color: 'var(--text-muted)',
-    fontSize: '0.72rem',
-    fontFamily: 'var(--font-heading)'
-  },
-  supplyDropCard: {
-    padding: '20px 24px',
-    borderRadius: '16px',
-    border: '1px solid var(--secondary-cyan)',
-    background: 'radial-gradient(circle at 15% 50%, rgba(0, 229, 255, 0.12) 0%, rgba(10, 15, 44, 0.85) 100%)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-  },
-  supplyDropHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '16px'
-  },
-  crateIconContainer: {
-    padding: '12px',
-    borderRadius: '12px',
-    background: 'rgba(0, 229, 255, 0.15)',
-    border: '1px solid var(--secondary-cyan)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  supplyClaimBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '12px 20px',
-    fontSize: '0.85rem'
-  },
-  probGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-    gap: '10px'
-  },
-  probPill: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '10px 14px',
-    borderRadius: '10px',
-    background: 'rgba(6, 9, 25, 0.6)',
-    border: '1px solid rgba(255, 255, 255, 0.08)'
-  }
 };
 
 export default QuestsPage;

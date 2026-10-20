@@ -1,0 +1,1680 @@
+﻿/* =========================================================================
+   VOID HUNTER - QUESTS, ACHIEVEMENTS & ORBITAL REWARD OPERATIONS
+   Aesthetics: AAA Sci-Fi Progression Center, Holographic HUD, Tactical Medals
+   ========================================================================= */
+
+.quests-shell {
+  width: 100%;
+  min-height: calc(100vh - 70px);
+  padding: 24px 32px 64px;
+  background: radial-gradient(circle at 50% 0%, #0A1238 0%, #04081E 65%, #02040E 100%);
+  color: #EAF1FF;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Background Cybernetic Tactical Grid */
+.quests-shell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 520px;
+  background: 
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 38px 38px;
+  pointer-events: none;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+}
+
+/* ================= 1. COMMAND CONSOLE HEADER ================= */
+.quests-header-shell {
+  position: relative;
+  z-index: 2;
+  background: rgba(7, 12, 38, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 14px;
+  padding: 20px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.quests-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.quests-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  background: rgba(0, 229, 255, 0.08);
+  color: #00E5FF;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.quests-back-btn:hover {
+  background: rgba(0, 229, 255, 0.18);
+  border-color: #00E5FF;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
+  transform: translateX(-2px);
+}
+
+.quests-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.68rem;
+  color: #00E5FF;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.quests-eyebrow-blip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00E5FF;
+  box-shadow: 0 0 8px #00E5FF;
+  animation: radarBlip 2s infinite ease-in-out;
+}
+
+@keyframes radarBlip {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+.quests-title {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin: 0;
+  background: linear-gradient(90deg, #FFFFFF 0%, #EAF1FF 40%, #00E5FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 24px rgba(0, 229, 255, 0.25);
+}
+
+.quests-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: #94A3B8;
+  letter-spacing: 0.02em;
+}
+
+.quests-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quests-reset-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: rgba(10, 16, 44, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.quests-reset-time {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #00E5FF;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.quests-reset-label {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.58rem;
+  color: #94A3B8;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+
+.quests-refresh-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  background: rgba(0, 229, 255, 0.08);
+  color: #00E5FF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quests-refresh-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00E5FF;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+  transform: rotate(45deg);
+}
+
+.quests-refresh-btn.rotating svg {
+  animation: spinLoader 0.9s linear infinite;
+}
+
+@keyframes spinLoader {
+  to { transform: rotate(360deg); }
+}
+
+/* ================= 2. PILOT CAREER PROGRESSION PANEL ================= */
+.career-progress-panel {
+  position: relative;
+  z-index: 2;
+  background: rgba(8, 14, 40, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 14px 22px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  align-items: center;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+}
+
+.career-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-left: 2px solid rgba(0, 229, 255, 0.25);
+}
+
+.career-stat-card:first-child {
+  border-left-color: #00E5FF;
+}
+
+.career-stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.career-stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.career-stat-label {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.62rem;
+  color: #94A3B8;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.career-stat-val {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.career-xp-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+  border: 1px solid rgba(0, 229, 255, 0.15);
+}
+
+.career-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00E5FF, #8B5CF6);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.career-badge-ready {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(0, 229, 255, 0.15);
+  border: 1px solid #00E5FF;
+  color: #00E5FF;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  animation: readyPulse 2s infinite ease-in-out;
+}
+
+@keyframes readyPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 229, 255, 0.2); }
+  50% { box-shadow: 0 0 16px rgba(0, 229, 255, 0.55); }
+}
+
+/* ================= 3. 7-DAY GALACTIC LOGIN STREAK ================= */
+.streak-command-panel {
+  position: relative;
+  z-index: 2;
+  background: rgba(9, 15, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 14px;
+  padding: 22px 26px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.streak-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.streak-header-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.streak-flame-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.25);
+}
+
+.streak-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.streak-title {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.streak-tag {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(251, 191, 36, 0.15);
+  color: #FBBF24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.streak-subtitle {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin: 3px 0 0;
+}
+
+.streak-claim-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.streak-claim-action.claimable {
+  background: linear-gradient(135deg, #00E5FF 0%, #0099FF 100%);
+  color: #060919;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.45);
+}
+
+.streak-claim-action.claimable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 28px rgba(0, 229, 255, 0.65);
+}
+
+.streak-claim-action.claimed {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(32, 214, 160, 0.3);
+  color: #20D6A0;
+  cursor: default;
+}
+
+.streak-claim-action:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* 7 Connected Capsule Nodes Track */
+.streak-timeline-wrapper {
+  position: relative;
+  padding: 14px 0 4px;
+}
+
+/* Energy conduit line behind capsules */
+.streak-timeline-conduit {
+  position: absolute;
+  top: 50%;
+  left: 30px;
+  right: 30px;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    rgba(32, 214, 160, 0.5) 0%, 
+    rgba(0, 229, 255, 0.6) 50%, 
+    rgba(251, 191, 36, 0.3) 100%
+  );
+  z-index: 1;
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
+.streak-nodes-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+}
+
+.streak-capsule-node {
+  position: relative;
+  background: rgba(7, 12, 34, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.streak-capsule-node:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 229, 255, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Completed Capsule State */
+.streak-capsule-node.completed {
+  border-color: rgba(32, 214, 160, 0.45);
+  background: linear-gradient(180deg, rgba(32, 214, 160, 0.08) 0%, rgba(7, 14, 35, 0.95) 100%);
+}
+
+.streak-capsule-node.completed .streak-day-badge {
+  color: #20D6A0;
+}
+
+/* Active Today Capsule State */
+.streak-capsule-node.today {
+  border-color: #00E5FF;
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.16) 0%, rgba(9, 18, 50, 0.95) 100%);
+  box-shadow: 0 0 22px rgba(0, 229, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.streak-capsule-node.today .streak-day-badge {
+  color: #00E5FF;
+  font-weight: 800;
+}
+
+/* Upcoming Capsule State */
+.streak-capsule-node.upcoming {
+  opacity: 0.65;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Day 7 Imperial Jackpot Highlight */
+.streak-capsule-node.day-7 {
+  border-color: rgba(251, 191, 36, 0.4);
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.1) 0%, rgba(8, 14, 38, 0.95) 100%);
+}
+
+.streak-capsule-node.day-7.today {
+  border-color: #FBBF24;
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.35);
+}
+
+.streak-day-badge {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.streak-capsule-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.streak-capsule-node.completed .streak-capsule-icon-wrap {
+  border-color: #20D6A0;
+  background: rgba(32, 214, 160, 0.12);
+}
+
+.streak-capsule-node.today .streak-capsule-icon-wrap {
+  border-color: #00E5FF;
+  background: rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+}
+
+.streak-capsule-node.day-7 .streak-capsule-icon-wrap {
+  border-color: #FBBF24;
+  background: rgba(251, 191, 36, 0.15);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.35);
+}
+
+.streak-rewards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.streak-reward-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.streak-reward-chip.credits {
+  color: #FBBF24;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.streak-reward-chip.cores {
+  color: #C084FC;
+  border: 1px solid rgba(192, 132, 252, 0.25);
+}
+
+.streak-status-tag {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.streak-status-tag.completed {
+  background: rgba(32, 214, 160, 0.15);
+  color: #20D6A0;
+  border: 1px solid rgba(32, 214, 160, 0.3);
+}
+
+.streak-status-tag.today {
+  background: rgba(0, 229, 255, 0.2);
+  color: #00E5FF;
+  border: 1px solid #00E5FF;
+  animation: pulseToday 2s infinite ease-in-out;
+}
+
+@keyframes pulseToday {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.streak-status-tag.upcoming {
+  background: rgba(255, 255, 255, 0.04);
+  color: #64748B;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ================= 4. ORBITAL SUPPLY DROP SIGNATURE PANEL ================= */
+.orbital-supply-panel {
+  position: relative;
+  z-index: 2;
+  background: rgba(8, 14, 40, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 14px;
+  padding: 24px 28px;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 28px;
+  align-items: center;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+/* Subtle background glow for supply drop */
+.orbital-supply-panel::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: 20%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Left Column: Holographic Cargo Pod & Action */
+.supply-pod-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 10px;
+}
+
+.hologram-crate-visual {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Concentric rotating orbital rings */
+.orbital-ring-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed rgba(0, 229, 255, 0.4);
+  animation: rotateRing 22s linear infinite;
+}
+
+.orbital-ring-inner {
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  animation: rotateRingRev 16s linear infinite;
+}
+
+@keyframes rotateRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotateRingRev {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* Scanning laser sweep */
+.orbital-laser-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00E5FF, transparent);
+  box-shadow: 0 0 10px #00E5FF;
+  animation: laserScan 3s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes laserScan {
+  0% { top: 15%; opacity: 0.2; }
+  50% { top: 85%; opacity: 0.9; }
+  100% { top: 15%; opacity: 0.2; }
+}
+
+/* Central Cargo Pod Crate */
+.central-crate-core {
+  width: 90px;
+  height: 90px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(124, 58, 237, 0.25) 100%);
+  border: 1px solid rgba(0, 229, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.35), inset 0 0 16px rgba(0, 229, 255, 0.2);
+  position: relative;
+  z-index: 2;
+  animation: crateFloat 4s ease-in-out infinite;
+}
+
+@keyframes crateFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.supply-stage-meta {
+  text-align: center;
+}
+
+.supply-stage-heading {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.supply-stage-desc {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin: 4px 0 0;
+  max-width: 380px;
+}
+
+.supply-cooldown-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(10, 16, 44, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.8rem;
+  color: #94A3B8;
+  letter-spacing: 0.06em;
+  margin-top: 6px;
+}
+
+.supply-cooldown-timer.ready {
+  border-color: rgba(32, 214, 160, 0.45);
+  background: rgba(32, 214, 160, 0.08);
+  color: #20D6A0;
+}
+
+.supply-claim-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.supply-claim-btn.ready {
+  background: linear-gradient(135deg, #00E5FF 0%, #0099FF 100%);
+  color: #060919;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.45);
+}
+
+.supply-claim-btn.ready:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 32px rgba(0, 229, 255, 0.7);
+}
+
+.supply-claim-btn.cooldown {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #64748B;
+  cursor: not-allowed;
+}
+
+/* Right Column: Transparent Probability Distribution Matrix */
+.probability-matrix-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prob-matrix-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.prob-matrix-title {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #00E5FF;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.prob-matrix-note {
+  font-size: 0.68rem;
+  color: #64748B;
+}
+
+.prob-tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prob-tier-card {
+  background: rgba(6, 11, 30, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.prob-tier-card:hover {
+  border-color: rgba(0, 229, 255, 0.3);
+  transform: translateX(2px);
+}
+
+.prob-tier-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.prob-tier-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prob-tier-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.prob-tier-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #E2E8F0;
+}
+
+.prob-tier-rate {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.prob-tier-bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.prob-tier-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.prob-simulated-notice {
+  font-size: 0.68rem;
+  color: #94A3B8;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(255, 45, 255, 0.06);
+  border: 1px solid rgba(255, 45, 255, 0.18);
+  margin-top: 4px;
+}
+
+/* ================= 5. TACTICAL SECTION NAVIGATION TABS ================= */
+.quests-nav-tabs {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.quests-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 10px 10px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: rgba(10, 16, 44, 0.45);
+  color: #94A3B8;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.quests-tab-btn:hover {
+  color: #FFFFFF;
+  background: rgba(10, 16, 44, 0.7);
+}
+
+.quests-tab-btn.active.tab-quests {
+  color: #00E5FF;
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.35);
+  box-shadow: 0 -4px 14px rgba(0, 229, 255, 0.12);
+}
+
+.quests-tab-btn.active.tab-quests::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #00E5FF;
+  box-shadow: 0 0 10px #00E5FF;
+}
+
+.quests-tab-btn.active.tab-achievements {
+  color: #C084FC;
+  background: rgba(192, 132, 252, 0.1);
+  border-color: rgba(192, 132, 252, 0.35);
+  box-shadow: 0 -4px 14px rgba(192, 132, 252, 0.12);
+}
+
+.quests-tab-btn.active.tab-achievements::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #C084FC;
+  box-shadow: 0 0 10px #C084FC;
+}
+
+.quests-tab-btn.active.tab-events {
+  color: #FBBF24;
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.35);
+  box-shadow: 0 -4px 14px rgba(251, 191, 36, 0.12);
+}
+
+.quests-tab-btn.active.tab-events::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #FBBF24;
+  box-shadow: 0 0 10px #FBBF24;
+}
+
+.quests-tab-count {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ================= 6. TAB 1: DAILY QUESTS GRID ================= */
+.quests-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.tactical-quest-card {
+  background: rgba(8, 14, 40, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.tactical-quest-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 229, 255, 0.35);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.tactical-quest-card.ready-to-claim {
+  border-color: rgba(0, 229, 255, 0.6);
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.08) 0%, rgba(8, 14, 40, 0.95) 100%);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.tactical-quest-card.claimed {
+  opacity: 0.75;
+  border-color: rgba(32, 214, 160, 0.25);
+}
+
+.quest-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.quest-category-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quest-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.quest-title-text {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  margin: 0 0 4px;
+}
+
+.quest-desc-text {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.quest-rewards-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quest-reward-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.quest-reward-pill.credits {
+  color: #FBBF24;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.quest-reward-pill.xp {
+  color: #00E5FF;
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.quest-reward-pill.cores {
+  color: #C084FC;
+  border-color: rgba(192, 132, 252, 0.3);
+}
+
+/* Quest Progress Bar Track */
+.quest-progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quest-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+}
+
+.quest-progress-label {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  color: #64748B;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.quest-progress-val {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  color: #00E5FF;
+  font-weight: 700;
+}
+
+.quest-meter-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.quest-meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #00E5FF 0%, #0099FF 100%);
+  transition: width 0.4s ease;
+}
+
+.quest-meter-fill.completed {
+  background: linear-gradient(90deg, #20D6A0 0%, #059669 100%);
+}
+
+.quest-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.quest-claim-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #00E5FF;
+  background: linear-gradient(135deg, #00E5FF 0%, #0099FF 100%);
+  color: #060919;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
+}
+
+.quest-claim-btn:hover {
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.65);
+  transform: translateY(-1px);
+}
+
+.quest-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.quest-status-badge.in-progress {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94A3B8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quest-status-badge.claimed {
+  background: rgba(32, 214, 160, 0.12);
+  color: #20D6A0;
+  border: 1px solid rgba(32, 214, 160, 0.35);
+}
+
+/* ================= 7. TAB 2: LIFETIME ACHIEVEMENTS ================= */
+.achievements-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.achievements-summary-bar {
+  background: rgba(8, 14, 40, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  border-radius: 12px;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.ach-summary-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ach-summary-title {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ach-summary-score {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #C084FC;
+}
+
+.ach-summary-meter {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(192, 132, 252, 0.2);
+}
+
+.ach-summary-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00E5FF 0%, #C084FC 100%);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* Achievement Category Filter Pills */
+.ach-filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ach-pill-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 16, 44, 0.55);
+  color: #94A3B8;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ach-pill-btn:hover {
+  border-color: rgba(192, 132, 252, 0.35);
+  color: #E2E8F0;
+}
+
+.ach-pill-btn.active {
+  background: rgba(192, 132, 252, 0.18);
+  border-color: #C084FC;
+  color: #C084FC;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
+}
+
+/* Commendation Cards Grid */
+.achievements-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.ach-commendation-card {
+  background: rgba(8, 14, 40, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.ach-commendation-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(192, 132, 252, 0.4);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+.ach-commendation-card.unlocked {
+  border-color: rgba(192, 132, 252, 0.5);
+  background: linear-gradient(180deg, rgba(192, 132, 252, 0.08) 0%, rgba(8, 14, 40, 0.95) 100%);
+  box-shadow: 0 0 20px rgba(192, 132, 252, 0.2);
+}
+
+.ach-commendation-card.apex {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.08) 0%, rgba(8, 14, 40, 0.95) 100%);
+}
+
+.ach-commendation-card.locked {
+  opacity: 0.65;
+}
+
+.ach-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.medal-insignia-frame {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(192, 132, 252, 0.1);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ach-commendation-card.apex .medal-insignia-frame {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.ach-commendation-card.locked .medal-insignia-frame {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.medal-category-tag {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #94A3B8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ach-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ach-title-text {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+.ach-desc-text {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.ach-rewards-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.ach-claim-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #C084FC;
+  background: linear-gradient(135deg, #C084FC 0%, #7C3AED 100%);
+  color: #FFFFFF;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 16px rgba(192, 132, 252, 0.4);
+}
+
+.ach-claim-btn:hover {
+  box-shadow: 0 0 24px rgba(192, 132, 252, 0.65);
+  transform: translateY(-1px);
+}
+
+/* ================= 8. TAB 3: LIMITED-TIME EVENTS ================= */
+.events-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.event-campaign-card {
+  background: rgba(8, 14, 40, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.event-campaign-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FBBF24 0%, #FF2DFF 100%);
+}
+
+.event-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.event-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.event-type-badge {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 5px;
+  background: rgba(251, 191, 36, 0.15);
+  color: #FBBF24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.event-timer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.74rem;
+  color: #FBBF24;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.event-title-text {
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+
+.event-desc-text {
+  font-size: 0.85rem;
+  color: #94A3B8;
+  margin: 6px 0 0;
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+.event-claim-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: 1px solid #FBBF24;
+  background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
+  color: #060919;
+  font-family: var(--font-heading, 'Orbitron', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+}
+
+.event-claim-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 28px rgba(251, 191, 36, 0.65);
+}
+
+/* ================= 9. FEEDBACK ALERTS ================= */
+.quests-feedback-toast {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: 1px solid;
+  font-size: 0.88rem;
+  animation: toastSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.quests-feedback-toast.success {
+  background: rgba(6, 78, 59, 0.9);
+  border-color: #20D6A0;
+  color: #D1FAE5;
+}
+
+.quests-feedback-toast.error {
+  background: rgba(69, 10, 10, 0.9);
+  border-color: #EF4444;
+  color: #FEE2E2;
+}
+
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close-btn:hover {
+  opacity: 1;
+}
+
+@keyframes toastSlideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= 10. RESPONSIVE DESIGN ================= */
+@media (max-width: 1200px) {
+  .orbital-supply-panel {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .quests-shell {
+    padding: 16px 18px 48px;
+    gap: 18px;
+  }
+  .quests-header-shell {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 18px;
+  }
+  .quests-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .streak-nodes-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .streak-timeline-conduit {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .streak-nodes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .quests-cards-grid,
+  .achievements-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
