@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../services/api.js';
 import { getRandomAdCampaign } from '../data/adCampaigns.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -62,6 +62,9 @@ export const WalletPage = ({ onBack }) => {
 
   useEffect(() => {
     fetchWalletData();
+    return () => {
+      if (adTimerRef.current) clearInterval(adTimerRef.current);
+    };
   }, [activeFilter]);
 
   // Launch Simulated Rewarded Ad
