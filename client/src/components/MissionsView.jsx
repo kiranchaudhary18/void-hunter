@@ -2,12 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import api from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
-import { SECTORS_LIST, MISSIONS_CATALOG, BOSS_ENCOUNTERS } from '../data/missionsData.js';
+import { SECTORS_LIST, MISSIONS_CATALOG } from '../data/missionsData.js';
 import EnlistPromptModal from './EnlistPromptModal.jsx';
 import { 
   Star, Lock, Play, Shield, Award, 
   Coins, Zap, Compass, Crosshair, Skull, 
-  Search, X, RotateCcw, Sparkles, AlertCircle, FileText, ChevronRight
+  Check, AlertCircle, FileText, ChevronRight, Activity, Target
 } from 'lucide-react';
 import '../pages/MissionsPage.css';
 
@@ -20,13 +20,32 @@ const SECTOR_ARTWORKS = {
   'sector-5': '/assets/sectors/sector_5_citadel.jpg'
 };
 
-const SECTOR_DESCRIPTIONS = {
-  'sector-1': 'Ionized gas fields and forward recon outposts under siege by Void Vanguard scout fleets.',
-  'sector-2': 'Fortified planetary orbital grids with heavy gun platforms and cloaked strike craft.',
-  'sector-3': 'High-velocity kinetic asteroid hazards and pirate staging bases requiring agile maneuvering.',
-  'sector-4': 'Spacetime rift anomalies with hyper-velocity interceptors and quantum distortion shielding.',
-  'sector-5': 'The sovereign flagship citadel of the Void Vanguard. Multi-phase apex dreadnought encounters.'
-};
+// 10 Strategic Mission Map Coordinates (normalized % for 1000x600 SVG canvas)
+const MAP_NODES_CONFIG = [
+  { seq: 1, x: 10, y: 78 },
+  { seq: 2, x: 21, y: 58 },
+  { seq: 3, x: 16, y: 28 },
+  { seq: 4, x: 31, y: 18 },
+  { seq: 5, x: 45, y: 38 },
+  { seq: 6, x: 38, y: 74 },
+  { seq: 7, x: 58, y: 78 },
+  { seq: 8, x: 72, y: 55 },
+  { seq: 9, x: 66, y: 24 },
+  { seq: 10, x: 88, y: 36 } // Boss node
+];
+
+// Smooth Bezier Curve Path Connectors for viewBox="0 0 1000 600"
+const MAP_CONNECTORS = [
+  { from: 1, to: 2, d: "M 100 468 C 140 415, 175 380, 210 348" },
+  { from: 2, to: 3, d: "M 210 348 C 225 270, 140 220, 160 168" },
+  { from: 3, to: 4, d: "M 160 168 C 185 125, 255 100, 310 108" },
+  { from: 4, to: 5, d: "M 310 108 C 370 120, 410 180, 450 228" },
+  { from: 5, to: 6, d: "M 450 228 C 485 275, 335 390, 380 444" },
+  { from: 6, to: 7, d: "M 380 444 C 430 485, 520 490, 580 468" },
+  { from: 7, to: 8, d: "M 580 468 C 640 440, 680 380, 720 330" },
+  { from: 8, to: 9, d: "M 720 330 C 750 270, 635 190, 660 144" },
+  { from: 9, to: 10, d: "M 660 144 C 700 95, 820 160, 880 216" }
+];
 
 export const MissionsView = ({ 
   isPublic = false, 
@@ -36,14 +55,12 @@ export const MissionsView = ({
 }) => {
   const { user, profile, isAuthenticated } = useAuth();
   const [activeSectorId, setActiveSectorId] = useState('sector-1');
-  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [diffFilter, setDiffFilter] = useState('ALL');
   const [missions, setMissions] = useState([]);
+  const [selectedMission, setSelectedMission] = useState(null);
   const [loading, setLoading] = useState(true);
   const [launchingId, setLaunchingId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [briefingMission, setBriefingMission] = useState(null);
   const [enlistModalOpen, setEnlistModalOpen] = useState(false);
 
   // Fetch real missions & pilot progress from backend API
@@ -90,53 +107,33 @@ export const MissionsView = ({
   // Overall Real Metrics
   const totalMissionsCount = missions.length || 50;
   const totalCompleted = missions.filter((m) => m.isCompleted).length;
-  const totalStars = missions.reduce((sum, m) => sum + (m.stars || 0), 0);
-  const totalAvailable = missions.filter((m) => m.isUnlocked).length;
+  const campaignProgressPct = Math.min(100, Math.round((totalCompleted / totalMissionsCount) * 100));
+  const currentCampaignSortieNum = Math.min(50, totalCompleted + 1);
 
-  // Sector Level Progress
+  // Sector Level Missions (10 sequential sorties per sector)
   const sectorMissions = useMemo(() => {
     return missions.filter((m) => m.sectorId === activeSectorId);
   }, [missions, activeSectorId]);
 
-  const sectorCompletedCount = sectorMissions.filter((m) => m.isCompleted).length;
-  const sectorStarsCount = sectorMissions.reduce((sum, m) => sum + (m.stars || 0), 0);
-
-  // Filtered Missions within the active sector
-  const filteredMissions = useMemo(() => {
-    return sectorMissions.filter((m) => {
-      // Search Query
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = m.name?.toLowerCase().includes(q);
-        const matchesObjective = m.objective?.label?.toLowerCase().includes(q);
-        const matchesSeq = String(m.sequence).includes(q) || String(m.globalSequence).includes(q);
-        if (!matchesName && !matchesObjective && !matchesSeq) return false;
-      }
-
-      // Status Filter
-      if (statusFilter === 'AVAILABLE' && !m.isUnlocked) return false;
-      if (statusFilter === 'COMPLETED' && !m.isCompleted) return false;
-      if (statusFilter === 'BOSS' && m.sequence !== 10) return false;
-
-      // Difficulty Filter
-      if (diffFilter !== 'ALL' && m.difficulty?.toUpperCase() !== diffFilter) return false;
-
-      return true;
-    });
-  }, [sectorMissions, searchQuery, statusFilter, diffFilter]);
+  // Default selected mission on sector load or switch: the first available uncompleted mission, or node 1
+  useEffect(() => {
+    if (sectorMissions.length > 0) {
+      const currentAvailable = sectorMissions.find((m) => m.isUnlocked && !m.isCompleted);
+      setSelectedMission(currentAvailable || sectorMissions[0]);
+    }
+  }, [activeSectorId, sectorMissions.length]);
 
   // Mission Launch Handler
   const handleLaunch = async (mission) => {
     if (!isAuthenticated) {
       soundManager.playLaser();
-      setBriefingMission(mission);
       setEnlistModalOpen(true);
       return;
     }
 
     if (!mission.isUnlocked) {
       soundManager.playShieldHit();
-      setErrorMessage(`Mission ${mission.name} is locked. Complete previous sorties to decrypt flight coordinates.`);
+      setErrorMessage(`Sortie ${mission.name} is locked. Decrypt prior combat coordinates first.`);
       setTimeout(() => setErrorMessage(null), 3500);
       return;
     }
@@ -172,104 +169,77 @@ export const MissionsView = ({
     }
   };
 
-  const handleOpenBriefing = (mission, e) => {
-    if (e) e.stopPropagation();
-    soundManager.playLaser();
-    setBriefingMission(mission);
+  // Node State Evaluator
+  const getNodeState = (mission, idx) => {
+    const isCompleted = !!mission.isCompleted;
+    const isBoss = mission.sequence === 10;
+    const prevMission = idx > 0 ? sectorMissions[idx - 1] : null;
+    const isCurrent = mission.isUnlocked && !isCompleted && (!prevMission || prevMission.isCompleted);
+    const isLocked = !mission.isUnlocked;
+
+    return { isCompleted, isCurrent, isLocked, isBoss };
+  };
+
+  // Check if a mission matches the current status filter
+  const isMissionFiltered = (mission) => {
+    if (statusFilter === 'ALL') return true;
+    if (statusFilter === 'AVAILABLE') return mission.isUnlocked && !mission.isCompleted;
+    if (statusFilter === 'COMPLETED') return mission.isCompleted;
+    if (statusFilter === 'BOSS') return mission.sequence === 10;
+    return true;
   };
 
   return (
     <div className="missions-container">
-      {/* ==========================================================================
-          1. MISSION HERO COMMAND-CENTER
-          ========================================================================== */}
-      <section className="missions-hero">
-        <div className="hero-text-col">
-          {/* Eyebrow Label */}
-          <div className="hero-eyebrow">
-            <span className="eyebrow-beacon" />
-            <span>MISSION ARCHIVE // SECTOR OPERATIONS</span>
+      
+      {/* ================= 1. MISSION-CONTROL PAGE HEADER ================= */}
+      <section className="mission-control-header" aria-label="Mission Command Header">
+        <div className="header-briefing-col">
+          <div className="header-eyebrow">
+            <span className="header-beacon-dot" />
+            <span>TACTICAL MISSION COMMAND // SECTOR OVERWATCH</span>
           </div>
-
-          {/* Main Heading */}
-          <h1 className="hero-heading">
-            CHOOSE YOUR <span className="hero-heading-highlight">NEXT SORTIE</span>
+          <h1 className="header-main-title">
+            CHOOSE YOUR <span className="header-title-highlight">NEXT SORTIE</span>
           </h1>
-
-          {/* Supporting Description */}
-          <p className="hero-description">
-            Review tactical reconnaissance across 5 contested deep-space sectors. Evaluate enemy battle groups, 
-            objective parameters, and sector hazards before initiating combat sortie deployment.
+          <p className="header-support-text">
+            Chart your route through hostile sectors. Complete missions, earn rewards, and prepare for apex encounters across the contested galaxy.
           </p>
-
-          {/* Hero Summary Metrics */}
-          <div className="hero-metrics-strip">
-            <div className="hero-metric-item">
-              <span className="metric-val metric-val-cyan">{totalMissionsCount}</span>
-              <span className="metric-lbl">TOTAL SORTIES</span>
-            </div>
-            <div className="metric-divider" />
-            <div className="hero-metric-item">
-              <span className="metric-val">{SECTORS_LIST.length}</span>
-              <span className="metric-lbl">CONTESTED SECTORS</span>
-            </div>
-            <div className="metric-divider" />
-            <div className="hero-metric-item">
-              <span className="metric-val metric-val-purple">5</span>
-              <span className="metric-lbl">APEX BOSSES</span>
-            </div>
-            <div className="metric-divider" />
-            <div className="hero-metric-item">
-              <span className="metric-val metric-val-gold">
-                {isAuthenticated ? `${totalStars}/150` : '150'}
-              </span>
-              <span className="metric-lbl">{isAuthenticated ? 'STARS EARNED' : 'SECTOR STARS'}</span>
-            </div>
-            <div className="metric-divider" />
-            <div className="hero-metric-item">
-              <span className="metric-val">
-                {isAuthenticated ? `${totalCompleted}/${totalMissionsCount}` : `${totalAvailable} READY`}
-              </span>
-              <span className="metric-lbl">{isAuthenticated ? 'SORTIES CLEARED' : 'ACCESSIBLE'}</span>
-            </div>
-          </div>
         </div>
 
-        {/* Hero Right: Active Sector Telemetry Preview */}
-        <div className="hero-sector-card">
-          <img 
-            src={SECTOR_ARTWORKS[activeSectorId] || '/assets/sectors/sector_1_nebula.jpg'} 
-            alt={currentSector.name}
-            className="sector-card-bg-img"
-          />
-          <div className="sector-card-vignette" />
-          
-          <div className="sector-card-content">
-            <span className="sector-card-eyebrow">ACTIVE SECTOR TELEMETRY</span>
-            <h2 className="sector-card-title">{currentSector.name}</h2>
-            <p className="sector-card-desc">{SECTOR_DESCRIPTIONS[activeSectorId]}</p>
+        {/* Compact Campaign Progress Tracker Pill */}
+        <div className="header-progress-box">
+          <div className="progress-header-row">
+            <span className="progress-counter-label">
+              MISSION {String(currentCampaignSortieNum).padStart(2, '0')} / 50
+            </span>
+            <span className="progress-status-badge">
+              {campaignProgressPct === 100 ? 'CAMPAIGN COMPLETE' : `${campaignProgressPct}% ACTIVE`}
+            </span>
           </div>
 
-          <div className="sector-card-footer">
-            <span className="sector-boss-tag">
-              <Skull size={15} />
-              <span>APEX: {currentSector.boss.toUpperCase()}</span>
-            </span>
-            <span style={{ fontFamily: 'Orbitron', fontSize: '0.72rem', color: '#00E5FF', fontWeight: '700' }}>
-              {isAuthenticated ? `${sectorCompletedCount}/10 CLEARED` : 'SORTIES 01 - 10'}
-            </span>
+          <div className="progress-bar-slot">
+            <div 
+              className="progress-bar-fill" 
+              style={{ width: `${Math.max(4, campaignProgressPct)}%` }} 
+            />
+          </div>
+
+          <div className="progress-footer-stats">
+            <span>{totalCompleted} SORTIES CLEARED</span>
+            <span>{missions.reduce((acc, m) => acc + (m.stars || 0), 0)} / 150 STARS</span>
           </div>
         </div>
       </section>
 
-      {/* Guest Exploration Banner */}
+      {/* Guest Exploration Banner if not logged in */}
       {!isAuthenticated && (
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '12px 20px',
-          background: 'rgba(11, 18, 48, 0.85)',
+          background: 'rgba(10, 16, 40, 0.9)',
           border: '1px solid rgba(0, 229, 255, 0.35)',
           borderRadius: '10px',
           boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
@@ -277,20 +247,20 @@ export const MissionsView = ({
           flexWrap: 'wrap'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Sparkles size={18} color="#00E5FF" />
-            <span style={{ fontSize: '0.84rem', color: '#EAF1FF' }}>
-              <strong>PUBLIC MISSION ARCHIVE //</strong> All 50 sorties and 5 sectors are open for tactical inspection. Enlist pilot credentials to deploy and log combat rewards.
+            <Activity size={18} color="#00E5FF" />
+            <span style={{ fontSize: '0.82rem', color: '#EAF1FF' }}>
+              <strong>TACTICAL FLIGHT ARCHIVE //</strong> All 5 sectors and 50 campaign sorties are visible. Sign in to initiate deployments and persist ledger earnings.
             </span>
           </div>
           <button
             onClick={() => onNavigate && onNavigate('auth')}
             style={{
               background: '#00E5FF',
-              color: '#05091B',
+              color: '#04081E',
               fontFamily: 'Orbitron',
               fontWeight: '800',
-              fontSize: '0.78rem',
-              letterSpacing: '0.1em',
+              fontSize: '0.74rem',
+              letterSpacing: '0.08em',
               padding: '8px 18px',
               borderRadius: '6px',
               border: 'none',
@@ -314,22 +284,21 @@ export const MissionsView = ({
           borderRadius: '8px',
           color: '#FF5577',
           fontFamily: 'Orbitron',
-          fontSize: '0.82rem'
+          fontSize: '0.78rem'
         }}>
-          <AlertCircle size={18} />
+          <AlertCircle size={16} />
           <span>{errorMessage}</span>
         </div>
       )}
 
-      {/* ==========================================================================
-          2. 5 RICH SECTOR SELECTOR CARDS
-          ========================================================================== */}
-      <section className="sectors-selector-grid" aria-label="Sector Selection">
+      {/* ================= 2. SECTOR NAVIGATION SYSTEM ================= */}
+      <nav className="sector-selector-bar" aria-label="Campaign Sector Selector">
         {SECTORS_LIST.map((sector, idx) => {
           const isSelected = sector.id === activeSectorId;
           const sMissions = missions.filter((m) => m.sectorId === sector.id);
           const sCompleted = sMissions.filter((m) => m.isCompleted).length;
           const sStars = sMissions.reduce((sum, m) => sum + (m.stars || 0), 0);
+          const isSectorLocked = sMissions.length > 0 && !sMissions[0].isUnlocked && !isAuthenticated;
 
           return (
             <button
@@ -338,392 +307,342 @@ export const MissionsView = ({
                 soundManager.playLaser();
                 setActiveSectorId(sector.id);
               }}
-              className={`sector-btn-card ${isSelected ? 'active' : ''}`}
-              aria-selected={isSelected}
-              title={`Inspect ${sector.name} operations`}
+              className={`sector-nav-tab ${isSelected ? 'active' : ''}`}
+              title={`Inspect Sector 0${idx + 1}: ${sector.name}`}
             >
-              <img 
-                src={SECTOR_ARTWORKS[sector.id] || '/assets/sectors/sector_1_nebula.jpg'} 
-                alt={sector.name}
-                className="sector-btn-thumb"
-              />
-              <div className="sector-btn-overlay" />
-
-              <div className="sector-btn-top">
-                <span className="sector-num-badge">SECTOR 0{idx + 1}</span>
-                <span className="sector-range-lbl">{sector.range}</span>
-              </div>
-
-              <div className="sector-btn-mid">
-                <h3 className="sector-btn-name">{sector.name}</h3>
-              </div>
-
-              <div className="sector-btn-bottom">
-                <span className="sector-progress-text">
-                  {isAuthenticated ? (
-                    <>
-                      <span>{sCompleted}/10</span>
-                      <Star size={11} color="#FBBF24" fill="#FBBF24" />
-                      <span>{sStars}</span>
-                    </>
-                  ) : (
-                    <span>10 SORTIES</span>
-                  )}
+              <span className="sector-nav-tag">SECTOR 0{idx + 1}</span>
+              <span className="sector-nav-title">{sector.name}</span>
+              <div className="sector-nav-meta">
+                <span>{sCompleted} / 10 CLEARED</span>
+                <span className="sector-nav-stars">
+                  <Star size={10} fill="currentColor" />
+                  <span>{sStars}</span>
                 </span>
-                {isSelected && <span className="sector-active-indicator" />}
               </div>
             </button>
           );
         })}
-      </section>
+      </nav>
 
-      {/* ==========================================================================
-          3. MISSION CONTROL TOOLBAR (Filters & Search)
-          ========================================================================== */}
-      <div className="missions-toolbar">
-        <div className="toolbar-left-group">
-          {/* Search Input */}
-          <div className="mission-search-wrapper">
-            <Search size={15} className="search-icon-pos" />
-            <input 
-              type="text"
-              placeholder="Search sorties by title or objective..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="mission-search-input"
-            />
-          </div>
-
-          {/* Status Filter Tabs */}
-          <div className="toolbar-filter-tabs">
-            {['ALL', 'AVAILABLE', 'COMPLETED', 'BOSS'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => {
-                  soundManager.playPickup('core');
-                  setStatusFilter(tab);
-                }}
-                className={`filter-tab-btn ${statusFilter === tab ? 'active' : ''}`}
-              >
-                {tab === 'BOSS' ? 'APEX BOSS' : tab}
-              </button>
-            ))}
-          </div>
+      {/* ================= 3. MAP CONTROLS & COMPACT LEGEND TOOLBAR ================= */}
+      <div className="map-controls-toolbar">
+        {/* Filters */}
+        <div className="filter-pills-row">
+          {[
+            { id: 'ALL', label: 'ALL SORTIES' },
+            { id: 'AVAILABLE', label: 'AVAILABLE' },
+            { id: 'COMPLETED', label: 'COMPLETED' },
+            { id: 'BOSS', label: 'BOSS ENCOUNTERS' }
+          ].map((f) => (
+            <button
+              key={f.id}
+              onClick={() => {
+                try { soundManager.playPickup('core'); } catch {}
+                setStatusFilter(f.id);
+              }}
+              className={`filter-pill-btn ${statusFilter === f.id ? 'active' : ''}`}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
 
-        {/* Difficulty Filter */}
-        <div className="toolbar-right-group">
-          <div className="diff-select-wrapper">
-            <span className="diff-select-label">DIFFICULTY:</span>
-            <select
-              value={diffFilter}
-              onChange={(e) => {
-                soundManager.playPickup('core');
-                setDiffFilter(e.target.value);
-              }}
-              className="diff-select-dropdown"
-            >
-              <option value="ALL">ALL TIERS</option>
-              <option value="NORMAL">NORMAL</option>
-              <option value="HARD">HARD</option>
-              <option value="EXPERT">EXPERT</option>
-            </select>
+        {/* Compact Legend */}
+        <div className="map-legend-row">
+          <div className="legend-item">
+            <span className="legend-swatch swatch-completed" />
+            <span>COMPLETED</span>
           </div>
-          <span style={{ fontFamily: 'Orbitron', fontSize: '0.7rem', color: '#9AA9C7', paddingLeft: '8px' }}>
-            SHOWING {filteredMissions.length} OF {sectorMissions.length}
-          </span>
+          <div className="legend-item">
+            <span className="legend-swatch swatch-available" />
+            <span>AVAILABLE</span>
+          </div>
+          <div className="legend-item">
+            <span className="legend-swatch swatch-locked" />
+            <span>LOCKED</span>
+          </div>
+          <div className="legend-item">
+            <span className="legend-swatch swatch-boss" />
+            <span>BOSS ENCOUNTER</span>
+          </div>
         </div>
       </div>
 
-      {/* ==========================================================================
-          4. MISSION CARDS GRID
-          ========================================================================== */}
-      <section className="missions-cards-grid" aria-label="Sorties List">
-        {filteredMissions.map((m) => {
-          const isBoss = m.sequence === 10;
-          const starsEarned = m.stars || 0;
+      {/* ================= 4. MAIN CAMPAIGN ARENA (MAP + BRIEFING PANEL) ================= */}
+      <div className="campaign-arena-grid">
+        
+        {/* LEFT COLUMN: INTERACTIVE SECTOR PROGRESSION MAP */}
+        <div className="sector-map-canvas-card">
+          {/* Atmospheric Backdrop Artwork */}
+          <div 
+            className="sector-map-bg-artwork" 
+            style={{ backgroundImage: `url(${SECTOR_ARTWORKS[activeSectorId] || '/assets/sectors/sector_1_nebula.jpg'})` }} 
+          />
+          <div className="sector-map-vignette" />
 
-          return (
-            <div 
-              key={m.id}
-              className={`mission-card ${isBoss ? 'boss-card' : ''} ${m.isCompleted ? 'completed-card' : ''} ${!m.isUnlocked && isAuthenticated ? 'locked-card' : ''}`}
-              onClick={(e) => handleOpenBriefing(m, e)}
-            >
-              {/* Header: Sortie Number & Difficulty */}
-              <div className="card-header-row">
-                <span className="sortie-code-badge">
-                  {isBoss ? (
-                    <span className="boss-flag-badge">
-                      <Skull size={13} />
-                      <span>APEX BOSS // SORTIE {m.sequence < 10 ? '0' + m.sequence : m.sequence}</span>
-                    </span>
-                  ) : (
-                    `SORTIE ${m.sequence < 10 ? '0' + m.sequence : m.sequence}`
-                  )}
-                </span>
-                <span className={`difficulty-pill diff-${m.difficulty || 'normal'}`}>
-                  {m.difficulty || 'NORMAL'}
-                </span>
-              </div>
-
-              {/* Title & Subtitle */}
-              <div className="card-title-group">
-                <h3 className="mission-card-title">{m.name}</h3>
-                <div className="mission-card-subtitle">{m.subtitle || `${m.sectorName} // SORTIE ${m.sequence}`}</div>
-              </div>
-
-              {/* Objective Box */}
-              <div className="card-objective-box">
-                <div className="objective-item">
-                  <Crosshair size={14} color="#00E5FF" style={{ flexShrink: 0 }} />
-                  <span>{m.objective?.label || 'Defend sector perimeter'}</span>
-                </div>
-                <div className="telemetry-item">
-                  <span>{m.wavesCount ? `Waves: ${m.wavesCount}` : 'Waves: Standard'}</span>
-                  <span>•</span>
-                  <span>{isBoss ? 'Boss Threat: Critical' : 'Enemy Hull: Combat Ready'}</span>
-                </div>
-              </div>
-
-              {/* Rewards Preview & Stars */}
-              <div className="card-rewards-row">
-                <div className="rewards-pills-list">
-                  <span className="reward-tag tag-credits" title="Credits Payout">
-                    <Coins size={13} />
-                    <span>+{m.rewards?.credits || 100}</span>
-                  </span>
-                  <span className="reward-tag tag-xp" title="Pilot XP">
-                    <Zap size={13} />
-                    <span>+{m.rewards?.xp || 50}</span>
-                  </span>
-                  {m.rewards?.energyCores > 0 && (
-                    <span className="reward-tag tag-cores" title="Energy Cores">
-                      <Award size={13} />
-                      <span>+{m.rewards.energyCores}</span>
-                    </span>
-                  )}
-                </div>
-
-                {/* Stars Indicator */}
-                <div className="card-stars-row" title={`${starsEarned} of 3 Stars`}>
-                  {[1, 2, 3].map((starIdx) => (
-                    <Star
-                      key={starIdx}
-                      size={15}
-                      color={starIdx <= starsEarned ? '#FBBF24' : 'rgba(255, 255, 255, 0.18)'}
-                      fill={starIdx <= starsEarned ? '#FBBF24' : 'none'}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Card Actions */}
-              <div className="card-actions-wrapper" onClick={(e) => e.stopPropagation()}>
-                {isAuthenticated ? (
-                  m.isUnlocked ? (
-                    <button
-                      onClick={() => handleLaunch(m)}
-                      disabled={launchingId === m.id}
-                      className={m.isCompleted ? "btn-card-replay" : "btn-card-primary"}
-                    >
-                      {launchingId === m.id ? (
-                        <span>DEPLOYING...</span>
-                      ) : (
-                        <>
-                          <Play size={15} fill="currentColor" />
-                          <span>{m.isCompleted ? 'REPLAY SORTIE' : 'DEPLOY SORTIE'}</span>
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleLaunch(m)}
-                      className="btn-card-locked"
-                    >
-                      <Lock size={14} />
-                      <span>LOCKED [CLEAR PRIOR]</span>
-                    </button>
-                  )
-                ) : (
-                  <button
-                    onClick={(e) => handleOpenBriefing(m, e)}
-                    className="btn-card-primary"
-                  >
-                    <Play size={15} fill="currentColor" />
-                    <span>BRIEFING & DEPLOY</span>
-                  </button>
-                )}
-
-                {/* Tactical Briefing Button */}
-                <button
-                  onClick={(e) => handleOpenBriefing(m, e)}
-                  className="btn-card-briefing"
-                  title="Open Tactical Sortie Briefing"
-                >
-                  <FileText size={16} />
-                </button>
-              </div>
+          {/* Radar Rings & Coordinate Overlay */}
+          <div className="sector-map-overlay-layer">
+            <div className="radar-circle-1" />
+            <div className="radar-circle-2" />
+            <div className="map-coords-badge">
+              // TELEMETRY: {currentSector.name.toUpperCase()} • DEEP SPACE SECTOR MAP
             </div>
-          );
-        })}
-      </section>
+          </div>
 
-      {/* ==========================================================================
-          5. PRE-DEPLOYMENT BRIEFING MODAL
-          ========================================================================== */}
-      {briefingMission && (
-        <div className="briefing-modal-overlay" onClick={() => setBriefingMission(null)}>
-          <div className="briefing-modal-card" onClick={(e) => e.stopPropagation()}>
-            
-            {/* Modal Banner */}
-            <div className="briefing-banner">
-              <img 
-                src={SECTOR_ARTWORKS[briefingMission.sectorId] || '/assets/sectors/sector_1_nebula.jpg'} 
-                alt={briefingMission.name} 
-                className="briefing-banner-img"
-              />
-              <div className="briefing-banner-vignette" />
-              <button 
-                onClick={() => setBriefingMission(null)}
-                className="briefing-close-btn"
-                title="Close Briefing"
-              >
-                <X size={18} />
-              </button>
-            </div>
+          {/* SVG Progression Paths Layer */}
+          <svg className="sector-svg-paths-layer" viewBox="0 0 1000 600" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="activeRouteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#8B5CF6" />
+                <stop offset="100%" stopColor="#00E5FF" />
+              </linearGradient>
+            </defs>
 
-            {/* Modal Body */}
-            <div className="briefing-body">
-              <div>
-                <span className="briefing-eyebrow">
-                  TACTICAL SORTIE BRIEFING // {briefingMission.subtitle || `SECTOR OPERATIONS`}
-                </span>
-                <h2 className="briefing-title">{briefingMission.name}</h2>
-              </div>
+            {MAP_CONNECTORS.map((c, i) => {
+              const fromMission = sectorMissions[c.from - 1];
+              const toMission = sectorMissions[c.to - 1];
+              const isFromCompleted = fromMission?.isCompleted;
+              const isToCompleted = toMission?.isCompleted;
+              const isToCurrent = toMission?.isUnlocked && !toMission?.isCompleted;
 
-              {/* Briefing Grid */}
-              <div className="briefing-grid">
-                {/* Panel 1: Mission Parameters */}
-                <div className="briefing-panel">
-                  <span className="briefing-panel-title">MISSION PARAMETERS</span>
-                  <div style={{ fontSize: '0.84rem', color: '#EAF1FF', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Crosshair size={15} color="#00E5FF" />
-                    <span>{briefingMission.objective?.label || 'Neutralize hostile battle group'}</span>
-                  </div>
-                  <div style={{ fontSize: '0.76rem', color: '#9AA9C7', marginTop: '4px' }}>
-                    Target Count: {briefingMission.objective?.target || 12} • Hull Threshold: 100%
-                  </div>
-                </div>
+              let pathClass = 'connector-locked';
+              if (isFromCompleted && isToCompleted) {
+                pathClass = 'connector-completed';
+              } else if (isFromCompleted && isToCurrent) {
+                pathClass = 'connector-active';
+              }
 
-                {/* Panel 2: Hostile Intelligence */}
-                <div className="briefing-panel">
-                  <span className="briefing-panel-title">HOSTILE RECONNAISSANCE</span>
-                  <div style={{ fontSize: '0.84rem', color: '#FF5577', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Skull size={15} />
-                    <span>
-                      {briefingMission.boss ? `Apex Boss: ${briefingMission.boss.name}` : 'Void Vanguard Strike Wing'}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '0.76rem', color: '#9AA9C7', marginTop: '4px' }}>
-                    {briefingMission.boss ? `Phases: ${briefingMission.boss.phases} • Boss Armor: Heavy` : `Waves: ${briefingMission.wavesCount || 3} • Interceptors & Corvettes`}
-                  </div>
-                </div>
+              return (
+                <path 
+                  key={`conn-${c.from}-${c.to}`}
+                  d={c.d}
+                  className={`route-connector-path ${pathClass}`}
+                />
+              );
+            })}
+          </svg>
 
-                {/* Panel 3: Rewards Payout */}
-                <div className="briefing-panel">
-                  <span className="briefing-panel-title">COMPLETION BOUNTY</span>
-                  <div style={{ display: 'flex', gap: '14px', marginTop: '4px' }}>
-                    <span style={{ color: '#FBBF24', fontFamily: 'Orbitron', fontSize: '0.82rem', fontWeight: '700' }}>
-                      +{briefingMission.rewards?.credits || 100} CREDITS
-                    </span>
-                    <span style={{ color: '#00E5FF', fontFamily: 'Orbitron', fontSize: '0.82rem', fontWeight: '700' }}>
-                      +{briefingMission.rewards?.xp || 50} XP
-                    </span>
-                    {briefingMission.rewards?.energyCores > 0 && (
-                      <span style={{ color: '#8B5CF6', fontFamily: 'Orbitron', fontSize: '0.82rem', fontWeight: '700' }}>
-                        +{briefingMission.rewards.energyCores} CORES
-                      </span>
-                    )}
-                  </div>
-                </div>
+          {/* Interactive Nodes Positioning Layer */}
+          <div className="sector-nodes-container">
+            {sectorMissions.map((mission, idx) => {
+              const nodeCfg = MAP_NODES_CONFIG[idx] || { seq: idx + 1, x: 10 + idx * 8, y: 50 };
+              const { isCompleted, isCurrent, isLocked, isBoss } = getNodeState(mission, idx);
+              const isSelected = selectedMission?.id === mission.id;
+              const matchesFilter = isMissionFiltered(mission);
 
-                {/* Panel 4: Authorization State */}
-                <div className="briefing-panel">
-                  <span className="briefing-panel-title">AUTHORIZATION STATUS</span>
-                  <div style={{ fontSize: '0.82rem', color: isAuthenticated ? (briefingMission.isUnlocked ? '#20D6A0' : '#FFB84D') : '#00E5FF' }}>
-                    {isAuthenticated ? (
-                      briefingMission.isUnlocked ? '● FLIGHT ENVELOPE CLEARED' : '● ENCRYPTED: CLEAR PRIOR SORTIES'
-                    ) : (
-                      '● PUBLIC RECONNAISSANCE PREVIEW'
-                    )}
-                  </div>
-                </div>
-              </div>
+              let stateClass = 'node-state-locked';
+              if (isCompleted) stateClass = 'node-state-completed';
+              else if (isBoss) stateClass = 'node-state-boss';
+              else if (isCurrent) stateClass = 'node-state-current';
 
-              {/* Action Buttons */}
-              <div className="briefing-actions-row">
-                <button
-                  onClick={() => setBriefingMission(null)}
+              return (
+                <div
+                  key={mission.id}
+                  className={`mission-node-anchor ${stateClass} ${isSelected ? 'selected' : ''}`}
                   style={{
-                    background: 'none',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    color: '#9AA9C7',
-                    fontFamily: 'Orbitron',
-                    fontSize: '0.78rem',
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    cursor: 'pointer'
+                    left: `${nodeCfg.x}%`,
+                    top: `${nodeCfg.y}%`,
+                    opacity: matchesFilter ? 1 : 0.25,
+                    pointerEvents: matchesFilter ? 'auto' : 'none'
                   }}
+                  onClick={() => {
+                    try { soundManager.playLaser(); } catch {}
+                    setSelectedMission(mission);
+                  }}
+                  title={`${mission.name} (${isCompleted ? 'Completed' : isLocked ? 'Locked' : 'Available'})`}
                 >
-                  DISMISS
-                </button>
+                  {/* Selected Reticle Target */}
+                  {isSelected && <span className="node-selected-reticle" />}
 
-                {isAuthenticated ? (
-                  <button
-                    onClick={() => {
-                      setBriefingMission(null);
-                      handleLaunch(briefingMission);
-                    }}
-                    disabled={!briefingMission.isUnlocked}
-                    className="btn-card-primary"
-                    style={{ minWidth: '200px' }}
-                  >
-                    <Play size={16} fill="currentColor" />
-                    <span>{briefingMission.isCompleted ? 'REPLAY SORTIE' : 'ENGAGE HYPERDRIVE'}</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setBriefingMission(null);
-                      if (onNavigate) onNavigate('auth');
-                    }}
-                    className="btn-card-primary"
-                    style={{ minWidth: '200px' }}
-                  >
-                    <span>ENLIST PILOT TO DEPLOY</span>
-                    <ChevronRight size={16} />
-                  </button>
-                )}
-              </div>
-            </div>
+                  {/* Pulsing Radar Ring for Current Mission */}
+                  {isCurrent && <span className="node-radar-beacon" />}
 
+                  {/* Boss Outer Danger Ring */}
+                  {isBoss && (
+                    <>
+                      <span className="boss-outer-ring" />
+                      <span className="boss-label-tag">APEX BOSS</span>
+                    </>
+                  )}
+
+                  {/* Circular Node Button */}
+                  <button type="button" className="node-circle-btn">
+                    {isCompleted ? (
+                      <Check size={16} strokeWidth={3} />
+                    ) : isBoss ? (
+                      <Skull size={18} />
+                    ) : isLocked ? (
+                      <Lock size={14} />
+                    ) : (
+                      <span>{String(mission.sequence).padStart(2, '0')}</span>
+                    )}
+                  </button>
+
+                  {/* Star rating below completed nodes */}
+                  {isCompleted && mission.stars > 0 && (
+                    <div className="node-stars-badge">
+                      {[...Array(mission.stars)].map((_, sIdx) => (
+                        <Star key={sIdx} size={8} color="#FFC247" fill="#FFC247" />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Hover tooltip label */}
+                  <div className="node-mini-name">
+                    {mission.name}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
-      )}
 
-      {/* Guest Enlist Prompt Modal */}
+        {/* RIGHT COLUMN: DEDICATED TACTICAL SORTIE BRIEFING PANEL */}
+        {selectedMission ? (
+          <aside className="tactical-briefing-panel" aria-label="Sortie Briefing Panel">
+            <div className="briefing-top-group">
+              {/* Sortie Tag & Difficulty Pill */}
+              <div className="briefing-sortie-badge">
+                <span className="briefing-tag">
+                  // SORTIE {String(selectedMission.sequence).padStart(2, '0')} BRIEFING
+                </span>
+                <span className={`briefing-diff-pill diff-${(selectedMission.difficulty || 'normal').toLowerCase()}`}>
+                  {selectedMission.difficulty || 'NORMAL'}
+                </span>
+              </div>
+
+              {/* Title & Sector Info */}
+              <div>
+                <h2 className="briefing-mission-title">{selectedMission.name}</h2>
+                <div className="briefing-sector-designation">
+                  {selectedMission.sectorName || currentSector.name} • DEEP SPACE SORTIE
+                </div>
+              </div>
+
+              {/* Mission Objective Box */}
+              <div className="briefing-objective-box">
+                <span className="objective-box-label">// SORTIE OBJECTIVE</span>
+                <p className="objective-box-text">
+                  {selectedMission.objective?.label || 'Infiltrate hostile sector and neutralize all Void Vanguard strike forces.'}
+                </p>
+              </div>
+
+              {/* Combat Telemetry Parameters */}
+              <div className="briefing-telemetry-grid">
+                <div className="telemetry-tile">
+                  <span className="tile-label">COMBAT WAVES</span>
+                  <span className="tile-val">{selectedMission.wavesCount ? `${selectedMission.wavesCount} Waves` : '3 Waves'}</span>
+                </div>
+                <div className="telemetry-tile">
+                  <span className="tile-label">TARGET HULL</span>
+                  <span className="tile-val">{selectedMission.sequence === 10 ? 'Apex Flagship' : 'Standard Cruisers'}</span>
+                </div>
+                <div className="telemetry-tile">
+                  <span className="tile-label">FLIGHT DURATION</span>
+                  <span className="tile-val">~45 - 60s</span>
+                </div>
+                <div className="telemetry-tile">
+                  <span className="tile-label">THREAT TIER</span>
+                  <span className="tile-val" style={{ color: selectedMission.sequence === 10 ? '#FF4568' : '#00E5FF' }}>
+                    {selectedMission.sequence === 10 ? 'APEX THREAT' : 'ACTIVE SORTIE'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Rewards Payout Grid */}
+              <div className="briefing-rewards-section">
+                <span className="rewards-label">// COMBAT REWARDS</span>
+                <div className="rewards-pills-row">
+                  <div className="reward-pill reward-gold">
+                    <Coins size={13} />
+                    <span>+{selectedMission.rewards?.credits || 100} CR</span>
+                  </div>
+                  {selectedMission.rewards?.energyCores > 0 && (
+                    <div className="reward-pill reward-purple">
+                      <Award size={13} />
+                      <span>+{selectedMission.rewards.energyCores} CORES</span>
+                    </div>
+                  )}
+                  <div className="reward-pill" style={{ background: 'rgba(255,255,255,0.05)', color: '#96A6C8' }}>
+                    <Zap size={13} />
+                    <span>+{selectedMission.rewards?.xp || 50} XP</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Star Rating Progress */}
+              <div className="briefing-stars-box">
+                <span className="stars-box-label">STAR EVALUATION</span>
+                <div className="stars-icons-row">
+                  {[1, 2, 3].map((starIdx) => {
+                    const isFilled = starIdx <= (selectedMission.stars || 0);
+                    return (
+                      <Star 
+                        key={starIdx}
+                        size={15}
+                        color={isFilled ? '#FFC247' : '#5A6D96'}
+                        fill={isFilled ? '#FFC247' : 'none'}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Launch Action Controls */}
+            <div className="briefing-actions-group">
+              {isAuthenticated ? (
+                selectedMission.isUnlocked ? (
+                  <button
+                    type="button"
+                    onClick={() => handleLaunch(selectedMission)}
+                    disabled={launchingId === selectedMission.id}
+                    className={selectedMission.isCompleted ? 'btn-briefing-replay' : 'btn-briefing-launch'}
+                  >
+                    <Play size={16} fill="currentColor" />
+                    <span>
+                      {launchingId === selectedMission.id 
+                        ? 'DEPLOYING SORTIE...' 
+                        : selectedMission.isCompleted 
+                          ? 'REPLAY SORTIE' 
+                          : 'DEPLOY SORTIE'}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="btn-briefing-locked"
+                  >
+                    <Lock size={15} />
+                    <span>LOCKED [CLEAR PRIOR SORTIE]</span>
+                  </button>
+                )
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEnlistModalOpen(true)}
+                  className="btn-briefing-launch"
+                >
+                  <Play size={16} fill="currentColor" />
+                  <span>SIGN IN TO DEPLOY</span>
+                </button>
+              )}
+            </div>
+          </aside>
+        ) : null}
+
+      </div>
+
+      {/* Guest Enlist Modal */}
       {enlistModalOpen && (
         <EnlistPromptModal 
           isOpen={enlistModalOpen}
           onClose={() => setEnlistModalOpen(false)}
-          onEnlist={() => {
-            setEnlistModalOpen(false);
-            if (onNavigate) onNavigate('auth');
-          }}
-          title="PILOT ENLISTMENT REQUIRED"
-          subtitle="Enlist your pilot credentials to launch combat sorties, record flight telemetry, and claim sector bounties."
+          onNavigate={onNavigate}
         />
       )}
+
     </div>
   );
 };
