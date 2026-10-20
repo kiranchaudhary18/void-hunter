@@ -98,20 +98,6 @@ export const SidebarLayout = ({
     return currentScreen === id;
   };
 
-  // Location display subtitle for the header HUD
-  const getLocationName = () => {
-    switch (currentScreen) {
-      case 'missions': return 'MISSION CONTROL CATALOG';
-      case 'hangar': return 'STARFIGHTER FLEET HANGAR';
-      case 'wallet': return 'CREDITS & REWARDS LEDGER';
-      case 'quests': return 'ACHIEVEMENTS & DIRECTIVES';
-      case 'leaderboard': return 'GALACTIC ACES LEADERBOARD';
-      case 'admin': return 'AUTHORITATIVE AUDIT LEDGER';
-      case 'dashboard':
-      default: return 'ORBITAL OVERWATCH DECK';
-    }
-  };
-
   return (
     <div className="command-deck-shell">
       {/* Mobile Drawer Backdrop */}
@@ -176,7 +162,6 @@ export const SidebarLayout = ({
         <nav className="sidebar-nav-container">
           {/* Section 1: Flight Operations */}
           <div className="sidebar-nav-group">
-            <div className="sidebar-group-label">// FLIGHT OPERATIONS</div>
             {flightOpsItems.map((item) => {
               const Icon = item.icon;
               const active = isNavActive(item.id);
@@ -195,9 +180,10 @@ export const SidebarLayout = ({
             })}
           </div>
 
+          <div className="sidebar-nav-divider" />
+
           {/* Section 2: Pilot Profile */}
           <div className="sidebar-nav-group">
-            <div className="sidebar-group-label">// PILOT PROFILE</div>
             {pilotProfileItems.map((item) => {
               const Icon = item.icon;
               const active = isNavActive(item.id);
@@ -263,12 +249,7 @@ export const SidebarLayout = ({
               </button>
             )}
 
-            <div className="hud-location-badge">
-              <span className="hud-location-sub">// COMMAND CENTER</span>
-              <span className="hud-location-title">{getLocationName()}</span>
-            </div>
-
-            {/* Quick Navigation Pills on Wide Displays */}
+{/* Quick Navigation Pills on Wide Displays */}
             <div className="hud-quick-nav">
               <button 
                 onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')} 

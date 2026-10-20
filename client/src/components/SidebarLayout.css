@@ -149,6 +149,12 @@
   gap: 3px;
 }
 
+.sidebar-nav-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.18), transparent);
+  margin: 6px 8px;
+}
+
 .sidebar-group-label {
   font-family: 'Orbitron', monospace;
   font-size: 0.55rem;
@@ -312,7 +318,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-left: 10px;
+  margin-left: 0;
 }
 
 .hud-quick-link {
