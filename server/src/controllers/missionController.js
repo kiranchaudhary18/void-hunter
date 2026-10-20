@@ -3,7 +3,7 @@ import GameSession from '../models/GameSession.js';
 import PlayerProfile from '../models/PlayerProfile.js';
 import WalletTransaction from '../models/WalletTransaction.js';
 import { MISSIONS_CATALOG } from '../data/missionsData.js';
-import { getPilotRankForLevel } from '../config/gameConfig.js';
+import { getPilotRankForLevel, getLevelData } from '../config/gameConfig.js';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -212,12 +212,11 @@ export const completeMission = async (req, res) => {
     profile.stats.totalScore += finalScore || 0;
     profile.stats.highestScore = Math.max(profile.stats.highestScore, finalScore || 0);
 
-    // Dynamic Level-up threshold check
-    while (profile.xp >= profile.xpToNextLevel) {
-      profile.level += 1;
-      profile.xpToNextLevel = Math.round(profile.xpToNextLevel * 1.35 + 50);
-    }
-    profile.pilotRank = getPilotRankForLevel(profile.level);
+    // Dynamic Level-up calculation from earned XP and completed sorties
+    const prog = getLevelData(profile.xp, profile.stats.missionsCompleted);
+    profile.level = prog.level;
+    profile.xpToNextLevel = prog.xpToNextLevel;
+    profile.pilotRank = prog.pilotRank;
     await profile.save();
 
     // Record Double-Entry Wallet Ledger Transaction

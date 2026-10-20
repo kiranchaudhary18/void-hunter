@@ -3,7 +3,7 @@ import User from '../models/User.js';
 import PlayerProfile from '../models/PlayerProfile.js';
 import PlayerShip from '../models/PlayerShip.js';
 import WalletTransaction from '../models/WalletTransaction.js';
-import { JWT_SECRET, JWT_EXPIRES_IN, ECONOMY_CONFIG, getPilotRankForLevel } from '../config/gameConfig.js';
+import { JWT_SECRET, JWT_EXPIRES_IN, ECONOMY_CONFIG, getPilotRankForLevel, getLevelData } from '../config/gameConfig.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const generateToken = (id) => {
@@ -50,7 +50,7 @@ export const register = async (req, res) => {
       pilotRank: 'Star Cadet',
       level: 1,
       xp: 0,
-      xpToNextLevel: 500,
+      xpToNextLevel: 50,
       selectedShipId: ECONOMY_CONFIG.initialShipId,
       credits: ECONOMY_CONFIG.initialCredits,
       energyCores: ECONOMY_CONFIG.initialEnergyCores,
@@ -139,9 +139,22 @@ export const login = async (req, res) => {
     // Fetch up-to-date player profile
     let profile = await PlayerProfile.findOne({ user: user._id });
     if (profile) {
-      const correctRank = getPilotRankForLevel(profile.level);
-      if (profile.pilotRank !== correctRank) {
-        profile.pilotRank = correctRank;
+      const missionsCompleted = profile.stats?.missionsCompleted || 0;
+      const prog = getLevelData(profile.xp || 0, missionsCompleted);
+      let changed = false;
+      if (profile.level < prog.level) {
+        profile.level = prog.level;
+        changed = true;
+      }
+      if (profile.xpToNextLevel !== prog.xpToNextLevel) {
+        profile.xpToNextLevel = prog.xpToNextLevel;
+        changed = true;
+      }
+      if (profile.pilotRank !== prog.pilotRank) {
+        profile.pilotRank = prog.pilotRank;
+        changed = true;
+      }
+      if (changed) {
         await profile.save();
       }
     }

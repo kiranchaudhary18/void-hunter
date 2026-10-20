@@ -24,7 +24,7 @@ const playerProfileSchema = new mongoose.Schema(
     },
     xpToNextLevel: {
       type: Number,
-      default: 500
+      default: 50
     },
     selectedShipId: {
       type: String,

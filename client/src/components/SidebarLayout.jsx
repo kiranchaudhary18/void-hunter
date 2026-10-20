@@ -98,7 +98,8 @@ export const SidebarLayout = ({
   };
 
   const pilotName = user?.name || 'Commander';
-  const pilotLevel = profile?.level || 1;
+  const completedSorties = profile?.stats?.missionsCompleted || 0;
+  const pilotLevel = Math.max(profile?.level || 1, 1 + completedSorties);
   const pilotRank = getPilotRank(pilotLevel, profile?.pilotRank);
   const credits = profile?.credits?.toLocaleString() || '0';
   const energyCores = profile?.energyCores ?? 0;

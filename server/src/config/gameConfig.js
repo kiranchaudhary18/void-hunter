@@ -52,3 +52,47 @@ export const getPilotRankForLevel = (level = 1) => {
   if (level >= 2) return 'Star Aviator';
   return 'Star Cadet';
 };
+
+export const getLevelData = (xp = 0, missionsCompleted = 0) => {
+  let level = 1;
+  let threshold = 50;
+  let accumulated = 0;
+
+  while (xp >= accumulated + threshold && level < 100) {
+    accumulated += threshold;
+    level += 1;
+    if (level <= 9) {
+      threshold = 40 + level * 10;
+    } else if (level === 10) {
+      threshold = 250;
+    } else {
+      threshold = Math.round(threshold * 1.15 + 50);
+    }
+  }
+
+  if (missionsCompleted && missionsCompleted > 0) {
+    const minLevel = Math.min(100, missionsCompleted + 1);
+    if (minLevel > level) {
+      level = minLevel;
+    }
+  }
+
+  let nextThreshold = 50;
+  let nextAcc = 0;
+  for (let l = 1; l <= level; l++) {
+    if (l <= 9) {
+      nextThreshold = 40 + l * 10;
+    } else if (l === 10) {
+      nextThreshold = 250;
+    } else {
+      nextThreshold = Math.round(nextThreshold * 1.15 + 50);
+    }
+    nextAcc += nextThreshold;
+  }
+
+  return {
+    level,
+    xpToNextLevel: nextAcc,
+    pilotRank: getPilotRankForLevel(level)
+  };
+};
