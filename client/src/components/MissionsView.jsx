@@ -7,7 +7,7 @@ import EnlistPromptModal from './EnlistPromptModal.jsx';
 import { 
   Star, Lock, Play, Shield, Award, 
   Coins, Zap, Compass, Crosshair, Skull, 
-  Check, AlertCircle, FileText, ChevronRight, Activity, Target
+  Check, AlertCircle, Target, ArrowRight, RotateCcw
 } from 'lucide-react';
 import '../pages/MissionsPage.css';
 
@@ -31,20 +31,20 @@ const MAP_NODES_CONFIG = [
   { seq: 7, x: 58, y: 78 },
   { seq: 8, x: 72, y: 55 },
   { seq: 9, x: 66, y: 24 },
-  { seq: 10, x: 88, y: 36 } // Boss node
+  { seq: 10, x: 88, y: 36 } // Boss encounter node
 ];
 
 // Smooth Bezier Curve Path Connectors for viewBox="0 0 1000 600"
 const MAP_CONNECTORS = [
-  { from: 1, to: 2, d: "M 100 468 C 140 415, 175 380, 210 348" },
-  { from: 2, to: 3, d: "M 210 348 C 225 270, 140 220, 160 168" },
-  { from: 3, to: 4, d: "M 160 168 C 185 125, 255 100, 310 108" },
-  { from: 4, to: 5, d: "M 310 108 C 370 120, 410 180, 450 228" },
-  { from: 5, to: 6, d: "M 450 228 C 485 275, 335 390, 380 444" },
-  { from: 6, to: 7, d: "M 380 444 C 430 485, 520 490, 580 468" },
-  { from: 7, to: 8, d: "M 580 468 C 640 440, 680 380, 720 330" },
-  { from: 8, to: 9, d: "M 720 330 C 750 270, 635 190, 660 144" },
-  { from: 9, to: 10, d: "M 660 144 C 700 95, 820 160, 880 216" }
+  { from: 1, to: 2, d: "M 100 468 C 140 415, 175 380, 210 348", wp: { x: 155, y: 408 } },
+  { from: 2, to: 3, d: "M 210 348 C 225 270, 140 220, 160 168", wp: { x: 185, y: 258 } },
+  { from: 3, to: 4, d: "M 160 168 C 185 125, 255 100, 310 108", wp: { x: 235, y: 138 } },
+  { from: 4, to: 5, d: "M 310 108 C 370 120, 410 180, 450 228", wp: { x: 380, y: 168 } },
+  { from: 5, to: 6, d: "M 450 228 C 485 275, 335 390, 380 444", wp: { x: 415, y: 336 } },
+  { from: 6, to: 7, d: "M 380 444 C 430 485, 520 490, 580 468", wp: { x: 480, y: 468 } },
+  { from: 7, to: 8, d: "M 580 468 C 640 440, 680 380, 720 330", wp: { x: 650, y: 399 } },
+  { from: 8, to: 9, d: "M 720 330 C 750 270, 635 190, 660 144", wp: { x: 690, y: 237 } },
+  { from: 9, to: 10, d: "M 660 144 C 700 95, 820 160, 880 216", wp: { x: 770, y: 180 }, isBossRoute: true }
 ];
 
 export const MissionsView = ({ 
@@ -189,6 +189,13 @@ export const MissionsView = ({
     return true;
   };
 
+  // Find next mission in sequence relative to selectedMission
+  const nextMissionInSector = useMemo(() => {
+    if (!selectedMission) return null;
+    const nextSeq = selectedMission.sequence + 1;
+    return sectorMissions.find((m) => m.sequence === nextSeq) || null;
+  }, [selectedMission, sectorMissions]);
+
   return (
     <div className="missions-container">
       
@@ -247,7 +254,7 @@ export const MissionsView = ({
           flexWrap: 'wrap'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Activity size={18} color="#00E5FF" />
+            <Compass size={18} color="#00E5FF" />
             <span style={{ fontSize: '0.82rem', color: '#EAF1FF' }}>
               <strong>TACTICAL FLIGHT ARCHIVE //</strong> All 5 sectors and 50 campaign sorties are visible. Sign in to initiate deployments and persist ledger earnings.
             </span>
@@ -298,7 +305,6 @@ export const MissionsView = ({
           const sMissions = missions.filter((m) => m.sectorId === sector.id);
           const sCompleted = sMissions.filter((m) => m.isCompleted).length;
           const sStars = sMissions.reduce((sum, m) => sum + (m.stars || 0), 0);
-          const isSectorLocked = sMissions.length > 0 && !sMissions[0].isUnlocked && !isAuthenticated;
 
           return (
             <button
@@ -398,7 +404,8 @@ export const MissionsView = ({
               </linearGradient>
             </defs>
 
-            {MAP_CONNECTORS.map((c, i) => {
+            {/* Path Connectors between Consecutive Nodes */}
+            {MAP_CONNECTORS.map((c) => {
               const fromMission = sectorMissions[c.from - 1];
               const toMission = sectorMissions[c.to - 1];
               const isFromCompleted = fromMission?.isCompleted;
@@ -406,23 +413,39 @@ export const MissionsView = ({
               const isToCurrent = toMission?.isUnlocked && !toMission?.isCompleted;
 
               let pathClass = 'connector-locked';
-              if (isFromCompleted && isToCompleted) {
+              if (c.isBossRoute) {
+                if (isFromCompleted && toMission?.isUnlocked) {
+                  pathClass = 'connector-boss-route';
+                } else {
+                  pathClass = 'connector-boss-locked';
+                }
+              } else if (isFromCompleted && isToCompleted) {
                 pathClass = 'connector-completed';
               } else if (isFromCompleted && isToCurrent) {
                 pathClass = 'connector-active';
               }
 
               return (
-                <path 
-                  key={`conn-${c.from}-${c.to}`}
-                  d={c.d}
-                  className={`route-connector-path ${pathClass}`}
-                />
+                <g key={`conn-group-${c.from}-${c.to}`}>
+                  <path 
+                    d={c.d}
+                    className={`route-connector-path ${pathClass}`}
+                  />
+                  {/* Route Direction Waypoint Marker */}
+                  {c.wp && (
+                    <circle 
+                      cx={c.wp.x} 
+                      cy={c.wp.y} 
+                      r="2.8" 
+                      className={c.isBossRoute ? "route-waypoint-boss" : "route-waypoint-arrow"} 
+                    />
+                  )}
+                </g>
               );
             })}
           </svg>
 
-          {/* Interactive Nodes Positioning Layer */}
+          {/* Interactive Circular Nodes Positioning Layer */}
           <div className="sector-nodes-container">
             {sectorMissions.map((mission, idx) => {
               const nodeCfg = MAP_NODES_CONFIG[idx] || { seq: idx + 1, x: 10 + idx * 8, y: 50 };
@@ -435,6 +458,10 @@ export const MissionsView = ({
               else if (isBoss) stateClass = 'node-state-boss';
               else if (isCurrent) stateClass = 'node-state-current';
 
+              const unlockReqText = isLocked 
+                ? (idx > 0 ? `Locked: Clear Sortie 0${idx} first` : 'Locked') 
+                : isCompleted ? 'Completed' : 'Available';
+
               return (
                 <div
                   key={mission.id}
@@ -442,26 +469,34 @@ export const MissionsView = ({
                   style={{
                     left: `${nodeCfg.x}%`,
                     top: `${nodeCfg.y}%`,
-                    opacity: matchesFilter ? 1 : 0.25,
+                    opacity: matchesFilter ? 1 : 0.22,
                     pointerEvents: matchesFilter ? 'auto' : 'none'
                   }}
                   onClick={() => {
                     try { soundManager.playLaser(); } catch {}
                     setSelectedMission(mission);
                   }}
-                  title={`${mission.name} (${isCompleted ? 'Completed' : isLocked ? 'Locked' : 'Available'})`}
+                  title={`${mission.name} (${unlockReqText})`}
                 >
-                  {/* Selected Reticle Target */}
-                  {isSelected && <span className="node-selected-reticle" />}
+                  {/* Selected Reticle Target Ring */}
+                  {isSelected && <span className="node-selected-halo" />}
 
-                  {/* Pulsing Radar Ring for Current Mission */}
-                  {isCurrent && <span className="node-radar-beacon" />}
+                  {/* Current Available Mission: Rotating Orbital Segmented Ring & NEXT SORTIE Badge */}
+                  {isCurrent && (
+                    <>
+                      <span className="node-orbital-ring" />
+                      <span className="node-current-sortie-badge">NEXT SORTIE</span>
+                    </>
+                  )}
 
-                  {/* Boss Outer Danger Ring */}
+                  {/* Completed Mission: Double Ring */}
+                  {isCompleted && <span className="node-double-ring-completed" />}
+
+                  {/* Boss Encounter Node: Danger Outer Ring & Apex Badge */}
                   {isBoss && (
                     <>
                       <span className="boss-outer-ring" />
-                      <span className="boss-label-tag">APEX BOSS</span>
+                      <span className="boss-label-tag">APEX ENCOUNTER</span>
                     </>
                   )}
 
@@ -472,22 +507,27 @@ export const MissionsView = ({
                     ) : isBoss ? (
                       <Skull size={18} />
                     ) : isLocked ? (
-                      <Lock size={14} />
+                      <Lock size={13} />
                     ) : (
                       <span>{String(mission.sequence).padStart(2, '0')}</span>
                     )}
                   </button>
 
-                  {/* Star rating below completed nodes */}
-                  {isCompleted && mission.stars > 0 && (
+                  {/* Star Rating Badge beneath completed nodes */}
+                  {isCompleted && (
                     <div className="node-stars-badge">
-                      {[...Array(mission.stars)].map((_, sIdx) => (
-                        <Star key={sIdx} size={8} color="#FFC247" fill="#FFC247" />
+                      {[1, 2, 3].map((s) => (
+                        <Star 
+                          key={s} 
+                          size={8} 
+                          color={s <= (mission.stars || 0) ? "#FFC247" : "rgba(150, 166, 200, 0.4)"} 
+                          fill={s <= (mission.stars || 0) ? "#FFC247" : "none"} 
+                        />
                       ))}
                     </div>
                   )}
 
-                  {/* Hover tooltip label */}
+                  {/* Hover Tooltip Label */}
                   <div className="node-mini-name">
                     {mission.name}
                   </div>
@@ -497,45 +537,74 @@ export const MissionsView = ({
           </div>
         </div>
 
-        {/* RIGHT COLUMN: DEDICATED TACTICAL SORTIE BRIEFING PANEL */}
+        {/* RIGHT COLUMN: UPGRADED TACTICAL SORTIE BRIEFING PANEL */}
         {selectedMission ? (
           <aside className="tactical-briefing-panel" aria-label="Sortie Briefing Panel">
-            <div className="briefing-top-group">
-              {/* Sortie Tag & Difficulty Pill */}
-              <div className="briefing-sortie-badge">
-                <span className="briefing-tag">
-                  // SORTIE {String(selectedMission.sequence).padStart(2, '0')} BRIEFING
+            {/* Dedicated Cinematic Mission Image Banner */}
+            <div className="briefing-artwork-banner">
+              <img 
+                src={SECTOR_ARTWORKS[selectedMission.sectorId] || '/assets/sectors/sector_1_nebula.jpg'} 
+                alt={selectedMission.name}
+                className="briefing-banner-img"
+              />
+              <div className="briefing-banner-vignette" />
+              <div className="briefing-banner-tags">
+                <span className="banner-sortie-code">
+                  SORTIE {String(selectedMission.sequence).padStart(2, '0')} // MISSION INTEL
                 </span>
-                <span className={`briefing-diff-pill diff-${(selectedMission.difficulty || 'normal').toLowerCase()}`}>
-                  {selectedMission.difficulty || 'NORMAL'}
+                <span className={`banner-status-pill ${
+                  selectedMission.isCompleted 
+                    ? 'status-completed' 
+                    : selectedMission.isUnlocked 
+                      ? 'status-ready' 
+                      : 'status-locked'
+                }`}>
+                  {selectedMission.isCompleted 
+                    ? 'COMPLETED' 
+                    : selectedMission.isUnlocked 
+                      ? 'READY TO LAUNCH' 
+                      : 'LOCKED'}
                 </span>
               </div>
+            </div>
 
-              {/* Title & Sector Info */}
-              <div>
+            {/* Briefing Panel Body */}
+            <div className="briefing-panel-body">
+              {/* Mission Title Area */}
+              <div className="briefing-title-area">
                 <h2 className="briefing-mission-title">{selectedMission.name}</h2>
-                <div className="briefing-sector-designation">
-                  {selectedMission.sectorName || currentSector.name} • DEEP SPACE SORTIE
+                <div className="briefing-sector-line">
+                  <span>{selectedMission.sectorName || currentSector.name} • DEEP SPACE SORTIE</span>
+                  <span className={`briefing-diff-pill diff-${(selectedMission.difficulty || 'normal').toLowerCase()}`}>
+                    {selectedMission.difficulty || 'NORMAL'}
+                  </span>
                 </div>
               </div>
 
-              {/* Mission Objective Box */}
-              <div className="briefing-objective-box">
-                <span className="objective-box-label">// SORTIE OBJECTIVE</span>
-                <p className="objective-box-text">
+              {/* Distinct Objective Card */}
+              <div className="briefing-objective-card">
+                <div className="objective-card-header">
+                  <Target size={13} />
+                  <span>MISSION OBJECTIVE</span>
+                </div>
+                <p className="objective-card-text">
                   {selectedMission.objective?.label || 'Infiltrate hostile sector and neutralize all Void Vanguard strike forces.'}
                 </p>
               </div>
 
-              {/* Combat Telemetry Parameters */}
+              {/* Tactical Intelligence 2-Column Grid */}
               <div className="briefing-telemetry-grid">
                 <div className="telemetry-tile">
-                  <span className="tile-label">COMBAT WAVES</span>
-                  <span className="tile-val">{selectedMission.wavesCount ? `${selectedMission.wavesCount} Waves` : '3 Waves'}</span>
+                  <span className="tile-label">ENEMY WAVES</span>
+                  <span className="tile-val">
+                    {selectedMission.wavesCount ? `${selectedMission.wavesCount} Waves` : '3 Combat Waves'}
+                  </span>
                 </div>
                 <div className="telemetry-tile">
-                  <span className="tile-label">TARGET HULL</span>
-                  <span className="tile-val">{selectedMission.sequence === 10 ? 'Apex Flagship' : 'Standard Cruisers'}</span>
+                  <span className="tile-label">TARGET CLASS</span>
+                  <span className="tile-val">
+                    {selectedMission.sequence === 10 ? currentSector.boss : 'Void Strike Wings'}
+                  </span>
                 </div>
                 <div className="telemetry-tile">
                   <span className="tile-label">FLIGHT DURATION</span>
@@ -544,33 +613,33 @@ export const MissionsView = ({
                 <div className="telemetry-tile">
                   <span className="tile-label">THREAT TIER</span>
                   <span className="tile-val" style={{ color: selectedMission.sequence === 10 ? '#FF4568' : '#00E5FF' }}>
-                    {selectedMission.sequence === 10 ? 'APEX THREAT' : 'ACTIVE SORTIE'}
+                    {selectedMission.sequence === 10 ? 'CRITICAL BOSS' : 'STANDARD HAZARD'}
                   </span>
                 </div>
               </div>
 
-              {/* Rewards Payout Grid */}
+              {/* Compact Combat Rewards Tokens */}
               <div className="briefing-rewards-section">
                 <span className="rewards-label">// COMBAT REWARDS</span>
-                <div className="rewards-pills-row">
-                  <div className="reward-pill reward-gold">
-                    <Coins size={13} />
+                <div className="rewards-tokens-row">
+                  <div className="reward-token token-gold">
+                    <Coins size={12} />
                     <span>+{selectedMission.rewards?.credits || 100} CR</span>
                   </div>
                   {selectedMission.rewards?.energyCores > 0 && (
-                    <div className="reward-pill reward-purple">
-                      <Award size={13} />
+                    <div className="reward-token token-purple">
+                      <Award size={12} />
                       <span>+{selectedMission.rewards.energyCores} CORES</span>
                     </div>
                   )}
-                  <div className="reward-pill" style={{ background: 'rgba(255,255,255,0.05)', color: '#96A6C8' }}>
-                    <Zap size={13} />
+                  <div className="reward-token token-cyan">
+                    <Zap size={12} />
                     <span>+{selectedMission.rewards?.xp || 50} XP</span>
                   </div>
                 </div>
               </div>
 
-              {/* Star Rating Progress */}
+              {/* Star Evaluation */}
               <div className="briefing-stars-box">
                 <span className="stars-box-label">STAR EVALUATION</span>
                 <div className="stars-icons-row">
@@ -580,54 +649,105 @@ export const MissionsView = ({
                       <Star 
                         key={starIdx}
                         size={15}
-                        color={isFilled ? '#FFC247' : '#5A6D96'}
+                        color={isFilled ? '#FFC247' : 'rgba(150, 166, 200, 0.35)'}
                         fill={isFilled ? '#FFC247' : 'none'}
                       />
                     );
                   })}
                 </div>
               </div>
-            </div>
 
-            {/* Launch Action Controls */}
-            <div className="briefing-actions-group">
-              {isAuthenticated ? (
-                selectedMission.isUnlocked ? (
-                  <button
-                    type="button"
-                    onClick={() => handleLaunch(selectedMission)}
-                    disabled={launchingId === selectedMission.id}
-                    className={selectedMission.isCompleted ? 'btn-briefing-replay' : 'btn-briefing-launch'}
-                  >
-                    <Play size={16} fill="currentColor" />
-                    <span>
-                      {launchingId === selectedMission.id 
-                        ? 'DEPLOYING SORTIE...' 
-                        : selectedMission.isCompleted 
-                          ? 'REPLAY SORTIE' 
-                          : 'DEPLOY SORTIE'}
+              {/* Dedicated Next-Mission Progression Strip */}
+              <div className="campaign-progression-strip">
+                <div className="progression-strip-header">
+                  <span>CAMPAIGN PROGRESSION</span>
+                  <span className="progression-strip-status">
+                    {selectedMission.isCompleted 
+                      ? 'SORTIE COMPLETE' 
+                      : selectedMission.isUnlocked 
+                        ? 'READY FOR DEPLOYMENT' 
+                        : 'RESTRICTED'}
+                  </span>
+                </div>
+                <div className="progression-strip-info">
+                  {selectedMission.isCompleted ? (
+                    nextMissionInSector ? (
+                      <span>Next Sortie: Sortie 0{nextMissionInSector.sequence} - {nextMissionInSector.name}</span>
+                    ) : (
+                      <span>Sector Cleared! Apex encounter neutralized.</span>
+                    )
+                  ) : selectedMission.isUnlocked ? (
+                    selectedMission.sequence === 10 ? (
+                      <span style={{ color: '#FF4568', fontWeight: 'bold' }}>
+                        APEX ENCOUNTER // Hostile Flagship: {currentSector.boss}
+                      </span>
+                    ) : (
+                      <span>Next Milestone: Apex Boss {currentSector.boss} in {10 - selectedMission.sequence} Sorties</span>
+                    )
+                  ) : (
+                    <span style={{ color: '#96A6C8' }}>
+                      Prerequisite: Complete Sortie 0{selectedMission.sequence - 1} to decrypt flight coordinates.
                     </span>
-                  </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Launch & Progression Action Controls */}
+              <div className="briefing-actions-group">
+                {isAuthenticated ? (
+                  selectedMission.isUnlocked ? (
+                    selectedMission.isCompleted ? (
+                      <button
+                        type="button"
+                        onClick={() => handleLaunch(selectedMission)}
+                        disabled={launchingId === selectedMission.id}
+                        className="btn-briefing-replay"
+                      >
+                        <RotateCcw size={15} />
+                        <span>
+                          {launchingId === selectedMission.id 
+                            ? 'PREPARING REPLAY...' 
+                            : 'REPLAY SORTIE'}
+                        </span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleLaunch(selectedMission)}
+                        disabled={launchingId === selectedMission.id}
+                        className="btn-briefing-launch"
+                      >
+                        <Play size={16} fill="currentColor" />
+                        <span>
+                          {launchingId === selectedMission.id 
+                            ? 'DEPLOYING SORTIE...' 
+                            : selectedMission.sequence === 10 
+                              ? 'ENGAGE APEX BOSS' 
+                              : 'LAUNCH MISSION'}
+                        </span>
+                      </button>
+                    )
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      className="btn-briefing-locked"
+                    >
+                      <Lock size={15} />
+                      <span>LOCKED [CLEAR PRIOR SORTIE]</span>
+                    </button>
+                  )
                 ) : (
                   <button
                     type="button"
-                    disabled
-                    className="btn-briefing-locked"
+                    onClick={() => setEnlistModalOpen(true)}
+                    className="btn-briefing-launch"
                   >
-                    <Lock size={15} />
-                    <span>LOCKED [CLEAR PRIOR SORTIE]</span>
+                    <Play size={16} fill="currentColor" />
+                    <span>SIGN IN TO DEPLOY</span>
                   </button>
-                )
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setEnlistModalOpen(true)}
-                  className="btn-briefing-launch"
-                >
-                  <Play size={16} fill="currentColor" />
-                  <span>SIGN IN TO DEPLOY</span>
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </aside>
         ) : null}
