@@ -45,6 +45,11 @@ const playerMissionProgressSchema = new mongoose.Schema(
     completedAt: {
       type: Date,
       default: null
+    },
+    claimedRewards: {
+      credits: { type: Number, default: 0 },
+      energyCores: { type: Number, default: 0 },
+      xp: { type: Number, default: 0 }
     }
   },
   {

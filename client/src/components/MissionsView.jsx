@@ -7,7 +7,8 @@ import EnlistPromptModal from './EnlistPromptModal.jsx';
 import { 
   Star, Lock, Play, Shield, Award, 
   Coins, Zap, Compass, Crosshair, Skull, 
-  Check, AlertCircle, Target, ArrowRight, RotateCcw
+  Check, AlertCircle, Target, ArrowRight, RotateCcw,
+  Clock, CheckCircle, Trophy
 } from 'lucide-react';
 import '../pages/MissionsPage.css';
 
@@ -537,7 +538,7 @@ export const MissionsView = ({
           </div>
         </div>
 
-        {/* RIGHT COLUMN: UPGRADED TACTICAL SORTIE BRIEFING PANEL */}
+        {/* RIGHT COLUMN: UPGRADED TACTICAL SORTIE BRIEFING / DEBRIEF PANEL */}
         {selectedMission ? (
           <aside className="tactical-briefing-panel" aria-label="Sortie Briefing Panel">
             {/* Dedicated Cinematic Mission Image Banner */}
@@ -550,7 +551,7 @@ export const MissionsView = ({
               <div className="briefing-banner-vignette" />
               <div className="briefing-banner-tags">
                 <span className="banner-sortie-code">
-                  SORTIE {String(selectedMission.sequence).padStart(2, '0')} // MISSION INTEL
+                  SORTIE {String(selectedMission.sequence).padStart(2, '0')} // {selectedMission.isCompleted ? 'COMBAT DEBRIEF' : 'MISSION INTEL'}
                 </span>
                 <span className={`banner-status-pill ${
                   selectedMission.isCompleted 
@@ -560,7 +561,7 @@ export const MissionsView = ({
                       : 'status-locked'
                 }`}>
                   {selectedMission.isCompleted 
-                    ? 'COMPLETED' 
+                    ? '✓ COMPLETED' 
                     : selectedMission.isUnlocked 
                       ? 'READY TO LAUNCH' 
                       : 'LOCKED'}
@@ -581,67 +582,155 @@ export const MissionsView = ({
                 </div>
               </div>
 
-              {/* Distinct Objective Card */}
-              <div className="briefing-objective-card">
-                <div className="objective-card-header">
-                  <Target size={13} />
-                  <span>MISSION OBJECTIVE</span>
+              {/* Distinct Objective / Debrief Card */}
+              {selectedMission.isCompleted ? (
+                <div className="briefing-objective-card debrief-completed-card">
+                  <div className="objective-card-header">
+                    <CheckCircle size={13} color="#10B981" />
+                    <span style={{ color: '#10B981', fontWeight: 800 }}>SORTIE RECORD ARCHIVE</span>
+                  </div>
+                  <p className="objective-card-text">
+                    Combat sortie successfully neutralized. Hostile sector telemetry verified and all bounties secured.
+                  </p>
                 </div>
-                <p className="objective-card-text">
-                  {selectedMission.objective?.label || 'Infiltrate hostile sector and neutralize all Void Vanguard strike forces.'}
-                </p>
-              </div>
+              ) : (
+                <div className="briefing-objective-card">
+                  <div className="objective-card-header">
+                    <Target size={13} />
+                    <span>MISSION OBJECTIVE</span>
+                  </div>
+                  <p className="objective-card-text">
+                    {selectedMission.objective?.label || 'Infiltrate hostile sector and neutralize all Void Vanguard strike forces.'}
+                  </p>
+                </div>
+              )}
 
-              {/* Tactical Intelligence 2-Column Grid */}
+              {/* Tactical Intelligence / Debrief 2-Column Grid */}
               <div className="briefing-telemetry-grid">
-                <div className="telemetry-tile">
-                  <span className="tile-label">ENEMY WAVES</span>
-                  <span className="tile-val">
-                    {selectedMission.wavesCount ? `${selectedMission.wavesCount} Waves` : '3 Combat Waves'}
-                  </span>
-                </div>
-                <div className="telemetry-tile">
-                  <span className="tile-label">TARGET CLASS</span>
-                  <span className="tile-val">
-                    {selectedMission.sequence === 10 ? currentSector.boss : 'Void Strike Wings'}
-                  </span>
-                </div>
-                <div className="telemetry-tile">
-                  <span className="tile-label">FLIGHT DURATION</span>
-                  <span className="tile-val">~45 - 60s</span>
-                </div>
-                <div className="telemetry-tile">
-                  <span className="tile-label">THREAT TIER</span>
-                  <span className="tile-val" style={{ color: selectedMission.sequence === 10 ? '#FF4568' : '#00E5FF' }}>
-                    {selectedMission.sequence === 10 ? 'CRITICAL BOSS' : 'STANDARD HAZARD'}
-                  </span>
-                </div>
+                {selectedMission.isCompleted ? (
+                  <>
+                    <div className="telemetry-tile tile-highlight-cyan">
+                      <span className="tile-label">CLEAR TIME</span>
+                      <span className="tile-val tile-val-cyan">
+                        <Clock size={11} style={{ marginRight: 4, verticalAlign: 'middle', display: 'inline-block' }} />
+                        {selectedMission.bestTimeSeconds ? `${selectedMission.bestTimeSeconds}s` : '29s'}
+                      </span>
+                    </div>
+                    <div className="telemetry-tile tile-highlight-gold">
+                      <span className="tile-label">RECORD SCORE</span>
+                      <span className="tile-val tile-val-gold">
+                        <Trophy size={11} style={{ marginRight: 4, verticalAlign: 'middle', display: 'inline-block' }} />
+                        {(selectedMission.highScore || 5610).toLocaleString()} PTS
+                      </span>
+                    </div>
+                    <div className="telemetry-tile">
+                      <span className="tile-label">ENEMY WAVES</span>
+                      <span className="tile-val">
+                        {selectedMission.wavesCount ? `${selectedMission.wavesCount} Waves Cleared` : 'All Waves Cleared'}
+                      </span>
+                    </div>
+                    <div className="telemetry-tile">
+                      <span className="tile-label">COMBAT STATUS</span>
+                      <span className="tile-val" style={{ color: '#10B981', fontWeight: 800 }}>
+                        VICTORY CONFIRMED
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="telemetry-tile">
+                      <span className="tile-label">ENEMY WAVES</span>
+                      <span className="tile-val">
+                        {selectedMission.wavesCount ? `${selectedMission.wavesCount} Waves` : '3 Combat Waves'}
+                      </span>
+                    </div>
+                    <div className="telemetry-tile">
+                      <span className="tile-label">TARGET CLASS</span>
+                      <span className="tile-val">
+                        {selectedMission.sequence === 10 ? currentSector.boss : 'Void Strike Wings'}
+                      </span>
+                    </div>
+                    <div className="telemetry-tile">
+                      <span className="tile-label">ESTIMATED TIME</span>
+                      <span className="tile-val">~45 - 60s</span>
+                    </div>
+                    <div className="telemetry-tile">
+                      <span className="tile-label">THREAT TIER</span>
+                      <span className="tile-val" style={{ color: selectedMission.sequence === 10 ? '#FF4568' : '#00E5FF' }}>
+                        {selectedMission.sequence === 10 ? 'CRITICAL BOSS' : 'STANDARD HAZARD'}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
-              {/* Compact Combat Rewards Tokens */}
+              {/* Combat Rewards / Claimed Rewards Section */}
               <div className="briefing-rewards-section">
-                <span className="rewards-label">// COMBAT REWARDS</span>
-                <div className="rewards-tokens-row">
-                  <div className="reward-token token-gold">
-                    <Coins size={12} />
-                    <span>+{selectedMission.rewards?.credits || 100} CR</span>
-                  </div>
-                  {selectedMission.rewards?.energyCores > 0 && (
-                    <div className="reward-token token-purple">
-                      <Award size={12} />
-                      <span>+{selectedMission.rewards.energyCores} CORES</span>
+                {selectedMission.isCompleted ? (
+                  <>
+                    <div className="rewards-header-row">
+                      <span className="rewards-label" style={{ color: '#10B981' }}>// REWARDS CLAIMED & SECURED</span>
+                      <span className="rewards-status-badge">
+                        <Check size={10} /> CLAIMED
+                      </span>
                     </div>
-                  )}
-                  <div className="reward-token token-cyan">
-                    <Zap size={12} />
-                    <span>+{selectedMission.rewards?.xp || 50} XP</span>
-                  </div>
-                </div>
+                    <div className="rewards-tokens-row">
+                      <div className="reward-token token-gold token-claimed">
+                        <Coins size={12} />
+                        <span>+{selectedMission.claimedRewards?.credits || selectedMission.rewards?.credits || 100} CR</span>
+                        <Check size={10} className="token-check" />
+                      </div>
+                      {((selectedMission.claimedRewards?.energyCores ?? selectedMission.rewards?.energyCores) > 0) && (
+                        <div className="reward-token token-purple token-claimed">
+                          <Award size={12} />
+                          <span>+{selectedMission.claimedRewards?.energyCores || selectedMission.rewards?.energyCores} CORES</span>
+                          <Check size={10} className="token-check" />
+                        </div>
+                      )}
+                      <div className="reward-token token-cyan token-claimed">
+                        <Zap size={12} />
+                        <span>+{selectedMission.claimedRewards?.xp || selectedMission.rewards?.xp || 50} XP</span>
+                        <Check size={10} className="token-check" />
+                      </div>
+                    </div>
+                    <div className="rewards-secured-note">
+                      <CheckCircle size={11} color="#10B981" />
+                      <span>Combat credits and XP deposited into Pilot Wallet</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="rewards-label">// ESTIMATED COMBAT REWARDS</span>
+                    <div className="rewards-tokens-row">
+                      <div className="reward-token token-gold">
+                        <Coins size={12} />
+                        <span>+{selectedMission.rewards?.credits || 100} CR</span>
+                      </div>
+                      {selectedMission.rewards?.energyCores > 0 && (
+                        <div className="reward-token token-purple">
+                          <Award size={12} />
+                          <span>+{selectedMission.rewards.energyCores} CORES</span>
+                        </div>
+                      )}
+                      <div className="reward-token token-cyan">
+                        <Zap size={12} />
+                        <span>+{selectedMission.rewards?.xp || 50} XP</span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Star Evaluation */}
-              <div className="briefing-stars-box">
-                <span className="stars-box-label">STAR EVALUATION</span>
+              <div className={`briefing-stars-box ${selectedMission.isCompleted ? 'stars-box-completed' : ''}`}>
+                <div className="stars-meta-left">
+                  <span className="stars-box-label">STAR EVALUATION</span>
+                  <span className="stars-sublabel">
+                    {selectedMission.isCompleted 
+                      ? `(${selectedMission.stars || 3} of 3 Stars Earned)` 
+                      : '(Potential: 3 Stars)'}
+                  </span>
+                </div>
                 <div className="stars-icons-row">
                   {[1, 2, 3].map((starIdx) => {
                     const isFilled = starIdx <= (selectedMission.stars || 0);
@@ -672,7 +761,9 @@ export const MissionsView = ({
                 <div className="progression-strip-info">
                   {selectedMission.isCompleted ? (
                     nextMissionInSector ? (
-                      <span>Next Sortie: Sortie 0{nextMissionInSector.sequence} - {nextMissionInSector.name}</span>
+                      <span>
+                        Clear Record: {selectedMission.bestTimeSeconds || 29}s • Score: {(selectedMission.highScore || 5610).toLocaleString()} PTS • Next: Sortie 0{nextMissionInSector.sequence} - {nextMissionInSector.name}
+                      </span>
                     ) : (
                       <span>Sector Cleared! Apex encounter neutralized.</span>
                     )

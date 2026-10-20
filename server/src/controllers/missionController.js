@@ -15,18 +15,34 @@ export const getMissions = async (req, res) => {
   try {
     const userId = req.user?.id;
     let progressRecords = [];
+    let completedSessions = [];
     if (userId) {
       progressRecords = await PlayerMissionProgress.find({ user: userId });
+      completedSessions = await GameSession.find({ user: userId, status: 'COMPLETED' });
     }
 
     const missionsWithProgress = MISSIONS_CATALOG.map((m) => {
       const p = progressRecords.find((rec) => rec.missionId === m.id);
+      const sess = completedSessions.find((s) => s.missionId === m.id);
+      
+      const isCompleted = p ? p.isCompleted : false;
+      const bestTimeSeconds = (p && p.bestTimeSeconds > 0)
+        ? p.bestTimeSeconds
+        : (sess && sess.durationSeconds ? sess.durationSeconds : (isCompleted ? 30 : 0));
+        
+      const claimedRewards = (p && p.claimedRewards && p.claimedRewards.credits)
+        ? p.claimedRewards
+        : (sess && sess.rewardsGranted ? sess.rewardsGranted : (isCompleted ? m.rewards : null));
+
       return {
         ...m,
         isUnlocked: m.globalSequence === 1 ? true : (p ? p.isUnlocked : false),
-        isCompleted: p ? p.isCompleted : false,
+        isCompleted,
         stars: p ? p.stars : 0,
-        highScore: p ? p.highScore : 0
+        highScore: p ? p.highScore : 0,
+        bestTimeSeconds,
+        claimedRewards,
+        completedAt: p ? p.completedAt : (sess ? sess.completedAt : null)
       };
     });
 
@@ -174,6 +190,14 @@ export const completeMission = async (req, res) => {
     progress.isCompleted = true;
     progress.stars = Math.max(progress.stars, stars);
     progress.highScore = Math.max(progress.highScore, finalScore || 0);
+    progress.bestTimeSeconds = (progress.bestTimeSeconds && progress.bestTimeSeconds > 0)
+      ? Math.min(progress.bestTimeSeconds, duration)
+      : duration;
+    progress.claimedRewards = {
+      credits: mission.rewards.credits,
+      energyCores: mission.rewards.energyCores || 0,
+      xp: mission.rewards.xp
+    };
     progress.completedAt = new Date();
     await progress.save();
 
