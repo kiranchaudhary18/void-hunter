@@ -1,70 +1,172 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import soundManager from '../game/managers/SoundManager.js';
 import { 
   Volume2, VolumeX, Play, Pause, Music, ChevronDown, ChevronUp, Minus, 
-  SkipForward, SkipBack, Mic, Radio, Disc 
+  SkipForward, SkipBack, Mic, Radio, Disc, GripVertical 
 } from 'lucide-react';
+
+const STORAGE_KEY = 'void_hunter_audio_pos';
 
 const LYRIC_SNIPPETS = [
   "⚡ 'Into the endless dark we fly, stars ignite across the sky!'",
   "🔥 'Void Hunters rise, our spirits bold! A galactic legend unfolds!'",
-  "⚡ 'Feel the thunder, feel the flame! Write our victory in their name!'",
-  "🛡️ 'Space warriors, never surrender! We are the Void Hunter!'",
-  "🚀 'Target locked! Full laser overdrive! All wings engage!'",
-  "👑 'Victory is ours! The galaxy belongs to Void Hunters!'"
+  "🚀 'Engines roar through cyber space, speed and fury in the chase!'",
+  "🛡️ 'Through asteroid belts and laser storms, true champions take their forms!'",
+  "👑 'Void Hunter! Bound for glory, conquer the galactic story!'"
 ];
 
 export const GlobalAudioPlayer = () => {
-  const [audioState, setAudioState] = useState({
-    bgmPlaying: soundManager.bgmPlaying,
-    bgmMode: soundManager.bgmMode || soundManager.desiredBgmMode || 'vocal',
-    muted: soundManager.muted,
-    bgmVolume: soundManager.bgmVolume,
-    autoplayBlocked: soundManager.autoplayBlocked,
-    playlist: soundManager.playlist
-  });
-
+  const [audioState, setAudioState] = useState(() => soundManager.getState());
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [lyricIndex, setLyricIndex] = useState(0);
 
+  // Position state (null = default bottom-right)
+  const [position, setPosition] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
+          return parsed;
+        }
+      }
+    } catch {}
+    return null;
+  });
+
+  const [isDragging, setIsDragging] = useState(false);
+  const widgetRef = useRef(null);
+  const dragInfoRef = useRef({ startX: 0, startY: 0, initialLeft: 0, initialTop: 0, hasMoved: false });
+
+  // Subscribe to audio state changes
   useEffect(() => {
-    // Subscribe to soundManager state changes
     const unsubscribe = soundManager.subscribe((state) => {
       setAudioState((prev) => ({ ...prev, ...state }));
     });
-    if (isMinimized) {
-    return (
-      <button 
-        type="button"
-        onClick={() => setIsMinimized(false)}
-        className="global-audio-minimized-orb animate-pulse-glow"
-        title="Expand Soundtrack Player"
-        style={{
-          position: 'fixed',
-          bottom: '22px',
-          right: '22px',
-          width: '42px',
-          height: '42px',
-          borderRadius: '50%',
-          background: 'rgba(6, 9, 25, 0.94)',
-          border: '1.5px solid #00E5FF',
-          color: '#00E5FF',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 0 16px rgba(0, 229, 255, 0.45)',
-          zIndex: 9999,
-          cursor: 'pointer'
-        }}
-      >
-        <Music size={18} />
-      </button>
-    );
-  }
-
-  return () => unsubscribe();
+    return () => unsubscribe();
   }, []);
+
+  // Window resize bounds clamping
+  useEffect(() => {
+    const handleResize = () => {
+      if (position && widgetRef.current) {
+        const rect = widgetRef.current.getBoundingClientRect();
+        const maxX = Math.max(10, window.innerWidth - rect.width - 10);
+        const maxY = Math.max(10, window.innerHeight - rect.height - 10);
+        const clampedX = Math.max(10, Math.min(maxX, position.x));
+        const clampedY = Math.max(10, Math.min(maxY, position.y));
+        if (clampedX !== position.x || clampedY !== position.y) {
+          setPosition({ x: clampedX, y: clampedY });
+        }
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [position]);
+
+  // DRAG LOGIC (MOUSE & TOUCH)
+  const startDrag = (clientX, clientY) => {
+    if (!widgetRef.current) return;
+    const rect = widgetRef.current.getBoundingClientRect();
+    dragInfoRef.current = {
+      startX: clientX,
+      startY: clientY,
+      initialLeft: rect.left,
+      initialTop: rect.top,
+      hasMoved: false
+    };
+    setIsDragging(true);
+  };
+
+  const handleMouseDown = (e) => {
+    if (e.target.closest('button, input, select, .no-drag, .playlist-item')) {
+      return;
+    }
+    e.preventDefault();
+    startDrag(e.clientX, e.clientY);
+
+    const onMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - dragInfoRef.current.startX;
+      const dy = moveEvent.clientY - dragInfoRef.current.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        dragInfoRef.current.hasMoved = true;
+      }
+      if (widgetRef.current) {
+        const rect = widgetRef.current.getBoundingClientRect();
+        const maxX = Math.max(10, window.innerWidth - rect.width - 10);
+        const maxY = Math.max(10, window.innerHeight - rect.height - 10);
+        const newX = Math.max(10, Math.min(maxX, dragInfoRef.current.initialLeft + dx));
+        const newY = Math.max(10, Math.min(maxY, dragInfoRef.current.initialTop + dy));
+        setPosition({ x: newX, y: newY });
+      }
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      setIsDragging(false);
+      if (widgetRef.current) {
+        const rect = widgetRef.current.getBoundingClientRect();
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+        } catch {}
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
+  const handleTouchStart = (e) => {
+    if (e.target.closest('button, input, select, .no-drag, .playlist-item')) {
+      return;
+    }
+    const touch = e.touches[0];
+    if (!touch) return;
+    startDrag(touch.clientX, touch.clientY);
+
+    const onTouchMove = (moveEvent) => {
+      const t = moveEvent.touches[0];
+      if (!t) return;
+      const dx = t.clientX - dragInfoRef.current.startX;
+      const dy = t.clientY - dragInfoRef.current.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        dragInfoRef.current.hasMoved = true;
+      }
+      if (widgetRef.current) {
+        const rect = widgetRef.current.getBoundingClientRect();
+        const maxX = Math.max(10, window.innerWidth - rect.width - 10);
+        const maxY = Math.max(10, window.innerHeight - rect.height - 10);
+        const newX = Math.max(10, Math.min(maxX, dragInfoRef.current.initialLeft + dx));
+        const newY = Math.max(10, Math.min(maxY, dragInfoRef.current.initialTop + dy));
+        setPosition({ x: newX, y: newY });
+      }
+    };
+
+    const onTouchEnd = () => {
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+      setIsDragging(false);
+      if (widgetRef.current) {
+        const rect = widgetRef.current.getBoundingClientRect();
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+        } catch {}
+      }
+    };
+
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
+  };
+
+  const handleDoubleClick = (e) => {
+    if (e.target.closest('button, input, select, .playlist-item')) return;
+    setPosition(null);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+  };
 
   // Cycle lyric snippets every 5 seconds when vocal track is active
   useEffect(() => {
@@ -114,28 +216,103 @@ export const GlobalAudioPlayer = () => {
   };
 
   const handleWidgetClick = () => {
+    if (dragInfoRef.current.hasMoved) return;
     if (!audioState.bgmPlaying) {
       soundManager.unlockAudio();
     }
     setIsExpanded(!isExpanded);
   };
 
-  // Current track metadata
-  const currentTrack = soundManager.playlist.find((p) => p.id === (audioState.bgmMode || 'vocal')) || soundManager.playlist[0];
-
-  // Safeguard: Hide audio widget during combat sorties so it never blocks the game canvas or touch buttons
+  // Safeguard: Hide audio widget during combat sorties
   if (typeof window !== 'undefined' && (window.location.pathname.includes('/gameplay') || window.location.pathname.includes('/combat'))) {
     return null;
   }
 
+  // Minimized Floating Orb View
+  if (isMinimized) {
+    return (
+      <button 
+        ref={widgetRef}
+        type="button"
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onDoubleClick={handleDoubleClick}
+        onClick={() => {
+          if (!dragInfoRef.current.hasMoved) {
+            setIsMinimized(false);
+          }
+        }}
+        className={`global-audio-minimized-orb animate-pulse-glow ${isDragging ? 'is-dragging' : ''}`}
+        title="Expand Soundtrack Player (Drag to reposition, double-click to reset)"
+        style={{
+          position: 'fixed',
+          left: position ? `${position.x}px` : 'auto',
+          top: position ? `${position.y}px` : 'auto',
+          bottom: position ? 'auto' : '22px',
+          right: position ? 'auto' : '22px',
+          width: '44px',
+          height: '44px',
+          borderRadius: '50%',
+          background: 'rgba(6, 9, 25, 0.94)',
+          border: '1.5px solid #00E5FF',
+          color: '#00E5FF',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: isDragging ? '0 0 24px rgba(0, 229, 255, 0.8)' : '0 0 16px rgba(0, 229, 255, 0.45)',
+          zIndex: 9999,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          touchAction: 'none',
+          userSelect: 'none'
+        }}
+      >
+        <Music size={18} />
+      </button>
+    );
+  }
+
+  // Current track metadata
+  const currentTrack = soundManager.playlist.find((p) => p.id === (audioState.bgmMode || 'vocal')) || soundManager.playlist[0];
+
   return (
     <div 
-      className={`global-audio-widget glass-panel cyber-box ${!audioState.bgmPlaying ? 'audio-prompt-glow' : 'animate-pulse-glow'}`}
-      style={styles.widgetContainer}
+      ref={widgetRef}
+      className={`global-audio-widget glass-panel cyber-box ${!audioState.bgmPlaying ? 'audio-prompt-glow' : 'animate-pulse-glow'} ${isDragging ? 'is-dragging' : ''}`}
+      style={{
+        ...styles.widgetContainer,
+        position: 'fixed',
+        left: position ? `${position.x}px` : 'auto',
+        top: position ? `${position.y}px` : 'auto',
+        bottom: position ? 'auto' : '22px',
+        right: position ? 'auto' : '22px',
+        cursor: isDragging ? 'grabbing' : 'default',
+        touchAction: 'none'
+      }}
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      onDoubleClick={handleDoubleClick}
       onClick={handleWidgetClick}
-      title={audioState.bgmPlaying ? "Click to expand soundtrack player" : "Click anywhere to enable soundtrack"}
+      title="Void Hunter Soundtrack. Drag to move anywhere. Double-click to reset position."
     >
       <div style={styles.headerRow}>
+        {/* Drag Handle */}
+        <div 
+          className="audio-drag-handle"
+          title="Click and drag to move player anywhere (Double-click to reset)"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            color: 'rgba(0, 229, 255, 0.55)',
+            padding: '2px 0 2px 0',
+            marginLeft: '-4px',
+            touchAction: 'none'
+          }}
+        >
+          <GripVertical size={16} />
+        </div>
+
         {/* Equalizer Visualizer Bars */}
         <div style={styles.equalizerContainer}>
           <span className={`eq-bar bar-1 ${audioState.bgmPlaying && !audioState.muted ? 'playing' : ''}`} />
@@ -178,10 +355,11 @@ export const GlobalAudioPlayer = () => {
         </div>
 
         {/* Playback Controls (Prev, Play/Pause, Next, Mute, Expand) */}
-        <div style={styles.actionButtons} onClick={(e) => e.stopPropagation()}>
+        <div style={styles.actionButtons} className="no-drag" onClick={(e) => e.stopPropagation()}>
           <button 
             onClick={handlePrevTrack}
             style={styles.controlBtn}
+            className="no-drag"
             title="Previous Track"
           >
             <SkipBack size={13} color="var(--secondary-cyan)" />
@@ -189,6 +367,7 @@ export const GlobalAudioPlayer = () => {
 
           <button 
             onClick={handleTogglePlay}
+            className="no-drag"
             style={{
               ...styles.controlBtn,
               background: audioState.bgmPlaying ? 'rgba(0, 229, 255, 0.15)' : 'rgba(245, 158, 11, 0.25)',
@@ -206,6 +385,7 @@ export const GlobalAudioPlayer = () => {
           <button 
             onClick={handleNextTrack}
             style={styles.controlBtn}
+            className="no-drag"
             title="Next Track"
           >
             <SkipForward size={13} color="var(--secondary-cyan)" />
@@ -214,6 +394,7 @@ export const GlobalAudioPlayer = () => {
           <button 
             onClick={handleToggleMute}
             style={styles.controlBtn}
+            className="no-drag"
             title={audioState.muted ? 'Unmute' : 'Mute'}
           >
             {audioState.muted ? (
@@ -225,6 +406,7 @@ export const GlobalAudioPlayer = () => {
 
           <button 
             type="button"
+            className="no-drag"
             onClick={(e) => {
               e.stopPropagation();
               setIsMinimized(true);
@@ -239,7 +421,9 @@ export const GlobalAudioPlayer = () => {
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
+            className="no-drag"
             style={styles.chevronBtn}
+            title={isExpanded ? 'Collapse Playlist' : 'Expand Playlist'}
           >
             {isExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </button>
@@ -248,7 +432,7 @@ export const GlobalAudioPlayer = () => {
 
       {/* Expanded Playlist & Volume Drawer */}
       {isExpanded && (
-        <div style={styles.expandedPanel} onClick={(e) => e.stopPropagation()}>
+        <div style={styles.expandedPanel} className="no-drag" onClick={(e) => e.stopPropagation()}>
           {/* Track Selection Catalog */}
           <div style={styles.playlistHeader}>
             <Radio size={12} color="var(--secondary-cyan)" style={{ marginRight: '6px' }} />
@@ -262,6 +446,7 @@ export const GlobalAudioPlayer = () => {
                 <div 
                   key={track.id}
                   onClick={() => handleSelectTrack(track.id)}
+                  className="playlist-item no-drag"
                   style={{
                     ...styles.playlistItem,
                     borderColor: isSelected ? 'var(--secondary-cyan)' : 'rgba(255,255,255,0.08)',
@@ -292,7 +477,7 @@ export const GlobalAudioPlayer = () => {
           </div>
 
           {/* Volume Slider */}
-          <div style={styles.sliderRow}>
+          <div style={styles.sliderRow} className="no-drag">
             <span style={styles.sliderLabel}>VOLUME</span>
             <input 
               type="range" 
@@ -302,6 +487,7 @@ export const GlobalAudioPlayer = () => {
               value={audioState.muted ? 0 : audioState.bgmVolume}
               onChange={handleVolumeChange}
               style={styles.rangeSlider}
+              className="no-drag"
             />
             <span style={styles.sliderVal}>
               {audioState.muted ? '0%' : `${Math.round(audioState.bgmVolume * 100)}%`}
@@ -313,18 +499,27 @@ export const GlobalAudioPlayer = () => {
       {/* Styles */}
       <style>{`
         .global-audio-widget {
-          position: fixed;
-          bottom: 22px;
-          right: 22px;
           z-index: 9999;
           background: rgba(6, 9, 25, 0.94);
           border: 1px solid rgba(0, 229, 255, 0.4);
           border-radius: 12px;
           box-shadow: 0 4px 24px rgba(0, 229, 255, 0.25), inset 0 0 12px rgba(0, 229, 255, 0.1);
           backdrop-filter: blur(14px);
-          cursor: pointer;
           user-select: none;
-          transition: all 0.25s ease;
+          transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .global-audio-widget.is-dragging {
+          opacity: 0.94;
+          transform: scale(1.02);
+          box-shadow: 0 12px 40px rgba(0, 229, 255, 0.55), inset 0 0 16px rgba(0, 229, 255, 0.3) !important;
+          cursor: grabbing !important;
+        }
+        .audio-drag-handle {
+          transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .audio-drag-handle:hover {
+          color: #00E5FF !important;
+          transform: scale(1.15);
         }
         .global-audio-widget.audio-prompt-glow {
           border-color: #F59E0B;
@@ -371,7 +566,7 @@ const styles = {
   headerRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px'
+    gap: '8px'
   },
   equalizerContainer: {
     display: 'flex',
@@ -383,7 +578,7 @@ const styles = {
   trackInfo: {
     display: 'flex',
     flexDirection: 'column',
-    minWidth: '185px'
+    minWidth: '180px'
   },
   trackTag: {
     fontSize: '0.62rem',
@@ -409,7 +604,7 @@ const styles = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: '195px'
+    maxWidth: '190px'
   },
   lyricsTicker: {
     fontSize: '0.62rem',
@@ -418,7 +613,7 @@ const styles = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: '195px',
+    maxWidth: '190px',
     marginTop: '2px',
     animation: 'fadeIn 0.4s ease'
   },
