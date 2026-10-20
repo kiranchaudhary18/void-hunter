@@ -5,7 +5,8 @@ import soundManager from '../game/managers/SoundManager.js';
 import '../pages/Leaderboard.css';
 import { 
   Trophy, Star, Crown, Medal, User, RefreshCw, 
-  Search, Shield, ArrowRight, Zap, ArrowLeft, CheckCircle2 
+  Search, Shield, ArrowRight, Zap, ArrowLeft, CheckCircle2,
+  X, Crosshair, Sparkles, Flame, Target
 } from 'lucide-react';
 
 // Ship Roster metadata with human-readable classes and codes
@@ -38,10 +39,11 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
 
     try {
       const res = await api.get(`/leaderboard?timeFrame=${period}`);
-      if (res.data?.success && Array.isArray(res.data.leaderboard)) {
-        setLeaderboard(res.data.leaderboard);
-        if (res.data.userRank) {
-          setUserRank(res.data.userRank);
+      const payload = res.data || res;
+      if (payload.success && Array.isArray(payload.leaderboard)) {
+        setLeaderboard(payload.leaderboard);
+        if (payload.userRank) {
+          setUserRank(payload.userRank);
         }
         const now = new Date();
         const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -79,9 +81,15 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
   const handleAuthNavigation = (targetTab = 'register') => {
     try { soundManager.playLaser(); } catch {}
     if (onNavigate) {
-      // Direct navigation to auth page
       onNavigate('auth');
     }
+  };
+
+  // Helper to format ship display
+  const getShipInfo = (shipId, fallbackName) => {
+    const meta = SHIP_METADATA[shipId];
+    if (meta) return meta;
+    return { code: 'S-01', name: fallbackName || 'Orbitron Vanguard', shipClass: 'Interceptor' };
   };
 
   // Top 3 Podium Ranks
@@ -103,12 +111,22 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
     );
   }, [leaderboard, searchQuery]);
 
-  // Helper to format ship display
-  const getShipInfo = (shipId, fallbackName) => {
-    const meta = SHIP_METADATA[shipId];
-    if (meta) return meta;
-    return { code: 'S-01', name: fallbackName || 'Orbitron Vanguard', shipClass: 'Interceptor' };
-  };
+  // Next competitor above authenticated player (Requirement 8)
+  const nextCompetitorInfo = useMemo(() => {
+    if (!userRank || !leaderboard.length) return null;
+    const currentRank = userRank.rank;
+    if (currentRank <= 1) {
+      return { isChampion: true };
+    }
+    const competitor = leaderboard.find((p) => p.rank === currentRank - 1);
+    if (!competitor) return null;
+    const gap = Math.max(1, (competitor.totalScore - userRank.totalScore) + 1);
+    return {
+      isChampion: false,
+      competitor,
+      gap
+    };
+  }, [userRank, leaderboard]);
 
   return (
     <div className="leaderboard-root">
@@ -131,7 +149,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                fontFamily: 'Orbitron, sans-serif',
+                fontFamily: 'var(--font-heading, Orbitron)',
                 fontSize: '0.8rem',
                 letterSpacing: '0.08em',
                 padding: '8px 16px',
@@ -148,47 +166,89 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
           </div>
         )}
 
-        {/* Pinned Personal Rank Banner (Authenticated User) */}
+        {/* ================= 1. CURRENT PLAYER COMBAT RECORD PANEL ================= */}
         {!isPublic && userRank && (
-          <div className="leaderboard-user-pin-banner" role="region" aria-label="Personal Combat Standing">
+          <section className="leaderboard-user-pin-banner" role="region" aria-label="Personal Combat Standing">
             <div className="leaderboard-user-pin-left">
               <div className="leaderboard-user-pin-rank">
                 #{userRank.rank}
               </div>
               <div>
                 <div className="leaderboard-user-pin-name">
-                  {userRank.callsign || userRank.name?.toUpperCase()} // {userRank.pilotRank}
+                  <span>{userRank.callsign || userRank.name?.toUpperCase()}</span>
+                  <span style={{ color: '#00E5FF', opacity: 0.6 }}>//</span>
+                  <span style={{ color: '#00E5FF' }}>{userRank.pilotRank}</span>
                 </div>
                 <div className="leaderboard-user-pin-sub">
-                  ACTIVE COMBAT PROFILE • {getShipInfo(userRank.shipId, userRank.shipName).name}
+                  <Shield size={13} color="#00E5FF" />
+                  <span>ACTIVE COMBAT PROFILE · {getShipInfo(userRank.shipId, userRank.shipName).name} ({getShipInfo(userRank.shipId, userRank.shipName).shipClass})</span>
                 </div>
               </div>
             </div>
 
             <div className="leaderboard-user-pin-metrics">
               <div className="leaderboard-user-pin-metric">
-                <span className="leaderboard-user-pin-metric-lbl">TOTAL SCORE</span>
+                <span className="leaderboard-user-pin-metric-lbl">TOTAL COMBAT SCORE</span>
                 <span className="leaderboard-user-pin-metric-val">
                   {(userRank.totalScore || 0).toLocaleString()} PTS
                 </span>
               </div>
               <div className="leaderboard-user-pin-metric">
                 <span className="leaderboard-user-pin-metric-lbl">CAMPAIGN STARS</span>
-                <span className="leaderboard-user-pin-metric-val" style={{ color: '#FFC247', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Star size={14} fill="#FFC247" color="#FFC247" />
-                  {userRank.stars || 0} / 150
+                <span className="leaderboard-user-pin-metric-val" style={{ color: '#FBBF24', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Star size={14} fill="#FBBF24" color="#FBBF24" />
+                  <span>{userRank.stars || 0} / 150</span>
                 </span>
               </div>
             </div>
-          </div>
+
+            {/* Competitive Next Objective Bar (Requirement 8) */}
+            {nextCompetitorInfo && (
+              <div className="leaderboard-next-objective-strip">
+                {nextCompetitorInfo.isChampion ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FBBF24' }}>
+                    <Crown size={15} color="#FBBF24" />
+                    <strong>SUPREME FLEET CHAMPION // DEFEND YOUR #1 THRONE IN ACTIVE SORTIES</strong>
+                  </div>
+                ) : nextCompetitorInfo.competitor ? (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span style={{ color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        ADVANCEMENT OBJECTIVE:
+                      </span>
+                      <span className="objective-target-pill">
+                        <Target size={13} />
+                        RANK #{nextCompetitorInfo.competitor.rank} · {nextCompetitorInfo.competitor.callsign}
+                      </span>
+                      <span style={{ color: '#00E5FF', fontWeight: '700' }}>
+                        +{nextCompetitorInfo.gap.toLocaleString()} PTS TO OVERTAKE
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try { soundManager.playLaser(); } catch {}
+                        if (onNavigate) onNavigate('missions');
+                      }}
+                      className="objective-launch-btn"
+                    >
+                      <Zap size={13} />
+                      <span>DEPLOY SORTIE</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            )}
+          </section>
         )}
 
-        {/* ================= SECTION 4: PAGE HEADER ================= */}
+        {/* ================= 2. CINEMATIC HALL OF FAME HEADER ================= */}
         <header className="leaderboard-header">
-          {/* Small Status Indicator: Only display factual verified server status */}
           <div className="leaderboard-status-badge" role="status">
             <span className="leaderboard-status-dot" aria-hidden="true" />
-            <span>SERVER LEDGER ACTIVE • {leaderboard.length} PILOTS RANKED</span>
+            <span>SERVER LEDGER ACTIVE · {leaderboard.length} PILOTS RANKED</span>
           </div>
 
           <div className="leaderboard-eyebrow">GLOBAL COMBAT RANKINGS</div>
@@ -200,9 +260,8 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
           </p>
         </header>
 
-        {/* ================= SECTION 5: FILTER BAR & ACTIONS ================= */}
+        {/* ================= 3. TIME FILTERS & LIVE SYNC TOOLBAR ================= */}
         <div className="leaderboard-toolbar" role="toolbar" aria-label="Ranking period selection">
-          {/* Segmented Period Controls */}
           <div className="leaderboard-filter-group" role="radiogroup" aria-label="Ranking period">
             <button
               type="button"
@@ -233,7 +292,6 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
             </button>
           </div>
 
-          {/* Sync / Refresh Button and Status */}
           <div className="leaderboard-actions">
             {lastSyncTime && (
               <span className="leaderboard-meta-tag">
@@ -261,145 +319,154 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
           </div>
         </div>
 
-        {/* ================= SECTION 6: TOP THREE PODIUM ================= */}
-        <section className="leaderboard-podium" aria-label="Top 3 Combat Aces">
+        {/* ================= 4. SPECTACULAR TOP THREE PODIUM ================= */}
+        <section className="leaderboard-podium" aria-label="Top 3 Galactic Champions">
           {/* Rank #2: Silver Ace (Left) */}
-          {top2 ? (
-            <article className="podium-card podium-card-silver" aria-label={`Rank 2: ${top2.callsign}`}>
-              <div className="podium-icon-wrapper">
-                <Medal size={32} color="#C0C8D8" aria-hidden="true" />
-              </div>
-              <div className="podium-badge podium-badge-silver">#2 ACE</div>
-              <div className="podium-callsign" title={top2.callsign}>
-                {top2.callsign}
-              </div>
-              <div className="podium-pilot-rank">
-                {top2.pilotRank || 'Elite Wing Commander'}
-              </div>
-
-              <div className="podium-ship-chip">
-                <span>{getShipInfo(top2.shipId, top2.shipName).name}</span>
-              </div>
-
-              <div className="podium-score-block">
-                <span className="podium-score-label">COMBAT SCORE</span>
-                <span className="podium-score-val silver">
-                  {(top2.totalScore || 0).toLocaleString()}
-                </span>
-                <div className="podium-stars-row">
-                  <Star size={13} fill="#FFC247" color="#FFC247" />
-                  <span>{top2.stars || 0} Stars</span>
+          <div className="podium-pedestal-platform">
+            {top2 ? (
+              <article className="podium-card podium-card-silver" aria-label={`Rank 2: ${top2.callsign}`}>
+                <div className="podium-icon-wrapper">
+                  <Medal size={34} color="#E2E8F0" aria-hidden="true" />
                 </div>
-              </div>
-            </article>
-          ) : (
-            <article className="podium-card podium-card-silver podium-vacant">
-              <div className="podium-icon-wrapper">
-                <Medal size={28} color="#9AA9C7" />
-              </div>
-              <div className="podium-badge podium-badge-silver">#2 ACE</div>
-              <div className="podium-callsign" style={{ color: '#9AA9C7' }}>VACANT SECTOR</div>
-              <p className="podium-vacant-text">Awaiting combat telemetry</p>
-              <div className="podium-score-block">
-                <span className="podium-score-label">MINIMUM SCORE</span>
-                <span className="podium-score-val silver" style={{ opacity: 0.4 }}>—</span>
-              </div>
-            </article>
-          )}
-
-          {/* Rank #1: Gold Champion (Center, Elevated) */}
-          {top1 ? (
-            <article className="podium-card podium-card-gold" aria-label={`Rank 1 Champion: ${top1.callsign}`}>
-              <div className="podium-icon-wrapper">
-                <Crown size={38} color="#FFC247" style={{ filter: 'drop-shadow(0 0 12px rgba(255, 194, 71, 0.8))' }} aria-hidden="true" />
-              </div>
-              <div className="podium-badge podium-badge-gold">
-                <Trophy size={12} /> #1 CHAMPION
-              </div>
-              <div className="podium-callsign" title={top1.callsign}>
-                {top1.callsign}
-              </div>
-              <div className="podium-pilot-rank">
-                {top1.pilotRank || 'Supreme Star Defender'}
-              </div>
-
-              <div className="podium-ship-chip" style={{ borderColor: 'rgba(255, 194, 71, 0.3)', color: '#FFC247' }}>
-                <Zap size={11} color="#FFC247" />
-                <span>{getShipInfo(top1.shipId, top1.shipName).name}</span>
-              </div>
-
-              <div className="podium-score-block" style={{ background: 'rgba(255, 194, 71, 0.08)', borderColor: 'rgba(255, 194, 71, 0.25)' }}>
-                <span className="podium-score-label" style={{ color: '#FFC247' }}>CHAMPION SCORE</span>
-                <span className="podium-score-val gold">
-                  {(top1.totalScore || 0).toLocaleString()}
-                </span>
-                <div className="podium-stars-row">
-                  <Star size={14} fill="#FFC247" color="#FFC247" />
-                  <span style={{ fontWeight: 800 }}>{top1.stars || 0} Campaign Stars</span>
+                <div className="podium-badge podium-badge-silver">#2 ACE</div>
+                <div className="podium-callsign" title={top2.callsign}>
+                  {top2.callsign}
                 </div>
-              </div>
-            </article>
-          ) : (
-            <article className="podium-card podium-card-gold podium-vacant">
-              <div className="podium-icon-wrapper">
-                <Crown size={36} color="#9AA9C7" />
-              </div>
-              <div className="podium-badge podium-badge-gold">#1 CHAMPION</div>
-              <div className="podium-callsign" style={{ color: '#9AA9C7' }}>UNCLAIMED CROWN</div>
-              <p className="podium-vacant-text">Be the first pilot to claim #1 rank</p>
-              <div className="podium-score-block">
-                <span className="podium-score-label">CHAMPION SCORE</span>
-                <span className="podium-score-val gold" style={{ opacity: 0.4 }}>—</span>
-              </div>
-            </article>
-          )}
+                <div className="podium-pilot-rank">
+                  {top2.pilotRank || 'Elite Wing Commander'}
+                </div>
+
+                <div className="podium-ship-chip">
+                  <span>{getShipInfo(top2.shipId, top2.shipName).name}</span>
+                </div>
+
+                <div className="podium-score-block">
+                  <span className="podium-score-label">COMBAT SCORE</span>
+                  <span className="podium-score-val silver">
+                    {(top2.totalScore || 0).toLocaleString()}
+                  </span>
+                  <div className="podium-stars-row">
+                    <Star size={13} fill="#FBBF24" color="#FBBF24" />
+                    <span>{top2.stars || 0} Stars</span>
+                  </div>
+                </div>
+              </article>
+            ) : (
+              <article className="podium-card podium-card-silver podium-vacant">
+                <div className="podium-icon-wrapper">
+                  <Medal size={28} color="#94A3B8" />
+                </div>
+                <div className="podium-badge podium-badge-silver">#2 ACE</div>
+                <div className="podium-callsign" style={{ color: '#94A3B8' }}>VACANT SECTOR</div>
+                <p className="podium-vacant-text">Awaiting combat telemetry</p>
+                <div className="podium-score-block">
+                  <span className="podium-score-label">MINIMUM SCORE</span>
+                  <span className="podium-score-val silver" style={{ opacity: 0.4 }}>-</span>
+                </div>
+              </article>
+            )}
+            <div className="podium-pedestal-base silver" />
+          </div>
+
+          {/* Rank #1: Gold Champion (Center, Elevated & Visually Dominant) */}
+          <div className="podium-pedestal-platform">
+            {top1 ? (
+              <article className="podium-card podium-card-gold" aria-label={`Rank 1 Champion: ${top1.callsign}`}>
+                <div className="podium-icon-wrapper">
+                  <Crown size={42} color="#FBBF24" style={{ filter: 'drop-shadow(0 0 14px rgba(251, 191, 36, 0.85))' }} aria-hidden="true" />
+                </div>
+                <div className="podium-badge podium-badge-gold">
+                  <Trophy size={13} /> #1 CHAMPION
+                </div>
+                <div className="podium-callsign" title={top1.callsign}>
+                  {top1.callsign}
+                </div>
+                <div className="podium-pilot-rank" style={{ color: '#FBBF24' }}>
+                  {top1.pilotRank || 'Supreme Star Defender'}
+                </div>
+
+                <div className="podium-ship-chip" style={{ borderColor: 'rgba(251, 191, 36, 0.35)', color: '#FBBF24' }}>
+                  <Zap size={11} color="#FBBF24" />
+                  <span>{getShipInfo(top1.shipId, top1.shipName).name}</span>
+                </div>
+
+                <div className="podium-score-block" style={{ background: 'rgba(251, 191, 36, 0.08)', borderColor: 'rgba(251, 191, 36, 0.3)' }}>
+                  <span className="podium-score-label" style={{ color: '#FBBF24' }}>CHAMPION SCORE</span>
+                  <span className="podium-score-val gold">
+                    {(top1.totalScore || 0).toLocaleString()}
+                  </span>
+                  <div className="podium-stars-row">
+                    <Star size={14} fill="#FBBF24" color="#FBBF24" />
+                    <span style={{ fontWeight: 800 }}>{top1.stars || 0} Campaign Stars</span>
+                  </div>
+                </div>
+              </article>
+            ) : (
+              <article className="podium-card podium-card-gold podium-vacant">
+                <div className="podium-icon-wrapper">
+                  <Crown size={38} color="#94A3B8" />
+                </div>
+                <div className="podium-badge podium-badge-gold">#1 CHAMPION</div>
+                <div className="podium-callsign" style={{ color: '#94A3B8' }}>UNCLAIMED CROWN</div>
+                <p className="podium-vacant-text">Be the first pilot to claim #1 rank</p>
+                <div className="podium-score-block">
+                  <span className="podium-score-label">CHAMPION SCORE</span>
+                  <span className="podium-score-val gold" style={{ opacity: 0.4 }}>-</span>
+                </div>
+              </article>
+            )}
+            <div className="podium-pedestal-base gold" />
+          </div>
 
           {/* Rank #3: Bronze Ace (Right) */}
-          {top3 ? (
-            <article className="podium-card podium-card-bronze" aria-label={`Rank 3: ${top3.callsign}`}>
-              <div className="podium-icon-wrapper">
-                <Medal size={32} color="#FF9B45" aria-hidden="true" />
-              </div>
-              <div className="podium-badge podium-badge-bronze">#3 ACE</div>
-              <div className="podium-callsign" title={top3.callsign}>
-                {top3.callsign}
-              </div>
-              <div className="podium-pilot-rank">
-                {top3.pilotRank || 'Veteran Squadron Lead'}
-              </div>
-
-              <div className="podium-ship-chip">
-                <span>{getShipInfo(top3.shipId, top3.shipName).name}</span>
-              </div>
-
-              <div className="podium-score-block">
-                <span className="podium-score-label">COMBAT SCORE</span>
-                <span className="podium-score-val bronze">
-                  {(top3.totalScore || 0).toLocaleString()}
-                </span>
-                <div className="podium-stars-row">
-                  <Star size={13} fill="#FF9B45" color="#FF9B45" />
-                  <span>{top3.stars || 0} Stars</span>
+          <div className="podium-pedestal-platform">
+            {top3 ? (
+              <article className="podium-card podium-card-bronze" aria-label={`Rank 3: ${top3.callsign}`}>
+                <div className="podium-icon-wrapper">
+                  <Medal size={34} color="#F59E0B" aria-hidden="true" />
                 </div>
-              </div>
-            </article>
-          ) : (
-            <article className="podium-card podium-card-bronze podium-vacant">
-              <div className="podium-icon-wrapper">
-                <Medal size={28} color="#9AA9C7" />
-              </div>
-              <div className="podium-badge podium-badge-bronze">#3 ACE</div>
-              <div className="podium-callsign" style={{ color: '#9AA9C7' }}>VACANT SECTOR</div>
-              <p className="podium-vacant-text">Awaiting combat telemetry</p>
-              <div className="podium-score-block">
-                <span className="podium-score-label">MINIMUM SCORE</span>
-                <span className="podium-score-val bronze" style={{ opacity: 0.4 }}>—</span>
-              </div>
-            </article>
-          )}
+                <div className="podium-badge podium-badge-bronze">#3 ACE</div>
+                <div className="podium-callsign" title={top3.callsign}>
+                  {top3.callsign}
+                </div>
+                <div className="podium-pilot-rank">
+                  {top3.pilotRank || 'Veteran Squadron Lead'}
+                </div>
+
+                <div className="podium-ship-chip">
+                  <span>{getShipInfo(top3.shipId, top3.shipName).name}</span>
+                </div>
+
+                <div className="podium-score-block">
+                  <span className="podium-score-label">COMBAT SCORE</span>
+                  <span className="podium-score-val bronze">
+                    {(top3.totalScore || 0).toLocaleString()}
+                  </span>
+                  <div className="podium-stars-row">
+                    <Star size={13} fill="#F59E0B" color="#F59E0B" />
+                    <span>{top3.stars || 0} Stars</span>
+                  </div>
+                </div>
+              </article>
+            ) : (
+              <article className="podium-card podium-card-bronze podium-vacant">
+                <div className="podium-icon-wrapper">
+                  <Medal size={28} color="#94A3B8" />
+                </div>
+                <div className="podium-badge podium-badge-bronze">#3 ACE</div>
+                <div className="podium-callsign" style={{ color: '#94A3B8' }}>VACANT SECTOR</div>
+                <p className="podium-vacant-text">Awaiting combat telemetry</p>
+                <div className="podium-score-block">
+                  <span className="podium-score-label">MINIMUM SCORE</span>
+                  <span className="podium-score-val bronze" style={{ opacity: 0.4 }}>-</span>
+                </div>
+              </article>
+            )}
+            <div className="podium-pedestal-base bronze" />
+          </div>
         </section>
 
-        {/* ================= SECTION 7: GLOBAL RANKING TABLE PANEL ================= */}
+        {/* ================= 5. GLOBAL COMBAT ROSTER TABLE PANEL ================= */}
         <section className="leaderboard-panel" aria-label="Global Pilot Combat Roster">
           <div className="leaderboard-panel-header">
             <h2 className="leaderboard-panel-title">
@@ -410,22 +477,31 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
               </span>
             </h2>
 
-            {/* Quick Pilot Search */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            {/* Tactical Scanner Search Bar */}
+            <div className="leaderboard-search-wrapper">
               <Search 
                 size={14} 
-                color="#9AA9C7" 
-                style={{ position: 'absolute', left: '10px', pointerEvents: 'none' }} 
+                color="#94A3B8" 
+                style={{ position: 'absolute', left: '11px', pointerEvents: 'none' }} 
               />
               <input
                 type="text"
-                placeholder="Search pilot or ship..."
+                placeholder="Search pilot, callsign, or ship..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="leaderboard-search-input"
-                style={{ paddingLeft: '32px' }}
-                aria-label="Filter pilots by name or starship"
+                aria-label="Filter pilots by name, callsign, or starship"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="leaderboard-search-clear"
+                  title="Clear search query"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
           </div>
 
@@ -436,18 +512,18 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                   <th scope="col" className="leaderboard-thead-th" style={{ width: '80px', textAlign: 'center' }}>RANK</th>
                   <th scope="col" className="leaderboard-thead-th">PILOT / CALLSIGN</th>
                   <th scope="col" className="leaderboard-thead-th">STARSHIP</th>
-                  <th scope="col" className="leaderboard-thead-th">STARS</th>
+                  <th scope="col" className="leaderboard-thead-th">CAMPAIGN STARS</th>
                   <th scope="col" className="leaderboard-thead-th" style={{ textAlign: 'right' }}>COMBAT SCORE</th>
                 </tr>
               </thead>
               <tbody>
-                {/* When loading */}
                 {loading ? (
                   <tr>
                     <td colSpan={5} className="leaderboard-td">
                       <div className="leaderboard-empty-state">
-                        <RefreshCw size={24} color="#00E5FF" className="leaderboard-sync-icon spin" />
+                        <RefreshCw size={26} color="#00E5FF" className="leaderboard-sync-icon spin" />
                         <p className="leaderboard-empty-title">FETCHING COMBAT TELEMETRY...</p>
+                        <p className="leaderboard-empty-desc">Querying authoritative server ledger records...</p>
                       </div>
                     </td>
                   </tr>
@@ -455,7 +531,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                   remainingRows.map((pilot, idx) => {
                     const actualRank = idx + 4;
                     const shipMeta = getShipInfo(pilot.shipId, pilot.shipName);
-                    const isCurrentUser = user && pilot.userId && user.id === pilot.userId;
+                    const isCurrentUser = user && pilot.userId && (user.id === pilot.userId || user._id === pilot.userId);
 
                     return (
                       <tr 
@@ -491,14 +567,14 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                         <td className="leaderboard-td">
                           <div className="ship-chip">
                             <span>{shipMeta.name}</span>
-                            <span className="ship-class-tag">• {shipMeta.shipClass}</span>
+                            <span className="ship-class-tag">· {shipMeta.shipClass}</span>
                           </div>
                         </td>
 
                         {/* Campaign Stars */}
                         <td className="leaderboard-td">
                           <div className="stars-cell">
-                            <Star size={13} fill="#FFC247" color="#FFC247" />
+                            <Star size={13} fill="#FBBF24" color="#FBBF24" />
                             <span>{pilot.stars || 0} / 150</span>
                           </div>
                         </td>
@@ -516,10 +592,10 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                   <tr>
                     <td colSpan={5} className="leaderboard-td">
                       <div className="leaderboard-empty-state">
-                        <Trophy size={28} color="#8B5CF6" />
+                        <Trophy size={32} color="#C084FC" />
                         <p className="leaderboard-empty-title">ALL ACTIVE PILOTS DISPLAYED ON THE PODIUM</p>
                         <p className="leaderboard-empty-desc">
-                          Ranks #1 through #{leaderboard.length} are currently displayed in the top championship podium above. Complete missions to register additional pilots into rank #4+.
+                          Ranks #1 through #{leaderboard.length} are currently displayed in the championship podium above. Complete missions to register additional pilots into rank #4+.
                         </p>
                       </div>
                     </td>
@@ -528,11 +604,24 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                   <tr>
                     <td colSpan={5} className="leaderboard-td">
                       <div className="leaderboard-empty-state">
-                        <Search size={28} color="#9AA9C7" />
+                        <Search size={30} color="#94A3B8" />
                         <p className="leaderboard-empty-title">NO MATCHING PILOTS FOUND</p>
                         <p className="leaderboard-empty-desc">
                           No pilot callsign or starship matching "{searchQuery}" was found in the current roster.
                         </p>
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery('')}
+                          className="btn btn-secondary"
+                          style={{
+                            marginTop: '8px',
+                            padding: '6px 14px',
+                            fontSize: '0.76rem',
+                            fontFamily: 'var(--font-heading)'
+                          }}
+                        >
+                          Clear Search
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -542,7 +631,8 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
           </div>
         </section>
 
-        {/* ================= SECTION 9: VISITOR CALL TO ACTION ================= */}
+        {/* ================= 6. CALL TO ACTION PANELS ================= */}
+        {/* Unauthenticated Visitor Enlistment CTA */}
         {isPublic && !isAuthenticated && (
           <section className="leaderboard-cta-panel" aria-label="Pilot Enlistment">
             <div className="leaderboard-cta-content">
@@ -554,7 +644,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                 READY TO ENTER THE RANKINGS?
               </h2>
               <p className="leaderboard-cta-desc">
-                Enlist as a pilot, complete missions, and build your combat record.
+                Enlist as an authorized pilot, command sector missions, and build your verified combat record on the global ledger.
               </p>
             </div>
 
@@ -583,7 +673,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
 
         {/* Authenticated Quick Launch Banner */}
         {isAuthenticated && (
-          <section className="leaderboard-cta-panel" style={{ borderColor: 'rgba(0, 229, 255, 0.4)' }} aria-label="Mission Launch Deck">
+          <section className="leaderboard-cta-panel" aria-label="Mission Launch Deck">
             <div className="leaderboard-cta-content">
               <div className="leaderboard-cta-eyebrow">
                 <Zap size={14} color="#00E5FF" aria-hidden="true" />
@@ -593,7 +683,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                 DEPLOY TO CLIMB THE HALL OF FAME
               </h2>
               <p className="leaderboard-cta-desc">
-                Launch sector missions, defeat alien bosses, and earn stars to boost your position on the intergalactic podium.
+                Launch sector missions, defeat alien bosses, and earn stars to improve your combat standing.
               </p>
             </div>
 
