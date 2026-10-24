@@ -251,12 +251,41 @@ All attribute upgrades are server-authoritative, verified against atomic credit 
 * **Sniper Gunship**: Perimeter snipers firing targeted long-range beam shots.
 * **Elite Cruiser**: Dodges player shots and emits 360-degree rotating bullet spirals.
 
-#### 5 Multi-Phase Flagship Boss Battles
-1. **Sector 1 — Orion Dreadnought**: Twin rotary laser batteries, frontal missile salvos, and phase-2 shield recharge.
-2. **Sector 2 — Crimson Colossus**: Armored titan with plasma shockwaves and twin destructible escort turrets.
-3. **Sector 3 — Glacial Leviathan**: Ice-shard spiral bullet storms and sweeping laser beam sweeps.
-4. **Sector 4 — Rift Annihilator**: Quantum teleports across screen quadrants, summoning rift escort swarms.
-5. **Sector 5 — Void Overlord**: Final multi-phase bullet-hell encounter with 3 distinct dynamic phases.
+#### 5 Multi-Phase Flagship Boss Battles (Original Bullet Hell Algorithms)
+1. **Sector 1 — Orion Dreadnought** (Nebula Outpost · 1,200 HP · 2 Phases):
+   - *Phase 1*: Twin heavy rotary laser batteries (1,400ms delay, 300px/s) + 3-way targeted spread salvo.
+   - *Phase 2 (<50% HP)*: Enrage alarm, 30% speed boost, dual heavy battery interval drops to 950ms, 5-way spread fan, and carpet bombing barrages.
+2. **Sector 2 — Crimson Colossus** (Dark Orbit · 2,200 HP · 2 Phases):
+   - *Phase 1*: Alternating quad heavy plasma cannons + 8-way radial shockwave rings (circular 360° bullet pulse).
+   - *Phase 2 (<50% HP)*: Crimson Armor Overload: 12-way expanding plasma shockwaves + targeted high-velocity flak bursts aimed at player.
+3. **Sector 3 — Glacial Leviathan** (Asteroid Belt · 3,500 HP · 2 Phases):
+   - *Phase 1*: Continuous rotating 3-arm Spiral Vortex (angle offset += 0.26 rad every 190ms) + frost laser fan sweeps.
+   - *Phase 2 (<50% HP)*: Dual counter-rotating spiral vortex (one clockwise, one counter-clockwise creating diamond criss-cross bullet hell).
+4. **Sector 4 — Rift Annihilator** (Void Rift · 5,000 HP · 3 Phases):
+   - *Phase 1*: Quantum Warp Dash (teleports across screen quadrants with afterimage flash) + 4-way diagonal crossfire salvo.
+   - *Phase 2 (65% to 35% HP)*: Summons Rift Escort Drones + 10-point expanding dimensional ripple waves.
+   - *Phase 3 (<35% HP - Desperation Void Collapse)*: Rapid quantum warps every 1,900ms, 14-point starbursts, and top void bullet rain.
+5. **Sector 5 — Void Overlord** (Final Frontier · 7,500 HP · 3 Dynamic Apex Phases):
+   - *Phase 1*: Twin antimatter cannons (360px/s) + continuous 4-arm rotating Galaxy Vortex every 190ms.
+   - *Phase 2 (65% to 30% HP)*: Antimatter Nova: 16-point circular starburst every 2,700ms + aimed sniper beams + escort fighters.
+   - *Phase 3 (<30% HP - ENRAGED APEX OVERLOAD)*: Full screen alarm siren, continuous 5-arm 20-ray bullet storm maelstrom, erratic high-speed strafing, and nova bursts.
+
+---
+
+### 🔊 Procedural Web Audio SFX & Mobile Haptic Profiles
+
+The game engine features zero-asset, mathematically synthesized Web Audio sound synthesis and cross-device native haptic feedback (`navigator.vibrate`):
+
+| Tactical Event | Web Audio API Oscillator / Filter Profile | Mobile Haptic Pattern |
+| :--- | :--- | :--- |
+| **Primary Laser** | Sawtooth 920Hz $\to$ 140Hz exponential sweep (0.11s) | Light pulse (10ms) |
+| **Tactical Bomb / Detonation** | Seismic sub-bass sine wave 160Hz $\to$ 28Hz + noise boom | Heavy rumble (`[90, 40, 120, 40, 160]ms`) |
+| **EMP Shockwave** | Sawtooth 420Hz $\to$ 50Hz sub-resonance + discharge | Resonant pulse (`[60, 30, 90]ms`) |
+| **Emergency Warp Jump** | Sine 110Hz $\to$ 1,250Hz ascending phase shift sweep | Dual shift (`[40, 50, 70]ms`) |
+| **Homing Missiles** | Quad rapid triangle chirps 320Hz $\to$ 1,100Hz | Triple burst (`[25, 35, 45]ms`) |
+| **Critical Hull Alarm (<25%)** | Alternating sawtooth 880Hz / 440Hz tactical warning | Medium pulse (38ms) |
+| **Boss Enrage / Alarm** | Sawtooth 320Hz $\to$ 140Hz descending siren alert | Alert triple burst (`[90, 70, 90]ms`) |
+| **Victory Fanfare** | 5-chord heroic cyber arpeggio (C5, E5, G5, B5, C6) | Fanfare pulse (`[50, 70, 50, 70, 160]ms`) |
 
 ---
 
@@ -532,13 +561,15 @@ All administrative routes require `Authorization: Bearer <TOKEN>` and `ADMIN` ro
 | `POST` | `/api/ads/:id/heartbeat`| Send playback progress verification | Yes |
 | `POST` | `/api/ads/:id/verify` | Cryptographically verify completed ad session | Yes |
 
-### Engagement, Supply Drops & Events (`/api/supply-drop`, `/api/events`)
+### Engagement, Supply Drops, Raid Boss & Events (`/api/supply-drop`, `/api/events`)
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :---: |
 | `GET` | `/api/supply-drop/status` | Check 4h cooldown & probability distribution | Yes |
 | `POST` | `/api/supply-drop/claim` | Roll server-side weighted random supply crate | Yes |
 | `GET` | `/api/events` | List active limited-time campaigns & kill progress | Yes |
 | `POST` | `/api/events/:eventId/claim`| Claim event rewards (Credits, Cores, VELoop Coins) | Yes |
+| `GET` | `/api/events/raid-boss` | Fetch World Raid Boss status, total health, and rankings | Public |
+| `POST` | `/api/events/raid-boss/attack`| Launch tactical strike against Raid Boss (+DMG & Credits)| Yes |
 
 ---
 

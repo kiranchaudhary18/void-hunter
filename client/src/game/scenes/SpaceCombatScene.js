@@ -23,6 +23,18 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.bossMaxHp = 0;
     this.bossPhase = 1;
 
+    // Sector Difficulty Scaling
+    const sectorMatch = (this.missionId || '').match(/sector-(\d+)/i);
+    this.sectorNum = sectorMatch ? parseInt(sectorMatch[1], 10) : (this.mission?.sectorNumber || 1);
+    this.difficultyScale = {
+      hpMult: 1 + (this.sectorNum - 1) * 0.22,
+      speedMult: 1 + (this.sectorNum - 1) * 0.12,
+      fireDelayMult: Math.max(0.68, 1 - (this.sectorNum - 1) * 0.08)
+    };
+    this.bossTimers = [];
+    this.leviathanSpiralAngle = 0;
+    this.overlordSpiralAngle = 0;
+
     // Combat State
     this.playerHealth = 100;
     this.playerMaxHealth = 100;
@@ -505,8 +517,18 @@ export class SpaceCombatScene extends Phaser.Scene {
     }
   }
 
+  clearBossTimers() {
+    if (this.bossTimers && this.bossTimers.length) {
+      this.bossTimers.forEach((t) => {
+        if (t && t.remove) t.remove();
+      });
+      this.bossTimers = [];
+    }
+  }
+
   spawnBoss() {
     this.bossActive = true;
+    this.clearBossTimers();
     this.bossHp = this.bossInfo.hp || 1500;
     this.bossMaxHp = this.bossHp;
     this.bossPhase = 1;
@@ -514,6 +536,7 @@ export class SpaceCombatScene extends Phaser.Scene {
 
     // Audio & Screen Alert
     soundManager.playBossAlarm();
+    soundManager.playHaptic("bossAlarm");
     this.cameras.main.shake(450, 0.025);
 
     // Flashing Warning Text on Screen
@@ -563,39 +586,52 @@ export class SpaceCombatScene extends Phaser.Scene {
   }
 
   startBossCombatLoop() {
+    this.clearBossTimers();
+    const bossId = this.bossInfo?.id || '';
+
+    if (bossId === 'boss-colossus') {
+      this.startColossusBossLoop();
+    } else if (bossId === 'boss-leviathan') {
+      this.startLeviathanBossLoop();
+    } else if (bossId === 'boss-rift') {
+      this.startRiftBossLoop();
+    } else if (bossId === 'boss-overlord') {
+      this.startOverlordBossLoop();
+    } else {
+      this.startOrionBossLoop();
+    }
+  }
+
+  // Sector 1: Orion Dreadnought (Twin Heavy Lasers + Forward Torpedo Salvo)
+  startOrionBossLoop() {
+    const isP2 = this.bossPhase === 2;
     // 1. Dual Heavy Laser Battery
-    this.bossLaserTimer = this.time.addEvent({
-      delay: 1500,
+    const laserTimer = this.time.addEvent({
+      delay: isP2 ? 950 : 1400,
       callback: () => {
         if (!this.bossSprite || !this.bossSprite.active) return;
         soundManager.playBossLaser();
-        const b1 = this.enemyBullets.create(this.bossSprite.x - 36, this.bossSprite.y + 36, 'boss_laser');
-        const b2 = this.enemyBullets.create(this.bossSprite.x + 36, this.bossSprite.y + 36, 'boss_laser');
-        if (b1) {
-          b1.setVelocityY(300);
-          b1.checkWorldBounds = true;
-          b1.outOfBoundsKill = true;
-        }
-        if (b2) {
-          b2.setVelocityY(300);
-          b2.checkWorldBounds = true;
-          b2.outOfBoundsKill = true;
-        }
+        const b1 = this.enemyBullets.create(this.bossSprite.x - 38, this.bossSprite.y + 36, 'boss_laser');
+        const b2 = this.enemyBullets.create(this.bossSprite.x + 38, this.bossSprite.y + 36, 'boss_laser');
+        const spd = isP2 ? 360 : 300;
+        if (b1) { b1.setVelocityY(spd); b1.checkWorldBounds = true; b1.outOfBoundsKill = true; }
+        if (b2) { b2.setVelocityY(spd); b2.checkWorldBounds = true; b2.outOfBoundsKill = true; }
       },
       loop: true
     });
+    this.bossTimers.push(laserTimer);
 
-    // 2. Radial Turret Pattern
-    this.bossRadialTimer = this.time.addEvent({
-      delay: 2800,
+    // 2. Spread Salvo
+    const spreadTimer = this.time.addEvent({
+      delay: isP2 ? 2200 : 2800,
       callback: () => {
         if (!this.bossSprite || !this.bossSprite.active) return;
         soundManager.playEnemyLaser();
-        const angles = this.bossPhase === 2 ? [-0.6, -0.3, 0, 0.3, 0.6] : [-0.35, 0, 0.35];
+        const angles = isP2 ? [-0.55, -0.28, 0, 0.28, 0.55] : [-0.35, 0, 0.35];
         angles.forEach((ang) => {
           const bullet = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 24, 'enemy_bullet');
           if (bullet) {
-            bullet.setVelocity(Math.sin(ang) * 220, Math.cos(ang) * 220);
+            bullet.setVelocity(Math.sin(ang) * 240, Math.cos(ang) * 240);
             bullet.checkWorldBounds = true;
             bullet.outOfBoundsKill = true;
           }
@@ -603,12 +639,292 @@ export class SpaceCombatScene extends Phaser.Scene {
       },
       loop: true
     });
+    this.bossTimers.push(spreadTimer);
+
+    // Phase 2 Carpet Bombs
+    if (isP2) {
+      const bombTimer = this.time.addEvent({
+        delay: 3200,
+        callback: () => {
+          if (!this.bossSprite || !this.bossSprite.active) return;
+          [-50, 0, 50].forEach((off) => {
+            const b = this.enemyBullets.create(this.bossSprite.x + off, this.bossSprite.y + 20, 'enemy_bullet');
+            if (b) { b.setVelocity(off * 1.2, 190); b.checkWorldBounds = true; b.outOfBoundsKill = true; }
+          });
+        },
+        loop: true
+      });
+      this.bossTimers.push(bombTimer);
+    }
+  }
+
+  // Sector 2: Crimson Colossus (Armor Plating, Quad Cannons, 8/12-Way Radial Shockwaves)
+  startColossusBossLoop() {
+    const isP2 = this.bossPhase === 2;
+    // 1. Alternating Quad Heavy Plasma
+    let barrelToggle = false;
+    const plasmaTimer = this.time.addEvent({
+      delay: isP2 ? 800 : 1100,
+      callback: () => {
+        if (!this.bossSprite || !this.bossSprite.active) return;
+        soundManager.playBossLaser();
+        const offsets = barrelToggle ? [-45, -15] : [15, 45];
+        barrelToggle = !barrelToggle;
+        offsets.forEach((off) => {
+          const b = this.enemyBullets.create(this.bossSprite.x + off, this.bossSprite.y + 35, 'boss_laser');
+          if (b) { b.setVelocity(0, 320); b.checkWorldBounds = true; b.outOfBoundsKill = true; }
+        });
+      },
+      loop: true
+    });
+    this.bossTimers.push(plasmaTimer);
+
+    // 2. Radial Shockwave Rings (8-way in P1, 12-way in P2)
+    const ringTimer = this.time.addEvent({
+      delay: isP2 ? 2100 : 2900,
+      callback: () => {
+        if (!this.bossSprite || !this.bossSprite.active) return;
+        soundManager.playEnemyLaser();
+        const count = isP2 ? 12 : 8;
+        const spd = isP2 ? 230 : 190;
+        for (let i = 0; i < count; i++) {
+          const ang = (i * Math.PI * 2) / count;
+          const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 20, 'enemy_bullet');
+          if (b) {
+            b.setVelocity(Math.cos(ang) * spd, Math.sin(ang) * spd);
+            b.checkWorldBounds = true;
+            b.outOfBoundsKill = true;
+          }
+        }
+      },
+      loop: true
+    });
+    this.bossTimers.push(ringTimer);
+
+    // P2: Targeted Crimson Flak
+    if (isP2) {
+      const flakTimer = this.time.addEvent({
+        delay: 2600,
+        callback: () => {
+          if (!this.bossSprite || !this.bossSprite.active || !this.player || this.isGameOver) return;
+          const ang = Phaser.Math.Angle.Between(this.bossSprite.x, this.bossSprite.y, this.player.x, this.player.y);
+          [-0.18, 0, 0.18].forEach((offset) => {
+            const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 25, 'boss_laser');
+            if (b) {
+              b.setVelocity(Math.cos(ang + offset) * 310, Math.sin(ang + offset) * 310);
+              b.checkWorldBounds = true;
+              b.outOfBoundsKill = true;
+            }
+          });
+        },
+        loop: true
+      });
+      this.bossTimers.push(flakTimer);
+    }
+  }
+
+  // Sector 3: Glacial Leviathan (Continuous Rotating Spiral Bullet Hell & Frost Sweeps)
+  startLeviathanBossLoop() {
+    const isP2 = this.bossPhase === 2;
+    // 1. Continuous Rotating Spiral Vortex
+    const spiralTimer = this.time.addEvent({
+      delay: isP2 ? 140 : 190,
+      callback: () => {
+        if (!this.bossSprite || !this.bossSprite.active) return;
+        this.leviathanSpiralAngle += 0.26;
+        const arms = isP2 ? 4 : 3;
+        const step = (Math.PI * 2) / arms;
+        for (let i = 0; i < arms; i++) {
+          const ang = this.leviathanSpiralAngle + i * step;
+          const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 20, 'enemy_bullet');
+          if (b) {
+            b.setVelocity(Math.cos(ang) * 210, Math.sin(ang) * 210);
+            b.checkWorldBounds = true;
+            b.outOfBoundsKill = true;
+          }
+        }
+      },
+      loop: true
+    });
+    this.bossTimers.push(spiralTimer);
+
+    // 2. Dual Counter-Rotating Spiral in Phase 2
+    if (isP2) {
+      const counterSpiral = this.time.addEvent({
+        delay: 220,
+        callback: () => {
+          if (!this.bossSprite || !this.bossSprite.active) return;
+          const counterAngle = -this.leviathanSpiralAngle * 1.1;
+          for (let i = 0; i < 3; i++) {
+            const ang = counterAngle + (i * Math.PI * 2) / 3;
+            const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 20, 'boss_laser');
+            if (b) {
+              b.setVelocity(Math.cos(ang) * 190, Math.sin(ang) * 190);
+              b.checkWorldBounds = true;
+              b.outOfBoundsKill = true;
+            }
+          }
+        },
+        loop: true
+      });
+      this.bossTimers.push(counterSpiral);
+    }
+
+    // 3. Sweeping Frost Beam fan
+    const beamTimer = this.time.addEvent({
+      delay: 3400,
+      callback: () => {
+        if (!this.bossSprite || !this.bossSprite.active) return;
+        soundManager.playBossLaser();
+        for (let a = -0.55; a <= 0.55; a += 0.22) {
+          const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 30, 'boss_laser');
+          if (b) {
+            b.setVelocity(Math.sin(a) * 280, Math.cos(a) * 280);
+            b.checkWorldBounds = true;
+            b.outOfBoundsKill = true;
+          }
+        }
+      },
+      loop: true
+    });
+    this.bossTimers.push(beamTimer);
+  }
+
+  // Sector 4: Rift Annihilator (3 Phases: Quantum Warp Dash, Dimensional Ripples, Desperation Void Collapse)
+  startRiftBossLoop() {
+    const phase = this.bossPhase;
+    // 1. Quantum Warp Dash (Blinks across screen quadrants)
+    const warpTimer = this.time.addEvent({
+      delay: phase === 3 ? 1900 : 3200,
+      callback: () => {
+        if (!this.bossSprite || !this.bossSprite.active) return;
+        const { width } = this.scale;
+        const targetX = Phaser.Math.Between(width * 0.2, width * 0.8);
+        this.cameras.main.flash(120, 124, 58, 237);
+        soundManager.playWarpJump();
+        this.bossSprite.setPosition(targetX, 135);
+        // Instant crossfire salvo upon exit
+        [-0.45, -0.22, 0, 0.22, 0.45].forEach((a) => {
+          const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 25, 'boss_laser');
+          if (b) {
+            b.setVelocity(Math.sin(a) * 310, Math.cos(a) * 310);
+            b.checkWorldBounds = true;
+            b.outOfBoundsKill = true;
+          }
+        });
+      },
+      loop: true
+    });
+    this.bossTimers.push(warpTimer);
+
+    // 2. Dimensional Ripple Wave (Expanding circular ripples)
+    const rippleTimer = this.time.addEvent({
+      delay: phase === 3 ? 1800 : 2600,
+      callback: () => {
+        if (!this.bossSprite || !this.bossSprite.active) return;
+        soundManager.playEnemyLaser();
+        const rays = phase === 3 ? 14 : 10;
+        for (let i = 0; i < rays; i++) {
+          const ang = (i * Math.PI * 2) / rays;
+          const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 20, 'enemy_bullet');
+          if (b) {
+            b.setVelocity(Math.cos(ang) * (phase === 3 ? 240 : 200), Math.sin(ang) * (phase === 3 ? 240 : 200));
+            b.checkWorldBounds = true;
+            b.outOfBoundsKill = true;
+          }
+        }
+      },
+      loop: true
+    });
+    this.bossTimers.push(rippleTimer);
+
+    // Phase 3 Void Rain
+    if (phase === 3) {
+      const rainTimer = this.time.addEvent({
+        delay: 600,
+        callback: () => {
+          if (!this.bossSprite || !this.bossSprite.active) return;
+          const rx = Phaser.Math.Between(40, this.scale.width - 40);
+          const b = this.enemyBullets.create(rx, 20, 'enemy_bullet');
+          if (b) { b.setVelocity(0, 220); b.checkWorldBounds = true; b.outOfBoundsKill = true; }
+        },
+        loop: true
+      });
+      this.bossTimers.push(rainTimer);
+    }
+  }
+
+  // Sector 5: Void Overlord (The Apex Sovereign - 3 Dynamic Bullet Hell Phases)
+  startOverlordBossLoop() {
+    const phase = this.bossPhase;
+    // 1. Continuous Rotating Galaxy Vortex
+    const vortexTimer = this.time.addEvent({
+      delay: phase === 3 ? 110 : (phase === 2 ? 150 : 190),
+      callback: () => {
+        if (!this.bossSprite || !this.bossSprite.active) return;
+        this.overlordSpiralAngle += phase === 3 ? 0.38 : 0.28;
+        const arms = phase === 3 ? 5 : 4;
+        for (let i = 0; i < arms; i++) {
+          const ang = this.overlordSpiralAngle + (i * Math.PI * 2) / arms;
+          const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 25, 'enemy_bullet');
+          if (b) {
+            b.setVelocity(Math.cos(ang) * 230, Math.sin(ang) * 230);
+            b.checkWorldBounds = true;
+            b.outOfBoundsKill = true;
+          }
+        }
+      },
+      loop: true
+    });
+    this.bossTimers.push(vortexTimer);
+
+    // 2. Heavy Antimatter Beams
+    const beamTimer = this.time.addEvent({
+      delay: phase === 3 ? 1200 : 1800,
+      callback: () => {
+        if (!this.bossSprite || !this.bossSprite.active) return;
+        soundManager.playBossLaser();
+        [-40, 0, 40].forEach((off) => {
+          const b = this.enemyBullets.create(this.bossSprite.x + off, this.bossSprite.y + 35, 'boss_laser');
+          if (b) {
+            b.setVelocity(off * 0.8, 360);
+            b.checkWorldBounds = true;
+            b.outOfBoundsKill = true;
+          }
+        });
+      },
+      loop: true
+    });
+    this.bossTimers.push(beamTimer);
+
+    // 3. Antimatter Nova (Phase 2 & 3: 16-point to 20-point starburst)
+    if (phase >= 2) {
+      const novaTimer = this.time.addEvent({
+        delay: phase === 3 ? 2000 : 2700,
+        callback: () => {
+          if (!this.bossSprite || !this.bossSprite.active) return;
+          soundManager.playExplosion(false);
+          const rays = phase === 3 ? 20 : 16;
+          for (let i = 0; i < rays; i++) {
+            const ang = (i * Math.PI * 2) / rays;
+            const b = this.enemyBullets.create(this.bossSprite.x, this.bossSprite.y + 20, 'boss_laser');
+            if (b) {
+              b.setVelocity(Math.cos(ang) * 250, Math.sin(ang) * 250);
+              b.checkWorldBounds = true;
+              b.outOfBoundsKill = true;
+            }
+          }
+        },
+        loop: true
+      });
+      this.bossTimers.push(novaTimer);
+    }
   }
 
   destroyBoss() {
     this.bossActive = false;
-    if (this.bossLaserTimer) this.bossLaserTimer.remove();
-    if (this.bossRadialTimer) this.bossRadialTimer.remove();
+    this.clearBossTimers();
+    soundManager.playHaptic("bossDefeat");
 
     this.score += 2500;
     this.enemiesKilled++;
@@ -643,10 +959,12 @@ export class SpaceCombatScene extends Phaser.Scene {
   }
 
   createEnemy(texture, x, y, health, scoreVal) {
+    const scaledHp = Math.round(health * (this.difficultyScale?.hpMult || 1));
+    const scaledScore = Math.round(scoreVal * (1 + ((this.sectorNum || 1) - 1) * 0.15));
     const enemy = this.enemies.create(x, y, texture);
-    enemy.hp = health;
-    enemy.maxHp = health;
-    enemy.scoreValue = scoreVal;
+    enemy.hp = scaledHp;
+    enemy.maxHp = scaledHp;
+    enemy.scoreValue = scaledScore;
     enemy.setDepth(5);
     enemy.setScale(1.35); // Enlarge enemy sprites by 35% for high visibility on all devices
 
@@ -734,16 +1052,41 @@ export class SpaceCombatScene extends Phaser.Scene {
       this.bossHp = Math.max(0, this.bossHp - damage);
       enemy.hp = this.bossHp;
 
-      // Phase 2 Transition (at 50% health)
-      if (this.bossPhase === 1 && this.bossHp <= this.bossMaxHp * 0.5) {
-        this.bossPhase = 2;
-        soundManager.playBossAlarm();
-        this.cameras.main.shake(350, 0.025);
-        // Boss enrages: speeds up and summons 2 escort scouts
-        if (enemy.body) enemy.setVelocityX(enemy.body.velocity.x * 1.4);
-        const { width } = this.scale;
-        this.createEnemy('enemy_scout', width * 0.2, -30, 45, 50).setVelocity(0, 130);
-        this.createEnemy('enemy_scout', width * 0.8, -30, 45, 50).setVelocity(0, 130);
+      // Multi-Phase Boss Transitions (2-phase or 3-phase)
+      const isThreePhase = this.bossInfo?.phases === 3;
+      if (isThreePhase) {
+        if (this.bossPhase === 1 && this.bossHp <= this.bossMaxHp * 0.65) {
+          this.bossPhase = 2;
+          soundManager.playBossAlarm();
+          soundManager.playHaptic("bossAlarm");
+          this.cameras.main.shake(350, 0.025);
+          if (enemy.body) enemy.setVelocityX(enemy.body.velocity.x * 1.35);
+          const { width } = this.scale;
+          this.createEnemy('enemy_interceptor', width * 0.25, -30, 75, 100).setVelocity(0, 150);
+          this.createEnemy('enemy_interceptor', width * 0.75, -30, 75, 100).setVelocity(0, 150);
+          this.startBossCombatLoop();
+        } else if (this.bossPhase === 2 && this.bossHp <= this.bossMaxHp * 0.30) {
+          this.bossPhase = 3;
+          soundManager.playBossAlarm();
+          soundManager.playHaptic("bossAlarm");
+          this.cameras.main.shake(450, 0.035);
+          if (enemy.body) enemy.setVelocityX(enemy.body.velocity.x * 1.5);
+          const { width } = this.scale;
+          this.createEnemy('enemy_elite', width * 0.5, -40, 200, 300);
+          this.startBossCombatLoop();
+        }
+      } else {
+        if (this.bossPhase === 1 && this.bossHp <= this.bossMaxHp * 0.5) {
+          this.bossPhase = 2;
+          soundManager.playBossAlarm();
+          soundManager.playHaptic("bossAlarm");
+          this.cameras.main.shake(350, 0.025);
+          if (enemy.body) enemy.setVelocityX(enemy.body.velocity.x * 1.4);
+          const { width } = this.scale;
+          this.createEnemy('enemy_scout', width * 0.2, -30, 45, 50).setVelocity(0, 130);
+          this.createEnemy('enemy_scout', width * 0.8, -30, 45, 50).setVelocity(0, 130);
+          this.startBossCombatLoop();
+        }
       }
 
       enemy.setTint(0xFF2DFF);
@@ -892,6 +1235,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     if (this.isInvulnerable || this.isGameOver) return;
 
     soundManager.playShieldHit();
+    soundManager.playHaptic('hit');
     this.cameras.main.shake(120, 0.015);
 
     // Shield absorbs first
@@ -918,6 +1262,8 @@ export class SpaceCombatScene extends Phaser.Scene {
 
     if (this.playerHealth <= 0) {
       this.triggerDefeat();
+    } else if (this.playerHealth <= this.playerMaxHealth * 0.25) {
+      soundManager.playCriticalAlarm();
     }
   }
 
@@ -926,6 +1272,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.isGameOver = true;
     this.player.setVelocity(0, 0);
     soundManager.playExplosion(true);
+    soundManager.playHaptic('defeat');
     this.cameras.main.shake(300, 0.03);
 
     if (this.callbacks.onGameOver) {
@@ -962,7 +1309,8 @@ export class SpaceCombatScene extends Phaser.Scene {
   triggerVictory() {
     this.isVictory = true;
     this.isGameOver = true;
-    this.player.setVelocity(0, -250); // Hyperspace jump forward
+    this.player.setVelocity(0, -250);
+    soundManager.playVictoryFanfare(); // Hyperspace jump forward
 
     // Calculate dynamic 1 to 3 Star Rating (Section 19 Criteria)
     let earnedStars = 1; // Star 1: Mission Completed (Base)
@@ -1052,6 +1400,8 @@ export class SpaceCombatScene extends Phaser.Scene {
     switch (abilityId) {
       // 1. Shield Pulse: 8s impenetrable forcefield
       case 'shield_pulse':
+        soundManager.playShieldHit();
+        soundManager.playHaptic('powerup');
         this.isInvulnerable = true;
         this.shieldSprite.setVisible(true);
         this.activeBuffs.shieldPulse = true;
@@ -1064,6 +1414,8 @@ export class SpaceCombatScene extends Phaser.Scene {
 
       // 2. Rapid Fire: 10s 2.2x firing speed, automatically restores
       case 'rapid_fire':
+        soundManager.playPowerUp();
+        soundManager.playHaptic('powerup');
         this.activeBuffs.rapidFire = true;
         this.time.delayedCall(10000, () => {
           this.activeBuffs.rapidFire = false;
@@ -1072,6 +1424,8 @@ export class SpaceCombatScene extends Phaser.Scene {
 
       // 3. Spread Shot: 12s 5-way angled spread cannons
       case 'spread_shot':
+        soundManager.playPowerUp();
+        soundManager.playHaptic('powerup');
         this.activeBuffs.spreadShot = true;
         this.time.delayedCall(12000, () => {
           this.activeBuffs.spreadShot = false;
@@ -1080,6 +1434,7 @@ export class SpaceCombatScene extends Phaser.Scene {
 
       // 4. Homing Missiles: Launches 4 auto-seeking rockets
       case 'homing_missiles':
+        soundManager.playHomingMissiles();
         for (let i = 0; i < 4; i++) {
           const offsetX = (i - 1.5) * 30;
           const missile = this.homingMissiles.create(
@@ -1096,6 +1451,7 @@ export class SpaceCombatScene extends Phaser.Scene {
 
       // 5. EMP Blast: Screen-wide bullet clear + 180 area damage
       case 'emp_blast':
+        soundManager.playEmpBlast();
         this.cameras.main.flash(250, 0, 229, 255);
         this.cameras.main.shake(150, 0.02);
         this.enemyBullets.clear(true, true);
@@ -1111,6 +1467,8 @@ export class SpaceCombatScene extends Phaser.Scene {
 
       // 6. Repair Drone: Deploys nanite drone restoring 50 HP (clamped to maxHealth)
       case 'repair_drone':
+        soundManager.playPickup('core');
+        soundManager.playHaptic('powerup');
         this.droneSprite.setVisible(true);
         let pulses = 0;
         const healTimer = this.time.addEvent({
@@ -1130,6 +1488,8 @@ export class SpaceCombatScene extends Phaser.Scene {
 
       // 7. Overdrive: 10s reactor overdrive (Speed 1.4x, Damage 1.5x, Firing Rate 1.4x)
       case 'overdrive':
+        soundManager.playPowerUp();
+        soundManager.playHaptic('powerup');
         this.activeBuffs.overdrive = true;
         this.player.setTint(0xFF2DFF);
         this.time.delayedCall(10000, () => {
@@ -1140,6 +1500,7 @@ export class SpaceCombatScene extends Phaser.Scene {
 
       // 8. Emergency Warp: Instant teleport to safe bottom coordinate with 2.5s i-frames
       case 'emergency_warp':
+        soundManager.playWarpJump();
         this.cameras.main.flash(180, 255, 255, 255);
         const safeX = Phaser.Math.Between(80, this.scale.width - 80);
         const safeY = this.scale.height - 120;

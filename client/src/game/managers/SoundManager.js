@@ -441,6 +441,183 @@ class SoundManager {
     osc.start();
     osc.stop(this.ctx.currentTime + 0.35);
   }
+
+  // ==================== ADVANCED MOBILE SFX & HAPTICS ====================
+  playEmpBlast() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Sub-bass resonance + electrical static discharge
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(420, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + 0.38);
+
+    gain.gain.setValueAtTime(0.35 * this.sfxVolume, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.38);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.38);
+    this.playHaptic('emp');
+  }
+
+  playBombDetonate() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Seismic Charge sub-bass boom + heavy shockwave
+    this.playExplosion(true);
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(28, this.ctx.currentTime + 0.55);
+
+    gain.gain.setValueAtTime(0.45 * this.sfxVolume, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.55);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.55);
+    this.playHaptic('bomb');
+  }
+
+  playWarpJump() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Ascending futuristic dimensional phase-shift sweep
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(110, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1250, this.ctx.currentTime + 0.28);
+
+    gain.gain.setValueAtTime(0.3 * this.sfxVolume, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.28);
+    this.playHaptic('warp');
+  }
+
+  playHomingMissiles() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Quad rapid micro-rocket launch sequence
+    [0, 0.06, 0.12, 0.18].forEach((offset) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, this.ctx.currentTime + offset);
+      osc.frequency.exponentialRampToValueAtTime(1100, this.ctx.currentTime + offset + 0.09);
+
+      gain.gain.setValueAtTime(0.2 * this.sfxVolume, this.ctx.currentTime + offset);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + offset + 0.09);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(this.ctx.currentTime + offset);
+      osc.stop(this.ctx.currentTime + offset + 0.09);
+    });
+    this.playHaptic('powerup');
+  }
+
+  playCriticalAlarm() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Pulsing tactical danger alert for low hull
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(440, this.ctx.currentTime + 0.08);
+
+    gain.gain.setValueAtTime(0.25 * this.sfxVolume, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.16);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.16);
+    this.playHaptic('hit');
+  }
+
+  playVictoryFanfare() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // 5-chord heroic cyber arpeggio
+    const chord = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+    chord.forEach((freq, idx) => {
+      const startTime = this.ctx.currentTime + idx * 0.08;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.25 * this.sfxVolume, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.35);
+    });
+    this.playHaptic('victory');
+  }
+
+  // Cross-device haptic feedback engine (navigator.vibrate)
+  playHaptic(profile = 'light') {
+    if (typeof window === 'undefined' || !window.navigator || !window.navigator.vibrate) return;
+    try {
+      const profiles = {
+        light: 12,
+        fire: 10,
+        hit: 38,
+        powerup: [25, 35, 45],
+        bomb: [90, 40, 120, 40, 160],
+        emp: [60, 30, 90],
+        warp: [40, 50, 70],
+        bossAlarm: [90, 70, 90],
+        bossDefeat: [60, 60, 90, 60, 180],
+        victory: [50, 70, 50, 70, 160],
+        defeat: [140, 70, 180]
+      };
+      const pattern = profiles[profile] || (Array.isArray(profile) ? profile : 15);
+      window.navigator.vibrate(pattern);
+    } catch (e) {
+      // Ignored if user settings or device block vibration
+    }
+  }
+
 }
 
 export const soundManager = new SoundManager();

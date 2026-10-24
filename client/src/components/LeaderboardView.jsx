@@ -29,6 +29,95 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
   const [lastSyncTime, setLastSyncTime] = useState(null);
   const [syncSuccessToast, setSyncSuccessToast] = useState(false);
 
+  // Category view modes: Hall of Fame, World Raid Boss, Seasonal Events
+  const [viewMode, setViewMode] = useState('HALL_OF_FAME');
+  const [raidBoss, setRaidBoss] = useState(null);
+  const [raidLoading, setRaidLoading] = useState(false);
+  const [strikeAttacking, setStrikeAttacking] = useState(false);
+  const [strikeMessage, setStrikeMessage] = useState(null);
+
+  const [seasonalEvents, setSeasonalEvents] = useState([]);
+  const [eventLoading, setEventLoading] = useState(false);
+  const [eventMessage, setEventMessage] = useState(null);
+
+  const fetchRaidBoss = useCallback(async () => {
+    setRaidLoading(true);
+    try {
+      const res = await api.get('/events/raid-boss');
+      if (res.data && res.data.success) {
+        setRaidBoss(res.data);
+      }
+    } catch (err) {
+      console.warn('Raid boss fetch error:', err.message);
+    } finally {
+      setRaidLoading(false);
+    }
+  }, []);
+
+  const fetchSeasonalEvents = useCallback(async () => {
+    setEventLoading(true);
+    try {
+      const res = await api.get('/events');
+      if (res.data && res.data.success && Array.isArray(res.data.events)) {
+        setSeasonalEvents(res.data.events);
+      }
+    } catch (err) {
+      console.warn('Seasonal events fetch error:', err.message);
+    } finally {
+      setEventLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (viewMode === 'RAID_BOSS') {
+      fetchRaidBoss();
+    } else if (viewMode === 'SEASONAL_EVENT') {
+      fetchSeasonalEvents();
+    }
+  }, [viewMode, fetchRaidBoss, fetchSeasonalEvents]);
+
+  const handleRaidStrike = async () => {
+    if (!isAuthenticated) {
+      handleAuthNavigation('register');
+      return;
+    }
+    setStrikeAttacking(true);
+    try {
+      soundManager.playBombDetonate();
+      soundManager.playHaptic('bomb');
+      const res = await api.post('/events/raid-boss/attack');
+      if (res.data && res.data.success) {
+        setStrikeMessage(res.data.message);
+        setTimeout(() => setStrikeMessage(null), 4000);
+        fetchRaidBoss();
+      }
+    } catch (err) {
+      console.warn('Raid strike error:', err.message);
+    } finally {
+      setStrikeAttacking(false);
+    }
+  };
+
+  const handleClaimEvent = async (eventId) => {
+    if (!isAuthenticated) {
+      handleAuthNavigation('register');
+      return;
+    }
+    try {
+      const res = await api.post(`/events/${eventId}/claim`);
+      if (res.data && res.data.success) {
+        soundManager.playVictoryFanfare();
+        soundManager.playHaptic('victory');
+        setEventMessage(res.data.message);
+        setTimeout(() => setEventMessage(null), 4000);
+        fetchSeasonalEvents();
+      }
+    } catch (err) {
+      setEventMessage(err.response?.data?.message || 'Could not claim event reward');
+      setTimeout(() => setEventMessage(null), 3500);
+    }
+  };
+
   // Fetch verified leaderboard rankings from server
   const fetchLeaderboard = useCallback(async (period = timeFrame, isManualSync = false) => {
     if (isManualSync) {
@@ -260,7 +349,56 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
           </p>
         </header>
 
-        {/* ================= 3. TIME FILTERS & LIVE SYNC TOOLBAR ================= */}
+        {/* ================= CATEGORY SELECTOR TABS ================= */}
+        <div className="view-mode-tabs" role="tablist" aria-label="Leaderboard category views">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'HALL_OF_FAME'}
+            className={`view-mode-btn ${viewMode === 'HALL_OF_FAME' ? 'active' : ''}`}
+            onClick={() => {
+              try { soundManager.playLaser(); } catch {}
+              setViewMode('HALL_OF_FAME');
+            }}
+          >
+            <Trophy size={16} />
+            <span>HALL OF FAME</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'RAID_BOSS'}
+            className={`view-mode-btn raid-mode ${viewMode === 'RAID_BOSS' ? 'active' : ''}`}
+            onClick={() => {
+              try { soundManager.playLaser(); } catch {}
+              setViewMode('RAID_BOSS');
+            }}
+          >
+            <span className="raid-pulse-dot" />
+            <Crosshair size={16} />
+            <span>WORLD RAID BOSS</span>
+            <span className="live-badge">LIVE</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'SEASONAL_EVENT'}
+            className={`view-mode-btn ${viewMode === 'SEASONAL_EVENT' ? 'active' : ''}`}
+            onClick={() => {
+              try { soundManager.playLaser(); } catch {}
+              setViewMode('SEASONAL_EVENT');
+            }}
+          >
+            <Flame size={16} />
+            <span>SEASONAL EVENT</span>
+          </button>
+        </div>
+
+        {viewMode === 'HALL_OF_FAME' && (
+          <>
+            {/* ================= 3. TIME FILTERS & LIVE SYNC TOOLBAR ================= */}
         <div className="leaderboard-toolbar" role="toolbar" aria-label="Ranking period selection">
           <div className="leaderboard-filter-group" role="radiogroup" aria-label="Ranking period">
             <button
@@ -630,6 +768,273 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
             </table>
           </div>
         </section>
+          </>
+        )}
+
+        {/* ================= WORLD RAID BOSS CHALLENGE ================= */}
+        {viewMode === 'RAID_BOSS' && (
+          <div className="raid-boss-container animate-fade-in" style={{ marginBottom: '32px' }}>
+            {strikeMessage && (
+              <div style={{
+                padding: '12px 18px',
+                borderRadius: '8px',
+                background: 'rgba(34, 197, 94, 0.15)',
+                border: '1px solid #22C55E',
+                color: '#4ADE80',
+                fontFamily: 'Orbitron, sans-serif',
+                fontSize: '0.9rem',
+                textAlign: 'center',
+                boxShadow: '0 0 15px rgba(34, 197, 94, 0.3)'
+              }}>
+                ⚡ {strikeMessage}
+              </div>
+            )}
+
+            <div className="raid-boss-hero-card">
+              <div className="raid-boss-season-tag">
+                <Flame size={13} color="#EF4444" />
+                <span>SEASON 1: ECLIPSE PROTOCOL · 5 DAYS REMAINING</span>
+              </div>
+
+              <h2 className="raid-boss-title">
+                {raidBoss?.boss?.name || 'VOID TITAN OMEGA'}
+              </h2>
+              <p className="raid-boss-subtitle">
+                {raidBoss?.boss?.title || 'Apex Sovereign of the Event Horizon · Community World Encounter'}
+              </p>
+
+              {/* Dynamic World HP Gauge */}
+              <div className="raid-boss-hp-section">
+                <div className="raid-boss-hp-meta">
+                  <span style={{ color: '#EF4444', fontWeight: 800 }}>
+                    💀 GLOBAL HEALTH: {raidBoss?.boss?.percentRemaining ?? 68}%
+                  </span>
+                  <span style={{ color: '#94A3B8' }}>
+                    {(raidBoss?.boss?.currentHp ?? 684200).toLocaleString()} / {(raidBoss?.boss?.totalHp ?? 1000000).toLocaleString()} HP
+                  </span>
+                </div>
+
+                <div className="raid-boss-hp-bar">
+                  <div 
+                    className="raid-boss-hp-fill"
+                    style={{ width: `${raidBoss?.boss?.percentRemaining ?? 68}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Personal Strike Contribution */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'rgba(15, 23, 42, 0.8)',
+                padding: '10px 20px',
+                borderRadius: '30px',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                marginBottom: '24px'
+              }}>
+                <Crosshair size={16} color="#00E5FF" />
+                <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>YOUR SORTIE DAMAGE:</span>
+                <strong style={{ color: '#00E5FF', fontFamily: 'Orbitron, sans-serif' }}>
+                  {(raidBoss?.userDamage || 0).toLocaleString()} DMG
+                </strong>
+                <span style={{
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  background: 'rgba(251, 191, 36, 0.2)',
+                  color: '#FBBF24',
+                  fontSize: '0.75rem',
+                  fontWeight: 800
+                }}>
+                  {(raidBoss?.userDamage || 0) >= 150000 ? 'GOLD SLAYER' : (raidBoss?.userDamage || 0) >= 50000 ? 'SILVER SLAYER' : 'BRONZE SLAYER'}
+                </span>
+              </div>
+
+              {/* Strike & Deploy Actions */}
+              <div className="raid-boss-actions-row">
+                <button
+                  type="button"
+                  onClick={handleRaidStrike}
+                  disabled={strikeAttacking}
+                  className="raid-strike-btn"
+                >
+                  <Flame size={18} />
+                  <span>{strikeAttacking ? 'CHARGING PLASMA...' : 'EXECUTE TACTICAL STRIKE'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    try { soundManager.playLaser(); } catch {}
+                    if (onNavigate) onNavigate('missions');
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '14px 24px',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    border: '1px solid #00E5FF',
+                    borderRadius: '8px',
+                    color: '#00E5FF',
+                    fontFamily: 'Orbitron, sans-serif',
+                    fontSize: '0.95rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Zap size={16} />
+                  <span>SORTIE MISSIONS (+DMG)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Syndicate Raid Leaderboard */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <Trophy size={18} color="#FBBF24" />
+                <h3 style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '1.15rem', color: '#FFFFFF', margin: 0 }}>
+                  TOP WORLD RAID SLAYERS
+                </h3>
+              </div>
+
+              <div className="raid-contributors-grid">
+                {(raidBoss?.topContributors || [
+                  { rank: 1, callsign: 'VALKYRIE-01', name: 'Commander Nova', damage: 184500, badge: 'Apex Sovereign' },
+                  { rank: 2, callsign: 'SHADOW-ACE', name: 'Kaelen Thorne', damage: 142200, badge: 'Void Executioner' },
+                  { rank: 3, callsign: 'TITAN-X', name: 'Marcus Steel', damage: 98400, badge: 'Heavy Vanguard' },
+                  { rank: 4, callsign: 'ORBITRON-PRIME', name: 'Zane Hunter', damage: 72100, badge: 'Raid Striker' },
+                  { rank: 5, callsign: 'CHRONO-PILOT', name: 'Sora Quinn', damage: 51800, badge: 'Raid Striker' },
+                  { rank: 6, callsign: 'SOLARIS-9', name: 'Dr. Drake', damage: 44200, badge: 'Raid Striker' }
+                ]).map((c) => (
+                  <div key={c.rank} className="raid-contributor-card">
+                    <div className={`raid-rank-pill ${c.rank === 1 ? 'gold' : c.rank === 2 ? 'silver' : c.rank === 3 ? 'bronze' : ''}`}>
+                      #{c.rank}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 800, color: '#FFFFFF', fontSize: '0.95rem' }}>
+                        {c.callsign}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
+                        {c.badge}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ color: '#EF4444', fontFamily: 'Orbitron, sans-serif', fontWeight: 800, fontSize: '0.9rem' }}>
+                        {c.damage.toLocaleString()}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748B' }}>TOTAL DMG</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= SEASONAL EVENT VIEW ================= */}
+        {viewMode === 'SEASONAL_EVENT' && (
+          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '32px' }}>
+            {eventMessage && (
+              <div style={{
+                padding: '12px 18px',
+                borderRadius: '8px',
+                background: 'rgba(34, 197, 94, 0.15)',
+                border: '1px solid #22C55E',
+                color: '#4ADE80',
+                fontFamily: 'Orbitron, sans-serif',
+                fontSize: '0.9rem',
+                textAlign: 'center'
+              }}>
+                ✨ {eventMessage}
+              </div>
+            )}
+
+            {(seasonalEvents.length > 0 ? seasonalEvents : [
+              {
+                id: 'event-void-harvest',
+                name: 'OPERATION VOID HARVEST',
+                description: 'Neutralize 15 hostile fleet units or elite vessels across any sector campaign.',
+                objective: { type: 'destroy_enemies', target: 15 },
+                currentProgress: 15,
+                isCompleted: true,
+                isClaimed: false,
+                reward: { credits: 1000, energyCores: 5, velopRewardCoins: 100 }
+              }
+            ]).map((ev) => (
+              <div key={ev.id} className="seasonal-event-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: 'rgba(0, 229, 255, 0.12)', border: '1px solid #00E5FF', color: '#00E5FF', fontSize: '0.75rem', fontWeight: 800 }}>
+                    <Sparkles size={13} />
+                    <span>LIMITED-TIME PROTOCOL · 6 DAYS LEFT</span>
+                  </div>
+                  <div style={{ color: '#FBBF24', fontSize: '0.82rem', fontWeight: 700 }}>
+                    REWARD TIER: LEGENDARY
+                  </div>
+                </div>
+
+                <h3 style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '1.45rem', color: '#FFFFFF', margin: '0 0 8px 0' }}>
+                  {ev.name}
+                </h3>
+                <p style={{ color: '#94A3B8', fontSize: '0.95rem', margin: '0 0 20px 0' }}>
+                  {ev.description}
+                </p>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '6px' }}>
+                    <span style={{ color: '#94A3B8' }}>COMBAT OBJECTIVE</span>
+                    <strong style={{ color: '#00E5FF', fontFamily: 'Orbitron, sans-serif' }}>
+                      {ev.currentProgress} / {ev.objective.target} NEUTRALIZED
+                    </strong>
+                  </div>
+                  <div style={{ width: '100%', height: '12px', background: 'rgba(15, 23, 42, 0.9)', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(0, 229, 255, 0.3)' }}>
+                    <div style={{
+                      width: `${Math.min(100, (ev.currentProgress / ev.objective.target) * 100)}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #00E5FF 0%, #7C3AED 100%)',
+                      borderRadius: '6px',
+                      boxShadow: '0 0 12px #00E5FF'
+                    }} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', background: 'rgba(15, 23, 42, 0.7)', padding: '14px 18px', borderRadius: '8px', border: '1px solid rgba(148, 163, 184, 0.15)' }}>
+                  <div style={{ display: 'flex', gap: '18px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ color: '#FBBF24', fontWeight: 700, fontSize: '0.9rem' }}>
+                      +{ev.reward?.credits} CREDITS
+                    </span>
+                    <span style={{ color: '#C084FC', fontWeight: 700, fontSize: '0.9rem' }}>
+                      +{ev.reward?.energyCores} CORES
+                    </span>
+                    <span style={{ color: '#20D6A0', fontWeight: 700, fontSize: '0.9rem' }}>
+                      +{ev.reward?.velopRewardCoins} REWARD COINS
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={ev.isClaimed || !ev.isCompleted}
+                    onClick={() => handleClaimEvent(ev.id)}
+                    style={{
+                      padding: '10px 22px',
+                      background: ev.isClaimed ? 'rgba(75, 85, 99, 0.5)' : ev.isCompleted ? 'linear-gradient(135deg, #00E5FF 0%, #7C3AED 100%)' : 'rgba(30, 41, 59, 0.8)',
+                      border: ev.isClaimed ? '1px solid #4B5563' : ev.isCompleted ? '1px solid #00E5FF' : '1px solid rgba(148, 163, 184, 0.3)',
+                      color: ev.isClaimed ? '#9CA3AF' : '#FFFFFF',
+                      borderRadius: '6px',
+                      fontFamily: 'Orbitron, sans-serif',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      cursor: ev.isClaimed || !ev.isCompleted ? 'not-allowed' : 'pointer',
+                      boxShadow: ev.isCompleted && !ev.isClaimed ? '0 0 18px rgba(0, 229, 255, 0.4)' : 'none'
+                    }}
+                  >
+                    {ev.isClaimed ? 'CLAIMED' : ev.isCompleted ? 'CLAIM SYNDICATE CRATE' : 'INCOMPLETE'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* ================= 6. CALL TO ACTION PANELS ================= */}
         {/* Unauthenticated Visitor Enlistment CTA */}

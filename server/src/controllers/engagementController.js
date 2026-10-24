@@ -245,3 +245,127 @@ export const claimEventReward = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error claiming event reward' });
   }
 };
+
+
+/**
+ * Section 58B: Community World Raid Boss Challenge
+ */
+const RAID_BOSS_DATA = {
+  id: 'void-titan-omega',
+  name: 'VOID TITAN OMEGA',
+  title: 'Apex Sovereign of the Event Horizon',
+  totalHp: 1000000,
+  seasonName: 'Season 1: Eclipse Protocol',
+  endsAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+  tierRewards: [
+    { tier: 1, name: 'Bronze Slayer', minDamage: 10000, credits: 500, cores: 5, coins: 0 },
+    { tier: 2, name: 'Silver Slayer', minDamage: 50000, credits: 2000, cores: 15, coins: 50 },
+    { tier: 3, name: 'Gold Apex Slayer', minDamage: 150000, credits: 5000, cores: 35, coins: 150 }
+  ]
+};
+
+/**
+ * @desc    Get World Raid Boss status, total global health, and top contributors
+ * @route   GET /api/events/raid-boss
+ * @access  Public / Private
+ */
+export const getRaidBossStatus = async (req, res) => {
+  try {
+    const currentUserId = req.user ? req.user.id : null;
+    let userDamage = 0;
+    if (currentUserId) {
+      const profile = await PlayerProfile.findOne({ user: currentUserId });
+      userDamage = profile?.stats?.raidBossDamage || 0;
+    }
+
+    const aggregateRes = await PlayerProfile.aggregate([
+      { $group: { _id: null, totalGlobalDamage: { $sum: '$stats.raidBossDamage' } } }
+    ]);
+    const baseDamage = 315800; // Simulated community contribution base
+    const recordedGlobalDamage = aggregateRes.length > 0 ? (aggregateRes[0].totalGlobalDamage || 0) : 0;
+    const totalContributed = baseDamage + recordedGlobalDamage;
+    const currentHp = Math.max(0, RAID_BOSS_DATA.totalHp - totalContributed);
+
+    const topContributorProfiles = await PlayerProfile.find({ 'stats.raidBossDamage': { $gt: 0 } })
+      .sort({ 'stats.raidBossDamage': -1 })
+      .limit(10)
+      .populate('user', 'name callsign');
+
+    const topContributors = [
+      { rank: 1, callsign: 'VALKYRIE-01', name: 'Commander Nova', damage: 184500, badge: 'Apex Sovereign' },
+      { rank: 2, callsign: 'SHADOW-ACE', name: 'Kaelen Thorne', damage: 142200, badge: 'Void Executioner' },
+      { rank: 3, callsign: 'TITAN-X', name: 'Marcus Steel', damage: 98400, badge: 'Heavy Vanguard' },
+      ...topContributorProfiles.map((p, idx) => ({
+        rank: idx + 4,
+        callsign: p.user?.callsign || p.user?.name?.toUpperCase() || 'WINGMAN',
+        name: p.user?.name || 'Wingman',
+        damage: p.stats?.raidBossDamage || 0,
+        badge: 'Raid Striker'
+      }))
+    ].slice(0, 10);
+
+    return res.status(200).json({
+      success: true,
+      boss: {
+        ...RAID_BOSS_DATA,
+        currentHp,
+        totalContributed,
+        percentRemaining: Math.max(0, Math.min(100, Math.round((currentHp / RAID_BOSS_DATA.totalHp) * 100)))
+      },
+      userDamage,
+      topContributors
+    });
+  } catch (error) {
+    console.error('getRaidBossStatus Error:', error);
+    return res.status(500).json({ success: false, message: 'Server error retrieving raid boss status' });
+  }
+};
+
+/**
+ * @desc    Launch tactical strike against World Raid Boss
+ * @route   POST /api/events/raid-boss/attack
+ * @access  Private
+ */
+export const contributeRaidBossDamage = async (req, res) => {
+  try {
+    const profile = await PlayerProfile.findOne({ user: req.user.id });
+    if (!profile) return res.status(404).json({ success: false, message: 'Pilot profile not found' });
+
+    const strikeDamage = Math.floor(Math.random() * 2500) + 3500 + (profile.level || 1) * 200;
+    
+    if (!profile.stats) profile.stats = {};
+    profile.stats.raidBossDamage = (profile.stats.raidBossDamage || 0) + strikeDamage;
+    
+    const initialCredits = profile.credits;
+    profile.credits += 150;
+    profile.energyCores += 1;
+    await profile.save();
+
+    await WalletTransaction.create({
+      user: req.user.id,
+      transactionType: 'CREDIT',
+      currencyType: 'CREDITS',
+      amount: 150,
+      balanceBefore: initialCredits,
+      balanceAfter: profile.credits,
+      source: 'RAID_BOSS_STRIKE',
+      referenceId: `raid-${Date.now()}`,
+      description: `Raid Boss Tactical Strike reward (+${strikeDamage} DMG dealt)`,
+      status: 'COMPLETED'
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Tactical strike landed! Dealt ${strikeDamage.toLocaleString()} damage to VOID TITAN OMEGA. +150 Credits & +1 Energy Core credited.`,
+      damageDealt: strikeDamage,
+      userTotalDamage: profile.stats.raidBossDamage,
+      updatedBalances: {
+        credits: profile.credits,
+        energyCores: profile.energyCores
+      }
+    });
+  } catch (error) {
+    console.error('contributeRaidBossDamage Error:', error);
+    return res.status(500).json({ success: false, message: 'Server error contributing raid boss damage' });
+  }
+};
