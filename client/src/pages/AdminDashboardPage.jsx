@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -269,9 +269,52 @@ export const AdminDashboardPage = ({ onBack }) => {
 
   return (
     <div style={styles.container}>
+      {/* Responsive Admin Styles */}
+      <style>{`
+        @media (max-width: 900px) {
+          .admin-header-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+          }
+          .admin-header-left {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+          }
+          .admin-status-card {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+          }
+          .admin-status-stats {
+            width: 100% !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+          }
+          .admin-tab-bar {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            white-space: nowrap !important;
+          }
+          .admin-filter-bar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .admin-status-stats {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+          }
+          .admin-status-stats > div {
+            align-items: flex-start !important;
+          }
+        }
+      `}</style>
       {/* Top Header */}
-      <div style={styles.header}>
-        <div style={styles.headerLeft}>
+      <div className="admin-header-row" style={styles.header}>
+        <div className="admin-header-left" style={styles.headerLeft}>
           <button onClick={onBack} className="btn btn-outline" style={styles.backBtn}>
             <ArrowLeft size={16} /> BACK TO COMMAND
           </button>
@@ -288,7 +331,7 @@ export const AdminDashboardPage = ({ onBack }) => {
       </div>
 
       {/* Navigation Tab Bar */}
-      <div style={styles.tabBar} className="glass-panel">
+      <div style={styles.tabBar} className="glass-panel admin-tab-bar">
         <button
           onClick={() => handleTabSwitch('overview')}
           style={{ ...styles.tabBtn, ...(activeTab === 'overview' ? styles.tabBtnActive : {}) }}
@@ -346,7 +389,7 @@ export const AdminDashboardPage = ({ onBack }) => {
           ) : overviewData ? (
             <div style={styles.overviewGrid}>
               {/* Status Header Banner */}
-              <div style={styles.statusCard} className="glass-panel">
+              <div style={styles.statusCard} className="glass-panel admin-status-card">
                 <div style={styles.statusLeft}>
                   <CheckCircle2 size={32} color="var(--status-green)" />
                   <div>
@@ -354,7 +397,7 @@ export const AdminDashboardPage = ({ onBack }) => {
                     <div className="font-heading" style={styles.statusVal}>OPTIMAL & VERIFIED</div>
                   </div>
                 </div>
-                <div style={styles.statusStats}>
+                <div className="admin-status-stats" style={styles.statusStats}>
                   <div style={styles.statusStatItem}>
                     <span style={styles.statLabel}>Enlisted Pilots</span>
                     <span style={styles.statVal}>{overviewData.overview?.totalPilots || 0}</span>
@@ -497,7 +540,7 @@ export const AdminDashboardPage = ({ onBack }) => {
       {activeTab === 'rewards' && (
         <div style={styles.tabContent}>
           {/* Filter Bar */}
-          <div style={styles.filterBar} className="glass-panel">
+          <div style={styles.filterBar} className="glass-panel admin-filter-bar">
             <div style={styles.searchBox}>
               <Search size={16} color="var(--text-muted)" />
               <input
@@ -642,7 +685,7 @@ export const AdminDashboardPage = ({ onBack }) => {
       {activeTab === 'ledger' && (
         <div style={styles.tabContent}>
           {/* Filter Bar */}
-          <div style={styles.filterBar} className="glass-panel">
+          <div style={styles.filterBar} className="glass-panel admin-filter-bar">
             <div style={styles.searchBox}>
               <Search size={16} color="var(--text-muted)" />
               <input
@@ -819,7 +862,7 @@ export const AdminDashboardPage = ({ onBack }) => {
           )}
 
           {/* Filter Bar */}
-          <div style={styles.filterBar} className="glass-panel">
+          <div style={styles.filterBar} className="glass-panel admin-filter-bar">
             <div style={styles.searchBox}>
               <Search size={16} color="var(--text-muted)" />
               <input

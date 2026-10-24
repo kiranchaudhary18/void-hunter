@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
@@ -47,7 +47,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
   ];
 
   return (
-    <header style={styles.topBar}>
+    <header className="public-top-bar" style={styles.topBar}>
       <div style={styles.container}>
         {/* Brand Group */}
         <div 
@@ -64,10 +64,10 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
             </svg>
           </div>
           <div style={styles.brandTitles}>
-            <div className="font-heading" style={styles.brandTitle}>
+            <div className="font-heading public-brand-title" style={styles.brandTitle}>
               {GAME_NAME}
             </div>
-            <div style={styles.brandTag}>
+            <div className="public-brand-tag" style={styles.brandTag}>
               {GAME_TAGLINE}
             </div>
           </div>
@@ -100,6 +100,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
           <button 
             id="nav-sound-toggle"
             onClick={handleToggleMute} 
+            className="public-sound-btn"
             style={styles.iconSquareBtn}
             title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
             aria-label="Toggle Sound"
@@ -113,6 +114,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
               <button
                 id="public-nav-dashboard"
                 onClick={() => handleAction('dashboard')}
+                className="public-dashboard-btn"
                 style={styles.dashboardBtn}
                 title="Open Command Deck"
               >
@@ -133,6 +135,7 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
             <button 
               id="public-nav-login"
               onClick={() => handleAction('auth')} 
+              className="public-login-btn"
               style={styles.loginBtn}
               title="Authenticate Pilot Link"
             >
@@ -145,7 +148,8 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
           {/* Mobile Menu Toggle Button */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="public-mobile-menu-btn" style={styles.mobileMenuBtn}
+            className="public-mobile-menu-btn" 
+            style={styles.mobileMenuBtn}
             aria-label="Toggle Navigation Menu"
           >
             {mobileMenuOpen ? <X size={22} color="#00E5FF" /> : <Menu size={22} color="#EAF0FF" />}
@@ -190,6 +194,56 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
           </div>
         </div>
       )}
+
+      {/* Embedded Responsive Styles */}
+      <style>{`
+        @media (max-width: 960px) {
+          .public-center-nav {
+            display: none !important;
+          }
+          .public-mobile-menu-btn {
+            display: flex !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .public-brand-tag {
+            display: none !important;
+          }
+          .public-brand-title {
+            font-size: 1.05rem !important;
+          }
+          .public-login-text-full {
+            display: none !important;
+          }
+          .public-login-text-mobile {
+            display: inline !important;
+          }
+          .public-login-btn {
+            padding: 8px 12px !important;
+            font-size: 0.74rem !important;
+            gap: 5px !important;
+          }
+          .public-sound-btn {
+            width: 36px !important;
+            height: 36px !important;
+          }
+          .public-top-bar {
+            padding: 0 12px !important;
+          }
+        }
+        @media (max-width: 380px) {
+          .public-brand-title {
+            font-size: 0.90rem !important;
+          }
+          .public-login-btn {
+            padding: 6px 10px !important;
+            font-size: 0.68rem !important;
+          }
+          .public-top-bar {
+            padding: 0 8px !important;
+          }
+        }
+      `}</style>
     </header>
   );
 };

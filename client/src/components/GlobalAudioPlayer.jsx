@@ -64,8 +64,9 @@ export const GlobalAudioPlayer = () => {
     const handleResize = () => {
       if (position && widgetRef.current) {
         const rect = widgetRef.current.getBoundingClientRect();
+        const bottomOffset = window.innerWidth <= 768 ? 76 : 10;
         const maxX = Math.max(10, window.innerWidth - rect.width - 10);
-        const maxY = Math.max(10, window.innerHeight - rect.height - 10);
+        const maxY = Math.max(10, window.innerHeight - rect.height - bottomOffset);
         const clampedX = Math.max(10, Math.min(maxX, position.x));
         const clampedY = Math.max(10, Math.min(maxY, position.y));
         if (clampedX !== position.x || clampedY !== position.y) {
@@ -106,8 +107,9 @@ export const GlobalAudioPlayer = () => {
       }
       if (widgetRef.current) {
         const rect = widgetRef.current.getBoundingClientRect();
+        const bottomOffset = window.innerWidth <= 768 ? 76 : 10;
         const maxX = Math.max(10, window.innerWidth - rect.width - 10);
-        const maxY = Math.max(10, window.innerHeight - rect.height - 10);
+        const maxY = Math.max(10, window.innerHeight - rect.height - bottomOffset);
         const newX = Math.max(10, Math.min(maxX, dragInfoRef.current.initialLeft + dx));
         const newY = Math.max(10, Math.min(maxY, dragInfoRef.current.initialTop + dy));
         setPosition({ x: newX, y: newY });
@@ -148,8 +150,9 @@ export const GlobalAudioPlayer = () => {
       }
       if (widgetRef.current) {
         const rect = widgetRef.current.getBoundingClientRect();
+        const bottomOffset = window.innerWidth <= 768 ? 76 : 10;
         const maxX = Math.max(10, window.innerWidth - rect.width - 10);
-        const maxY = Math.max(10, window.innerHeight - rect.height - 10);
+        const maxY = Math.max(10, window.innerHeight - rect.height - bottomOffset);
         const newX = Math.max(10, Math.min(maxX, dragInfoRef.current.initialLeft + dx));
         const newY = Math.max(10, Math.min(maxY, dragInfoRef.current.initialTop + dy));
         setPosition({ x: newX, y: newY });
@@ -258,10 +261,10 @@ export const GlobalAudioPlayer = () => {
         title="Expand Soundtrack Player (Drag to reposition, double-click to reset)"
         style={{
           position: 'fixed',
-          left: position ? `${position.x}px` : 'auto',
-          top: position ? `${position.y}px` : 'auto',
-          bottom: position ? 'auto' : '22px',
-          right: position ? 'auto' : '22px',
+          left: position ? `${position.x}px` : undefined,
+          top: position ? `${position.y}px` : undefined,
+          bottom: position ? 'auto' : undefined,
+          right: position ? 'auto' : undefined,
           width: '44px',
           height: '44px',
           borderRadius: '50%',
@@ -293,10 +296,10 @@ export const GlobalAudioPlayer = () => {
       style={{
         ...styles.widgetContainer,
         position: 'fixed',
-        left: position ? `${position.x}px` : 'auto',
-        top: position ? `${position.y}px` : 'auto',
-        bottom: position ? 'auto' : '22px',
-        right: position ? 'auto' : '22px',
+        left: position ? `${position.x}px` : undefined,
+        top: position ? `${position.y}px` : undefined,
+        bottom: position ? 'auto' : undefined,
+        right: position ? 'auto' : undefined,
         cursor: isDragging ? 'grabbing' : 'default',
         touchAction: 'none'
       }}
@@ -334,7 +337,7 @@ export const GlobalAudioPlayer = () => {
         </div>
 
         {/* Track Label */}
-        <div style={styles.trackInfo}>
+        <div className="audio-track-info" style={styles.trackInfo}>
           <div style={styles.trackTag}>
             {currentTrack.hasLyrics ? (
               <Mic size={11} color="#10B981" style={{ display: 'inline', marginRight: '4px' }} />
@@ -348,7 +351,7 @@ export const GlobalAudioPlayer = () => {
           </div>
 
           <div 
-            className="font-heading" 
+            className="font-heading audio-track-name" 
             style={{
               ...styles.trackName,
               color: audioState.bgmPlaying ? '#00E5FF' : '#F59E0B',
@@ -360,14 +363,14 @@ export const GlobalAudioPlayer = () => {
 
           {/* Real-time lyrics ticker for the English vocal song */}
           {audioState.bgmPlaying && currentTrack.hasLyrics && (
-            <div style={styles.lyricsTicker}>
+            <div className="audio-lyrics-ticker" style={styles.lyricsTicker}>
               {LYRIC_SNIPPETS[lyricIndex]}
             </div>
           )}
         </div>
 
         {/* Playback Controls (Prev, Play/Pause, Next, Mute, Expand) */}
-        <div style={styles.actionButtons} className="no-drag" onClick={(e) => e.stopPropagation()}>
+        <div className="audio-action-buttons no-drag" style={styles.actionButtons} onClick={(e) => e.stopPropagation()}>
           <button 
             onClick={handlePrevTrack}
             style={styles.controlBtn}
@@ -512,6 +515,8 @@ export const GlobalAudioPlayer = () => {
       <style>{`
         .global-audio-widget {
           z-index: 9999;
+          bottom: 22px;
+          right: 22px;
           background: rgba(6, 9, 25, 0.94);
           border: 1px solid rgba(0, 229, 255, 0.4);
           border-radius: 12px;
@@ -519,6 +524,37 @@ export const GlobalAudioPlayer = () => {
           backdrop-filter: blur(14px);
           user-select: none;
           transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .global-audio-minimized-orb {
+          bottom: 22px;
+          right: 22px;
+        }
+        @media (max-width: 768px) {
+          .global-audio-widget, .global-audio-minimized-orb {
+            bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+            right: 12px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .global-audio-widget {
+            max-width: calc(100vw - 20px) !important;
+            padding: 6px 10px !important;
+          }
+          .audio-track-info {
+            min-width: 105px !important;
+            max-width: 135px !important;
+          }
+          .audio-track-name {
+            max-width: 130px !important;
+            font-size: 0.68rem !important;
+          }
+          .audio-lyrics-ticker {
+            max-width: 130px !important;
+            font-size: 0.58rem !important;
+          }
+          .audio-action-buttons {
+            gap: 3px !important;
+          }
         }
         .global-audio-widget.is-dragging {
           opacity: 0.94;
@@ -573,7 +609,7 @@ export const GlobalAudioPlayer = () => {
 const styles = {
   widgetContainer: {
     padding: '8px 14px',
-    maxWidth: '430px',
+    maxWidth: 'min(430px, calc(100vw - 20px))',
   },
   headerRow: {
     display: 'flex',
