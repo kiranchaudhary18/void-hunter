@@ -816,8 +816,13 @@ export const GameContainer = ({
 
       {/* ================= SCREEN 7: VICTORY & REWARDS MODAL ================= */}
       {victoryData && (
-        <div style={styles.modalBackdrop}>
-          <div className="glass-panel cyber-box animate-pulse-glow" style={styles.screen7VictoryModal}>
+        <div style={{ ...styles.modalBackdrop, padding: isMobile ? '8px' : '20px' }}>
+          <div className="glass-panel cyber-box animate-pulse-glow" style={{
+            ...styles.screen7VictoryModal,
+            padding: isMobile ? '10px 12px' : 'clamp(18px, 4vw, 32px) clamp(14px, 4vw, 28px)',
+            gap: isMobile ? '5px' : '8px',
+            maxHeight: isMobile ? '95dvh' : '90dvh'
+          }}>
             {/* Dynamic 1 to 3 Stars with Criteria */}
             <div style={styles.screen7StarsRow}>
               {[1, 2, 3].map((starIdx) => {
@@ -826,13 +831,13 @@ export const GameContainer = ({
                 return (
                   <Star
                     key={starIdx}
-                    size={isCenter ? (isMobile ? 40 : 54) : (isMobile ? 30 : 40)}
+                    size={isCenter ? (isMobile ? 28 : 54) : (isMobile ? 20 : 40)}
                     color={earned ? "#FBBF24" : "rgba(255, 255, 255, 0.22)"}
                     fill={earned ? "#FBBF24" : "transparent"}
                     style={{
-                      filter: earned ? 'drop-shadow(0 0 14px #FBBF24)' : 'none',
-                      margin: isCenter ? '0 8px' : '0',
-                      transform: isCenter ? 'translateY(-4px)' : 'none',
+                      filter: earned ? 'drop-shadow(0 0 10px #FBBF24)' : 'none',
+                      margin: isCenter ? (isMobile ? '0 4px' : '0 8px') : '0',
+                      transform: isCenter ? 'translateY(-2px)' : 'none',
                       transition: 'all 0.3s ease'
                     }}
                   />
@@ -844,159 +849,248 @@ export const GameContainer = ({
             <div style={{
               display: 'flex',
               justifyContent: 'center',
-              gap: '6px',
+              gap: isMobile ? '4px' : '6px',
               flexWrap: 'wrap',
-              margin: '6px 0 10px 0'
+              margin: isMobile ? '1px 0 3px 0' : '6px 0 10px 0'
             }}>
               <span style={{
-                fontSize: '0.68rem',
-                padding: '2px 8px',
+                fontSize: isMobile ? '0.58rem' : '0.68rem',
+                padding: isMobile ? '1px 5px' : '2px 8px',
                 borderRadius: '4px',
                 background: (victoryData.stars >= 1) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
                 border: `1px solid ${(victoryData.stars >= 1) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
                 color: (victoryData.stars >= 1) ? 'var(--currency-gold)' : 'var(--text-muted)'
               }}>
-                ⭐ Complete Sortie
+                ⭐ Sortie Cleared
               </span>
               <span style={{
-                fontSize: '0.68rem',
-                padding: '2px 8px',
+                fontSize: isMobile ? '0.58rem' : '0.68rem',
+                padding: isMobile ? '1px 5px' : '2px 8px',
                 borderRadius: '4px',
                 background: (victoryData.stars >= 2) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
                 border: `1px solid ${(victoryData.stars >= 2) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
                 color: (victoryData.stars >= 2) ? 'var(--currency-gold)' : 'var(--text-muted)'
               }}>
-                ⭐ 10+ Kills / 3.5k Score
+                ⭐ 10+ Kills / 3.5k
               </span>
               <span style={{
-                fontSize: '0.68rem',
-                padding: '2px 8px',
+                fontSize: isMobile ? '0.58rem' : '0.68rem',
+                padding: isMobile ? '1px 5px' : '2px 8px',
                 borderRadius: '4px',
                 background: (victoryData.stars >= 3) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
                 border: `1px solid ${(victoryData.stars >= 3) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
                 color: (victoryData.stars >= 3) ? 'var(--currency-gold)' : 'var(--text-muted)'
               }}>
-                ⭐ Hull ≥ 70% & Time ≤ 90s
+                ⭐ Hull ≥ 70%
               </span>
             </div>
 
-            <h2 className="font-heading text-glow-cyan" style={{ ...styles.screen7Title, fontSize: isMobile ? '1.4rem' : '1.85rem' }}>
+            <h2 className="font-heading text-glow-cyan" style={{ 
+              ...styles.screen7Title, 
+              fontSize: isMobile ? '1.10rem' : '1.85rem',
+              margin: 0,
+              lineHeight: 1.2
+            }}>
               MISSION COMPLETE
             </h2>
-            <div style={{ height: '4px' }} />
 
-            {/* Twin Panels: Left Telemetry vs Right Rewards */}
+            {/* Twin Panels: Left Telemetry vs Right Rewards in 2 side-by-side columns on mobile */}
             <div style={{
               ...styles.screen7TwinGrid,
-              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))'
+              gridTemplateColumns: isMobile ? '1.05fr 0.95fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: isMobile ? '6px' : '12px',
+              marginTop: isMobile ? '3px' : '10px'
             }}>
               {/* Left Box: Mission Telemetry */}
-              <div style={styles.screen7TelemetryBox} className="glass-card">
-                <div style={styles.screen7TelemetryHeader}>
-                  <div className="font-heading text-glow-cyan" style={{ fontSize: '0.92rem' }}>
+              <div style={{
+                ...styles.screen7TelemetryBox,
+                padding: isMobile ? '6px 8px' : '16px',
+                gap: isMobile ? '4px' : '10px'
+              }} className="glass-card">
+                <div style={{
+                  ...styles.screen7TelemetryHeader,
+                  paddingBottom: isMobile ? '3px' : '8px'
+                }}>
+                  <div className="font-heading text-glow-cyan" style={{ 
+                    fontSize: isMobile ? '0.72rem' : '0.92rem',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
                     {mission.name || 'MISSION 01'}
                   </div>
-                  <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)' }}>
-                    {mission.sector || 'Nebula Outpost'} • Difficulty: Normal
+                  <div style={{ fontSize: isMobile ? '0.56rem' : '0.70rem', color: 'var(--text-muted)' }}>
+                    {mission.sector || 'Nebula Outpost'} • Normal
                   </div>
                 </div>
 
-                <div style={styles.screen7TelemetryList}>
-                  <div style={styles.screen7TelemRow}>
-                    <span style={styles.screen7TelemLabel}>COMBAT SCORE</span>
+                <div style={{
+                  ...styles.screen7TelemetryList,
+                  gap: isMobile ? '2px' : '6px'
+                }}>
+                  <div style={{ ...styles.screen7TelemRow, fontSize: isMobile ? '0.66rem' : '0.78rem' }}>
+                    <span style={{ ...styles.screen7TelemLabel, fontSize: isMobile ? '0.58rem' : '0.68rem' }}>SCORE</span>
                     <span style={{ ...styles.screen7TelemVal, color: 'var(--currency-gold)' }}>
                       {(victoryData.score || stats.score || 0).toLocaleString()}
                     </span>
                   </div>
-                  <div style={styles.screen7TelemRow}>
-                    <span style={styles.screen7TelemLabel}>ENEMIES DESTROYED</span>
+                  <div style={{ ...styles.screen7TelemRow, fontSize: isMobile ? '0.66rem' : '0.78rem' }}>
+                    <span style={{ ...styles.screen7TelemLabel, fontSize: isMobile ? '0.58rem' : '0.68rem' }}>KILLS</span>
                     <span style={styles.screen7TelemVal}>{victoryData.enemiesKilled || stats.enemiesKilled || 0}</span>
                   </div>
-                  <div style={styles.screen7TelemRow}>
-                    <span style={styles.screen7TelemLabel}>WAVE CLEARED</span>
+                  <div style={{ ...styles.screen7TelemRow, fontSize: isMobile ? '0.66rem' : '0.78rem' }}>
+                    <span style={{ ...styles.screen7TelemLabel, fontSize: isMobile ? '0.58rem' : '0.68rem' }}>WAVE</span>
                     <span style={styles.screen7TelemVal}>{stats.currentWave} / {stats.maxWaves}</span>
                   </div>
-                  <div style={styles.screen7TelemRow}>
-                    <span style={styles.screen7TelemLabel}>HULL INTEGRITY</span>
+                  <div style={{ ...styles.screen7TelemRow, fontSize: isMobile ? '0.66rem' : '0.78rem' }}>
+                    <span style={{ ...styles.screen7TelemLabel, fontSize: isMobile ? '0.58rem' : '0.68rem' }}>HULL</span>
                     <span style={{ ...styles.screen7TelemVal, color: '#10B981' }}>{Math.round(stats.health)}%</span>
                   </div>
                 </div>
               </div>
 
               {/* Right Box: Rewards */}
-              <div style={styles.screen7RewardsBox} className="glass-card">
-                <div className="font-heading text-glow-gold" style={{ fontSize: '0.90rem', marginBottom: '12px', letterSpacing: '0.08em' }}>
+              <div style={{
+                ...styles.screen7RewardsBox,
+                padding: isMobile ? '6px 6px' : '16px'
+              }} className="glass-card">
+                <div className="font-heading text-glow-gold" style={{ 
+                  fontSize: isMobile ? '0.72rem' : '0.90rem', 
+                  marginBottom: isMobile ? '4px' : '12px', 
+                  letterSpacing: '0.08em' 
+                }}>
                   REWARDS
                 </div>
 
-                <div style={styles.screen7RewardItemsRow}>
+                <div style={{
+                  ...styles.screen7RewardItemsRow,
+                  gap: isMobile ? '3px' : '8px'
+                }}>
                   <div style={styles.screen7RewardItem}>
-                    <div style={styles.screen7RewardIconGold}>
-                      <Coins size={isMobile ? 18 : 22} color="var(--currency-gold)" />
+                    <div style={{
+                      ...styles.screen7RewardIconGold,
+                      width: isMobile ? '26px' : '42px',
+                      height: isMobile ? '26px' : '42px'
+                    }}>
+                      <Coins size={isMobile ? 13 : 22} color="var(--currency-gold)" />
                     </div>
-                    <div className="font-heading text-glow-gold" style={styles.screen7RewardValGold}>
+                    <div className="font-heading text-glow-gold" style={{
+                      ...styles.screen7RewardValGold,
+                      fontSize: isMobile ? '0.76rem' : '1.05rem'
+                    }}>
                       +{victoryData.creditsEarned || 150}
                     </div>
-                    <div style={styles.screen7RewardLabel}>Credits</div>
+                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.52rem' : '0.66rem' }}>Credits</div>
                   </div>
 
                   <div style={styles.screen7RewardItem}>
-                    <div style={styles.screen7RewardIconPurple}>
-                      <Zap size={isMobile ? 18 : 22} color="#C084FC" />
+                    <div style={{
+                      ...styles.screen7RewardIconPurple,
+                      width: isMobile ? '26px' : '42px',
+                      height: isMobile ? '26px' : '42px'
+                    }}>
+                      <Zap size={isMobile ? 13 : 22} color="#C084FC" />
                     </div>
-                    <div className="font-heading text-glow-purple" style={styles.screen7RewardValPurple}>
+                    <div className="font-heading text-glow-purple" style={{
+                      ...styles.screen7RewardValPurple,
+                      fontSize: isMobile ? '0.76rem' : '1.05rem'
+                    }}>
                       +2
                     </div>
-                    <div style={styles.screen7RewardLabel}>Gems</div>
+                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.52rem' : '0.66rem' }}>Gems</div>
                   </div>
 
                   <div style={styles.screen7RewardItem}>
-                    <div style={styles.screen7RewardIconCyan}>
-                      <Award size={isMobile ? 18 : 22} color="var(--secondary-cyan)" />
+                    <div style={{
+                      ...styles.screen7RewardIconCyan,
+                      width: isMobile ? '26px' : '42px',
+                      height: isMobile ? '26px' : '42px'
+                    }}>
+                      <Award size={isMobile ? 13 : 22} color="var(--secondary-cyan)" />
                     </div>
-                    <div className="font-heading text-glow-cyan" style={styles.screen7RewardValCyan}>
+                    <div className="font-heading text-glow-cyan" style={{
+                      ...styles.screen7RewardValCyan,
+                      fontSize: isMobile ? '0.76rem' : '1.05rem'
+                    }}>
                       +300
                     </div>
-                    <div style={styles.screen7RewardLabel}>Exp</div>
+                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.52rem' : '0.66rem' }}>Exp</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Rewarded Multipliers */}
+            {/* Rewarded Multipliers in 1 row side-by-side on mobile */}
             <div style={{
               display: 'flex',
-              flexDirection: isMobile ? 'column' : 'row',
-              gap: '8px',
+              flexDirection: 'row',
+              gap: isMobile ? '5px' : '8px',
               width: '100%',
-              margin: '12px 0 10px 0'
+              margin: isMobile ? '3px 0' : '12px 0 10px 0'
             }}>
               {!victoryData.doubledCredits && (
                 <button 
                   onClick={() => triggerRewardedAd('double_credits')}
                   className="btn btn-magenta"
-                  style={{ flex: 1, padding: '10px 12px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  style={{ 
+                    flex: 1, 
+                    padding: isMobile ? '6px 4px' : '10px 12px', 
+                    fontSize: isMobile ? '0.66rem' : '0.78rem', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: isMobile ? '3px' : '6px',
+                    whiteSpace: 'nowrap'
+                  }}
                 >
-                  <Video size={15} /> 2X CREDITS (+{(victoryData.creditsEarned || 150) * 2})
+                  <Video size={isMobile ? 12 : 15} /> 2X CREDITS (+{(victoryData.creditsEarned || 150) * 2})
                 </button>
               )}
               {!victoryData.doubledScore && (
                 <button 
                   onClick={() => triggerRewardedAd('double_score')}
                   className="btn btn-purple"
-                  style={{ flex: 1, padding: '10px 12px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  style={{ 
+                    flex: 1, 
+                    padding: isMobile ? '6px 4px' : '10px 12px', 
+                    fontSize: isMobile ? '0.66rem' : '0.78rem', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: isMobile ? '3px' : '6px',
+                    whiteSpace: 'nowrap'
+                  }}
                 >
-                  <Video size={15} /> 2X SCORE (+{((victoryData.score || stats.score || 1000) * 2).toLocaleString()})
+                  <Video size={isMobile ? 12 : 15} /> 2X SCORE (+{((victoryData.score || stats.score || 1000) * 2).toLocaleString()})
                 </button>
               )}
             </div>
 
-            {/* Screen 7 Bottom Buttons: NEXT MISSION (Primary) / RETRY / BACK TO MAP */}
+            {/* Screen 7 Bottom Buttons: RETRY / NEXT MISSION (Primary) / BACK TO MAP all in 1 row */}
             <div style={{
-              ...styles.screen7ActionsRow,
-              flexDirection: isMobile ? 'column' : 'row',
-              gap: isMobile ? '8px' : '12px'
+              display: 'flex',
+              gap: isMobile ? '5px' : '12px',
+              width: '100%',
+              marginTop: isMobile ? '2px' : '6px',
+              alignItems: 'center'
             }}>
+              <button 
+                onClick={handleRestart} 
+                className="btn btn-outline" 
+                style={{ 
+                  flex: isMobile ? 1 : 1, 
+                  padding: isMobile ? '8px 4px' : '12px', 
+                  fontSize: isMobile ? '0.66rem' : '0.78rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px'
+                }}
+              >
+                <RotateCcw size={isMobile ? 12 : 14} />
+                <span>RETRY</span>
+              </button>
+
               <button 
                 onClick={async () => {
                   setVictoryData(null);
@@ -1012,51 +1106,48 @@ export const GameContainer = ({
                 }} 
                 className="btn btn-cyan animate-pulse-glow" 
                 style={{
-                  ...styles.screen7PrimaryBtn,
-                  width: isMobile ? '100%' : 'auto',
-                  order: isMobile ? 1 : 2
+                  flex: isMobile ? 1.8 : 1.4,
+                  padding: isMobile ? '8px 8px' : '14px',
+                  fontSize: isMobile ? '0.76rem' : '0.86rem',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px'
                 }}
               >
-                <Play size={16} fill="currentColor" />
+                <Play size={isMobile ? 13 : 16} fill="currentColor" />
                 <span>NEXT MISSION</span>
               </button>
 
-              <div style={{
-                display: 'flex',
-                gap: '8px',
-                width: isMobile ? '100%' : 'auto',
-                flex: isMobile ? 'none' : 2,
-                order: isMobile ? 2 : 1
-              }}>
-                <button 
-                  onClick={handleRestart} 
-                  className="btn btn-outline" 
-                  style={{ ...styles.screen7SecondaryBtn, flex: 1 }}
-                >
-                  <RotateCcw size={14} />
-                  <span>RETRY</span>
-                </button>
-
-                <button 
-                  onClick={async () => {
-                    setVictoryData(null);
-                    if (onCompleteMission && !isCompletedReportedRef.current) {
-                      isCompletedReportedRef.current = true;
-                      await onCompleteMission(victoryData);
-                    }
-                    onExit('missions');
-                  }} 
-                  className="btn btn-outline" 
-                  style={{ ...styles.screen7SecondaryBtn, flex: 1 }}
-                >
-                  <Compass size={14} />
-                  <span>MISSIONS</span>
-                </button>
-              </div>
+              <button 
+                onClick={async () => {
+                  setVictoryData(null);
+                  if (onCompleteMission && !isCompletedReportedRef.current) {
+                    isCompletedReportedRef.current = true;
+                    await onCompleteMission(victoryData);
+                  }
+                  onExit('missions');
+                }} 
+                className="btn btn-outline" 
+                style={{ 
+                  flex: isMobile ? 1 : 1, 
+                  padding: isMobile ? '8px 4px' : '12px', 
+                  fontSize: isMobile ? '0.66rem' : '0.78rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Compass size={isMobile ? 12 : 14} />
+                <span>MISSIONS</span>
+              </button>
             </div>
           </div>
         </div>
       )}
+
 
       {/* ================= SIMULATED REWARDED AD MODAL WITH 10S ROTATING VIDEOS ================= */}
       {adModalOpen && (
