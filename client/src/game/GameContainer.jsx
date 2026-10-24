@@ -64,6 +64,63 @@ export const GameContainer = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Viewport & Scroll Locking for Full-Screen Mobile Arcade Viewport
+  useEffect(() => {
+    document.documentElement.classList.add('gameplay-active');
+    document.body.classList.add('gameplay-active');
+
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevHtmlTouchAction = document.documentElement.style.touchAction;
+    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevBodyTouchAction = document.body.style.touchAction;
+    const prevBodyOverscroll = document.body.style.overscrollBehavior;
+    const prevBodyPosition = document.body.style.position;
+    const prevBodyWidth = document.body.style.width;
+    const prevBodyHeight = document.body.style.height;
+
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.touchAction = 'none';
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+    document.body.style.overscrollBehavior = 'none';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100dvh';
+
+    const preventTouchScroll = (e) => {
+      if (e.target && e.target.closest && (
+        e.target.closest('.defeat-modal') || 
+        e.target.closest('.victory-modal') || 
+        e.target.closest('.pause-modal') ||
+        e.target.closest('[role="dialog"]')
+      )) {
+        return;
+      }
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('touchmove', preventTouchScroll, { passive: false });
+
+    return () => {
+      window.removeEventListener('touchmove', preventTouchScroll);
+      document.documentElement.classList.remove('gameplay-active');
+      document.body.classList.remove('gameplay-active');
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.documentElement.style.touchAction = prevHtmlTouchAction;
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
+      document.body.style.overflow = prevBodyOverflow;
+      document.body.style.touchAction = prevBodyTouchAction;
+      document.body.style.overscrollBehavior = prevBodyOverscroll;
+      document.body.style.position = prevBodyPosition;
+      document.body.style.width = prevBodyWidth;
+      document.body.style.height = prevBodyHeight;
+    };
+  }, []);
+
   useEffect(() => {
     if (!gameRef.current) return;
 
@@ -82,6 +139,11 @@ export const GameContainer = ({
       scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
+      },
+      input: {
+        touch: {
+          capture: true
+        }
       },
       backgroundColor: '#060919',
       scene: [BootScene, SpaceCombatScene]
@@ -556,13 +618,19 @@ export const GameContainer = ({
 
       {/* ================= SCREEN 6: TOUCH JOYSTICK & ARCADE TRIGGER BUTTONS ================= */}
       {/* Bottom-Left Tactical Bomb / Missile Launcher Button (Matching Reference Game) */}
-      <div className="game-tactical-bomb">
+      <div 
+        className="game-tactical-bomb"
+        onPointerDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+      >
         <button
           onClick={() => activateAbility('homing_missiles', 12)}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           disabled={cooldowns['homing_missiles'] > 0}
           style={{
-            width: '68px',
-            height: '68px',
+            width: isMobile ? '54px' : '68px',
+            height: isMobile ? '54px' : '68px',
             borderRadius: '50%',
             background: cooldowns['homing_missiles'] > 0 
               ? 'radial-gradient(circle, #27272a 0%, #09090b 100%)' 
@@ -576,21 +644,22 @@ export const GameContainer = ({
             cursor: cooldowns['homing_missiles'] > 0 ? 'not-allowed' : 'pointer',
             position: 'relative',
             transition: 'all 0.2s ease',
-            outline: 'none'
+            outline: 'none',
+            touchAction: 'manipulation'
           }}
           title="Tactical Missile Salvo (Key B / 3)"
         >
           <div style={{
             position: 'absolute',
-            top: '-5px',
-            left: '-5px',
-            width: '24px',
-            height: '24px',
+            top: isMobile ? '-3px' : '-5px',
+            left: isMobile ? '-3px' : '-5px',
+            width: isMobile ? '20px' : '24px',
+            height: isMobile ? '20px' : '24px',
             borderRadius: '50%',
             background: '#09090b',
             border: '2px solid #f59e0b',
             color: '#fef08a',
-            fontSize: '11px',
+            fontSize: isMobile ? '10px' : '11px',
             fontWeight: 'bold',
             display: 'flex',
             alignItems: 'center',
@@ -599,9 +668,9 @@ export const GameContainer = ({
           }}>
             B
           </div>
-          <Rocket size={30} color={cooldowns['homing_missiles'] > 0 ? '#71717a' : '#fef08a'} />
+          <Rocket size={isMobile ? 22 : 30} color={cooldowns['homing_missiles'] > 0 ? '#71717a' : '#fef08a'} />
           <span style={{
-            fontSize: '10px',
+            fontSize: isMobile ? '8.5px' : '10px',
             fontWeight: 'bold',
             fontFamily: 'monospace',
             color: cooldowns['homing_missiles'] > 0 ? '#ef4444' : '#fde047',
@@ -613,75 +682,99 @@ export const GameContainer = ({
       </div>
 
       {/* Bottom-Right Tactile Circular Arcade Ability Buttons (Screen 6) */}
-      <div className="game-action-hud-cluster">
+      <div 
+        className="game-action-hud-cluster"
+        onPointerDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+      >
         {/* Ability 1: Spread */}
         <button
           onClick={() => activateAbility('spread_shot', 20)}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           disabled={cooldowns['spread_shot'] > 0}
           className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
+            width: isMobile ? '40px' : '52px',
+            height: isMobile ? '40px' : '52px',
             borderColor: 'var(--secondary-cyan)',
-            boxShadow: cooldowns['spread_shot'] > 0 ? 'none' : '0 0 15px rgba(0, 229, 255, 0.4)'
+            boxShadow: cooldowns['spread_shot'] > 0 ? 'none' : '0 0 15px rgba(0, 229, 255, 0.4)',
+            touchAction: 'manipulation'
           }}
           title="Spread Laser (1)"
         >
           {cooldowns['spread_shot'] > 0 ? (
-            <span style={styles.cdNum}>{cooldowns['spread_shot']}s</span>
+            <span style={{ ...styles.cdNum, fontSize: isMobile ? '0.76rem' : '1rem' }}>{cooldowns['spread_shot']}s</span>
           ) : (
-            <Crosshair size={22} color="var(--secondary-cyan)" />
+            <Crosshair size={isMobile ? 18 : 22} color="var(--secondary-cyan)" />
           )}
         </button>
 
         {/* Ability 2: Shield */}
         <button
           onClick={() => activateAbility('shield_pulse', 25)}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           disabled={cooldowns['shield_pulse'] > 0}
           className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
+            width: isMobile ? '40px' : '52px',
+            height: isMobile ? '40px' : '52px',
             borderColor: '#C084FC',
-            boxShadow: cooldowns['shield_pulse'] > 0 ? 'none' : '0 0 15px rgba(192, 132, 252, 0.4)'
+            boxShadow: cooldowns['shield_pulse'] > 0 ? 'none' : '0 0 15px rgba(192, 132, 252, 0.4)',
+            touchAction: 'manipulation'
           }}
           title="Shield Pulse (2)"
         >
           {cooldowns['shield_pulse'] > 0 ? (
-            <span style={styles.cdNum}>{cooldowns['shield_pulse']}s</span>
+            <span style={{ ...styles.cdNum, fontSize: isMobile ? '0.76rem' : '1rem' }}>{cooldowns['shield_pulse']}s</span>
           ) : (
-            <Shield size={22} color="#C084FC" />
+            <Shield size={isMobile ? 18 : 22} color="#C084FC" />
           )}
         </button>
 
         {/* Ability 3: Warp */}
         <button
           onClick={() => activateAbility('emergency_warp', 30)}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           disabled={cooldowns['emergency_warp'] > 0}
           className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
+            width: isMobile ? '40px' : '52px',
+            height: isMobile ? '40px' : '52px',
             borderColor: '#38BDF8',
-            boxShadow: cooldowns['emergency_warp'] > 0 ? 'none' : '0 0 15px rgba(56, 189, 248, 0.4)'
+            boxShadow: cooldowns['emergency_warp'] > 0 ? 'none' : '0 0 15px rgba(56, 189, 248, 0.4)',
+            touchAction: 'manipulation'
           }}
           title="Emergency Warp (3)"
         >
           {cooldowns['emergency_warp'] > 0 ? (
-            <span style={styles.cdNum}>{cooldowns['emergency_warp']}s</span>
+            <span style={{ ...styles.cdNum, fontSize: isMobile ? '0.76rem' : '1rem' }}>{cooldowns['emergency_warp']}s</span>
           ) : (
-            <Zap size={22} color="#38BDF8" />
+            <Zap size={isMobile ? 18 : 22} color="#38BDF8" />
           )}
         </button>
 
         {/* Primary Fire Arcade Button (Large Circle) */}
         <button
           onClick={() => activateAbility('homing_missiles', 15)}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           className="circular-fire-btn animate-pulse-glow"
           style={{
             ...styles.circularPrimaryFireBtn,
-            boxShadow: '0 0 25px rgba(0, 229, 255, 0.6)'
+            width: isMobile ? '50px' : '64px',
+            height: isMobile ? '50px' : '64px',
+            boxShadow: '0 0 25px rgba(0, 229, 255, 0.6)',
+            touchAction: 'manipulation'
           }}
           title="Primary Sortie Fire / Missiles (Space)"
         >
-          <Target size={28} color="#060919" />
+          <Target size={isMobile ? 22 : 28} color="#060919" />
         </button>
       </div>
 
@@ -1229,17 +1322,25 @@ export const GameContainer = ({
 
 const styles = {
   gameWrapper: {
-    position: 'relative',
-    width: '100%',
-    maxWidth: '100vw',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100vw',
     height: '100dvh',
-    minHeight: '100vh',
+    maxHeight: '100dvh',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#060919',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    touchAction: 'none',
+    overscrollBehavior: 'none',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    zIndex: 1000
   },
   hudTop: {
     position: 'absolute',
@@ -1421,7 +1522,8 @@ const styles = {
     color: 'var(--currency-gold)'
   },
   canvasEnclosure: {
-    position: 'relative',
+    position: 'absolute',
+    inset: 0,
     width: '100%',
     height: '100%',
     maxWidth: '100vw',
@@ -1429,14 +1531,16 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: '12px'
+    overflow: 'hidden',
+    touchAction: 'none'
   },
   canvasContainer: {
     width: '100%',
     height: '100%',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    touchAction: 'none'
   },
   actionHud: {
     position: 'absolute',
@@ -1508,8 +1612,10 @@ const styles = {
   defeatModal: {
     maxWidth: '460px',
     width: '95%',
-    maxHeight: '92vh',
+    maxHeight: '90dvh',
     overflowY: 'auto',
+    touchAction: 'pan-y',
+    WebkitOverflowScrolling: 'touch',
     padding: 'clamp(20px, 4vw, 36px) clamp(16px, 4vw, 32px)',
     textAlign: 'center',
     display: 'flex',
@@ -1605,8 +1711,10 @@ const styles = {
   screen7VictoryModal: {
     maxWidth: '580px',
     width: '95%',
-    maxHeight: '92vh',
+    maxHeight: '90dvh',
     overflowY: 'auto',
+    touchAction: 'pan-y',
+    WebkitOverflowScrolling: 'touch',
     padding: 'clamp(18px, 4vw, 32px) clamp(14px, 4vw, 28px)',
     textAlign: 'center',
     display: 'flex',
@@ -1901,10 +2009,10 @@ const styles = {
   },
   waveBanner: {
     position: 'absolute',
-    top: '90px',
+    top: 'max(76px, calc(env(safe-area-inset-top, 6px) + 68px))',
     left: '50%',
     transform: 'translateX(-50%)',
-    padding: '10px 24px',
+    padding: '8px 20px',
     border: '1px solid var(--currency-gold)',
     boxShadow: '0 0 25px rgba(251, 191, 36, 0.3)',
     zIndex: 25,
