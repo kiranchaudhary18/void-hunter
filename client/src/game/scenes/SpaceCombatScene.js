@@ -81,12 +81,12 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.player = this.physics.add.sprite(width / 2, height - 100, shipTexture);
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(10);
-    this.player.setScale(1.2);
+    this.player.setScale(0.72);
 
     // Forcefield Shield Bubble
     this.shieldSprite = this.add.sprite(this.player.x, this.player.y, 'shield_bubble');
     this.shieldSprite.setDepth(11);
-    this.shieldSprite.setScale(1.2);
+    this.shieldSprite.setScale(0.75);
     this.shieldSprite.setVisible(false);
 
     // Orbiting Repair Drone Sprite
@@ -239,6 +239,76 @@ export class SpaceCombatScene extends Phaser.Scene {
     else if (this.cursors.down.isDown || this.wasd.down.isDown) vy = speed;
 
     this.player.setVelocity(vx, vy);
+
+    // Realistic Twin Plasma Rocket Engine Flares (Player)
+    if (this.player && this.player.active && !this.isGameOver) {
+      const leftNozzleX = this.player.x - 14;
+      const rightNozzleX = this.player.x + 14;
+      const nozzleY = this.player.y + 36;
+      const isBoosting = vy < 0;
+
+      [leftNozzleX, rightNozzleX].forEach((nx) => {
+        // Inner hot white/cyan core jet
+        const jet = this.add.circle(
+          nx + Phaser.Math.Between(-1, 1),
+          nozzleY + Phaser.Math.Between(0, 3),
+          isBoosting ? Phaser.Math.Between(4, 6) : Phaser.Math.Between(3, 4),
+          0x00E5FF,
+          0.95
+        );
+        jet.setDepth(9);
+        this.tweens.add({
+          targets: jet,
+          y: jet.y + (isBoosting ? Phaser.Math.Between(26, 42) : Phaser.Math.Between(16, 26)),
+          scale: 0.1,
+          alpha: 0,
+          duration: isBoosting ? 160 : 120,
+          onComplete: () => jet.destroy()
+        });
+
+        // Outer radiant blue/orange afterburner flame
+        if (Math.random() < 0.6) {
+          const plume = this.add.circle(
+            nx + Phaser.Math.Between(-3, 3),
+            nozzleY + 8,
+            isBoosting ? Phaser.Math.Between(5, 8) : Phaser.Math.Between(4, 6),
+            0x3B82F6,
+            0.55
+          );
+          plume.setDepth(8);
+          this.tweens.add({
+            targets: plume,
+            y: plume.y + (isBoosting ? Phaser.Math.Between(35, 55) : Phaser.Math.Between(22, 35)),
+            scale: 0.2,
+            alpha: 0,
+            duration: 220,
+            onComplete: () => plume.destroy()
+          });
+        }
+      });
+    }
+
+    // Hostile Fleet Ion Trails (Trailing behind incoming enemies)
+    this.enemies.getChildren().forEach((enemy) => {
+      if (enemy.active && Math.random() < 0.22) {
+        const trail = this.add.circle(
+          enemy.x + Phaser.Math.Between(-6, 6),
+          enemy.y - 25,
+          Phaser.Math.Between(2, 4),
+          0xEF4444,
+          0.55
+        );
+        trail.setDepth(4);
+        this.tweens.add({
+          targets: trail,
+          y: trail.y - Phaser.Math.Between(15, 25),
+          alpha: 0,
+          scale: 0.2,
+          duration: 250,
+          onComplete: () => trail.destroy()
+        });
+      }
+    });
 
     // Keep shield sprite aligned with player
     this.shieldSprite.setPosition(this.player.x, this.player.y);
@@ -418,7 +488,7 @@ export class SpaceCombatScene extends Phaser.Scene {
       const angles = [-0.35, -0.18, 0, 0.18, 0.35];
       angles.forEach((angle) => {
         const laser = this.playerLasers.create(x, y, 'player_laser');
-        laser.setScale(1.35);
+        laser.setScale(0.85);
         laser.setVelocity(Math.sin(angle) * 700, -Math.cos(angle) * 700);
         laser.setRotation(angle);
       });
@@ -426,8 +496,8 @@ export class SpaceCombatScene extends Phaser.Scene {
       // Twin parallel lasers
       const l1 = this.playerLasers.create(x - 14, y, 'player_laser');
       const l2 = this.playerLasers.create(x + 14, y, 'player_laser');
-      l1.setScale(1.35);
-      l2.setScale(1.35);
+      l1.setScale(0.85);
+      l2.setScale(0.85);
       l1.setVelocityY(-750);
       l2.setVelocityY(-750);
     }
@@ -565,7 +635,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.bossSprite.scoreValue = 2000;
     this.bossSprite.isBoss = true;
     this.bossSprite.setDepth(8);
-    this.bossSprite.setScale(1.38);
+    this.bossSprite.setScale(0.95);
     this.bossSprite.setCollideWorldBounds(true);
     this.bossSprite.setBounce(1);
 
@@ -966,7 +1036,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     enemy.maxHp = scaledHp;
     enemy.scoreValue = scaledScore;
     enemy.setDepth(5);
-    enemy.setScale(1.35); // Enlarge enemy sprites by 35% for high visibility on all devices
+    enemy.setScale(0.68); // Realistic proportioned enemy starship scale
 
     // Section 9: Long-Range Gunship AI (maintains distance, snipes player)
     if (texture === 'enemy_gunship') {
@@ -1442,7 +1512,7 @@ export class SpaceCombatScene extends Phaser.Scene {
             this.player.y - 15,
             'homing_missile'
           );
-          missile.setScale(2.1); // Enlarge rocket to commanding 2.1x scale for maximum presence
+          missile.setScale(0.85); // Aerodynamic tactical rocket scale
           missile.setVelocity(offsetX * 10, -450);
           missile.checkWorldBounds = true;
           missile.outOfBoundsKill = true;
