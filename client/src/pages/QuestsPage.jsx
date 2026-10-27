@@ -498,7 +498,7 @@ export const QuestsPage = ({ onBack }) => {
       </section>
 
       {/* ================= 3. 7-DAY GALACTIC LOGIN STREAK ================= */}
-      <section className="streak-command-panel">
+      <section className="streak-command-panel cyber-interactive-card">
         <div className="streak-panel-header">
           <div className="streak-header-info">
             <div className="streak-flame-icon">
@@ -600,7 +600,7 @@ export const QuestsPage = ({ onBack }) => {
       </section>
 
       {/* ================= 4. ORBITAL SUPPLY DROP CENTERPIECE ================= */}
-      <section className="orbital-supply-panel">
+      <section className="orbital-supply-panel cyber-interactive-card">
         {/* Left Column: Holographic Cargo Pod Stage & Action */}
         <div className="supply-pod-stage">
           <div className="hologram-crate-visual">

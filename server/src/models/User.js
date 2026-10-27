@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['player', 'admin'],
       default: 'player'
+    },
+    avatarUrl: {
+      type: String,
+      default: ''
     }
   },
   {

@@ -1710,3 +1710,61 @@
     padding: 8px 10px !important;
   }
 }
+
+
+/* Glowing Claim Button Pulse */
+@keyframes claimBtnPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(251, 191, 36, 0.5), 0 0 30px rgba(0, 229, 255, 0.35);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(251, 191, 36, 0.85), 0 0 45px rgba(0, 229, 255, 0.6);
+    transform: scale(1.03);
+  }
+}
+
+.streak-claim-action.claimable {
+  background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #00E5FF 100%) !important;
+  color: #060919 !important;
+  font-weight: 900 !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  animation: claimBtnPulseGlow 2.2s infinite ease-in-out !important;
+  min-height: 44px;
+}
+
+/* Active Streak Day Pulse */
+@keyframes todayNodePulse {
+  0%, 100% { transform: scale(1.03); }
+  50% { transform: scale(1.07); box-shadow: 0 0 28px rgba(0, 229, 255, 0.65); }
+}
+
+.streak-capsule-node.today {
+  animation: todayNodePulse 2.4s infinite ease-in-out;
+}
+
+@media (max-width: 768px) {
+  .streak-nodes-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+  .streak-capsule-node.day-7 {
+    grid-column: span 2;
+  }
+  .streak-timeline-conduit {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .streak-nodes-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .streak-capsule-node.day-7 {
+    grid-column: span 1;
+  }
+  .streak-claim-action {
+    width: 100%;
+    justify-content: center;
+  }
+}

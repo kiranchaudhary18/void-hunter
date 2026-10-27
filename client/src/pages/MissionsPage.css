@@ -1262,3 +1262,115 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* ==========================================================================
+   AAA CYBERPUNK MISSIONS POLISH: BOSS ALERTS, SECTOR GLOW & STAR RADIANCE
+   ========================================================================== */
+
+/* Enhanced Glowing Active State for Sector Tabs */
+.sector-nav-tab.active {
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.18) 0%, rgba(124, 58, 237, 0.15) 50%, #101A38 100%) !important;
+  border-color: #00E5FF !important;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.45), inset 0 1px 0 #00E5FF, 0 8px 20px rgba(0, 0, 0, 0.6) !important;
+  transform: translateY(-2px);
+}
+
+.sector-nav-tab.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00E5FF, transparent);
+  box-shadow: 0 0 8px #00E5FF;
+}
+
+/* Boss Hazard Alert Banner */
+.boss-hazard-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.35), inset 0 0 12px rgba(239, 68, 68, 0.15);
+  position: relative;
+  overflow: hidden;
+  animation: bossHazardBorderPulse 2.2s infinite ease-in-out;
+}
+
+@keyframes bossHazardBorderPulse {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    border-color: #FF2D55;
+    box-shadow: 0 0 28px rgba(255, 45, 85, 0.6);
+  }
+}
+
+.boss-hazard-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #EF4444;
+  box-shadow: 0 0 10px #EF4444;
+  flex-shrink: 0;
+  animation: cyberPulseGlow 1.5s infinite;
+}
+
+.boss-hazard-skull-icon {
+  color: #FF5577;
+  flex-shrink: 0;
+  animation: bossSkullPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes bossSkullPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px #EF4444);
+  }
+  50% {
+    transform: scale(1.18);
+    filter: drop-shadow(0 0 16px #FF2D55);
+  }
+}
+
+.boss-hazard-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.boss-hazard-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #FF5577;
+  text-shadow: 0 0 8px rgba(255, 85, 119, 0.6);
+}
+
+.boss-hazard-sub {
+  font-size: 0.64rem;
+  color: #E2E8F0;
+  font-family: 'Exo 2', sans-serif;
+}
+
+/* Star Badges Vibrant Radiance */
+.node-stars-badge svg,
+.sector-nav-stars svg,
+.stars-icons-row svg {
+  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.7));
+  transition: transform 0.2s ease;
+}
+
+.stars-icons-row svg:hover {
+  transform: scale(1.25);
+  filter: drop-shadow(0 0 8px #FBBF24);
+}

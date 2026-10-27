@@ -335,7 +335,7 @@ export const WalletPage = ({ onBack }) => {
       {/* ================= 2. FOUR RESOURCE & PROGRESS CARDS ================= */}
       <section className="treasury-cards-grid" aria-label="Currencies and Progress">
         {/* Card A: Combat Credits */}
-        <div className="treasury-card card-credits">
+        <div className="treasury-card card-credits cyber-interactive-card">
           <div className="card-header-row">
             <div className="card-icon-container icon-box-gold">
               <Coins size={22} />
@@ -370,7 +370,7 @@ export const WalletPage = ({ onBack }) => {
         </div>
 
         {/* Card B: Energy Cores */}
-        <div className="treasury-card card-cores">
+        <div className="treasury-card card-cores cyber-interactive-card">
           <div className="card-header-row">
             <div className="card-icon-container icon-box-purple">
               <Zap size={22} />
@@ -393,7 +393,7 @@ export const WalletPage = ({ onBack }) => {
         </div>
 
         {/* Card C: VELOOP Reward Coins */}
-        <div className="treasury-card card-velop">
+        <div className="treasury-card card-velop cyber-interactive-card">
           <div className="card-header-row">
             <div className="card-icon-container icon-box-magenta">
               <Award size={22} />
@@ -416,7 +416,7 @@ export const WalletPage = ({ onBack }) => {
         </div>
 
         {/* Card D: Pilot XP & Military Rank */}
-        <div className="treasury-card card-xp">
+        <div className="treasury-card card-xp cyber-interactive-card">
           <div className="card-header-row">
             <div className="card-icon-container icon-box-cyan">
               <Shield size={22} />

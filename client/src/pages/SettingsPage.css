@@ -1,0 +1,1629 @@
+/* ==========================================================================
+   SETTINGS PAGE - AAA CYBERPUNK CONSOLE STYLESHEET
+   ========================================================================== */
+
+.settings-page-root {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(16px, 3vw, 32px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeInSettings 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInSettings {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= 1. HEADER SHELL ================= */
+.settings-header-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 8px;
+}
+
+.settings-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.settings-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(11, 18, 48, 0.7);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 8px;
+  color: #94A3B8;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 40px;
+}
+
+.settings-back-btn:hover {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: #00E5FF;
+  color: #00E5FF;
+  transform: translateX(-2px);
+}
+
+.settings-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-pretitle-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #00E5FF;
+  text-transform: uppercase;
+}
+
+.settings-main-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+}
+
+.settings-subtitle {
+  font-size: 0.82rem;
+  color: #94A3B8;
+  margin: 0;
+  max-width: 650px;
+  line-height: 1.45;
+}
+
+.settings-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.settings-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(11, 18, 48, 0.75);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 9999px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #00E5FF;
+}
+
+.settings-top-save-btn {
+  padding: 10px 20px;
+  font-size: 0.76rem;
+  min-height: 42px;
+}
+
+/* Success Toast */
+.settings-success-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: rgba(32, 214, 160, 0.12);
+  border: 1px solid rgba(32, 214, 160, 0.45);
+  border-radius: 8px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #20D6A0;
+  box-shadow: 0 0 16px rgba(32, 214, 160, 0.25);
+  animation: slideDownToast 0.3s ease;
+}
+
+@keyframes slideDownToast {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= 2. SETTINGS GRID ================= */
+.settings-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+.settings-card {
+  position: relative;
+  background: rgba(11, 18, 48, 0.88);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 14px;
+  padding: 24px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+  padding-bottom: 14px;
+}
+
+.card-heading-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-heading-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.card-heading-sub {
+  font-size: 0.68rem;
+  color: #94A3B8;
+  display: block;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   PANEL 0: PILOT CALLSIGN & CLOUDINARY AVATAR MATRIX
+   ========================================================================== */
+
+.pilot-profile-settings-card {
+  grid-column: 1 / -1;
+  background: rgba(11, 18, 48, 0.94);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), 0 0 24px rgba(0, 229, 255, 0.1);
+}
+
+.cloudinary-cloud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 9999px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #00E5FF;
+  user-select: none;
+}
+
+.profile-feedback-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  animation: slideDownToast 0.3s ease;
+}
+
+.profile-feedback-toast.success {
+  background: rgba(32, 214, 160, 0.14);
+  border: 1px solid rgba(32, 214, 160, 0.5);
+  color: #20D6A0;
+  box-shadow: 0 0 16px rgba(32, 214, 160, 0.25);
+}
+
+.profile-feedback-toast.error {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #FF5577;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+}
+
+.pilot-profile-content-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Avatar Column */
+.pilot-avatar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.pilot-avatar-hologram-frame {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pilot-avatar-glow-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px dashed rgba(0, 229, 255, 0.45);
+  animation: rotateGlowRing 24s linear infinite;
+}
+
+@keyframes rotateGlowRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.pilot-avatar-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid #00E5FF;
+  background: radial-gradient(circle, rgba(13, 23, 51, 0.95) 0%, rgba(5, 10, 26, 0.98) 100%);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pilot-avatar-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.pilot-avatar-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 2px;
+}
+
+.avatar-placeholder-callsign {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #00E5FF;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+}
+
+.pilot-avatar-camera-btn {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #00E5FF;
+  color: #050A1A;
+  border: 2.5px solid #050A1A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.pilot-avatar-camera-btn:hover {
+  background: #38BDF8;
+  transform: scale(1.1);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.9);
+}
+
+.avatar-button-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-avatar-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 32px;
+}
+
+.btn-avatar-action.upload {
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  color: #00E5FF;
+}
+
+.btn-avatar-action.upload:hover:not(:disabled) {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00E5FF;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
+}
+
+.btn-avatar-action.remove {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #FF5577;
+}
+
+.btn-avatar-action.remove:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #EF4444;
+}
+
+.btn-avatar-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.avatar-specs-hint {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  color: #64748B;
+  line-height: 1.35;
+  max-width: 190px;
+}
+
+/* Callsign Column */
+.pilot-callsign-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.callsign-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.callsign-input-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #00E5FF;
+}
+
+.callsign-input-field-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.callsign-text-input {
+  width: 100%;
+  height: 48px;
+  background: rgba(5, 10, 26, 0.85);
+  border: 1.5px solid rgba(0, 229, 255, 0.35);
+  border-radius: 8px;
+  padding: 0 65px 0 16px;
+  color: #EAF1FF;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.callsign-text-input:focus {
+  border-color: #00E5FF;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35), inset 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.callsign-text-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.callsign-char-count {
+  position: absolute;
+  right: 14px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  color: #64748B;
+  pointer-events: none;
+}
+
+.callsign-helper-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.74rem;
+  color: #94A3B8;
+  line-height: 1.4;
+}
+
+/* Mini Telemetry Grid */
+.pilot-telemetry-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.mini-telemetry-item {
+  background: rgba(5, 10, 26, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mini-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.60rem;
+  color: #64748B;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.mini-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.mini-val.text-dim {
+  color: #94A3B8;
+  font-family: 'Inter', monospace;
+  font-size: 0.72rem;
+}
+
+/* Commit Button */
+.callsign-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.btn-save-callsign-avatar {
+  padding: 12px 28px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  min-height: 46px;
+}
+
+.btn-save-callsign-avatar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin-icon {
+  animation: spinLoader 1s linear infinite;
+}
+
+@keyframes spinLoader {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   PANEL A: AUDIO SYSTEMS MIXER CONSOLE
+   ========================================================================== */
+
+/* Mute Toggle Button */
+.cyber-mute-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.cyber-mute-toggle-btn.active {
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.45);
+  color: #00E5FF;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+}
+
+.cyber-mute-toggle-btn.active:hover {
+  background: rgba(0, 229, 255, 0.24);
+  border-color: #00E5FF;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.45);
+}
+
+.cyber-mute-toggle-btn.muted {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #FF5577;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
+}
+
+.cyber-mute-toggle-btn.muted:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #EF4444;
+}
+
+/* Audio Channels Sliders Stack */
+.audio-channels-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.audio-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(5, 10, 26, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.audio-slider-row:hover {
+  border-color: rgba(0, 229, 255, 0.28);
+  background: rgba(6, 12, 34, 0.75);
+}
+
+.slider-label-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.slider-channel-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #EAF0FF;
+}
+
+.slider-val-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(0, 229, 255, 0.12);
+  color: #00E5FF;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+}
+
+.slider-val-badge.text-cyan {
+  background: rgba(0, 229, 255, 0.12);
+  color: #00E5FF;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+}
+
+.slider-val-badge.text-gold {
+  background: rgba(251, 191, 36, 0.12);
+  color: #FBBF24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.cyber-slider-track-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.cyber-range-input {
+  width: 100%;
+  height: 6px;
+  background: rgba(16, 26, 68, 0.9);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+}
+
+.cyber-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #00E5FF;
+  border: 2px solid #050A1A;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.85);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cyber-range-input::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 1);
+}
+
+.cyber-range-input.cyan-channel::-webkit-slider-thumb {
+  background: #00E5FF;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.85);
+}
+
+.cyber-range-input.gold-channel::-webkit-slider-thumb {
+  background: #FBBF24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.85);
+}
+
+/* Active Combat Soundtrack Matrix */
+.soundtrack-selector-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(5, 10, 26, 0.75);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.soundtrack-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.soundtrack-box-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #C084FC;
+}
+
+.track-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.track-select-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(11, 18, 48, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  color: #EAF0FF !important;
+  outline: none;
+}
+
+.track-select-card:hover {
+  background: rgba(0, 229, 255, 0.09) !important;
+  border-color: rgba(0, 229, 255, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.track-select-card.active {
+  background: rgba(0, 229, 255, 0.15) !important;
+  border-color: #00E5FF !important;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35);
+}
+
+.track-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.track-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #EAF0FF;
+  letter-spacing: 0.04em;
+}
+
+.track-select-card.active .track-name {
+  color: #00E5FF;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+.track-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  color: #94A3B8;
+  line-height: 1.3;
+}
+
+.pulse-icon {
+  animation: pulseActivity 1.2s ease-in-out infinite alternate;
+  flex-shrink: 0;
+}
+
+@keyframes pulseActivity {
+  from { opacity: 0.5; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 6px #00E5FF); }
+}
+
+/* SFX Sound Check Section */
+.sfx-test-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(5, 10, 26, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.sfx-test-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94A3B8;
+}
+
+.sfx-chips-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-sfx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(11, 18, 48, 0.85) !important;
+  border: 1px solid rgba(0, 229, 255, 0.35) !important;
+  border-radius: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #EAF0FF !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+  outline: none;
+}
+
+.btn-sfx-chip:hover {
+  background: rgba(0, 229, 255, 0.18) !important;
+  border-color: #00E5FF !important;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-sfx-chip:active {
+  transform: scale(0.96);
+}
+
+/* ==========================================================================
+   PANEL B: FLIGHT CONTROLS & COMBAT TELEMETRY
+   ========================================================================== */
+
+.control-telemetry-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.control-telemetry-tile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  background: rgba(5, 10, 26, 0.7);
+  border: 1px solid rgba(0, 229, 255, 0.18);
+  border-radius: 8px;
+  flex-wrap: wrap;
+  transition: all 0.2s ease;
+}
+
+.control-telemetry-tile:hover {
+  border-color: rgba(0, 229, 255, 0.35);
+  background: rgba(6, 12, 34, 0.8);
+}
+
+.key-combo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.key-cap {
+  display: inline-block;
+  padding: 4px 8px;
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #00E5FF;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+.key-or-divider {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  color: #64748B;
+  font-weight: 700;
+}
+
+.key-mouse-badge {
+  padding: 3px 8px;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 4px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #C084FC;
+}
+
+.control-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.control-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+}
+
+.control-sub {
+  font-size: 0.68rem;
+  color: #94A3B8;
+  line-height: 1.35;
+}
+
+/* Mobile Touch Options */
+.mobile-touch-options-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(5, 10, 26, 0.65);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 10px;
+}
+
+.touch-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.touch-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #FBBF24;
+}
+
+.touch-scheme-toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-touch-scheme {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px;
+  background: rgba(11, 18, 48, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  color: #EAF0FF !important;
+  outline: none;
+}
+
+.btn-touch-scheme strong {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #EAF0FF;
+}
+
+.btn-touch-scheme span {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  color: #94A3B8;
+  line-height: 1.3;
+}
+
+.btn-touch-scheme:hover {
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  background: rgba(251, 191, 36, 0.08) !important;
+}
+
+.btn-touch-scheme.active {
+  background: rgba(251, 191, 36, 0.12) !important;
+  border-color: #FBBF24 !important;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.3);
+}
+
+.btn-touch-scheme.active strong {
+  color: #FBBF24;
+}
+
+/* ==========================================================================
+   PANEL C: DISPLAY & GRAPHICS PERFORMANCE
+   ========================================================================== */
+
+.quality-presets-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background: rgba(5, 10, 26, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+}
+
+.quality-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #EAF0FF;
+}
+
+.quality-buttons-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-quality-pill {
+  padding: 6px 14px;
+  background: rgba(11, 18, 48, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94A3B8 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.btn-quality-pill:hover {
+  background: rgba(0, 229, 255, 0.1) !important;
+  color: #00E5FF !important;
+  border-color: rgba(0, 229, 255, 0.3) !important;
+}
+
+.btn-quality-pill.active {
+  background: rgba(0, 229, 255, 0.18) !important;
+  border-color: #00E5FF !important;
+  color: #00E5FF !important;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+}
+
+.toggle-switches-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggle-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  background: rgba(5, 10, 26, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.toggle-row-item:hover {
+  border-color: rgba(0, 229, 255, 0.25);
+  background: rgba(6, 12, 34, 0.75);
+}
+
+.toggle-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+}
+
+.toggle-desc {
+  font-size: 0.66rem;
+  color: #94A3B8;
+  line-height: 1.35;
+}
+
+.cyber-toggle-switch {
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(16, 26, 68, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+  padding: 0;
+  outline: none;
+}
+
+.cyber-toggle-switch.on {
+  background: rgba(0, 229, 255, 0.25) !important;
+  border-color: #00E5FF !important;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+}
+
+.cyber-toggle-switch.off {
+  background: rgba(16, 26, 68, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #64748B;
+  transition: all 0.25s ease;
+}
+
+.cyber-toggle-switch.on .toggle-thumb {
+  left: 25px;
+  background: #00E5FF;
+  box-shadow: 0 0 8px #00E5FF;
+}
+
+/* ==========================================================================
+   PANEL D: PILOT DOSSIER & REQUISITION PROTOCOLS
+   ========================================================================== */
+
+.dossier-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.dossier-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  background: rgba(5, 10, 26, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+}
+
+.dossier-lbl {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.60rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #64748B;
+}
+
+.dossier-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.80rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.dossier-val.text-cyan {
+  color: #00E5FF;
+}
+
+.dossier-val.text-gold {
+  color: #FBBF24;
+}
+
+.dossier-val.text-purple {
+  color: #C084FC;
+}
+
+.system-actions-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn-reset-defaults {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  border-radius: 8px;
+  color: #FF5577 !important;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.70rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 42px;
+  outline: none;
+}
+
+.btn-reset-defaults:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #EF4444 !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.3);
+}
+
+.btn-save-primary {
+  padding: 10px 22px;
+  font-size: 0.76rem;
+  min-height: 42px;
+}
+
+/* ==========================================================================
+   PRECISION RESPONSIVE ARCHITECTURE FOR ALL SCREEN SIZES
+   (Desktop 1400px+, Laptops 1024px, Tablets 768px, Mobile 640px, 480px, 360px, 320px)
+   ========================================================================== */
+
+/* 1. TABLETS LANDSCAPE & SMALL LAPTOPS (<= 1024px) */
+@media (max-width: 1024px) {
+  .settings-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .pilot-profile-content-grid {
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+  }
+}
+
+/* 2. TABLETS PORTRAIT (<= 768px) */
+@media (max-width: 768px) {
+  .settings-page-root {
+    padding: clamp(14px, 2.5vw, 24px);
+    gap: 20px;
+  }
+
+  .pilot-profile-content-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .pilot-avatar-column {
+    margin: 0 auto;
+  }
+
+  .pilot-telemetry-mini-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .track-buttons-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .touch-scheme-toggles {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .btn-save-callsign-avatar {
+    width: 100%;
+  }
+}
+
+/* 3. PHABLETS & LARGE PHONES (<= 640px) */
+@media (max-width: 640px) {
+  .settings-page-root {
+    padding: 12px 10px;
+    gap: 16px;
+    overflow-x: hidden;
+  }
+
+  .settings-header-shell {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .settings-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .settings-back-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+  }
+
+  .settings-main-title {
+    font-size: 1.35rem;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .settings-subtitle {
+    font-size: 0.76rem;
+    line-height: 1.4;
+  }
+
+  .settings-header-right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .settings-status-pill {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    font-size: 0.62rem;
+    padding: 6px 10px;
+  }
+
+  .settings-top-save-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    font-size: 0.74rem;
+  }
+
+  .settings-card {
+    padding: 16px 12px;
+    border-radius: 10px;
+    gap: 16px;
+  }
+
+  .card-header-bar {
+    padding-bottom: 10px;
+  }
+
+  .card-heading-title {
+    font-size: 0.85rem;
+  }
+
+  .card-heading-sub {
+    font-size: 0.64rem;
+  }
+
+  /* Keybindings Mobile Tile Layout */
+  .control-telemetry-tile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .key-combo-badge {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .key-cap {
+    padding: 3px 6px;
+    font-size: 0.68rem;
+  }
+
+  .control-title {
+    font-size: 0.68rem;
+  }
+
+  .control-sub {
+    font-size: 0.62rem;
+  }
+
+  .dossier-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .system-actions-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .btn-reset-defaults,
+  .btn-save-primary {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    font-size: 0.72rem;
+  }
+}
+
+/* 4. COMPACT PHONES (<= 480px, e.g. iPhone 12/13/14/15, Galaxy S21/S22) */
+@media (max-width: 480px) {
+  .settings-page-root {
+    padding: 10px 8px;
+    gap: 14px;
+  }
+
+  .settings-card {
+    padding: 14px 10px;
+    border-radius: 8px;
+  }
+
+  .pilot-avatar-hologram-frame {
+    width: 112px;
+    height: 112px;
+  }
+
+  .pilot-avatar-circle {
+    width: 104px;
+    height: 104px;
+  }
+
+  .pilot-avatar-camera-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .avatar-button-group {
+    width: 100%;
+  }
+
+  .btn-avatar-action {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 10px;
+    font-size: 0.64rem;
+    min-height: 36px;
+  }
+
+  .callsign-text-input {
+    height: 44px;
+    font-size: 0.85rem;
+    padding: 0 52px 0 12px;
+  }
+
+  .callsign-char-count {
+    right: 10px;
+    font-size: 0.62rem;
+  }
+
+  .pilot-telemetry-mini-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .mini-telemetry-item {
+    padding: 8px 10px;
+  }
+
+  .mini-label {
+    font-size: 0.56rem;
+  }
+
+  .mini-val {
+    font-size: 0.72rem;
+  }
+
+  /* Audio Sliders Compact */
+  .audio-slider-row {
+    padding: 10px 10px;
+    gap: 6px;
+  }
+
+  .slider-channel-title {
+    font-size: 0.64rem;
+  }
+
+  .slider-val-badge {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+  }
+
+  .cyber-range-input {
+    height: 8px;
+  }
+
+  .cyber-range-input::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* SFX Test Chips stacked */
+  .sfx-chips-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .btn-sfx-chip {
+    width: 100%;
+    justify-content: center;
+    min-height: 38px;
+    font-size: 0.64rem;
+  }
+
+  /* Quality Presets Row */
+  .quality-presets-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .quality-buttons-group {
+    display: flex;
+    width: 100%;
+    gap: 4px;
+  }
+
+  .btn-quality-pill {
+    flex: 1;
+    padding: 6px 4px;
+    font-size: 0.58rem;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Toggle Row Items */
+  .toggle-row-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .toggle-title {
+    font-size: 0.66rem;
+  }
+
+  .toggle-desc {
+    font-size: 0.60rem;
+    line-height: 1.3;
+  }
+
+  .cyber-toggle-switch {
+    width: 44px;
+    height: 24px;
+  }
+
+  .toggle-thumb {
+    width: 16px;
+    height: 16px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .cyber-toggle-switch.on .toggle-thumb {
+    left: 23px;
+  }
+
+  .dossier-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+
+/* 5. ULTRA-COMPACT SMARTPHONES (<= 360px, e.g. iPhone SE1, Fold Cover) */
+@media (max-width: 360px) {
+  .settings-main-title {
+    font-size: 1.18rem;
+  }
+
+  .settings-pretitle-tag {
+    font-size: 0.58rem;
+  }
+
+  .card-heading-title {
+    font-size: 0.78rem;
+  }
+
+  .btn-save-callsign-avatar {
+    font-size: 0.68rem;
+    padding: 10px 14px;
+  }
+
+  .btn-touch-scheme strong {
+    font-size: 0.62rem;
+  }
+
+  .btn-touch-scheme span {
+    font-size: 0.58rem;
+  }
+}

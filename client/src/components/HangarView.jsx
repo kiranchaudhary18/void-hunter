@@ -146,6 +146,21 @@ export const HangarView = ({
   const [actionLoading, setActionLoading] = useState(false);
   const [feedback, setFeedback] = useState({ error: null, success: null });
   const [enlistModalOpen, setEnlistModalOpen] = useState(false);
+  const [upgradeFlash, setUpgradeFlash] = useState(false);
+
+  const renderHangarPowerPips = (score, activeClass = 'active') => {
+    const activeCount = Math.max(1, Math.min(10, Math.round((score / 100) * 10)));
+    return (
+      <div className="cyber-pip-track" style={{ marginTop: '6px' }}>
+        {Array.from({ length: 10 }).map((_, i) => (
+          <span 
+            key={i} 
+            className={`cyber-pip ${i < activeCount ? activeClass : ''}`} 
+          />
+        ))}
+      </div>
+    );
+  };
   
   const carouselTrackRef = useRef(null);
 
@@ -285,6 +300,8 @@ export const HangarView = ({
       if (res.success) {
         soundManager.playPowerUp();
         setFeedback({ success: res.message || `${moduleType.toUpperCase()} module upgraded!`, error: null });
+        setUpgradeFlash(true);
+        setTimeout(() => setUpgradeFlash(false), 1400);
         await fetchShips();
         if (refreshProfile) refreshProfile();
       }
@@ -811,7 +828,7 @@ export const HangarView = ({
                   const Icon = mod.icon;
 
                   return (
-                    <div key={mod.key} className="module-tech-card">
+                    <div key={mod.key} className="module-tech-card cyber-interactive-card">
                       <div className="module-header-row">
                         <span className="module-name-lbl">{mod.label}</span>
                         <div className="module-level-indicator" title={`Level ${currentLvl} of 4`}>

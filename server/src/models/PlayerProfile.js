@@ -30,6 +30,10 @@ const playerProfileSchema = new mongoose.Schema(
       type: String,
       default: 'v01-orbitron'
     },
+    avatarUrl: {
+      type: String,
+      default: ''
+    },
     // The 4 Distinct Currencies (Requirement Section 31)
     credits: {
       type: Number,

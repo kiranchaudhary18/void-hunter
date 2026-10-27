@@ -424,7 +424,19 @@
   user-select: none;
 }
 
+
+.hud-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
 .hud-pilot-avatar {
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   border-radius: 50%;

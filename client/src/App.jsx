@@ -14,6 +14,7 @@ import PublicLeaderboardPage from './pages/PublicLeaderboardPage.jsx';
 import GameContainer from './game/GameContainer.jsx';
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
+import SettingsPage from './pages/SettingsPage.jsx';
 import SidebarLayout from './components/SidebarLayout.jsx';
 import GlobalAudioPlayer from './components/GlobalAudioPlayer.jsx';
 import soundManager from './game/managers/SoundManager.js';
@@ -26,6 +27,10 @@ export const getScreenFromPath = (pathname, isAuthenticated = false) => {
   const cleanPath = (pathname || window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
   
   switch (cleanPath) {
+    case '/settings':
+    case '/preferences':
+    case '/config':
+      return 'settings';
     case '/missions':
       return 'missions';
     case '/hangar':
@@ -66,6 +71,8 @@ export const getScreenFromPath = (pathname, isAuthenticated = false) => {
 // Map screen identifier to URL pathname
 export const getPathFromScreen = (screen) => {
   switch (screen) {
+    case 'settings':
+      return '/settings';
     case 'missions':
       return '/missions';
     case 'hangar':
@@ -152,6 +159,7 @@ function MainAppContent() {
       console.warn('History navigation error:', e);
     }
 
+    setIsSettingsOpen(false);
     setCurrentScreen(targetScreen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [isAuthenticated]);
@@ -440,6 +448,13 @@ function MainAppContent() {
             onBack={() => navigateTo('dashboard')}
           />
         );
+      case 'settings':
+        return (
+          <SettingsPage 
+            onBack={() => navigateTo('dashboard')}
+            onNavigate={(screen) => navigateTo(screen)}
+          />
+        );
       case 'dashboard':
       default:
         return (
@@ -458,7 +473,9 @@ function MainAppContent() {
       currentScreen={currentScreen}
       onNavigate={(screen) => navigateTo(screen)}
       onLaunchCombat={handleQuickCombatLaunch}
-      onOpenSettings={() => setIsSettingsOpen(true)}
+      onOpenSettings={() => setIsSettingsOpen((prev) => !prev)}
+      onCloseSettings={() => setIsSettingsOpen(false)}
+      isSettingsOpen={isSettingsOpen}
     >
       {renderScreenContent()}
 

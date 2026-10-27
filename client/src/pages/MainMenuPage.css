@@ -245,6 +245,7 @@
    4 FEATURE STATS CARDS (Bottom Row of Hero)
    ========================================================================== */
 .feature-cards-grid {
+  perspective: 1000px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
@@ -578,4 +579,39 @@
     gap: 4px;
     text-align: center;
   }
+}
+
+
+/* Sound Toggle Button */
+.btn-hero-sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(10, 15, 44, 0.85);
+  color: #94A3B8;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 10px 18px;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 44px;
+}
+
+.btn-hero-sound-toggle:hover {
+  border-color: #00E5FF;
+  color: #EAF0FF;
+  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35);
+}
+
+.btn-hero-sound-toggle:active {
+  transform: translateY(1px);
 }

@@ -1,3 +1,4 @@
+import cloudinary from '../config/cloudinary.js';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import PlayerProfile from '../models/PlayerProfile.js';
@@ -90,7 +91,8 @@ export const register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        avatarUrl: user.avatarUrl || ''
       },
       profile
     });
@@ -176,7 +178,8 @@ export const login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        avatarUrl: user.avatarUrl || ''
       },
       profile
     });
@@ -213,7 +216,8 @@ export const getMe = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        avatarUrl: user.avatarUrl || ''
       },
       profile,
       ships
@@ -222,6 +226,75 @@ export const getMe = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error retrieving pilot profile'
+    });
+  }
+};
+
+/**
+ * @desc    Update pilot name and/or avatar photo (uploaded to Cloudinary)
+ * @route   PUT /api/auth/profile
+ * @access  Private
+ */
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, avatar, avatarUrl } = req.body;
+    const imagePayload = avatar || avatarUrl;
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Pilot account not found'
+      });
+    }
+
+    if (name && typeof name === 'string' && name.trim().length > 0) {
+      user.name = name.trim();
+    }
+
+    let profile = await PlayerProfile.findOne({ user: user._id });
+
+    if (imagePayload) {
+      if (typeof imagePayload === 'string' && imagePayload.startsWith('data:image')) {
+        const uploadResponse = await cloudinary.uploader.upload(imagePayload, {
+          folder: 'void_hunter_avatars',
+          transformation: [
+            { width: 256, height: 256, crop: 'fill', gravity: 'face' }
+          ]
+        });
+        user.avatarUrl = uploadResponse.secure_url;
+        if (profile) {
+          profile.avatarUrl = uploadResponse.secure_url;
+        }
+      } else if (typeof imagePayload === 'string' && imagePayload.startsWith('http')) {
+        user.avatarUrl = imagePayload;
+        if (profile) {
+          profile.avatarUrl = imagePayload;
+        }
+      }
+    }
+
+    await user.save();
+    if (profile) {
+      await profile.save();
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Pilot dossier & profile photo updated successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatarUrl: user.avatarUrl || ''
+      },
+      profile
+    });
+  } catch (error) {
+    console.error('Update Profile Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Server error updating pilot profile'
     });
   }
 };

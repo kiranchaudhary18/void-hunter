@@ -24,6 +24,17 @@ export const SettingsModal = ({ isOpen, onClose }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSave = () => {
@@ -48,8 +59,8 @@ export const SettingsModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div style={styles.backdrop}>
-      <div className="glass-panel" style={styles.modalBox}>
+    <div style={styles.backdrop} onClick={onClose} role="dialog" aria-modal="true">
+      <div className="glass-panel" style={styles.modalBox} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div style={styles.header}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

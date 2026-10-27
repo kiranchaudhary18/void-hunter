@@ -36,7 +36,10 @@ export const getPilotRank = (level = 1, currentRank) => {
 export const SidebarLayout = ({ 
   currentScreen, 
   onNavigate, 
+  onLaunchCombat,
   onOpenSettings, 
+  onCloseSettings,
+  isSettingsOpen = false,
   children 
 }) => {
   const { user, profile, isAuthenticated, logout } = useAuth();
@@ -74,7 +77,7 @@ export const SidebarLayout = ({
     pilotProfileItems.push({ id: 'admin', label: 'AUDIT LEDGER', icon: ShieldCheck });
   }
 
-  pilotProfileItems.push({ id: 'settings', label: 'SETTINGS', icon: Settings, isAction: true });
+  pilotProfileItems.push({ id: 'settings', label: 'SETTINGS', icon: Settings });
 
   const handleNavClick = (item) => {
     try { soundManager.playLaser(); } catch {}
@@ -84,6 +87,7 @@ export const SidebarLayout = ({
     if (item.isAction) {
       if (item.id === 'settings' && onOpenSettings) onOpenSettings();
     } else {
+      if (onCloseSettings) onCloseSettings();
       if (!isAuthenticated && item.id === 'dashboard') {
         if (onNavigate) onNavigate('landing');
       } else {
@@ -97,7 +101,8 @@ export const SidebarLayout = ({
     }
   };
 
-  const pilotName = user?.name || 'Commander';
+  const pilotName = user?.name || profile?.pilotName || 'Commander';
+  const pilotAvatarUrl = user?.avatarUrl || profile?.avatarUrl || '';
   const completedSorties = profile?.stats?.missionsCompleted || 0;
   const pilotLevel = Math.max(profile?.level || 1, 1 + completedSorties);
   const pilotRank = getPilotRank(pilotLevel, profile?.pilotRank);
@@ -219,11 +224,17 @@ export const SidebarLayout = ({
           <button
             id="sidebar-quick-combat"
             onClick={() => {
+              try { soundManager.playLaser(); } catch {}
               if (isMobileScreen) setIsMobileMenuOpen(false);
+              if (onCloseSettings) onCloseSettings();
               if (onLaunchCombat) {
                 onLaunchCombat();
               } else {
-                isAuthenticated ? onNavigate('gameplay') : onNavigate('auth');
+                if (isAuthenticated) {
+                  onNavigate('gameplay');
+                } else {
+                  onNavigate('auth');
+                }
               }
             }}
             className="sidebar-launch-combat-btn"
@@ -325,9 +336,23 @@ export const SidebarLayout = ({
               </div>
 
               {/* Pilot Profile HUD Badge */}
-              <div className="hud-pilot-badge">
+              <div 
+                className="hud-pilot-badge"
+                onClick={() => onNavigate && onNavigate('settings')}
+                title="Open Pilot Identity & Settings"
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="hud-pilot-avatar">
-                  <User size={15} />
+                  {pilotAvatarUrl ? (
+                    <img 
+                      src={pilotAvatarUrl} 
+                      alt={pilotName} 
+                      className="hud-avatar-img"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <User size={15} />
+                  )}
                 </div>
                 <div className="hud-pilot-meta">
                   <span className="hud-pilot-name">{pilotName}</span>

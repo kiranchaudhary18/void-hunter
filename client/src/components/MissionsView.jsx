@@ -571,6 +571,18 @@ export const MissionsView = ({
 
             {/* Briefing Panel Body */}
             <div className="briefing-panel-body">
+              {/* Boss Encounter Hazard Alert */}
+              {selectedMission.sequence === 10 && (
+                <div className="boss-hazard-alert-banner">
+                  <div className="boss-hazard-pulse-dot" />
+                  <Skull size={18} className="boss-hazard-skull-icon" />
+                  <div className="boss-hazard-text">
+                    <span className="boss-hazard-title">APEX FLAGSHIP DETECTED // PROTOCOL OMEGA</span>
+                    <span className="boss-hazard-sub">Class-S Dreadnought with multi-phase shields and hyper-kinetic beam cannons.</span>
+                  </div>
+                </div>
+              )}
+
               {/* Mission Title Area */}
               <div className="briefing-title-area">
                 <h2 className="briefing-mission-title">{selectedMission.name}</h2>

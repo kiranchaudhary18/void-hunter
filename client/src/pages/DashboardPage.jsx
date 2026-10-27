@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip }) => {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   // Real backend-driven state
   const [activeShip, setActiveShip] = useState(null);
@@ -81,6 +81,27 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
   };
 
   const activeSector = getSectorInfo(currentMissionNumber);
+
+  const pilotCallsign = user?.name || profile?.pilotName || profile?.callsign || 'VIPER-01';
+  const pilotAvatarUrl = user?.avatarUrl || profile?.avatarUrl || '';
+  const pilotRank = profile?.pilotRank || 'Star Cadet';
+  const pilotLevel = Math.max(profile?.level || 1, 1 + completedCount);
+  const credits = profile?.credits ?? 0;
+  const energyCores = profile?.energyCores ?? 0;
+
+  const renderPowerPips = (score, activeClass = 'active') => {
+    const activeCount = Math.max(1, Math.min(10, Math.round((score / 100) * 10)));
+    return (
+      <div className="cyber-pip-track">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <span 
+            key={i} 
+            className={`cyber-pip ${i < activeCount ? activeClass : ''}`} 
+          />
+        ))}
+      </div>
+    );
+  };
 
   // Fetch real data: ships, daily quests, and wallet transactions
   const fetchDashboardData = async () => {
@@ -154,6 +175,70 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
   return (
     <div className="dashboard-root">
       {/* ================= 1. TOP HERO SECTION (2 BALANCED COLUMNS) ================= */}
+      {/* ================= PILOT CALLSIGN DOSSIER & CURRENCY BAR ================= */}
+      <section className="cyber-panel pilot-dossier-bar cyber-interactive-card" aria-label="Pilot Command Dossier">
+        <span className="hud-corner hud-tl" aria-hidden="true" />
+        <span className="hud-corner hud-tr" aria-hidden="true" />
+        <span className="hud-corner hud-bl" aria-hidden="true" />
+        <span className="hud-corner hud-br" aria-hidden="true" />
+
+        <div className="dossier-left-meta">
+          <div 
+            className="dossier-avatar-box" 
+            onClick={() => handleNav('settings')}
+            title="Edit Callsign & Photo in Settings"
+          >
+            {pilotAvatarUrl ? (
+              <img src={pilotAvatarUrl} alt={pilotCallsign} className="dossier-avatar-img" />
+            ) : (
+              <User size={16} color="#00E5FF" />
+            )}
+          </div>
+          <div className="dossier-callsign-box">
+            <span className="dossier-bracket">[</span>
+            <span className="dossier-label">CALLSIGN:</span>
+            <span className="dossier-callsign-name">{pilotCallsign}</span>
+            <span className="dossier-bracket">]</span>
+          </div>
+          <div className="dossier-rank-badge">
+            <Shield size={13} color="#00E5FF" />
+            <span>LVL {pilotLevel} • {pilotRank.toUpperCase()}</span>
+          </div>
+          <div className="dossier-sorties-badge">
+            <Target size={13} color="#FBBF24" />
+            <span>{completedCount} / 50 SORTIES CLEARED</span>
+          </div>
+        </div>
+
+        <div className="dossier-currencies-group">
+          <div className="dossier-currency-pill pill-gold" onClick={() => handleNav('wallet')} title="Credits Balance">
+            <span className="cyber-pulse-dot" style={{ color: '#FBBF24' }} />
+            <Coins size={14} color="#FBBF24" />
+            <span className="currency-val">{credits.toLocaleString()}</span>
+            <span className="currency-lbl">CR</span>
+          </div>
+
+          <div className="dossier-currency-pill pill-purple" onClick={() => handleNav('wallet')} title="Energy Cores">
+            <span className="cyber-pulse-dot" style={{ color: '#C084FC' }} />
+            <Zap size={14} color="#C084FC" />
+            <span className="currency-val">{energyCores}</span>
+            <span className="currency-lbl">CORES</span>
+          </div>
+        </div>
+
+        <div className="dossier-action-wrap">
+          <button
+            id="dossier-instant-sortie"
+            onClick={() => onLaunchQuickCombat ? onLaunchQuickCombat() : handleNav('gameplay')}
+            className="cyber-action-btn-primary dossier-sortie-btn"
+            title="Instant Combat Sortie Deployment"
+          >
+            <Play size={14} fill="currentColor" />
+            <span>DEPLOY SORTIE</span>
+          </button>
+        </div>
+      </section>
+
       <div className="dashboard-top-hero-grid">
         {/* LEFT: CINEMATIC MISSION BRIEFING (HERO) */}
         <section className="cyber-panel hero-mission-briefing" aria-label="Current Mission Briefing">

@@ -1508,3 +1508,39 @@
     font-size: 1.15rem !important;
   }
 }
+
+
+/* Upgrade Glowing Flash Feedback */
+@keyframes upgradePulseGlow {
+  0% {
+    box-shadow: 0 0 0 rgba(0, 229, 255, 0);
+    filter: drop-shadow(0 0 0 rgba(0, 229, 255, 0));
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(0, 229, 255, 0.95), 0 0 100px rgba(124, 58, 237, 0.85);
+    filter: drop-shadow(0 0 30px #00E5FF) brightness(1.25);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(0, 229, 255, 0);
+    filter: drop-shadow(0 0 0 rgba(0, 229, 255, 0));
+  }
+}
+
+.hangar-upgrade-flash {
+  animation: upgradePulseGlow 1.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.showcase-ship-render .cyber-landing-pad {
+  width: 320px;
+  height: 320px;
+}
+
+@media (max-width: 640px) {
+  .showcase-ship-render .cyber-landing-pad {
+    width: 220px;
+    height: 220px;
+  }
+  .hangar-arena-grid {
+    grid-template-columns: 1fr;
+  }
+}

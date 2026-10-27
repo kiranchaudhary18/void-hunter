@@ -6,7 +6,7 @@ import { GAME_NAME, GAME_TAGLINE, GAME_VERSION, API_BASE_URL } from '../config/g
 import { MISSIONS_CATALOG } from '../data/missionsData.js';
 import { 
   Play, RotateCcw, Crosshair, Globe, Skull, 
-  Award, Shield, Zap, Sparkles 
+  Award, Shield, Zap, Sparkles, Volume2, VolumeX 
 } from 'lucide-react';
 import './MainMenuPage.css';
 
@@ -14,6 +14,15 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
   const { user, profile, isAuthenticated } = useAuth();
   const [serverStatus, setServerStatus] = useState({ online: true, latency: 5 });
   const [explanatoryTip, setExplanatoryTip] = useState(null);
+  const [isAudioMuted, setIsAudioMuted] = useState(() => soundManager.muted);
+
+  const toggleAudio = () => {
+    soundManager.toggleMute();
+    setIsAudioMuted(soundManager.muted);
+    if (!soundManager.muted && !soundManager.bgmPlaying) {
+      soundManager.startBGM('menu');
+    }
+  };
   const canvasRef = useRef(null);
 
   // Compute player's real active mission based on backend profile progress
@@ -212,11 +221,11 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
               <button
                 id="btn-play-now"
                 onClick={handlePlayNow}
-                className="btn-hero-primary"
+                className="cyber-action-btn-primary btn-hero-primary"
                 title="Deploy immediately into tactical combat"
               >
                 <Play size={18} fill="#080A2F" strokeWidth={0} />
-                <span>PLAY NOW</span>
+                <span>START SORTIE</span>
               </button>
 
               {/* CONTINUE MISSION (Panel Navy with Cyan Border) */}
@@ -230,6 +239,17 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
               >
                 <RotateCcw size={17} />
                 <span>CONTINUE MISSION</span>
+              </button>
+
+              {/* Dynamic Sound Toggle */}
+              <button
+                id="btn-sound-toggle"
+                onClick={toggleAudio}
+                className="btn-hero-sound-toggle"
+                title={isAudioMuted ? "Unmute Game Audio" : "Mute Game Audio"}
+              >
+                {isAudioMuted ? <VolumeX size={17} color="#EF4444" /> : <Volume2 size={17} color="#00E5FF" />}
+                <span>{isAudioMuted ? "AUDIO: MUTED" : "AUDIO: ONLINE"}</span>
               </button>
             </div>
 
@@ -252,7 +272,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
           
           {/* Card 1: 50 TACTICAL SORTIES */}
           <div 
-            className="feature-card feature-card-cyan"
+            className="feature-card feature-card-cyan cyber-interactive-card"
             onClick={() => onNavigate && onNavigate('missions')}
             title="Explore 50 Tactical Combat Sorties"
           >
@@ -277,7 +297,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
 
           {/* Card 2: 5 DEEP-SPACE SECTORS */}
           <div 
-            className="feature-card feature-card-purple"
+            className="feature-card feature-card-purple cyber-interactive-card"
             onClick={() => onNavigate && onNavigate('missions')}
             title="Navigate 5 Deep Space Sectors"
           >
@@ -302,7 +322,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
 
           {/* Card 3: 5 APEX BOSSES */}
           <div 
-            className="feature-card feature-card-red"
+            className="feature-card feature-card-red cyber-interactive-card"
             onClick={() => onNavigate && onNavigate('missions')}
             title="Defeat 5 Apex Boss Dreadnoughts"
           >
@@ -327,7 +347,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
 
           {/* Card 4: UNLOCK ADVANCED STARSHIPS */}
           <div 
-            className="feature-card feature-card-gold"
+            className="feature-card feature-card-gold cyber-interactive-card"
             onClick={() => onNavigate && onNavigate('hangar')}
             title="Unlock and Upgrade 5 Starship Classes in the Hangar"
           >

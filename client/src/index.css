@@ -1063,3 +1063,219 @@ img, video, canvas {
     display: inline !important;
   }
 }
+
+
+/* ==========================================================================
+   AAA CYBERPUNK DESIGN SYSTEM UTILITIES & MICRO-INTERACTIONS
+   ========================================================================== */
+
+/* 1. 3D Ship Floating Idle Animation */
+@keyframes shipHoverFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    filter: drop-shadow(0 15px 25px rgba(0, 229, 255, 0.45));
+  }
+  50% {
+    transform: translateY(-9px) rotate(0.5deg);
+    filter: drop-shadow(0 25px 35px rgba(0, 229, 255, 0.7));
+  }
+}
+
+.ship-float-idle {
+  animation: shipHoverFloat 3.8s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+/* 2. Concentric Neon Landing Pad Ring Rotation */
+@keyframes padRingRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes padRingRotateReverse {
+  from { transform: translate(-50%, -50%) rotate(360deg); }
+  to { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+.cyber-landing-pad {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.18) 0%, rgba(124, 58, 237, 0.1) 45%, rgba(6, 9, 25, 0.8) 75%);
+  box-shadow: 0 0 50px rgba(0, 229, 255, 0.25), inset 0 0 30px rgba(124, 58, 237, 0.3);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+}
+
+.cyber-landing-pad::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  border: 1px dashed rgba(0, 229, 255, 0.5);
+  animation: padRingRotate 22s linear infinite;
+  pointer-events: none;
+}
+
+.cyber-landing-pad::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 74%;
+  height: 74%;
+  border-radius: 50%;
+  border: 1px dotted rgba(251, 191, 36, 0.45);
+  animation: padRingRotateReverse 16s linear infinite;
+  pointer-events: none;
+}
+
+/* 3. Cyberpunk High-Impact Action Button */
+.cyber-action-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.95) 0%, rgba(124, 58, 237, 0.9) 100%);
+  border: 1px solid #00E5FF;
+  border-radius: 8px;
+  color: #060919;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+  min-height: 44px;
+}
+
+.cyber-action-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, #00E5FF 0%, #9061F9 100%);
+  box-shadow: 0 0 35px rgba(0, 229, 255, 0.7), 0 0 15px rgba(124, 58, 237, 0.5);
+  color: #FFFFFF;
+}
+
+.cyber-action-btn-primary:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* 4. Luxury Gold Action Button */
+.cyber-action-btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  border: 1px solid #FBBF24;
+  border-radius: 8px;
+  color: #060919;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.45);
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.cyber-action-btn-gold:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 32px rgba(251, 191, 36, 0.7);
+  background: linear-gradient(135deg, #FBBF24 0%, #B45309 100%);
+}
+
+/* 5. Segmented Cybernetic Power Pip Track */
+.cyber-pip-track {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.cyber-pip {
+  flex: 1;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cyber-pip.active {
+  background: linear-gradient(180deg, #67E8F9 0%, #00E5FF 100%);
+  border-color: #00E5FF;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.65);
+}
+
+.cyber-pip.active-gold {
+  background: linear-gradient(180deg, #FDE047 0%, #F59E0B 100%);
+  border-color: #FBBF24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.65);
+}
+
+.cyber-pip.active-purple {
+  background: linear-gradient(180deg, #C084FC 0%, #7C3AED 100%);
+  border-color: #A855F7;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.65);
+}
+
+/* 6. Subtle Futuristic Card Tilt & Elevation Hover */
+.cyber-interactive-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  will-change: transform;
+}
+
+.cyber-interactive-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.25);
+  border-color: rgba(0, 229, 255, 0.45) !important;
+}
+
+/* 7. Pulsing Beacon Dot */
+.cyber-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  animation: cyberPulseGlow 1.8s infinite;
+}
+
+@keyframes cyberPulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 6px currentColor;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.6;
+    box-shadow: 0 0 14px currentColor;
+  }
+}
+
+/* 8. Mobile Minimum Touch Target Enforcement */
+@media (max-width: 640px) {
+  button, a.btn, .icon-btn, .tab-btn {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  .cyber-landing-pad {
+    width: 210px;
+    height: 210px;
+  }
+}
