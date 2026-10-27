@@ -6,8 +6,8 @@ import EnlistPromptModal from './EnlistPromptModal.jsx';
 import { 
   Shield, Zap, Crosshair, Check, Lock, 
   Sparkles, AlertCircle, CheckCircle2, ChevronRight, ChevronLeft,
-  Play, Wrench, Coins, Award, Sliders, Palette, Layers, Cpu, Flame,
-  Activity, Eye, Compass, RotateCcw, Info, Radio, ShieldCheck
+  Wrench, Coins, Award, Palette, Layers,
+  Activity, Compass, Radio, ShieldCheck
 } from 'lucide-react';
 import '../pages/HangarPage.css';
 
@@ -132,7 +132,7 @@ const FLEET_INSIGNIAS = [
 ];
 
 export const HangarView = ({ 
-  isPublic = false, 
+  _isPublic = false, 
   onNavigate, 
   onLaunchMission 
 }) => {
@@ -142,13 +142,13 @@ export const HangarView = ({
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'loadout' | 'upgrades' | 'customize' | 'skins'
   const [selectedCoating, setSelectedCoating] = useState('default');
   const [selectedInsignia, setSelectedInsignia] = useState('vanguard');
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [feedback, setFeedback] = useState({ error: null, success: null });
   const [enlistModalOpen, setEnlistModalOpen] = useState(false);
-  const [upgradeFlash, setUpgradeFlash] = useState(false);
+  const [_upgradeFlash, setUpgradeFlash] = useState(false);
 
-  const renderHangarPowerPips = (score, activeClass = 'active') => {
+  const _renderHangarPowerPips = (score, activeClass = 'active') => {
     const activeCount = Math.max(1, Math.min(10, Math.round((score / 100) * 10)));
     return (
       <div className="cyber-pip-track" style={{ marginTop: '6px' }}>
@@ -825,7 +825,7 @@ export const HangarView = ({
                   const cost = getUpgradeCost(currentLvl);
                   const isMax = cost === 'MAX';
                   const canAfford = !isMax && playerCredits >= cost;
-                  const Icon = mod.icon;
+                  // Icon rendered directly
 
                   return (
                     <div key={mod.key} className="module-tech-card cyber-interactive-card">

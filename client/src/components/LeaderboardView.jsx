@@ -32,12 +32,12 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
   // Category view modes: Hall of Fame, World Raid Boss, Seasonal Events
   const [viewMode, setViewMode] = useState('HALL_OF_FAME');
   const [raidBoss, setRaidBoss] = useState(null);
-  const [raidLoading, setRaidLoading] = useState(false);
+  const [, setRaidLoading] = useState(false);
   const [strikeAttacking, setStrikeAttacking] = useState(false);
   const [strikeMessage, setStrikeMessage] = useState(null);
 
   const [seasonalEvents, setSeasonalEvents] = useState([]);
-  const [eventLoading, setEventLoading] = useState(false);
+  const [, setEventLoading] = useState(false);
   const [eventMessage, setEventMessage] = useState(null);
 
   const fetchRaidBoss = useCallback(async () => {
@@ -167,7 +167,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
     fetchLeaderboard(timeFrame, true);
   };
 
-  const handleAuthNavigation = (targetTab = 'register') => {
+  const handleAuthNavigation = (_targetTab = 'register') => {
     try { soundManager.playLaser(); } catch {}
     if (onNavigate) {
       onNavigate('auth');

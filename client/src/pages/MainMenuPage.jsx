@@ -2,16 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import PublicNavbar from '../components/PublicNavbar.jsx';
-import { GAME_NAME, GAME_TAGLINE, GAME_VERSION, API_BASE_URL } from '../config/gameConfig.js';
+import { GAME_VERSION, API_BASE_URL } from '../config/gameConfig.js';
 import { MISSIONS_CATALOG } from '../data/missionsData.js';
 import { 
   Play, RotateCcw, Crosshair, Globe, Skull, 
-  Award, Shield, Zap, Sparkles, Volume2, VolumeX 
+  Award, Volume2, VolumeX 
 } from 'lucide-react';
 import './MainMenuPage.css';
 
 export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
-  const { user, profile, isAuthenticated } = useAuth();
+  const { profile, isAuthenticated } = useAuth();
   const [serverStatus, setServerStatus] = useState({ online: true, latency: 5 });
   const [explanatoryTip, setExplanatoryTip] = useState(null);
   const [isAudioMuted, setIsAudioMuted] = useState(() => soundManager.muted);
@@ -43,7 +43,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
         } else if (isMounted) {
           setServerStatus({ online: false, latency: 0 });
         }
-      } catch (e) {
+      } catch {
         if (isMounted) {
           setServerStatus({ online: false, latency: 0 });
         }

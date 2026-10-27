@@ -3,7 +3,7 @@ import HangarView from '../components/HangarView.jsx';
 import './HangarPage.css';
 
 export const HangarPage = ({ 
-  onBack, 
+  onBack: _onBack, 
   onNavigate, 
   onLaunchMission 
 }) => {

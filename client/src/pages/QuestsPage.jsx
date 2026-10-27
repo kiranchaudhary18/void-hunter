@@ -7,7 +7,7 @@ import {
   ArrowLeft, Award, Clock, Zap, Coins, 
   CheckCircle2, Lock, Calendar, Gift, AlertCircle, Package, Flame,
   Crosshair, Compass, Target, Radio, Star, Shield, Trophy, RefreshCw, X,
-  ChevronRight, Sparkles, Check, CheckCheck, Skull, Cpu
+  Sparkles, Check, CheckCheck, Skull
 } from 'lucide-react';
 import './QuestsPage.css';
 
@@ -50,7 +50,7 @@ export const QuestsPage = ({ onBack }) => {
   const [events, setEvents] = useState([]);
   const [activeTab, setActiveTab] = useState('QUESTS'); // 'QUESTS', 'ACHIEVEMENTS', or 'EVENTS'
   const [achievementFilter, setAchievementFilter] = useState('ALL');
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [claimingId, setClaimingId] = useState(null);
   const [feedbackMessage, setFeedbackMessage] = useState(null);

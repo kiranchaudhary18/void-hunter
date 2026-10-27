@@ -7,7 +7,7 @@ import api from '../services/api.js';
 import { getRandomAdCampaign } from '../data/adCampaigns.js';
 import { 
   Shield, Heart, Zap, Pause, Play, RotateCcw, ArrowLeft, Video, Award, Coins, 
-  Volume2, VolumeX, AlertTriangle, Compass, Star, Crosshair, Target, Timer, Rocket, Flame 
+  Volume2, VolumeX, AlertTriangle, Compass, Star, Crosshair, Target, Timer, Rocket 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 

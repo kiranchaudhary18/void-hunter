@@ -170,3 +170,5 @@ if (process.env.VERCEL === '1') {
 
 export { app };
 export default app;
+
+// Gmail SMTP live service enabled

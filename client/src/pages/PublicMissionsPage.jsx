@@ -17,7 +17,7 @@ export const PublicMissionsPage = ({ onNavigate }) => {
       <MissionsView 
         isPublic={true}
         onNavigate={onNavigate}
-        onLaunchMission={(mission) => {
+        onLaunchMission={(_mission) => {
           if (onNavigate) onNavigate('auth');
         }}
       />

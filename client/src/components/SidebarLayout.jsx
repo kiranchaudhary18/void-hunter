@@ -3,10 +3,11 @@ import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME } from '../config/gameConfig.js';
 import './SidebarLayout.css';
+import { getPilotRank } from '../utils/pilotUtils.js';
 import { 
   LayoutDashboard, Compass, Shield, Wallet, 
   Award, BarChart3, Settings, Coins, Zap, 
-  User, LogOut, Play, ShieldCheck, Menu, X, ChevronRight, Crosshair
+  User, LogOut, Play, ShieldCheck, Menu, X
 } from 'lucide-react';
 
 // Brand SVG Delta Logo
@@ -23,23 +24,13 @@ const DeltaLogo = () => (
   </svg>
 );
 
-// Helper to map pilot levels to authentic sci-fi military flight ranks
-export const getPilotRank = (level = 1, currentRank) => {
-  if (level >= 10) return 'Fleet Admiral';
-  if (level >= 8) return 'Wing Commander';
-  if (level >= 6) return 'Squadron Leader';
-  if (level >= 4) return 'Flight Officer';
-  if (level >= 2) return 'Star Aviator';
-  return currentRank || 'Star Cadet';
-};
-
 export const SidebarLayout = ({ 
   currentScreen, 
   onNavigate, 
   onLaunchCombat,
   onOpenSettings, 
   onCloseSettings,
-  isSettingsOpen = false,
+  _isSettingsOpen = false,
   children 
 }) => {
   const { user, profile, isAuthenticated, logout } = useAuth();

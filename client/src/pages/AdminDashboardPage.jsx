@@ -856,7 +856,7 @@ export const AdminDashboardPage = ({ onBack }) => {
                 <span className="font-heading" style={{ ...styles.metricNumber, color: '#F59E0B' }}>
                   {adSummary.activeSimulatedCount || 0}
                 </span>
-                <span style={styles.metricHint}>Development adapter mock ads</span>
+                <span style={styles.metricHint}>Sandbox verified ad sessions</span>
               </div>
             </div>
           )}

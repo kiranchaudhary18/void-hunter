@@ -5,14 +5,14 @@
 
 **A Production-Grade 2D Arcade Space Shooter & Server-Authoritative Economy Platform**
 
-[![Live Demo](https://img.shields.io/badge/🎮_Live_Demo-void--hunter--ovqz.vercel.app-00E5FF?style=for-the-badge&logo=vercel&logoColor=white)](https://void-hunter-ovqz.vercel.app)
-[![Tests Passing](https://img.shields.io/badge/🧪_Tests-44%2F44_Passed_(100%25)-10B981?style=for-the-badge&logo=checkmarx&logoColor=white)](#-14-automated-testing--compliance-matrix)
-[![Phaser 3](https://img.shields.io/badge/🕹️_Engine-Phaser_3_(60_FPS)-7C3AED?style=for-the-badge&logo=phaser&logoColor=white)](https://phaser.io/)
-[![React 19](https://img.shields.io/badge/⚛️_Frontend-React_19_+_Vite-00E5FF?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![Node.js](https://img.shields.io/badge/🟢_Backend-Node.js_+_Express-10B981?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/🍃_Database-MongoDB_+_Mongoose-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Mobile Viewport](https://img.shields.io/badge/📱_Mobile-100dvh_Zero--Scroll_Lock-FF2DFF?style=for-the-badge&logo=android&logoColor=white)](#-5-mobile-arcade-viewport--responsive-engineering)
-[![License: MIT](https://img.shields.io/badge/📜_License-MIT-FBBF24?style=for-the-badge)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/🎮_Live_Demo-void--hunter--ovqz.vercel.app-00E5FF•style=for-the-badge&logo=vercel&logoColor=white)](https://void-hunter-ovqz.vercel.app)
+[![Tests Passing](https://img.shields.io/badge/🧪_Tests-44%2F44_Passed_(100%25)-10B981•style=for-the-badge&logo=checkmarx&logoColor=white)](#-14-automated-testing--compliance-matrix)
+[![Phaser 3](https://img.shields.io/badge/🕹️_Engine-Phaser_3_(60_FPS)-7C3AED•style=for-the-badge&logo=phaser&logoColor=white)](https://phaser.io/)
+[![React 19](https://img.shields.io/badge/⚛️_Frontend-React_19_+_Vite-00E5FF•style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/🟢_Backend-Node.js_+_Express-10B981•style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/🍃_Database-MongoDB_+_Mongoose-47A248•style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Mobile Viewport](https://img.shields.io/badge/📱_Mobile-100dvh_Zero--Scroll_Lock-FF2DFF•style=for-the-badge&logo=android&logoColor=white)](#-5-mobile-arcade-viewport--responsive-engineering)
+[![License: MIT](https://img.shields.io/badge/📜_License-MIT-FBBF24•style=for-the-badge)](LICENSE)
 
 <br/>
 
@@ -728,7 +728,7 @@ npm run dev
 5. Configure Environment Variables:
    * `PORT`: `5000`
    * `GAME_NAME`: `VOID HUNTER`
-   * `MONGODB_URI`: `mongodb+srv://<user>:<password>@cluster.mongodb.net/void_hunter?retryWrites=true&w=majority`
+   * `MONGODB_URI`: `mongodb+srv://<user>:<password>@cluster.mongodb.net/void_hunter•retryWrites=true&w=majority`
    * `JWT_SECRET`: `production_secret_key_minimum_32_characters_long`
    * `CLIENT_URL`: `https://void-hunter-ovqz.vercel.app`
    * `NODE_ENV`: `production`

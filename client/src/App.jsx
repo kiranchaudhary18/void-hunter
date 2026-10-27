@@ -15,87 +15,14 @@ import GameContainer from './game/GameContainer.jsx';
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import SidebarLayout from './components/SidebarLayout.jsx';
 import GlobalAudioPlayer from './components/GlobalAudioPlayer.jsx';
 import soundManager from './game/managers/SoundManager.js';
 import api from './services/api.js';
 import { MISSIONS_CATALOG } from './data/missionsData.js';
 import './App.css';
-
-// Map URL pathname to internal screen identifier
-export const getScreenFromPath = (pathname, isAuthenticated = false) => {
-  const cleanPath = (pathname || window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
-  
-  switch (cleanPath) {
-    case '/settings':
-    case '/preferences':
-    case '/config':
-      return 'settings';
-    case '/missions':
-      return 'missions';
-    case '/hangar':
-    case '/ships':
-      return 'hangar';
-    case '/leaderboard':
-    case '/ranks':
-      return 'leaderboard';
-    case '/dashboard':
-      return 'dashboard';
-    case '/wallet':
-    case '/rewards':
-    case '/ledger':
-      return 'wallet';
-    case '/quests':
-    case '/achievements':
-      return 'quests';
-    case '/admin':
-    case '/audit':
-      return 'admin';
-    case '/auth':
-    case '/login':
-    case '/signup':
-    case '/register':
-      return 'auth';
-    case '/gameplay':
-    case '/combat':
-    case '/game':
-      return 'gameplay';
-    case '/':
-    case '/landing':
-    case '/home':
-    default:
-      return 'landing';
-  }
-};
-
-// Map screen identifier to URL pathname
-export const getPathFromScreen = (screen) => {
-  switch (screen) {
-    case 'settings':
-      return '/settings';
-    case 'missions':
-      return '/missions';
-    case 'hangar':
-      return '/hangar';
-    case 'leaderboard':
-      return '/leaderboard';
-    case 'dashboard':
-      return '/dashboard';
-    case 'wallet':
-      return '/wallet';
-    case 'quests':
-      return '/quests';
-    case 'admin':
-      return '/admin';
-    case 'auth':
-      return '/auth';
-    case 'gameplay':
-      return '/gameplay';
-    case 'landing':
-    default:
-      return '/';
-  }
-};
+import { getScreenFromPath, getPathFromScreen } from './utils/navigationUtils.js';
 
 function MainAppContent() {
   const { user, profile, isAuthenticated, refreshProfile } = useAuth();
@@ -162,7 +89,7 @@ function MainAppContent() {
     setIsSettingsOpen(false);
     setCurrentScreen(targetScreen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [isAuthenticated]);
+  }, []);
 
   // Popstate event listener for browser Back & Forward button navigation
   React.useEffect(() => {
@@ -364,6 +291,16 @@ function MainAppContent() {
     }
   }
 
+  // Screen: Reset Password
+  if (currentScreen === 'reset-password') {
+    return (
+      <ResetPasswordPage 
+        onNavigate={(screen) => navigateTo(screen)} 
+        onAuthSuccess={() => navigateTo('dashboard')} 
+      />
+    );
+  }
+
   // Screen 2: Login / Signup
   if (currentScreen === 'auth') {
     return (
@@ -448,6 +385,13 @@ function MainAppContent() {
             onBack={() => navigateTo('dashboard')}
           />
         );
+      case 'reset-password':
+        return (
+          <ResetPasswordPage 
+            onNavigate={(screen) => navigateTo(screen)} 
+            onAuthSuccess={() => navigateTo('dashboard')} 
+          />
+        );
       case 'settings':
         return (
           <SettingsPage 
@@ -500,205 +444,5 @@ export function App() {
     </AuthProvider>
   );
 }
-
-const styles = {
-  appShell: {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    background: '#060919'
-  },
-  navBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '12px 28px',
-    borderRadius: '0',
-    borderTop: 'none',
-    borderLeft: 'none',
-    borderRight: 'none',
-    borderBottom: '1px solid rgba(0, 229, 255, 0.3)',
-    background: 'rgba(6, 9, 25, 0.94)',
-    backdropFilter: 'blur(16px)',
-    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 229, 255, 0.15)',
-    position: 'sticky',
-    top: 0,
-    zIndex: 100
-  },
-  navLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '32px'
-  },
-  logoGroup: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    cursor: 'pointer'
-  },
-  navLogo: {
-    width: '38px',
-    height: '38px',
-    filter: 'drop-shadow(0 0 10px rgba(0, 229, 255, 0.8))'
-  },
-  navBrandTitle: {
-    display: 'block',
-    fontSize: '1.2rem',
-    fontWeight: '900',
-    letterSpacing: '0.08em',
-    background: 'linear-gradient(90deg, #FFFFFF 0%, #00E5FF 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    lineHeight: 1
-  },
-  navBrandTag: {
-    display: 'block',
-    fontSize: '0.62rem',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.1em'
-  },
-  navLinks: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px'
-  },
-  navLink: {
-    background: 'transparent',
-    border: '1px solid transparent',
-    color: 'var(--text-muted)',
-    padding: '8px 14px',
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.78rem',
-    letterSpacing: '0.06em',
-    cursor: 'pointer',
-    borderRadius: '6px',
-    transition: 'all 0.2s ease'
-  },
-  navLinkActive: {
-    color: 'var(--secondary-cyan)',
-    background: 'rgba(0, 229, 255, 0.14)',
-    borderColor: 'rgba(0, 229, 255, 0.45)',
-    boxShadow: '0 0 14px rgba(0, 229, 255, 0.35)',
-    textShadow: '0 0 8px rgba(0, 229, 255, 0.7)'
-  },
-  navRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '14px'
-  },
-  pilotBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '6px 12px',
-    background: 'rgba(10, 15, 44, 0.85)'
-  },
-  pilotAvatar: {
-    width: '30px',
-    height: '30px',
-    borderRadius: '50%',
-    background: 'rgba(0, 229, 255, 0.15)',
-    border: '1px solid var(--secondary-cyan)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  pilotName: {
-    fontFamily: 'var(--font-heading)',
-    fontSize: '0.8rem',
-    fontWeight: '700',
-    color: 'var(--text-light)',
-    lineHeight: 1.1
-  },
-  pilotLevel: {
-    fontFamily: 'var(--font-ui)',
-    fontSize: '0.68rem',
-    color: 'var(--text-muted)'
-  },
-  logoutBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: 'var(--text-muted)',
-    cursor: 'pointer',
-    padding: '4px',
-    marginLeft: '6px'
-  },
-  contentContainer: {
-    flex: 1,
-    padding: '32px',
-    maxWidth: '1200px',
-    margin: '0 auto',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '28px'
-  },
-  heroCard: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '48px 40px',
-    borderRadius: '16px',
-    border: '1px solid rgba(0, 229, 255, 0.3)',
-    boxShadow: '0 0 40px rgba(0, 229, 255, 0.15)'
-  },
-  heroLeft: {
-    maxWidth: '650px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-  },
-  heroHeading: {
-    fontSize: '2.2rem',
-    fontWeight: '900',
-    lineHeight: 1.2
-  },
-  heroDesc: {
-    fontSize: '0.95rem',
-    color: 'var(--text-muted)',
-    lineHeight: 1.6
-  },
-  heroActions: {
-    display: 'flex',
-    gap: '16px',
-    marginTop: '12px'
-  },
-  heroRight: {
-    paddingRight: '20px'
-  },
-  floatingEmblem: {
-    width: '180px',
-    height: '180px',
-    filter: 'drop-shadow(0 0 30px rgba(0, 229, 255, 0.7))'
-  },
-  cardGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '20px'
-  },
-  infoCard: {
-    padding: '24px'
-  },
-  infoCardHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    marginBottom: '12px'
-  },
-  infoTitle: {
-    fontSize: '0.95rem',
-    color: 'var(--text-light)',
-    letterSpacing: '0.06em'
-  },
-  infoText: {
-    fontSize: '1.1rem',
-    color: 'var(--text-light)',
-    marginBottom: '4px'
-  },
-  infoSubtext: {
-    fontSize: '0.8rem',
-    color: 'var(--text-muted)'
-  }
-};
 
 export default App;

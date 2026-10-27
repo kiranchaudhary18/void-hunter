@@ -67,7 +67,9 @@ class ApiService {
     register: (userData) => this.request('/auth/register', { method: 'POST', body: userData }),
     login: (credentials) => this.request('/auth/login', { method: 'POST', body: credentials }),
     getMe: () => this.request('/auth/me', { method: 'GET' }),
-    updateProfile: (data) => this.request('/auth/profile', { method: 'PUT', body: data })
+    updateProfile: (data) => this.request('/auth/profile', { method: 'PUT', body: data }),
+    forgotPassword: (email) => this.request('/auth/forgot-password', { method: 'POST', body: { email } }),
+    resetPassword: (token, password) => this.request('/auth/reset-password/' + token, { method: 'PUT', body: { password } })
   };
 
   // Starships & Hangar Endpoints

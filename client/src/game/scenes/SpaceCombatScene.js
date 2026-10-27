@@ -214,7 +214,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     }
   }
 
-  update(time, delta) {
+  update(time, _delta) {
     if (this.isGameOver) return;
 
     // Scroll Starfield

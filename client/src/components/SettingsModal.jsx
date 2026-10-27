@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import soundManager from '../game/managers/SoundManager.js';
-import { Volume2, VolumeX, Sliders, X, Check, Keyboard, Info } from 'lucide-react';
+import { Volume2, VolumeX, Sliders, X, Check, Info } from 'lucide-react';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
 
 export const SettingsModal = ({ isOpen, onClose }) => {
@@ -18,7 +18,7 @@ export const SettingsModal = ({ isOpen, onClose }) => {
         setBgmVol(parsed.bgm ?? 50);
         setSfxVol(parsed.sfx ?? 70);
         setIsMuted(parsed.muted ?? false);
-      } catch (e) {
+      } catch {
         // Fallback default
       }
     }

@@ -10,6 +10,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const logout = () => {
+    localStorage.removeItem('void_hunter_token');
+    setToken(null);
+    setUser(null);
+    setProfile(null);
+  };
+
   // Load user profile on mount if token exists
   useEffect(() => {
     const fetchUser = async () => {
@@ -79,12 +86,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('void_hunter_token');
-    setToken(null);
-    setUser(null);
-    setProfile(null);
-  };
+
 
   const refreshProfile = async () => {
     if (!token) return null;

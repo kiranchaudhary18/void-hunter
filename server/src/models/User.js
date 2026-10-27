@@ -31,6 +31,8 @@ const userSchema = new mongoose.Schema(
       enum: ['player', 'admin'],
       default: 'player'
     },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
     avatarUrl: {
       type: String,
       default: ''

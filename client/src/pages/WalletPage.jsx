@@ -10,16 +10,7 @@ import {
   Search, Copy, Check, Eye, X, Volume2, VolumeX, Shield, ChevronRight, Activity, Crosshair, Sparkles
 } from 'lucide-react';
 import './WalletPage.css';
-
-// Helper to determine next promotional rank milestone
-export const getNextRankInfo = (level = 1) => {
-  if (level < 2) return { title: 'Star Aviator', level: 2 };
-  if (level < 4) return { title: 'Flight Officer', level: 4 };
-  if (level < 6) return { title: 'Squadron Leader', level: 6 };
-  if (level < 8) return { title: 'Wing Commander', level: 8 };
-  if (level < 10) return { title: 'Fleet Admiral', level: 10 };
-  return { title: 'Supreme Fleet Commander', level: 'MAX' };
-};
+import { getNextRankInfo } from '../utils/pilotUtils.js';
 
 export const WalletPage = ({ onBack }) => {
   const { profile, refreshProfile } = useAuth();

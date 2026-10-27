@@ -1,10 +1,12 @@
+import api from '../services/api.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import './AuthPage.css';
 import { 
   Mail, Lock, User, Eye, EyeOff, Shield, ArrowLeft, 
-  AlertCircle, CheckCircle2, X, UserPlus, LogIn, Check
+  AlertCircle, CheckCircle2, X, UserPlus, LogIn, Check,
+  Loader2, ExternalLink
 } from 'lucide-react';
 
 // Brand SVG Delta Logo
@@ -198,6 +200,9 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
   const [forgotModalOpen, setForgotModalOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSubmitted, setForgotSubmitted] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [devResetUrl, setDevResetUrl] = useState('');
 
   // ================= FORM HANDLERS =================
   const handleLoginSubmit = async (e) => {
@@ -266,10 +271,31 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
     }
   };
 
-  const handleForgotSubmit = (e) => {
+  const handleForgotSubmit = async (e) => {
     e.preventDefault();
-    if (!forgotEmail.trim()) return;
-    setForgotSubmitted(true);
+    if (!forgotEmail || !forgotEmail.trim()) {
+      setForgotError('Please enter your registered flight academy email.');
+      return;
+    }
+    setForgotError('');
+    setForgotLoading(true);
+
+    try {
+      const res = await api.auth.forgotPassword(forgotEmail.trim());
+      if (res.success) {
+        setForgotSubmitted(true);
+        if (res.resetUrl) setDevResetUrl(res.resetUrl);
+        soundManager.playPowerUp();
+      } else {
+        soundManager.playLaser();
+        setForgotError(res.message || 'Unable to route recovery link. Please try again.');
+      }
+    } catch (err) {
+      soundManager.playLaser();
+      setForgotError(err.message || 'Server communication error transmitting recovery link.');
+    } finally {
+      setForgotLoading(false);
+    }
   };
 
   return (
@@ -802,18 +828,47 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
             </div>
 
             <div className="auth-modal-content">
+              {forgotError && (
+                <div className="auth-error-banner" role="alert" style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.5)', borderRadius: '6px', color: '#FF5577', fontSize: '0.74rem' }}>
+                  <AlertCircle size={15} />
+                  <span>{forgotError}</span>
+                </div>
+              )}
+
               {forgotSubmitted ? (
-                <div className="auth-modal-success-state">
-                  <CheckCircle2 size={36} color="#00E5FF" />
-                  <h4>RECOVERY TRANSMISSION DISPATCHED</h4>
-                  <p>
-                    Quantum recovery codes have been routed to <strong>{forgotEmail}</strong>. Please verify your communications channel to re-establish pilot access.
+                <div className="auth-modal-success-state" style={{ textAlign: 'center', padding: '10px 0' }}>
+                  <CheckCircle2 size={44} color="#00E5FF" style={{ margin: '0 auto 12px auto' }} />
+                  <h4 style={{ fontFamily: 'Orbitron', fontSize: '1.05rem', color: '#00E5FF', margin: '0 0 8px 0', letterSpacing: '0.06em' }}>
+                    RECOVERY TRANSMISSION DISPATCHED
+                  </h4>
+                  <p style={{ fontSize: '0.80rem', color: '#CBD5E1', lineHeight: '1.5', margin: '0 0 16px 0' }}>
+                    Password reset link has been dispatched to <strong>{forgotEmail}</strong>. Kripya apna <strong>Inbox</strong> aur <strong>Spam / Junk</strong> folder check karein!
                   </p>
+
+                  {devResetUrl && (
+                    <div style={{ marginTop: '14px', padding: '12px', background: 'rgba(0, 229, 255, 0.08)', border: '1px solid rgba(0, 229, 255, 0.35)', borderRadius: '8px', textAlign: 'center' }}>
+                      <span style={{ display: 'block', fontSize: '0.66rem', fontFamily: 'Orbitron', color: '#00E5FF', fontWeight: 700, marginBottom: '8px' }}>
+                        DIRECT RECOVERY LINK
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForgotModalOpen(false);
+                          window.location.href = devResetUrl;
+                        }}
+                        className="cyber-action-btn-primary"
+                        style={{ width: '100%', minHeight: '38px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#00E5FF', color: '#050a1a', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}
+                      >
+                        <ExternalLink size={14} />
+                        <span>OPEN PASSWORD RESET PAGE NOW</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={handleForgotSubmit} className="auth-form-grid">
-                  <p className="auth-modal-lead">
-                    Enter your registered flight academy email. Fleet Command will transmit an encrypted recovery link.
+                  <p className="auth-modal-lead" style={{ fontSize: '0.78rem', color: '#94A3B8', marginBottom: '14px', lineHeight: '1.45' }}>
+                    Enter your registered flight academy email. Fleet Command will transmit an encrypted recovery link via Gmail.
                   </p>
 
                   <div className="auth-field-row">
@@ -831,16 +886,25 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
                         className="auth-input-element"
                         required
                         autoFocus
+                        disabled={forgotLoading}
                       />
                     </div>
                   </div>
 
                   <button
                     type="submit"
+                    disabled={forgotLoading || !forgotEmail.trim()}
                     className="auth-submit-btn btn-cyan"
-                    style={{ marginTop: '10px' }}
+                    style={{ marginTop: '12px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '42px' }}
                   >
-                    DISPATCH RECOVERY LINK
+                    {forgotLoading ? (
+                      <>
+                        <Loader2 size={16} className="spin-icon" />
+                        <span>DISPATCHING VIA GMAIL...</span>
+                      </>
+                    ) : (
+                      'DISPATCH RECOVERY LINK'
+                    )}
                   </button>
                 </form>
               )}

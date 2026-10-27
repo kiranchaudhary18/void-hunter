@@ -5,7 +5,7 @@ import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
 import { Volume2, VolumeX, LogIn, LayoutDashboard, LogOut, Menu, X, ArrowRight } from 'lucide-react';
 
 export const PublicNavbar = ({ current = 'home', onNavigate }) => {
-  const { user, profile, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const [isMuted, setIsMuted] = useState(soundManager.muted);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

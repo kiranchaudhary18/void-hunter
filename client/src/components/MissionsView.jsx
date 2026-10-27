@@ -5,9 +5,9 @@ import soundManager from '../game/managers/SoundManager.js';
 import { SECTORS_LIST, MISSIONS_CATALOG } from '../data/missionsData.js';
 import EnlistPromptModal from './EnlistPromptModal.jsx';
 import { 
-  Star, Lock, Play, Shield, Award, 
-  Coins, Zap, Compass, Crosshair, Skull, 
-  Check, AlertCircle, Target, ArrowRight, RotateCcw,
+  Star, Lock, Play, Award, 
+  Coins, Zap, Compass, Skull, 
+  Check, AlertCircle, Target, RotateCcw,
   Clock, CheckCircle, Trophy
 } from 'lucide-react';
 import '../pages/MissionsPage.css';
@@ -49,17 +49,17 @@ const MAP_CONNECTORS = [
 ];
 
 export const MissionsView = ({ 
-  isPublic = false, 
+  _isPublic = false, 
   onNavigate, 
   onLaunchMission, 
   selectedShip = { id: 'v01-orbitron', name: 'V-01 ORBITRON', speed: 380, damage: 25 } 
 }) => {
-  const { user, profile, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [activeSectorId, setActiveSectorId] = useState('sector-1');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [missions, setMissions] = useState([]);
   const [selectedMission, setSelectedMission] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [launchingId, setLaunchingId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [enlistModalOpen, setEnlistModalOpen] = useState(false);

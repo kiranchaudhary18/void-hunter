@@ -7,10 +7,10 @@ import './DashboardPage.css';
 import { 
   Play, Compass, Award, ChevronRight, 
   Coins, Zap, Crosshair, Shield, Activity, 
-  Flame, Gauge, ShieldCheck, Target, ArrowRight
+  ShieldCheck, Target, User
 } from 'lucide-react';
 
-export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip }) => {
+export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }) => {
   const { user, profile } = useAuth();
 
   // Real backend-driven state
@@ -18,7 +18,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
   const [dailyQuests, setDailyQuests] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
-  const [loadingStats, setLoadingStats] = useState(true);
+  const [, setLoadingStats] = useState(true);
 
   const handleNav = (screenName) => {
     try { soundManager.playLaser(); } catch {}
@@ -89,7 +89,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
   const credits = profile?.credits ?? 0;
   const energyCores = profile?.energyCores ?? 0;
 
-  const renderPowerPips = (score, activeClass = 'active') => {
+  const _renderPowerPips = (score, activeClass = 'active') => {
     const activeCount = Math.max(1, Math.min(10, Math.round((score / 100) * 10)));
     return (
       <div className="cyber-pip-track">
@@ -542,11 +542,12 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
                   No recent ledger transactions recorded. Complete sorties to earn credits.
                 </div>
               ) : (
-                recentTransactions.slice(0, 3).map((tx) => {
+                recentTransactions.slice(0, 3).map((tx, idx) => {
                   const isCredit = tx.transactionType === 'CREDIT';
+                  const formattedTime = tx.createdAt ? new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';
                   return (
                     <div 
-                      key={tx._id || tx.id || Math.random()} 
+                      key={tx._id || tx.id || `tx-${idx}`} 
                       className="reward-feed-row"
                       onClick={() => handleNav('wallet')}
                     >
@@ -556,7 +557,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, selectedShip })
                         </div>
                         <div>
                           <div className="feed-source-text">{tx.description || tx.source || 'Flight Reward'}</div>
-                          <div className="feed-time-text">{new Date(tx.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                          <div className="feed-time-text">{formattedTime}</div>
                         </div>
                       </div>
                       <span className={`feed-amount-badge ${tx.currencyType === 'ENERGY_CORES' ? 'amount-purple' : 'amount-gold'}`}>

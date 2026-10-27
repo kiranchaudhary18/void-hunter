@@ -47,7 +47,7 @@ class SoundManager {
         this.tracks.vocal = vocalAudio;
         this.tracks.menu = menuAudio;
         this.tracks.combat = combatAudio;
-      } catch (e) {
+      } catch { // AudioContext autoplay policy handled
         console.warn('Audio element initialization notice:', e);
       }
 

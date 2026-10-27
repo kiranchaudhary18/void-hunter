@@ -3,14 +3,14 @@ import soundManager from '../game/managers/SoundManager.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { 
   Volume2, VolumeX, Sliders, Check, Keyboard, 
-  Info, Shield, Zap, Sparkles, Monitor, Gamepad2, 
-  RotateCcw, ArrowLeft, Radio, Disc, Activity, AlertCircle, CheckCircle2,
+  Shield, Zap, Sparkles, Monitor, Gamepad2, 
+  RotateCcw, ArrowLeft, Disc, Activity, AlertCircle, CheckCircle2,
   Camera, UploadCloud, Cloud, Trash2, User, Edit3, Loader2
 } from 'lucide-react';
 import { GAME_NAME, GAME_TAGLINE, GAME_VERSION } from '../config/gameConfig.js';
 import './SettingsPage.css';
 
-export const SettingsPage = ({ onBack, onNavigate }) => {
+export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
   const { user, profile, updateProfileData } = useAuth();
 
   // Pilot Profile & Avatar State

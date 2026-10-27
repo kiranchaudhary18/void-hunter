@@ -46,16 +46,7 @@ function softClip(x) {
 }
 
 // Quick bandpass noise generator for snares and hats
-class NoiseGen {
-  constructor() {
-    this.lastOut = 0;
-  }
-  sample(decay, timeSinceStart) {
-    const raw = (Math.random() * 2 - 1);
-    const env = Math.exp(-timeSinceStart * decay);
-    return raw * env;
-  }
-}
+/* NoiseGen removed */
 
 // ==================== TRACK 1: MENU ANTHEM (124 BPM) ====================
 // "Cyberpunk Neon Drive" - Driving bass, punchy drums, uplifting synth arps
@@ -119,7 +110,7 @@ function generateMenuTrack() {
     const t = i / SAMPLE_RATE;
     const currentBeat = t / beatDuration;
     const currentBar = Math.floor(currentBeat / 4);
-    const beatInBar = currentBeat % 4;
+    const _beatInBar = currentBeat % 4;
     const sixteenthInBar = Math.floor((currentBeat % 4) * 4);
     const chordIdx = Math.floor(currentBar / 4) % 4;
     const chordInfo = rootChords[chordIdx];
@@ -246,8 +237,8 @@ function generateCombatTrack() {
   const combatChords = [
     { root: 'E2', notes: ['E4', 'G4', 'B4', 'E5'], bass: 'E2' },
     { root: 'C2', notes: ['C4', 'E4', 'G4', 'C5'], bass: 'C2' },
-    { root: 'D2', notes: ['D4', 'F#4' || 'Gb4', 'A4', 'D5'], bass: 'D2' },
-    { root: 'B1', notes: ['B3', 'D4', 'F#4' || 'Gb4', 'B4'], bass: 'B2' }
+    { root: 'D2', notes: ['D4', 'F#4', 'A4', 'D5'], bass: 'D2' },
+    { root: 'B1', notes: ['B3', 'D4', 'F#4', 'B4'], bass: 'B2' }
   ];
 
   // Combat fast battle riff
@@ -264,7 +255,7 @@ function generateCombatTrack() {
     const t = i / SAMPLE_RATE;
     const currentBeat = t / beatDuration;
     const currentBar = Math.floor(currentBeat / 4);
-    const beatInBar = currentBeat % 4;
+    const _beatInBar = currentBeat % 4;
     const sixteenthInBar = Math.floor((currentBeat % 4) * 4);
     const chordIdx = Math.floor(currentBar / 4) % 4;
     const chordInfo = combatChords[chordIdx];
