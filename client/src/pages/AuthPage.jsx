@@ -223,7 +223,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
     if (result.success) {
       setSuccessMsg('Authentication verified. Connecting to Command Deck...');
       setTimeout(() => {
-        if (onAuthSuccess) onAuthSuccess();
+        if (onAuthSuccess) onAuthSuccess(result.user);
       }, 400);
     } else {
       setErrorMsg(result.message || 'Invalid pilot credentials. Please verify email and password.');
@@ -264,7 +264,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
     if (result.success) {
       setSuccessMsg('Pilot profile commissioned! Enlisted into Space Fleet...');
       setTimeout(() => {
-        if (onAuthSuccess) onAuthSuccess();
+        if (onAuthSuccess) onAuthSuccess(result.user);
       }, 400);
     } else {
       setErrorMsg(result.message || 'Registration failed. The email or callsign may already be taken.');

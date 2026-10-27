@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
         setToken(response.token);
         setUser(response.user);
         setProfile(response.profile);
-        return { success: true };
+        return { success: true, user: response.user, profile: response.profile };
       }
       throw new Error(response.message || 'Login failed');
     } catch (err) {
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
         setToken(response.token);
         setUser(response.user);
         setProfile(response.profile);
-        return { success: true };
+        return { success: true, user: response.user, profile: response.profile };
       }
       throw new Error(response.message || 'Registration failed');
     } catch (err) {

@@ -65,7 +65,7 @@ export const SidebarLayout = ({
   ];
 
   if (user?.role?.toLowerCase() === 'admin') {
-    pilotProfileItems.push({ id: 'admin', label: 'AUDIT LEDGER', icon: ShieldCheck });
+    pilotProfileItems.push({ id: 'admin', label: 'ADMIN CONSOLE', icon: ShieldCheck });
   }
 
   pilotProfileItems.push({ id: 'settings', label: 'SETTINGS', icon: Settings });

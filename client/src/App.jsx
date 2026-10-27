@@ -25,7 +25,7 @@ import './App.css';
 import { getScreenFromPath, getPathFromScreen } from './utils/navigationUtils.js';
 
 function MainAppContent() {
-  const { user, profile, isAuthenticated, refreshProfile } = useAuth();
+  const { user, profile, isAuthenticated, refreshProfile, loading } = useAuth();
   
   // Initialize current screen from actual browser URL path
   const [currentScreen, setCurrentScreen] = useState(() => {
@@ -106,7 +106,7 @@ function MainAppContent() {
 
   // Security Guard: Prevent non-administrators from accessing admin panel
   React.useEffect(() => {
-    if (currentScreen === 'admin' && user?.role?.toLowerCase() !== 'admin') {
+    if (!loading && isAuthenticated && currentScreen === 'admin' && user?.role?.toLowerCase() !== 'admin') {
       navigateTo('dashboard', true);
     }
   }, [currentScreen, user, navigateTo]);
@@ -232,13 +232,25 @@ function MainAppContent() {
     await handleStartMission(targetMission);
   };
 
+  // Handle unified authentication success routing (Admin -> /admin, Players -> dashboard or current screen)
+  const handleAuthSuccess = React.useCallback((authUser) => {
+    const role = (authUser?.role || user?.role || '').toLowerCase();
+    if (role === 'admin') {
+      navigateTo('admin');
+    } else if (currentScreen === 'admin' || currentScreen === 'auth') {
+      navigateTo('dashboard');
+    } else {
+      navigateTo(currentScreen);
+    }
+  }, [user, currentScreen, navigateTo]);
+
   // Screens that strictly require pilot login
   const strictlyAuthScreens = ['wallet', 'quests', 'admin', 'dashboard'];
   if (!isAuthenticated && strictlyAuthScreens.includes(currentScreen)) {
     return (
       <AuthPage 
         onBackToGame={() => navigateTo('landing')} 
-        onAuthSuccess={() => navigateTo(currentScreen === 'admin' ? 'dashboard' : currentScreen)} 
+        onAuthSuccess={handleAuthSuccess} 
       />
     );
   }
@@ -248,7 +260,7 @@ function MainAppContent() {
     return (
       <AuthPage 
         onBackToGame={() => navigateTo('missions')} 
-        onAuthSuccess={() => navigateTo('gameplay')} 
+        onAuthSuccess={handleAuthSuccess} 
       />
     );
   }
@@ -296,7 +308,7 @@ function MainAppContent() {
     return (
       <ResetPasswordPage 
         onNavigate={(screen) => navigateTo(screen)} 
-        onAuthSuccess={() => navigateTo('dashboard')} 
+        onAuthSuccess={handleAuthSuccess} 
       />
     );
   }
@@ -306,7 +318,7 @@ function MainAppContent() {
     return (
       <AuthPage 
         onBackToGame={() => navigateTo(isAuthenticated ? 'dashboard' : 'landing')} 
-        onAuthSuccess={() => navigateTo('dashboard')} 
+        onAuthSuccess={handleAuthSuccess} 
       />
     );
   }
