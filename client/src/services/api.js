@@ -68,7 +68,7 @@ class ApiService {
     login: (credentials) => this.request('/auth/login', { method: 'POST', body: credentials }),
     getMe: () => this.request('/auth/me', { method: 'GET' }),
     updateProfile: (data) => this.request('/auth/profile', { method: 'PUT', body: data }),
-    forgotPassword: (email) => this.request('/auth/forgot-password', { method: 'POST', body: { email } }),
+    forgotPassword: (email) => this.request('/auth/forgot-password', { method: 'POST', body: { email, originUrl: typeof window !== 'undefined' ? window.location.origin : '' } }),
     resetPassword: (token, password) => this.request('/auth/reset-password/' + token, { method: 'PUT', body: { password } })
   };
 

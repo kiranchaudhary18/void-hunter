@@ -8,15 +8,27 @@ const createTransporter = async () => {
   const user = (process.env.EMAIL_HOST_USER || process.env.SMTP_USER || '').trim();
   const rawPass = process.env.EMAIL_HOST_PASSWORD || process.env.SMTP_PASS || '';
   const pass = rawPass.replace(/["'\s]/g, '');
+  const host = (process.env.SMTP_HOST || '').trim();
+  const port = parseInt(process.env.SMTP_PORT || '587', 10);
 
   if (user && pass) {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user,
-        pass
-      }
-    });
+    let transporter;
+    if (host && host !== 'smtp.gmail.com') {
+      transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: { user, pass }
+      });
+    } else {
+      transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user,
+          pass
+        }
+      });
+    }
 
     return {
       transporter,

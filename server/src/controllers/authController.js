@@ -377,8 +377,14 @@ export const forgotPassword = async (req, res) => {
     user.resetPasswordExpire = Date.now() + 30 * 60 * 1000; // 30 minutes validity
     await user.save({ validateBeforeSave: false });
 
-    // Construct reset URL
-    const clientBaseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    // Construct reset URL dynamically matching client origin (supports Vercel, production domains, and localhost)
+    let requestOrigin = req.body?.originUrl || req.get('origin');
+    if (!requestOrigin && req.get('referer')) {
+      try {
+        requestOrigin = new URL(req.get('referer')).origin;
+      } catch {}
+    }
+    const clientBaseUrl = (requestOrigin || process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/+$/, '');
     const resetUrl = `${clientBaseUrl}/reset-password/${resetToken}`;
 
     // Send email

@@ -203,6 +203,17 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState('');
   const [devResetUrl, setDevResetUrl] = useState('');
+  // Normalize reset URL so it never redirects to localhost when on a deployed domain
+  const getNormalizedResetUrl = (url) => {
+    if (!url) return '';
+    try {
+      if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+        return url.replace(/^https?:\/\/localhost(:\d+)?/i, window.location.origin);
+      }
+    } catch {}
+    return url;
+  };
+
 
   // ================= FORM HANDLERS =================
   const handleLoginSubmit = async (e) => {
@@ -284,7 +295,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
       const res = await api.auth.forgotPassword(forgotEmail.trim());
       if (res.success) {
         setForgotSubmitted(true);
-        if (res.resetUrl) setDevResetUrl(res.resetUrl);
+        if (res.resetUrl) setDevResetUrl(getNormalizedResetUrl(res.resetUrl));
         soundManager.playPowerUp();
       } else {
         soundManager.playLaser();
@@ -854,7 +865,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
                         type="button"
                         onClick={() => {
                           setForgotModalOpen(false);
-                          window.location.href = devResetUrl;
+                          window.location.href = getNormalizedResetUrl(devResetUrl);
                         }}
                         className="cyber-action-btn-primary"
                         style={{ width: '100%', minHeight: '38px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#00E5FF', color: '#050a1a', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}
