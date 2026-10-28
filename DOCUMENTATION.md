@@ -193,22 +193,6 @@ $ npm --prefix server test
 
 **Result**: `44 PASSED, 0 FAILED (100% Compliance)`
 
----
-
-## 📮 Postman API Suite Integration Guide
-
-The project includes a ready-to-import Postman Collection covering **35+ production endpoints**:
-
-### Files Included in Repository:
-1. [`postman/void_hunter_postman_collection.json`](file:///d:/void-hunter/postman/void_hunter_postman_collection.json)
-2. [`postman/void_hunter_postman_environment.json`](file:///d:/void-hunter/postman/void_hunter_postman_environment.json)
-
-### Import Instructions:
-1. Open **Postman**.
-2. Click **Import** (top left) and select both JSON files from the `postman/` directory.
-3. In the top right environment dropdown, select **VOID HUNTER - Production & Dev Environment**.
-4. Run request **02. Pilot Authentication ➔ 2. Login Pilot** or **3. Login Supreme Commander Admin**.
-5. The embedded Postman test scripts will automatically capture the returned JWT token and set `{{token}}` and `{{adminToken}}` environment variables for all subsequent requests!
 
 ---
 
@@ -328,4 +312,4 @@ Every core requirement of the company's engineering specification has been fully
 
 ## 🏆 Conclusion & Compliance Verification
 
-The **VOID HUNTER** platform represents an end-to-end, enterprise-quality implementation strictly adhering to all architectural, mechanical, economic, and anti-cheat requirements. With an integrated Postman API suite, comprehensive test coverage (44/44 passed), and production deployments on Vercel, the system is fully equipped for immediate evaluation and high-volume arcade engagement.
+The **VOID HUNTER** platform represents an end-to-end, enterprise-quality implementation strictly adhering to all architectural, mechanical, economic, and anti-cheat requirements. With comprehensive test coverage (44/44 passed), and production deployments on Vercel, the system is fully equipped for immediate evaluation and high-volume arcade engagement.
