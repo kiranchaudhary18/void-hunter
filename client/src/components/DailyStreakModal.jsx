@@ -3,9 +3,8 @@ import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import confetti from 'canvas-confetti';
 import { 
-  X, Calendar, Flame, Gift, CheckCircle2, Lock, 
-  Coins, Zap, Award, Sparkles, Clock, AlertCircle, Package, Shield, 
-  Trophy, ArrowRight, Star
+  X, Flame, Gift, CheckCircle2, Lock, 
+  Coins, Zap, Award, Sparkles, Clock, AlertCircle, Package
 } from 'lucide-react';
 import { DAILY_LOGIN_STREAK_REWARDS } from '../data/questsData.js';
 import './DailyStreakModal.css';
@@ -55,7 +54,7 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
     rewardsTable: initialData?.rewardsTable || DAILY_LOGIN_STREAK_REWARDS
   });
 
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [countdown, setCountdown] = useState('24:00:00');
   const [errorMsg, setErrorMsg] = useState(null);

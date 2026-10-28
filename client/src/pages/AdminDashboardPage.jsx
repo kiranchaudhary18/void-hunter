@@ -229,6 +229,7 @@ export const AdminDashboardPage = ({ onBack }) => {
     else if (activeTab === 'ledger') fetchLedgerLogs(1);
     else if (activeTab === 'ads') fetchAdOpportunities(1);
     else if (activeTab === 'config') fetchEconomyConfig();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAdmin]);
 
   const handleTabSwitch = (tab) => {

@@ -122,7 +122,7 @@ export const MissionsView = ({
       const currentAvailable = sectorMissions.find((m) => m.isUnlocked && !m.isCompleted);
       setSelectedMission(currentAvailable || sectorMissions[0]);
     }
-  }, [activeSectorId, sectorMissions.length]);
+  }, [activeSectorId, sectorMissions]);
 
   // Mission Launch Handler
   const handleLaunch = async (mission) => {

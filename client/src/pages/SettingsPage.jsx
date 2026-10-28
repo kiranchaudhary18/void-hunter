@@ -7,7 +7,7 @@ import {
   RotateCcw, ArrowLeft, Disc, Activity, AlertCircle, CheckCircle2,
   Camera, UploadCloud, Cloud, Trash2, User, Edit3, Loader2
 } from 'lucide-react';
-import { GAME_NAME, GAME_TAGLINE, GAME_VERSION } from '../config/gameConfig.js';
+import { GAME_VERSION } from '../config/gameConfig.js';
 import './SettingsPage.css';
 
 export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {

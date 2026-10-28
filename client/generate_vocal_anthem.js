@@ -122,7 +122,7 @@ function generateVocalSong() {
     const t = i / SAMPLE_RATE;
     const currentBeat = t / beatDuration;
     const currentBar = Math.floor(currentBeat / 4);
-    const beatInBar = currentBeat % 4;
+    const _beatInBar = currentBeat % 4;
     const sixteenthInBar = Math.floor((currentBeat % 4) * 4);
     const chord = progression[Math.floor(currentBar / 2) % progression.length];
 

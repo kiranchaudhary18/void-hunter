@@ -41,6 +41,15 @@ app.use(cors({
   },
   credentials: true
 }));
+
+// Enterprise Security Headers
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(morgan('dev'));
@@ -172,3 +181,12 @@ export { app };
 export default app;
 
 // Gmail SMTP live service enabled
+
+// Process Lifecycle & Unhandled Error Resilience
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[SERVER RESILIENCE] Unhandled Promise Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('[SERVER RESILIENCE] Uncaught Exception:', error);
+});

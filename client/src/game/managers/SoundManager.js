@@ -93,8 +93,8 @@ class SoundManager {
           autoplayBlocked: this.autoplayBlocked,
           playlist: this.playlist
         });
-      } catch (e) {
-        console.error(e);
+      } catch (err) {
+        console.error(err);
       }
     });
   }
@@ -613,7 +613,7 @@ class SoundManager {
       };
       const pattern = profiles[profile] || (Array.isArray(profile) ? profile : 15);
       window.navigator.vibrate(pattern);
-    } catch (e) {
+    } catch {
       // Ignored if user settings or device block vibration
     }
   }

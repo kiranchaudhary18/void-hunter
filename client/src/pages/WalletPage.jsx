@@ -93,6 +93,7 @@ export const WalletPage = ({ onBack }) => {
     return () => {
       if (adTimerRef.current) clearInterval(adTimerRef.current);
     };
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilter]);
 
   const handleCopy = (text, e) => {

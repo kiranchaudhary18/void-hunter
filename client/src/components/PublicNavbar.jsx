@@ -2,7 +2,7 @@
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
-import { Volume2, VolumeX, LogIn, LayoutDashboard, LogOut, Menu, X, ArrowRight } from 'lucide-react';
+import { Volume2, VolumeX, LogIn, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
 
 export const PublicNavbar = ({ current = 'home', onNavigate }) => {
   const { user, isAuthenticated, logout } = useAuth();

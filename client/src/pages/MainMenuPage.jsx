@@ -171,7 +171,8 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAuthenticated, activeMission]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, activeMission, handlePlayNow]);
 
   return (
     <div className="main-menu-root">

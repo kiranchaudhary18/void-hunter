@@ -109,7 +109,7 @@ function MainAppContent() {
     if (!loading && isAuthenticated && currentScreen === 'admin' && user?.role?.toLowerCase() !== 'admin') {
       navigateTo('dashboard', true);
     }
-  }, [currentScreen, user, navigateTo]);
+  }, [currentScreen, user, navigateTo, loading, isAuthenticated]);
 
   // Map selectedShipId to texture and stats (hoisted at top to prevent ReferenceError)
   const getSelectedShipData = () => {

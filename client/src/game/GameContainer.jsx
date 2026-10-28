@@ -196,6 +196,7 @@ export const GameContainer = ({
         phaserGameInstance.current.destroy(true);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mission.id]);
 
   const handleTogglePause = React.useCallback(() => {
