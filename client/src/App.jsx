@@ -237,7 +237,7 @@ function MainAppContent() {
     const role = (authUser?.role || user?.role || '').toLowerCase();
     if (role === 'admin') {
       navigateTo('admin');
-    } else if (currentScreen === 'admin' || currentScreen === 'auth') {
+    } else if (currentScreen === 'admin' || currentScreen === 'auth' || currentScreen === 'reset-password') {
       navigateTo('dashboard');
     } else {
       navigateTo(currentScreen);

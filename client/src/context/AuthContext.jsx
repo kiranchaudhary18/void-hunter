@@ -10,6 +10,16 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const setAuthenticatedSession = (sessionToken, sessionUser, sessionProfile) => {
+    if (sessionToken) {
+      localStorage.setItem('void_hunter_token', sessionToken);
+      setToken(sessionToken);
+    }
+    if (sessionUser) setUser(sessionUser);
+    if (sessionProfile) setProfile(sessionProfile);
+    setLoading(false);
+  };
+
   const logout = () => {
     localStorage.removeItem('void_hunter_token');
     setToken(null);
@@ -131,6 +141,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         refreshProfile,
         updateProfileData,
+        setAuthenticatedSession,
         isAuthenticated: !!user
       }}
     >

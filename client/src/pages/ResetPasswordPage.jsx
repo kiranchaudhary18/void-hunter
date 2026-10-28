@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import './ResetPasswordPage.css';
 
 export const ResetPasswordPage = ({ token, onNavigate, onAuthSuccess }) => {
-  const { refreshProfile } = useAuth();
+  const { refreshProfile, setAuthenticatedSession } = useAuth();
   
   // Extract token from URL parameter if not passed as prop
   const activeToken = token || (() => {
@@ -24,6 +24,7 @@ export const ResetPasswordPage = ({ token, onNavigate, onAuthSuccess }) => {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [redirectCountdown, setRedirectCountdown] = useState(3);
+  const [updatedUser, setUpdatedUser] = useState(null);
 
   // Password Strength Calculation
   const getPasswordStrength = (pwd) => {
@@ -46,6 +47,18 @@ export const ResetPasswordPage = ({ token, onNavigate, onAuthSuccess }) => {
   const isPasswordMismatch = isConfirmFilled && password !== confirmPassword;
   const isPasswordMatch = isConfirmFilled && password === confirmPassword && password.length >= 6;
 
+  // Execute safe transition to dashboard / admin deck
+  const handleProceed = React.useCallback(() => {
+    const target = updatedUser?.role?.toLowerCase() === 'admin' ? 'admin' : 'dashboard';
+    if (onAuthSuccess) {
+      onAuthSuccess(updatedUser);
+    } else if (onNavigate) {
+      onNavigate(target);
+    } else {
+      window.location.href = '/' + target;
+    }
+  }, [updatedUser, onAuthSuccess, onNavigate]);
+
   // Countdown timer on successful password reset
   useEffect(() => {
     let timer;
@@ -54,14 +67,10 @@ export const ResetPasswordPage = ({ token, onNavigate, onAuthSuccess }) => {
         setRedirectCountdown((prev) => prev - 1);
       }, 1000);
     } else if (successMsg && redirectCountdown === 0) {
-      if (onAuthSuccess) {
-        onAuthSuccess();
-      } else if (onNavigate) {
-        onNavigate('dashboard');
-      }
+      handleProceed();
     }
     return () => clearTimeout(timer);
-  }, [successMsg, redirectCountdown, onAuthSuccess, onNavigate]);
+  }, [successMsg, redirectCountdown, handleProceed]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,8 +96,14 @@ export const ResetPasswordPage = ({ token, onNavigate, onAuthSuccess }) => {
       const response = await api.auth.resetPassword(activeToken, password);
 
       if (response.success) {
+        if (response.user) {
+          setUpdatedUser(response.user);
+        }
         if (response.token) {
           localStorage.setItem('void_hunter_token', response.token);
+        }
+        if (setAuthenticatedSession) {
+          setAuthenticatedSession(response.token, response.user, response.profile);
         }
         soundManager.playPowerUp();
         setSuccessMsg(response.message || 'Security credentials successfully updated!');
@@ -194,7 +209,7 @@ export const ResetPasswordPage = ({ token, onNavigate, onAuthSuccess }) => {
               </div>
               <button
                 type="button"
-                onClick={() => onAuthSuccess ? onAuthSuccess() : (onNavigate ? onNavigate('dashboard') : (window.location.href = '/dashboard'))}
+                onClick={handleProceed}
                 className="cyber-action-btn-primary btn-enter-command"
               >
                 <span>ENTER COMMAND DECK NOW</span>
