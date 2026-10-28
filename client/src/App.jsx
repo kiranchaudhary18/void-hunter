@@ -244,6 +244,17 @@ function MainAppContent() {
     }
   }, [user, currentScreen, navigateTo]);
 
+  // Seamless Cold-Start Guard: If token exists but cached user not loaded, render cyber splash instead of flashing login/public pages
+  const hasStoredToken = typeof window !== 'undefined' ? !!localStorage.getItem('void_hunter_token') : false;
+  if (loading && hasStoredToken && !user) {
+    return (
+      <div className="command-link-splash">
+        <div className="command-link-pulse" />
+        <div className="command-link-text">// SYNCHRONIZING PILOT COMMAND LINK //</div>
+      </div>
+    );
+  }
+
   // Screens that strictly require pilot login
   const strictlyAuthScreens = ['wallet', 'quests', 'admin', 'dashboard'];
   if (!isAuthenticated && strictlyAuthScreens.includes(currentScreen)) {

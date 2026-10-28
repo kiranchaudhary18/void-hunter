@@ -4,3 +4,38 @@
   display: flex;
   flex-direction: column;
 }
+
+/* Seamless Pilot Command Link Initializing Splash */
+.command-link-splash {
+  position: fixed;
+  inset: 0;
+  background: #04081E;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  z-index: 99999;
+}
+
+.command-link-pulse {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(0, 229, 255, 0.2);
+  border-top-color: #00E5FF;
+  animation: spinCommandLink 0.8s linear infinite;
+}
+
+@keyframes spinCommandLink {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.command-link-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: #00E5FF;
+  font-weight: 700;
+}

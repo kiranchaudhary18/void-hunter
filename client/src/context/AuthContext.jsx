@@ -4,30 +4,84 @@ import api from '../services/api.js';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('void_hunter_token') || null);
-  const [loading, setLoading] = useState(true);
+  // Optimistic Hydration from localStorage to eliminate FOUC (Flash of Unauthenticated Content) on refresh
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem('void_hunter_token') || null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [user, setUser] = useState(() => {
+    try {
+      const cached = localStorage.getItem('void_hunter_user');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [profile, setProfile] = useState(() => {
+    try {
+      const cached = localStorage.getItem('void_hunter_profile');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Only consider loading if token exists but no cached user profile is available yet
+  const [loading, setLoading] = useState(() => {
+    try {
+      const t = localStorage.getItem('void_hunter_token');
+      const u = localStorage.getItem('void_hunter_user');
+      return !!(t && !u);
+    } catch {
+      return false;
+    }
+  });
+
   const [error, setError] = useState(null);
 
-  const setAuthenticatedSession = (sessionToken, sessionUser, sessionProfile) => {
-    if (sessionToken) {
-      localStorage.setItem('void_hunter_token', sessionToken);
-      setToken(sessionToken);
+  // Synchronize state and persistent storage
+  const saveSession = (sessionToken, sessionUser, sessionProfile) => {
+    try {
+      if (sessionToken) {
+        localStorage.setItem('void_hunter_token', sessionToken);
+        setToken(sessionToken);
+      }
+      if (sessionUser) {
+        localStorage.setItem('void_hunter_user', JSON.stringify(sessionUser));
+        setUser(sessionUser);
+      }
+      if (sessionProfile) {
+        localStorage.setItem('void_hunter_profile', JSON.stringify(sessionProfile));
+        setProfile(sessionProfile);
+      }
+    } catch (e) {
+      console.warn('Storage error:', e);
     }
-    if (sessionUser) setUser(sessionUser);
-    if (sessionProfile) setProfile(sessionProfile);
+  };
+
+  const setAuthenticatedSession = (sessionToken, sessionUser, sessionProfile) => {
+    saveSession(sessionToken, sessionUser, sessionProfile);
     setLoading(false);
   };
 
   const logout = () => {
-    localStorage.removeItem('void_hunter_token');
+    try {
+      localStorage.removeItem('void_hunter_token');
+      localStorage.removeItem('void_hunter_user');
+      localStorage.removeItem('void_hunter_profile');
+    } catch {}
     setToken(null);
     setUser(null);
     setProfile(null);
+    setLoading(false);
   };
 
-  // Load user profile on mount if token exists
+  // Verify stored session with backend on mount
   useEffect(() => {
     const fetchUser = async () => {
       if (!token) {
@@ -38,14 +92,16 @@ export const AuthProvider = ({ children }) => {
       try {
         const response = await api.auth.getMe();
         if (response.success) {
-          setUser(response.user);
-          setProfile(response.profile);
+          saveSession(token, response.user, response.profile);
         } else {
           logout();
         }
       } catch (err) {
         console.error('Failed to verify stored session:', err);
-        logout();
+        const errMsg = String(err.message || '').toLowerCase();
+        if (errMsg.includes('401') || errMsg.includes('token') || errMsg.includes('unauthorized') || errMsg.includes('invalid')) {
+          logout();
+        }
       } finally {
         setLoading(false);
       }
@@ -60,10 +116,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.auth.login({ email, password });
       if (response.success) {
-        localStorage.setItem('void_hunter_token', response.token);
-        setToken(response.token);
-        setUser(response.user);
-        setProfile(response.profile);
+        saveSession(response.token, response.user, response.profile);
         return { success: true, user: response.user, profile: response.profile };
       }
       throw new Error(response.message || 'Login failed');
@@ -81,10 +134,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.auth.register({ name, email, password });
       if (response.success) {
-        localStorage.setItem('void_hunter_token', response.token);
-        setToken(response.token);
-        setUser(response.user);
-        setProfile(response.profile);
+        saveSession(response.token, response.user, response.profile);
         return { success: true, user: response.user, profile: response.profile };
       }
       throw new Error(response.message || 'Registration failed');
@@ -96,15 +146,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
-
   const refreshProfile = async () => {
     if (!token) return null;
     try {
       const response = await api.auth.getMe();
       if (response.success) {
-        setUser(response.user);
-        setProfile(response.profile);
+        saveSession(token, response.user, response.profile);
         return response.profile;
       }
     } catch (err) {
@@ -117,8 +164,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.auth.updateProfile(data);
       if (response.success) {
-        if (response.user) setUser(response.user);
-        if (response.profile) setProfile(response.profile);
+        saveSession(token, response.user, response.profile);
         return { success: true, user: response.user, profile: response.profile };
       }
       return { success: false, message: response.message || 'Profile update failed' };
