@@ -491,13 +491,26 @@ VOID HUNTER includes a hardened administrative suite accessible only by authenti
 * **Roles**: `PLAYER` (default) and `ADMIN`.
 * **Zero Client Trust**: All administrative endpoints independently verify authenticated JWT tokens and check `req.user.role === 'admin'`.
 * **Tamper-Proof Registration**: Player self-promotion is blocked. Sending `role: 'admin'` in registration payloads is discarded and defaults safely to `player`.
-* **Conditional UI Exposure**: The `AUDIT LEDGER` navigation option is only visible in the sidebar to authenticated administrators. Non-admin players navigating to `/admin` are immediately intercepted and redirected to `/dashboard` with an HTTP 403 denial state.
+* **Conditional UI Exposure**: The `ADMIN CONSOLE` navigation option is visible in the sidebar exclusively to authenticated administrators (`admin@voidhunter.com`). Non-admin players attempting to navigate to `/admin` are immediately intercepted and redirected to `/dashboard` with an HTTP 403 denial state.
 
-### Secure Initial Administrator Provisioning
-Administrator accounts cannot be registered publicly. To bootstrap an administrator account, run the server CLI tool:
+### 🔑 Pre-Configured Administrator Credentials (For Immediate Evaluation)
+The production database is pre-configured with exclusive Supreme Commander administrative clearance:
+
+| Parameter | Value |
+| :--- | :--- |
+| **Admin Email** | `admin@voidhunter.com` |
+| **Admin Password** | `admin@123` |
+| **Direct Access URL** | [`http://localhost:5173/admin`](http://localhost:5173/admin) |
+| **Login Portal** | [`http://localhost:5173/auth`](http://localhost:5173/auth) |
+
+> [!NOTE]
+> **Direct Auto-Routing**: When logging in with `admin@voidhunter.com` / `admin@123`, the application automatically detects administrator clearance and routes immediately to `/admin`. Non-administrator pilot accounts are strictly kept under `role: 'player'`.
+
+### Secure Administrator CLI Provisioning
+Administrator accounts cannot be registered publicly via client forms. To bootstrap or update an administrator account via CLI, run:
 
 ```bash
-node server/scripts/createAdmin.js --name "Admiral Sovereign" --email "admin@voidhunter.com" --password "YourStrongPassword123!"
+node server/scripts/createAdmin.js --name "Admiral Sovereign" --email "admin@voidhunter.com" --password "admin@123"
 ```
 
 ### Protected Administrative REST API Endpoints
@@ -705,6 +718,14 @@ npm install
 npm run dev
 # Vite client running at http://localhost:5173
 ```
+
+### 4. Admin Portal & Evaluation Credentials
+To evaluate the secure administrative suite, metrics, and economy ledger:
+1. Open [`http://localhost:5173/admin`](http://localhost:5173/admin) or [`http://localhost:5173/auth`](http://localhost:5173/auth)
+2. Log in using the exclusive pre-configured administrative credentials:
+   * **Email**: `admin@voidhunter.com`
+   * **Password**: `admin@123`
+3. You will be automatically routed to the comprehensive **Admin Console** with live Section 74 double-entry audits, Section 37 reward logs, and Section 35 economy parameters.
 
 ---
 
