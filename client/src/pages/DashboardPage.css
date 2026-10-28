@@ -1076,3 +1076,133 @@
   object-fit: cover;
   display: block;
 }
+
+/* ================= DASHBOARD DAILY STREAK BANNER ================= */
+.dashboard-streak-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, rgba(13, 23, 51, 0.95), rgba(8, 14, 38, 0.95));
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.05);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-streak-banner:hover {
+  border-color: rgba(251, 191, 36, 0.65);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(251, 191, 36, 0.15);
+}
+
+.streak-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.streak-flame-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, rgba(251, 191, 36, 0.05) 70%);
+  border: 1.5px solid rgba(251, 191, 36, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.3);
+}
+
+.streak-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Orbitron', 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+}
+
+.streak-consecutive-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #FBBF24;
+  letter-spacing: 0.04em;
+}
+
+.streak-banner-desc {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin: 0.2rem 0 0 0;
+  line-height: 1.3;
+}
+
+.streak-banner-right {
+  flex-shrink: 0;
+}
+
+.streak-pulse-claim-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #FBBF24, #F59E0B);
+  color: #04081E;
+  font-family: 'Orbitron', 'Space Grotesk', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.45);
+  animation: pulseClaimBtn 1.8s infinite;
+  transition: all 0.2s ease;
+}
+
+@keyframes pulseClaimBtn {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+  50% { transform: scale(1.03); box-shadow: 0 0 25px rgba(251, 191, 36, 0.75); }
+}
+
+.streak-claimed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  background: rgba(32, 214, 160, 0.12);
+  border: 1px solid rgba(32, 214, 160, 0.3);
+  color: #20D6A0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .dashboard-streak-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  .streak-banner-right {
+    width: 100%;
+  }
+  .streak-pulse-claim-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

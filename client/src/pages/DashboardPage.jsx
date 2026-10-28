@@ -4,14 +4,17 @@ import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import { MISSIONS_CATALOG } from '../data/missionsData.js';
 import './DashboardPage.css';
+import { DailyStreakModal } from '../components/DailyStreakModal.jsx';
 import { 
   Play, Compass, Award, ChevronRight, 
   Coins, Zap, Crosshair, Shield, Activity, 
-  ShieldCheck, Target, User
+  ShieldCheck, Target, User, Flame, Sparkles, CheckCircle2
 } from 'lucide-react';
 
 export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }) => {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
+  const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
+  const [streakInfo, setStreakInfo] = useState({ currentStreak: 1, streakDay: 1, canClaimToday: false });
 
   // Real backend-driven state
   const [activeShip, setActiveShip] = useState(null);
@@ -114,11 +117,21 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
         setActiveShip(equipped);
       }
 
-      // 2. Fetch real daily quests and achievements
+      // 2. Fetch real daily quests, achievements, and daily streak
       const questsRes = await api.get('/quests');
       if (questsRes.data?.success) {
         setDailyQuests(questsRes.data.dailyQuests || []);
         setAchievements(questsRes.data.achievements || []);
+        if (questsRes.data.streak) {
+          setStreakInfo(questsRes.data.streak);
+          if (questsRes.data.streak.canClaimToday && typeof window !== 'undefined') {
+            const hasSeen = sessionStorage.getItem('streak_modal_auto_opened');
+            if (!hasSeen) {
+              setIsStreakModalOpen(true);
+              sessionStorage.setItem('streak_modal_auto_opened', 'true');
+            }
+          }
+        }
       }
 
       // 3. Fetch real recent wallet ledger transactions
@@ -238,6 +251,58 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
           </button>
         </div>
       </section>
+
+            {/* ================= 1B. DAILY DEPLOYMENT STREAK COMMAND BANNER ================= */}
+      <div 
+        className="dashboard-streak-banner cyber-panel cyber-interactive-card"
+        onClick={() => {
+          try { soundManager.playLaser(); } catch {}
+          setIsStreakModalOpen(true);
+        }}
+        title="Open 7-Day Deployment Streak & Mystery Crate Calendar"
+      >
+        <span className="hud-corner hud-tl" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
+        <span className="hud-corner hud-tr" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
+        <span className="hud-corner hud-bl" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
+        <span className="hud-corner hud-br" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
+
+        <div className="streak-banner-left">
+          <div className="streak-flame-badge">
+            <Flame size={20} color="#FBBF24" />
+          </div>
+          <div className="streak-banner-text">
+            <div className="streak-banner-title">
+              <span>DAY {streakInfo.streakDay || 1} / 7 DEPLOYMENT STREAK</span>
+              <span className="streak-consecutive-tag">
+                {streakInfo.currentStreak || 1} CONSECUTIVE {streakInfo.currentStreak === 1 ? 'DAY' : 'DAYS'}
+              </span>
+            </div>
+            <p className="streak-banner-desc">
+              Consecutive daily sorties yield escalating Credits, Energy Cores, and unlock the Day 7 Imperial Mystery Crate.
+            </p>
+          </div>
+        </div>
+
+        <div className="streak-banner-right">
+          {streakInfo.canClaimToday ? (
+            <button 
+              className="streak-pulse-claim-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsStreakModalOpen(true);
+              }}
+            >
+              <Sparkles size={14} />
+              <span>CLAIM DAY {streakInfo.streakDay || 1} REWARD</span>
+            </button>
+          ) : (
+            <div className="streak-claimed-badge">
+              <CheckCircle2 size={14} color="#20D6A0" />
+              <span>TODAY'S AIRDROP SECURED</span>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="dashboard-top-hero-grid">
         {/* LEFT: CINEMATIC MISSION BRIEFING (HERO) */}
@@ -592,6 +657,22 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
         </section>
 
       </div>
+
+      {/* 7-DAY DAILY DEPLOYMENT STREAK & MYSTERY CRATE MODAL */}
+      <DailyStreakModal 
+        isOpen={isStreakModalOpen}
+        initialData={streakInfo}
+        onClose={() => setIsStreakModalOpen(false)}
+        onRewardClaimed={(payload) => {
+          if (refreshProfile) refreshProfile();
+          setStreakInfo((prev) => ({
+            ...prev,
+            canClaimToday: false,
+            currentStreak: payload.updatedBalances?.streak || prev.currentStreak
+          }));
+          fetchDashboardData();
+        }}
+      />
     </div>
   );
 };

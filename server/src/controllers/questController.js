@@ -174,12 +174,20 @@ export const claimDailyStreak = async (req, res) => {
     const rewardTier = DAILY_LOGIN_STREAK_REWARDS.find((r) => r.day === streakDay) || DAILY_LOGIN_STREAK_REWARDS[0];
 
     const balanceBefore = profile.credits;
+    const coresBefore = profile.energyCores || 0;
+    const coinsBefore = profile.velopRewardCoins || 0;
+
     profile.credits += rewardTier.credits;
-    profile.energyCores += rewardTier.cores;
+    if (rewardTier.cores) {
+      profile.energyCores = coresBefore + rewardTier.cores;
+    }
+    if (rewardTier.coins) {
+      profile.velopRewardCoins = coinsBefore + rewardTier.coins;
+    }
     profile.stats.lastDailyClaim = now;
     await profile.save();
 
-    // Create immutable WalletTransaction
+    // Create immutable WalletTransaction for Credits
     await WalletTransaction.create({
       user: userId,
       transactionType: 'CREDIT',
@@ -188,10 +196,42 @@ export const claimDailyStreak = async (req, res) => {
       balanceBefore,
       balanceAfter: profile.credits,
       source: 'DAILY_CLAIM',
-      referenceId: `streak-day-${streakDay}-${Date.now()}`,
-      description: `Claimed ${rewardTier.label}`,
+      referenceId: `streak-cr-${streakDay}-${Date.now()}`,
+      description: `Claimed ${rewardTier.label} (Credits)`,
       status: 'COMPLETED'
     });
+
+    // Create immutable WalletTransaction for Energy Cores (if awarded)
+    if (rewardTier.cores && rewardTier.cores > 0) {
+      await WalletTransaction.create({
+        user: userId,
+        transactionType: 'CREDIT',
+        currencyType: 'ENERGY_CORES',
+        amount: rewardTier.cores,
+        balanceBefore: coresBefore,
+        balanceAfter: profile.energyCores,
+        source: 'DAILY_CLAIM',
+        referenceId: `streak-cores-${streakDay}-${Date.now()}`,
+        description: `Claimed ${rewardTier.label} (Energy Cores)`,
+        status: 'COMPLETED'
+      });
+    }
+
+    // Create immutable WalletTransaction for VELOOP Coins / Gems (if awarded, e.g. Day 7 Mystery Crate)
+    if (rewardTier.coins && rewardTier.coins > 0) {
+      await WalletTransaction.create({
+        user: userId,
+        transactionType: 'CREDIT',
+        currencyType: 'REWARD_COINS',
+        amount: rewardTier.coins,
+        balanceBefore: coinsBefore,
+        balanceAfter: profile.velopRewardCoins,
+        source: 'DAILY_CLAIM',
+        referenceId: `streak-coins-${streakDay}-${Date.now()}`,
+        description: `Claimed ${rewardTier.label} (Mystery Crate Jackpot Coins)`,
+        status: 'COMPLETED'
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -200,6 +240,7 @@ export const claimDailyStreak = async (req, res) => {
       updatedBalances: {
         credits: profile.credits,
         energyCores: profile.energyCores,
+        velopRewardCoins: profile.velopRewardCoins,
         streak: profile.stats.dailyStreak
       }
     });

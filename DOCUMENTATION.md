@@ -5,6 +5,7 @@
 **Live Production Client**: [https://void-hunter-ovqz.vercel.app](https://void-hunter-ovqz.vercel.app)  
 **Live Production API**: [https://void-hunter-pekf.vercel.app/api](https://void-hunter-pekf.vercel.app/api)  
 **GitHub Repository**: [https://github.com/kiranchaudhary18/void-hunter](https://github.com/kiranchaudhary18/void-hunter)  
+**Official Project Specification**: [Google Drive Reference Document](https://drive.google.com/file/d/1ylFwNN4mJBmBOffObwdPVZhkVds43V0r/view?usp=drive_link)  
 **Test Suite Compliance**: 44/44 Test Scenarios Passed (100%)  
 
 ---
@@ -308,6 +309,9 @@ Open [`http://localhost:5173`](http://localhost:5173) in your browser.
 ---
 
 ## 🚀 Specification Compliance & Delivery Matrix (100% Verified)
+
+> [!NOTE]
+> **Official Reference Specification**: The comprehensive requirements and design guidelines for this project are hosted on Google Drive: [Official Specification Document](https://drive.google.com/file/d/1ylFwNN4mJBmBOffObwdPVZhkVds43V0r/view?usp=drive_link). Every module and deliverable below directly fulfills this specification.
 
 Every core requirement of the company's engineering specification has been fully designed, implemented, and verified in the live production build:
 

@@ -121,11 +121,11 @@ export const ACHIEVEMENTS_CATALOG = [
 ];
 
 export const DAILY_LOGIN_STREAK_REWARDS = [
-  { day: 1, credits: 100, cores: 0, label: 'Day 1: Scout Supply' },
-  { day: 2, credits: 150, cores: 1, label: 'Day 2: Core Infusion' },
-  { day: 3, credits: 200, cores: 1, label: 'Day 3: Weapon Battery' },
-  { day: 4, credits: 250, cores: 2, label: 'Day 4: Shield Booster' },
-  { day: 5, credits: 350, cores: 2, label: 'Day 5: Plasma Crate' },
-  { day: 6, credits: 500, cores: 3, label: 'Day 6: Apex Shipment' },
-  { day: 7, credits: 1000, cores: 5, label: 'Day 7: Imperial Jackpot' }
+  { day: 1, credits: 100, cores: 0, coins: 0, label: 'Day 1: Scout Supply', icon: 'Package' },
+  { day: 2, credits: 150, cores: 1, coins: 0, label: 'Day 2: Core Infusion', icon: 'Zap' },
+  { day: 3, credits: 200, cores: 1, coins: 0, label: 'Day 3: Weapon Battery', icon: 'Crosshair' },
+  { day: 4, credits: 250, cores: 2, coins: 0, label: 'Day 4: Shield Booster', icon: 'Shield' },
+  { day: 5, credits: 350, cores: 2, coins: 0, label: 'Day 5: Plasma Crate', icon: 'Flame' },
+  { day: 6, credits: 500, cores: 3, coins: 5, label: 'Day 6: Apex Shipment', icon: 'Sparkles' },
+  { day: 7, credits: 1000, cores: 5, coins: 25, label: 'Day 7: Imperial Mystery Crate Jackpot', icon: 'Gift', isMysteryCrate: true }
 ];

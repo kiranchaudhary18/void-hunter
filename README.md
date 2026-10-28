@@ -23,7 +23,7 @@
   Features a 60 FPS hardware-accelerated combat canvas, server-enforced anti-cheat lifecycles, immutable double-entry financial ledgers, 50 data-driven missions, 5 pilotable starship classes, 5 multi-phase bosses, and full cross-device mobile responsiveness.
 </p>
 
-[🎮 Play Live Demo](https://void-hunter-ovqz.vercel.app) • [📖 Architecture](#-system-architecture) • [🛡️ Economy & Anti-Cheat](#-6-the-veloop-reward-economy) • [⚡ Quickstart](#-15-quickstart--local-setup) • [🧪 Test Matrix (44/44)](#-14-automated-testing--compliance-matrix)
+[🎮 Play Live Demo](https://void-hunter-ovqz.vercel.app) • [📑 Google Drive Specification](https://drive.google.com/file/d/1ylFwNN4mJBmBOffObwdPVZhkVds43V0r/view?usp=drive_link) • [📄 Project Documentation (Local)](./DOCUMENTATION.md) • [📖 Architecture](#-system-architecture) • [🛡️ Economy & Anti-Cheat](#-6-the-veloop-reward-economy) • [⚡ Quickstart](#-15-quickstart--local-setup) • [🧪 Test Matrix (44/44)](#-14-automated-testing--compliance-matrix)
 
 </div>
 
