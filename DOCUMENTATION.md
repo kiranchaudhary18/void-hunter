@@ -137,7 +137,23 @@ $$\text{IDLE} \longrightarrow \text{OFFERED} \longrightarrow \text{INITIALIZED} 
 
 ## 🛡️ Administrative Console & Economy Audit Suite
 
-Accessible exclusively at `/admin` to authenticated users with role `admin`:
+The platform includes a hardened administrative command deck accessible exclusively at `/admin` for verified administrators.
+
+### 🔑 Exclusive Administrator Credentials & Login Procedure:
+To test and evaluate the Administrative Console:
+* **Admin Direct URL**: [`https://void-hunter-ovqz.vercel.app/admin`](https://void-hunter-ovqz.vercel.app/admin) or [`http://localhost:5173/admin`](http://localhost:5173/admin)
+* **Admin Email**: `admin@voidhunter.com`
+* **Admin Password**: `admin@123`
+* **Clearance Level**: Supreme Commander (Level 5 Clearance)
+
+#### How Administrator Login & Auto-Routing Works:
+1. Navigate to the Login Portal (`/auth`) or direct Admin URL (`/admin`).
+2. Input `admin@voidhunter.com` and `admin@123`.
+3. Upon clicking **Login**, the authentication engine automatically identifies the `admin` role and **instantly redirects directly to the Admin Dashboard (`/admin`)**.
+4. The cyber sidebar unlocks the exclusive **ADMIN CONSOLE** navigation button (with `ShieldCheck` icon).
+5. **Zero Client Trust Security**: Non-admin pilot accounts attempting to access `/admin` are rejected by backend middleware with HTTP 403 Forbidden and redirected back to `/dashboard`.
+
+### Administrative Capabilities & Features:
 
 1. **Executive Overview (Section 75)**:
    * Real-time KPIs: Ad completion rate, revive conversion rate, double-score conversion rate.
