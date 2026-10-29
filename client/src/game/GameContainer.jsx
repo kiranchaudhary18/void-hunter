@@ -522,7 +522,7 @@ export const GameContainer = ({
             <div style={styles.gaugesContainer}>
               {/* Health Bar */}
               <div style={styles.gaugeRow}>
-                <Heart size={14} color="var(--status-green)" style={{ filter: 'drop-shadow(0 0 4px #10B981)' }} />
+                <Heart size={14} color="#10B981" style={{ flexShrink: 0 }} />
                 <div className="game-hud-bar-track" style={styles.barTrack}>
                   <div 
                     style={{ 
@@ -538,7 +538,7 @@ export const GameContainer = ({
 
               {/* Shield Bar */}
               <div style={styles.gaugeRow}>
-                <Shield size={14} color="var(--secondary-cyan)" style={{ filter: 'drop-shadow(0 0 4px #00E5FF)' }} />
+                <Shield size={14} color="#00E5FF" style={{ flexShrink: 0 }} />
                 <div className="game-hud-bar-track" style={styles.barTrack}>
                   <div 
                     style={{ 
@@ -1516,30 +1516,40 @@ const styles = {
   },
   hudTop: {
     position: 'absolute',
-    top: 16,
+    top: 14,
     left: '50%',
     transform: 'translateX(-50%)',
-    width: '94%',
-    maxWidth: '1020px',
+    width: '95%',
+    maxWidth: '1040px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 24px',
-    borderRadius: '14px',
+    padding: '10px 22px',
+    borderRadius: '12px',
+    background: 'rgba(5, 9, 24, 0.88)',
+    border: '1px solid rgba(0, 229, 255, 0.22)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
     zIndex: 20
   },
   hudTopMobile: {
     position: 'absolute',
-    top: 'max(6px, env(safe-area-inset-top, 6px))',
+    top: 'max(8px, env(safe-area-inset-top, 8px))',
     left: '50%',
     transform: 'translateX(-50%)',
-    width: '96%',
-    maxWidth: '560px',
+    width: '95%',
+    maxWidth: '540px',
     display: 'flex',
     flexDirection: 'column',
     gap: '6px',
-    padding: '7px 10px',
+    padding: '8px 12px',
     borderRadius: '12px',
+    background: 'rgba(5, 9, 24, 0.90)',
+    border: '1px solid rgba(0, 229, 255, 0.25)',
+    boxShadow: '0 6px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+    backdropFilter: 'blur(14px)',
+    WebkitBackdropFilter: 'blur(14px)',
     zIndex: 30
   },
   hudMobileRow1: {
@@ -1578,12 +1588,12 @@ const styles = {
     gap: '5px'
   },
   barTrackMobile: {
-    width: '46px',
-    height: '6px',
+    width: '64px',
+    height: '7px',
     background: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: '3px',
+    borderRadius: '4px',
     overflow: 'hidden',
-    border: '1px solid rgba(255, 255, 255, 0.14)'
+    border: '1px solid rgba(255, 255, 255, 0.18)'
   },
   gaugeValMobile: {
     fontSize: '0.66rem',
@@ -1643,11 +1653,11 @@ const styles = {
   },
   barTrack: {
     width: '140px',
-    height: '8px',
+    height: '9px',
     background: 'rgba(255, 255, 255, 0.08)',
     borderRadius: '4px',
     overflow: 'hidden',
-    border: '1px solid rgba(255, 255, 255, 0.12)'
+    border: '1px solid rgba(255, 255, 255, 0.16)'
   },
   barFill: {
     height: '100%',
