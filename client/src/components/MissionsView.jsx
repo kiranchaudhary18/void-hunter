@@ -427,6 +427,10 @@ export const MissionsView = ({
       </div>
 
       {/* ================= 4. MAIN CAMPAIGN ARENA (MAP + BRIEFING PANEL) ================= */}
+      <div className="mobile-swipe-guide">
+        <span>👈 SWIPE MAP HORIZONTALLY TO EXPLORE SORTIES 01 - 10 👉</span>
+      </div>
+
       <div className="campaign-arena-grid">
         
         {/* LEFT COLUMN: INTERACTIVE SECTOR PROGRESSION MAP */}

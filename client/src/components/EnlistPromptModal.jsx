@@ -134,7 +134,10 @@ const styles = {
   modal: {
     maxWidth: '540px',
     width: '100%',
-    padding: '32px',
+    maxHeight: '90dvh',
+    overflowY: 'auto',
+    boxSizing: 'border-box',
+    padding: 'clamp(20px, 4vw, 32px)',
     borderRadius: '16px',
     background: 'rgba(8, 14, 38, 0.96)',
     border: '1px solid rgba(0, 229, 255, 0.4)',

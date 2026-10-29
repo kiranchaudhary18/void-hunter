@@ -1431,23 +1431,58 @@ export const GameContainer = ({
               Are you sure you want to retreat to the hangar? Any unverified telemetry and mid-battle credits from this sortie will be forfeited.
             </p>
 
-            <div style={{ display: 'flex', gap: '12px', width: '100%', marginTop: '12px' }}>
-              <button 
-                onClick={handleConfirmAbort} 
-                className="btn btn-outline" 
-                style={{ flex: 1, padding: '12px', borderColor: 'rgba(239, 68, 68, 0.6)', color: '#EF4444' }}
-              >
-                CONFIRM ABORT
-              </button>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: isMobile ? 'column' : 'row-reverse', 
+              gap: '10px', 
+              width: '100%', 
+              marginTop: '14px',
+              boxSizing: 'border-box'
+            }}>
               <button 
                 onClick={() => {
                   setIsAbortModalOpen(false);
                   if (isPaused) handleTogglePause();
                 }} 
                 className="btn btn-cyan" 
-                style={{ flex: 1, padding: '12px' }}
+                style={{ 
+                  flex: isMobile ? 'none' : 1, 
+                  width: '100%',
+                  padding: '13px 18px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  minHeight: '46px',
+                  boxSizing: 'border-box'
+                }}
               >
-                RESUME COMBAT
+                <Play size={16} fill="currentColor" />
+                <span>RESUME COMBAT</span>
+              </button>
+              <button 
+                onClick={handleConfirmAbort} 
+                className="btn btn-outline" 
+                style={{ 
+                  flex: isMobile ? 'none' : 1, 
+                  width: '100%',
+                  padding: '13px 18px', 
+                  borderColor: 'rgba(239, 68, 68, 0.6)', 
+                  color: '#EF4444',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  minHeight: '46px',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <ArrowLeft size={16} />
+                <span>CONFIRM ABORT</span>
               </button>
             </div>
           </div>
@@ -2105,16 +2140,18 @@ const styles = {
     transition: 'width 0.15s ease'
   },
   pauseModal: {
-    maxWidth: '480px',
-    width: '100%',
-    padding: '32px 28px',
+    maxWidth: '440px',
+    width: 'calc(100vw - 32px)',
+    boxSizing: 'border-box',
+    padding: '24px 18px',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '14px',
     border: '1px solid rgba(0, 229, 255, 0.4)',
-    boxShadow: '0 0 45px rgba(0, 229, 255, 0.2)'
+    boxShadow: '0 0 45px rgba(0, 229, 255, 0.2)',
+    borderRadius: '16px'
   },
   pauseTitle: {
     fontSize: '1.8rem',
@@ -2133,16 +2170,18 @@ const styles = {
     borderRadius: '8px'
   },
   abortModal: {
-    maxWidth: '420px',
-    width: '100%',
-    padding: '32px 28px',
+    maxWidth: '400px',
+    width: 'calc(100vw - 32px)',
+    boxSizing: 'border-box',
+    padding: '24px 20px',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '12px',
-    border: '1px solid rgba(239, 68, 68, 0.4)',
-    boxShadow: '0 0 40px rgba(239, 68, 68, 0.25)'
+    border: '1px solid rgba(239, 68, 68, 0.45)',
+    boxShadow: '0 0 40px rgba(239, 68, 68, 0.3)',
+    borderRadius: '16px'
   },
   waveBanner: {
     position: 'absolute',

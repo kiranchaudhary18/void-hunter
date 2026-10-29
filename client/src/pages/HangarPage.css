@@ -173,13 +173,11 @@
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 1480px;
-  margin: 0 auto;
-  padding: clamp(72px, 10vh, 88px) clamp(16px, 3.5vw, 44px) 64px;
+  padding: 24px 32px 60px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
 }
 
 /* ==========================================================================
@@ -1421,9 +1419,7 @@
 
 @media (max-width: 640px) {
   .hangar-container {
-    padding-top: 68px;
-    padding-left: 12px;
-    padding-right: 12px;
+    padding: 16px 12px 84px 12px !important;
     gap: 16px;
   }
   .hangar-header-bar {

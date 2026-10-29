@@ -1,3 +1,29 @@
+
+.mobile-swipe-guide {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-swipe-guide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    font-family: 'Orbitron', monospace;
+    color: #00E5FF;
+    letter-spacing: 0.08em;
+    padding: 8px 12px;
+    background: rgba(0, 229, 255, 0.08);
+    border: 1px dashed rgba(0, 229, 255, 0.3);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+}
+
 /* ==========================================================================
    VOID HUNTER - PREMIUM AAA LEVEL PROGRESSION & SECTOR MAP DESIGN SYSTEM
    Palette:
