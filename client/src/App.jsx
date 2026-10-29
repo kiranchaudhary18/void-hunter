@@ -146,19 +146,21 @@ function MainAppContent() {
 
   // Launch a specified mission directly from Main Menu or Campaign
   const handleStartMission = async (mission) => {
-    if (!isAuthenticated) {
-      setActiveMission(mission);
-      navigateTo('auth');
-      return;
-    }
     try {
       const ship = getSelectedShipData();
-      const res = await api.post(`/missions/${mission.id}/start`, {
-        shipId: ship?.id || 'v01-orbitron'
-      });
-      const newSessionId = res.data?.sessionId || res.data?.session?.id || `local-${Date.now()}`;
+      let sessionId = `local-${Date.now()}`;
+      if (isAuthenticated) {
+        try {
+          const res = await api.post(`/missions/${mission.id}/start`, {
+            shipId: ship?.id || 'v01-orbitron'
+          });
+          sessionId = res.data?.sessionId || res.data?.session?.id || sessionId;
+        } catch (e) {
+          console.warn('Backend mission start fallback to local session:', e.message);
+        }
+      }
       setActiveMission(mission);
-      setActiveSessionId(newSessionId);
+      setActiveSessionId(sessionId);
       navigateTo('gameplay');
     } catch (e) {
       console.warn('Could not start mission online:', e.message);
@@ -222,10 +224,6 @@ function MainAppContent() {
 
   // Helper to start the next recommended or active mission with a real backend session
   const handleQuickCombatLaunch = async () => {
-    if (!isAuthenticated) {
-      navigateTo('auth');
-      return;
-    }
     const completedCount = profile?.stats?.missionsCompleted || 0;
     const nextSeq = Math.min(50, completedCount + 1);
     const targetMission = MISSIONS_CATALOG.find((m) => m.globalSequence === nextSeq) || MISSIONS_CATALOG[0];
@@ -358,11 +356,9 @@ function MainAppContent() {
             onNavigate={(screen) => navigateTo(screen)}
             selectedShip={getSelectedShipData()}
             onLaunchMission={(mission, sessionId) => {
-              if (!isAuthenticated) {
-                setActiveMission(mission);
-                navigateTo('auth');
-                return;
-              }
+              setActiveMission(mission);
+              setActiveSessionId(sessionId || `guest-${Date.now()}`);
+              navigateTo('gameplay');
               setActiveMission(mission);
               setActiveSessionId(sessionId);
               navigateTo('gameplay');

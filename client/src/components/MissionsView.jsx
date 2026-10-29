@@ -126,9 +126,12 @@ export const MissionsView = ({
 
   // Mission Launch Handler
   const handleLaunch = async (mission) => {
+    // If not authenticated, allow immediate guest combat deployment
     if (!isAuthenticated) {
       soundManager.playLaser();
-      setEnlistModalOpen(true);
+      if (onLaunchMission) {
+        onLaunchMission(mission, `guest-${Date.now()}`);
+      }
       return;
     }
 
@@ -169,6 +172,17 @@ export const MissionsView = ({
       setLaunchingId(null);
     }
   };
+
+  // 1-Click Quick Deploy: Compute active recommended mission
+  const recommendedMission = useMemo(() => {
+    if (selectedMission && selectedMission.isUnlocked) {
+      return selectedMission;
+    }
+    const activeSectorMissions = missions.filter((m) => m.sectorId === activeSectorId);
+    const firstAvailable = activeSectorMissions.find((m) => m.isUnlocked && !m.isCompleted);
+    if (firstAvailable) return firstAvailable;
+    return activeSectorMissions[0] || missions[0] || null;
+  }, [selectedMission, missions, activeSectorId]);
 
   // Node State Evaluator
   const getNodeState = (mission, idx) => {
@@ -297,6 +311,43 @@ export const MissionsView = ({
           <AlertCircle size={16} />
           <span>{errorMessage}</span>
         </div>
+      )}
+
+            {/* ================= 1B. 1-CLICK INSTANT DEPLOY HERO COMMAND ================= */}
+      {recommendedMission && (
+        <section className="missions-quick-deploy-card" aria-label="Instant Mission Deploy">
+          <div className="quick-deploy-left">
+            <div className="quick-deploy-tag-row">
+              <span className="quick-deploy-status-dot" />
+              <span className="quick-deploy-tag-text">
+                RECOMMENDED SORTIE // SECTOR {currentSector?.name?.toUpperCase() || '01'}
+              </span>
+              <span className="quick-deploy-hazard-pill">
+                {recommendedMission.sequence === 10 ? 'APEX HAZARD' : 'STANDARD HAZARD'}
+              </span>
+            </div>
+            <h2 className="quick-deploy-title">
+              SORTIE 0{recommendedMission.sequence}: {recommendedMission.name.toUpperCase()}
+            </h2>
+            <div className="quick-deploy-objective">
+              <Target size={14} color="#00E5FF" />
+              <span>{recommendedMission.objective || 'Neutralize hostile void fighter wings and secure airspace.'}</span>
+            </div>
+          </div>
+
+          <div className="quick-deploy-right">
+            <button
+              id="instant-sortie-deploy-btn"
+              onClick={() => handleLaunch(recommendedMission)}
+              disabled={launchingId === recommendedMission.id}
+              className="btn-quick-deploy-cta"
+              title="Launch directly into combat sortie"
+            >
+              <Play size={18} fill="currentColor" />
+              <span>{launchingId === recommendedMission.id ? 'INITIALIZING COMBAT...' : '⚡ INSTANT DEPLOY'}</span>
+            </button>
+          </div>
+        </section>
       )}
 
       {/* ================= 2. SECTOR NAVIGATION SYSTEM ================= */}
@@ -843,11 +894,12 @@ export const MissionsView = ({
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setEnlistModalOpen(true)}
-                    className="btn-briefing-launch"
+                    onClick={() => handleLaunch(selectedMission)}
+                    className="btn-quick-deploy-cta"
+                    style={{ width: '100%', justifyContent: 'center' }}
                   >
                     <Play size={16} fill="currentColor" />
-                    <span>SIGN IN TO DEPLOY</span>
+                    <span>⚡ INSTANT DEPLOY</span>
                   </button>
                 )}
               </div>

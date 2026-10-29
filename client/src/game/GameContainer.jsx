@@ -44,6 +44,7 @@ export const GameContainer = ({
   const [isAbortModalOpen, setIsAbortModalOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(soundManager.muted);
   const [waveAnnouncement, setWaveAnnouncement] = useState(null);
+  const [missionIntro, setMissionIntro] = useState(true);
   const [gameOverData, setGameOverData] = useState(null);
   const [victoryData, setVictoryData] = useState(null);
   const [adModalOpen, setAdModalOpen] = useState(false);
@@ -55,6 +56,11 @@ export const GameContainer = ({
   const adTimerRef = useRef(null);
   const isCompletedReportedRef = useRef(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 680 : false);
+
+  useEffect(() => {
+    const introTimer = setTimeout(() => setMissionIntro(false), 3200);
+    return () => clearTimeout(introTimer);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1314,6 +1320,45 @@ export const GameContainer = ({
             >
               {adCountdown > 0 ? `LOCKED (WATCH FULL BROADCAST: ${adCountdown}S)` : '✓ CLAIM VERIFIED REWARD'}
             </button>
+          </div>
+        </div>
+      )}
+
+            {/* ================= 3-SECOND CLEAN COMBAT INTRO & CONTROLS OVERLAY ================= */}
+      {missionIntro && !isPaused && (
+        <div 
+          onClick={() => setMissionIntro(false)}
+          style={{
+            position: 'absolute',
+            top: 'max(84px, calc(env(safe-area-inset-top, 0px) + 76px))',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'rgba(5, 10, 28, 0.92)',
+            border: '1px solid rgba(0, 229, 255, 0.45)',
+            borderRadius: '12px',
+            padding: '12px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px',
+            zIndex: 40,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 229, 255, 0.25)',
+            backdropFilter: 'blur(12px)',
+            pointerEvents: 'auto',
+            cursor: 'pointer',
+            maxWidth: '92vw',
+            textAlign: 'center'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#00E5FF', fontFamily: 'Orbitron', fontSize: '0.74rem', letterSpacing: '0.12em', fontWeight: 'bold' }}>
+            <Target size={13} />
+            <span>MISSION OBJECTIVE</span>
+          </div>
+          <div style={{ color: '#EAF1FF', fontSize: '0.92rem', fontWeight: 700 }}>
+            {missionData?.objective || 'Destroy all hostile void fighter wings.'}
+          </div>
+          <div style={{ color: '#96A6C8', fontSize: '0.70rem', letterSpacing: '0.04em', marginTop: '2px' }}>
+            {isMobile ? '👆 TOUCH & DRAG TO FLY • AUTO-FIRE ACTIVE • TAP 🚀 FOR MISSILES' : '⌨️ WASD / ARROWS TO FLY • CLICK / SPACE TO SHOOT • B FOR MISSILES'}
           </div>
         </div>
       )}

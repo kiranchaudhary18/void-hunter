@@ -36,13 +36,11 @@
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 8px 6px 32px 6px;
+  padding: 24px 32px 60px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 /* ================= 1. MISSION-CONTROL PAGE HEADER ================= */
@@ -169,6 +167,148 @@
   font-size: 0.58rem;
   color: #96A6C8;
   font-weight: 600;
+}
+
+
+/* ================= 1B. 1-CLICK INSTANT DEPLOY HERO CARD ================= */
+.missions-quick-deploy-card {
+  background: linear-gradient(135deg, rgba(14, 25, 65, 0.95) 0%, rgba(8, 14, 38, 0.95) 100%);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 12px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 229, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.missions-quick-deploy-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00E5FF, #8B5CF6, transparent);
+}
+
+.quick-deploy-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.quick-deploy-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-deploy-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00E5FF;
+  box-shadow: 0 0 8px #00E5FF;
+  animation: cyberPulseGlow 1.5s infinite;
+}
+
+.quick-deploy-tag-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: #00E5FF;
+  font-weight: 700;
+}
+
+.quick-deploy-hazard-pill {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: #EAF1FF;
+}
+
+.quick-deploy-title {
+  margin: 0;
+  font-family: 'Orbitron', monospace;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.quick-deploy-objective {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #96A6C8;
+}
+
+.quick-deploy-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-quick-deploy-cta {
+  background: linear-gradient(135deg, #00E5FF 0%, #0099FF 100%);
+  color: #04081E;
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-quick-deploy-cta:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(0, 229, 255, 0.65);
+}
+
+.btn-quick-deploy-cta:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-quick-deploy-cta:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .missions-quick-deploy-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 14px;
+  }
+  .quick-deploy-title {
+    font-size: 1.1rem;
+  }
+  .btn-quick-deploy-cta {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 16px;
+  }
 }
 
 /* ================= 2. SECTOR NAVIGATION SYSTEM ================= */
@@ -1229,6 +1369,7 @@
 
 /* Extra Mobile Sector Progression Refinements */
 @media (max-width: 768px) {
+  .missions-container,
   .sector-progression-shell {
     padding: 16px 12px 84px 12px !important;
   }
@@ -1238,6 +1379,7 @@
 }
 
 @media (max-width: 520px) {
+  .missions-container,
   .sector-progression-shell {
     padding: 12px 8px 84px 8px !important;
     gap: 14px !important;

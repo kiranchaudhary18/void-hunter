@@ -6,6 +6,7 @@ export const EnlistPromptModal = ({
   isOpen, 
   onClose, 
   onEnlist, 
+  onGuestLaunch, 
   title = "PILOT ENLISTMENT REQUIRED", 
   subtitle = "Log in or enlist now to deploy on combat missions, save flight telemetry, and claim sector rewards.",
   featureList = [
@@ -91,6 +92,19 @@ export const EnlistPromptModal = ({
             <span>LOGIN / ENLIST AS PILOT</span>
             <ArrowRight size={16} />
           </button>
+
+                    {onGuestLaunch && (
+            <button 
+              onClick={() => {
+                soundManager.playLaser();
+                onGuestLaunch();
+              }} 
+              className="btn btn-outline" 
+              style={{ width: '100%', padding: '12px', borderColor: 'rgba(0, 229, 255, 0.4)', color: '#00E5FF', fontFamily: 'Orbitron', fontWeight: 700 }}
+            >
+              <span>⚡ DEPLOY AS GUEST CADET</span>
+            </button>
+          )}
 
           <button 
             onClick={handleClose} 
