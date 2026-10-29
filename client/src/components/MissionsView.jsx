@@ -331,7 +331,7 @@ export const MissionsView = ({
             </h2>
             <div className="quick-deploy-objective">
               <Target size={14} color="#00E5FF" />
-              <span>{recommendedMission.objective || 'Neutralize hostile void fighter wings and secure airspace.'}</span>
+              <span>{typeof recommendedMission.objective === 'string' ? recommendedMission.objective : (recommendedMission.objective?.label || 'Neutralize hostile void fighter wings and secure airspace.')}</span>
             </div>
           </div>
 

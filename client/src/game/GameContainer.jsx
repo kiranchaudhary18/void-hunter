@@ -1355,7 +1355,7 @@ export const GameContainer = ({
             <span>MISSION OBJECTIVE</span>
           </div>
           <div style={{ color: '#EAF1FF', fontSize: '0.92rem', fontWeight: 700 }}>
-            {missionData?.objective || 'Destroy all hostile void fighter wings.'}
+            {typeof mission?.objective === 'string' ? mission.objective : (mission?.objective?.label || 'Destroy all hostile void fighter wings.')}
           </div>
           <div style={{ color: '#96A6C8', fontSize: '0.70rem', letterSpacing: '0.04em', marginTop: '2px' }}>
             {isMobile ? '👆 TOUCH & DRAG TO FLY • AUTO-FIRE ACTIVE • TAP 🚀 FOR MISSILES' : '⌨️ WASD / ARROWS TO FLY • CLICK / SPACE TO SHOOT • B FOR MISSILES'}
