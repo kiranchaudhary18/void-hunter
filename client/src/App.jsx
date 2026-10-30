@@ -88,7 +88,11 @@ function MainAppContent() {
 
     setIsSettingsOpen(false);
     setCurrentScreen(targetScreen);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (targetScreen === 'gameplay') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, []);
 
   // Popstate event listener for browser Back & Forward button navigation
@@ -264,15 +268,7 @@ function MainAppContent() {
     );
   }
 
-  // Combat gameplay requires authentication to save combat progress, telemetry, and rewards
-  if (!isAuthenticated && currentScreen === 'gameplay') {
-    return (
-      <AuthPage 
-        onBackToGame={() => navigateTo('missions')} 
-        onAuthSuccess={handleAuthSuccess} 
-      />
-    );
-  }
+  // Guest pilot sortie capability: unauthenticated pilots can play combat sorties directly
 
   // Screen 1: Home / Main Menu Page (Full-width AAA sci-fi space layout)
   if (currentScreen === 'landing') {
@@ -358,9 +354,6 @@ function MainAppContent() {
             onLaunchMission={(mission, sessionId) => {
               setActiveMission(mission);
               setActiveSessionId(sessionId || `guest-${Date.now()}`);
-              navigateTo('gameplay');
-              setActiveMission(mission);
-              setActiveSessionId(sessionId);
               navigateTo('gameplay');
             }}
           />

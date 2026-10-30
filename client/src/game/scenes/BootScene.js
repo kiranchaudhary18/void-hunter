@@ -11,8 +11,9 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    // Start combat scene immediately after textures are registered
-    this.scene.start('SpaceCombatScene');
+    // Retrieve combat parameters set by GameContainer registry and start combat scene cleanly once
+    const combatData = this.game.registry.get('combatData');
+    this.scene.start('SpaceCombatScene', combatData);
   }
 
   createProceduralTextures() {

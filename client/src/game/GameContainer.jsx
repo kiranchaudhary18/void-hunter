@@ -144,7 +144,7 @@ export const GameContainer = ({
       },
       scale: {
         mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.NO_CENTER
+        autoCenter: Phaser.Scale.CENTER_BOTH
       },
       input: {
         touch: {
@@ -158,6 +158,30 @@ export const GameContainer = ({
     const game = new Phaser.Game(config);
     phaserGameInstance.current = game;
 
+    // Set combat data into game registry BEFORE scenes execute to prevent initial restart flicker
+    game.registry.set('combatData', {
+      missionId: mission.id,
+      missionName: mission.name,
+      mission: mission,
+      ship: ship,
+      callbacks: {
+        onStatsUpdate: (newStats) => setStats(newStats),
+        onGameOver: (result) => {
+          soundManager.stopBGM();
+          setGameOverData(result);
+        },
+        onVictory: (result) => {
+          soundManager.stopBGM();
+          setVictoryData(result);
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          if (onCompleteMission && !isCompletedReportedRef.current) {
+            isCompletedReportedRef.current = true;
+            onCompleteMission(result);
+          }
+        }
+      }
+    });
+
     // Listen to wave announcements
     game.events.on('wave-announcement', (data) => {
       setWaveAnnouncement(`WAVE ${data.wave} OF ${data.maxWaves} INCOMING`);
@@ -166,35 +190,6 @@ export const GameContainer = ({
 
     // Start Procedural Synth Combat BGM
     soundManager.startBGM('combat');
-
-    // Pass mission and callbacks to SpaceCombatScene when ready
-    game.events.on('ready', () => {
-      const combatScene = game.scene.getScene('SpaceCombatScene');
-      if (combatScene) {
-        combatScene.scene.restart({
-          missionId: mission.id,
-          missionName: mission.name,
-          mission: mission,
-          ship: ship,
-          callbacks: {
-            onStatsUpdate: (newStats) => setStats(newStats),
-            onGameOver: (result) => {
-              soundManager.stopBGM();
-              setGameOverData(result);
-            },
-            onVictory: (result) => {
-              soundManager.stopBGM();
-              setVictoryData(result);
-              confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-              if (onCompleteMission && !isCompletedReportedRef.current) {
-                isCompletedReportedRef.current = true;
-                onCompleteMission(result);
-              }
-            }
-          }
-        });
-      }
-    });
 
     return () => {
       soundManager.startBGM('menu');
@@ -1437,10 +1432,10 @@ export const GameContainer = ({
 
             <div style={{ 
               display: 'flex', 
-              flexDirection: isMobile ? 'column' : 'row-reverse', 
+              flexDirection: 'column', 
               gap: '10px', 
               width: '100%', 
-              marginTop: '14px',
+              marginTop: '16px',
               boxSizing: 'border-box'
             }}>
               <button 
@@ -1450,14 +1445,13 @@ export const GameContainer = ({
                 }} 
                 className="btn btn-cyan" 
                 style={{ 
-                  flex: isMobile ? 'none' : 1, 
                   width: '100%',
                   padding: '13px 18px',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  fontSize: '0.82rem',
+                  fontSize: '0.86rem',
                   fontWeight: 800,
                   minHeight: '46px',
                   boxSizing: 'border-box'
@@ -1470,9 +1464,8 @@ export const GameContainer = ({
                 onClick={handleConfirmAbort} 
                 className="btn btn-outline" 
                 style={{ 
-                  flex: isMobile ? 'none' : 1, 
                   width: '100%',
-                  padding: '13px 18px', 
+                  padding: '12px 18px', 
                   borderColor: 'rgba(239, 68, 68, 0.6)', 
                   color: '#EF4444',
                   display: 'inline-flex',
@@ -1481,7 +1474,7 @@ export const GameContainer = ({
                   gap: '8px',
                   fontSize: '0.82rem',
                   fontWeight: 700,
-                  minHeight: '46px',
+                  minHeight: '44px',
                   boxSizing: 'border-box'
                 }}
               >
@@ -2184,10 +2177,10 @@ const styles = {
     borderRadius: '8px'
   },
   abortModal: {
-    maxWidth: '400px',
+    maxWidth: '440px',
     width: 'calc(100vw - 32px)',
     boxSizing: 'border-box',
-    padding: '24px 20px',
+    padding: '26px 22px',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -2195,7 +2188,8 @@ const styles = {
     gap: '12px',
     border: '1px solid rgba(239, 68, 68, 0.45)',
     boxShadow: '0 0 40px rgba(239, 68, 68, 0.3)',
-    borderRadius: '16px'
+    borderRadius: '16px',
+    overflow: 'hidden'
   },
   waveBanner: {
     position: 'absolute',
