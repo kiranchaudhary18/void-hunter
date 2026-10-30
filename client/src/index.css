@@ -925,32 +925,32 @@ body.gameplay-active #root {
     left: max(12px, env(safe-area-inset-left, 12px)) !important;
   }
   .game-tactical-bomb button {
-    width: 54px !important;
-    height: 54px !important;
+    width: 58px !important;
+    height: 58px !important;
     touch-action: manipulation !important;
   }
   .game-action-hud-cluster {
     bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
     right: max(10px, env(safe-area-inset-right, 10px)) !important;
-    gap: 6px !important;
+    gap: 8px !important;
   }
   .game-action-hud-cluster .circular-ability-btn {
-    width: 40px !important;
-    height: 40px !important;
-    touch-action: manipulation !important;
-  }
-  .game-action-hud-cluster .circular-ability-btn svg {
-    width: 18px !important;
-    height: 18px !important;
-  }
-  .game-action-hud-cluster .circular-fire-btn {
     width: 50px !important;
     height: 50px !important;
     touch-action: manipulation !important;
   }
+  .game-action-hud-cluster .circular-ability-btn svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .game-action-hud-cluster .circular-fire-btn {
+    width: 58px !important;
+    height: 58px !important;
+    touch-action: manipulation !important;
+  }
   .game-action-hud-cluster .circular-fire-btn svg {
-    width: 22px !important;
-    height: 22px !important;
+    width: 25px !important;
+    height: 25px !important;
   }
   .game-hud-hide-mobile {
     display: none !important;
@@ -976,29 +976,29 @@ body.gameplay-active #root {
     left: max(8px, env(safe-area-inset-left, 8px)) !important;
   }
   .game-tactical-bomb button {
-    width: 46px !important;
-    height: 46px !important;
+    width: 50px !important;
+    height: 50px !important;
   }
   .game-action-hud-cluster {
     bottom: max(8px, env(safe-area-inset-bottom, 8px)) !important;
     right: max(8px, env(safe-area-inset-right, 8px)) !important;
-    gap: 4px !important;
+    gap: 5px !important;
   }
   .game-action-hud-cluster .circular-ability-btn {
-    width: 36px !important;
-    height: 36px !important;
-  }
-  .game-action-hud-cluster .circular-ability-btn svg {
-    width: 16px !important;
-    height: 16px !important;
-  }
-  .game-action-hud-cluster .circular-fire-btn {
     width: 44px !important;
     height: 44px !important;
   }
+  .game-action-hud-cluster .circular-ability-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .game-action-hud-cluster .circular-fire-btn {
+    width: 50px !important;
+    height: 50px !important;
+  }
   .game-action-hud-cluster .circular-fire-btn svg {
-    width: 20px !important;
-    height: 20px !important;
+    width: 22px !important;
+    height: 22px !important;
   }
 }
 
@@ -1289,4 +1289,13 @@ img, video, canvas {
     width: 210px;
     height: 210px;
   }
+}
+
+/* Tactile Press Active State for Mobile Combat Buttons */
+.circular-ability-btn:active,
+.circular-fire-btn:active,
+.game-tactical-bomb button:active {
+  transform: scale(0.92) !important;
+  filter: brightness(1.25) !important;
+  transition: transform 0.08s ease, filter 0.08s ease !important;
 }

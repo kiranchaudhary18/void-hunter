@@ -381,6 +381,10 @@ export const GameContainer = ({
     if (!phaserGameInstance.current) return;
     const scene = phaserGameInstance.current.scene.getScene('SpaceCombatScene');
     if (scene) {
+      // Tactile haptic vibration for mobile button actuation
+      if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(25);
+      }
       scene.activatePowerUp(abilityId);
       setCooldowns((prev) => ({ ...prev, [abilityId]: cdDuration }));
       setActiveBuffNotification(abilityId.replace('_', ' ').toUpperCase() + ' ACTIVATED');
@@ -636,8 +640,8 @@ export const GameContainer = ({
           onTouchStart={(e) => e.stopPropagation()}
           disabled={cooldowns['homing_missiles'] > 0}
           style={{
-            width: isMobile ? '54px' : '68px',
-            height: isMobile ? '54px' : '68px',
+            width: isMobile ? '58px' : '68px',
+            height: isMobile ? '58px' : '68px',
             borderRadius: '50%',
             background: cooldowns['homing_missiles'] > 0 
               ? 'radial-gradient(circle, #27272a 0%, #09090b 100%)' 
@@ -675,7 +679,7 @@ export const GameContainer = ({
           }}>
             B
           </div>
-          <Rocket size={isMobile ? 22 : 30} color={cooldowns['homing_missiles'] > 0 ? '#71717a' : '#fef08a'} />
+          <Rocket size={isMobile ? 25 : 30} color={cooldowns['homing_missiles'] > 0 ? '#71717a' : '#fef08a'} />
           <span style={{
             fontSize: isMobile ? '8.5px' : '10px',
             fontWeight: 'bold',
@@ -703,8 +707,8 @@ export const GameContainer = ({
           className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
-            width: isMobile ? '40px' : '52px',
-            height: isMobile ? '40px' : '52px',
+            width: isMobile ? '50px' : '52px',
+            height: isMobile ? '50px' : '52px',
             borderColor: 'var(--secondary-cyan)',
             boxShadow: cooldowns['spread_shot'] > 0 ? 'none' : '0 0 15px rgba(0, 229, 255, 0.4)',
             touchAction: 'manipulation'
@@ -714,7 +718,7 @@ export const GameContainer = ({
           {cooldowns['spread_shot'] > 0 ? (
             <span style={{ ...styles.cdNum, fontSize: isMobile ? '0.76rem' : '1rem' }}>{cooldowns['spread_shot']}s</span>
           ) : (
-            <Crosshair size={isMobile ? 18 : 22} color="var(--secondary-cyan)" />
+            <Crosshair size={isMobile ? 20 : 22} color="var(--secondary-cyan)" />
           )}
         </button>
 
@@ -727,8 +731,8 @@ export const GameContainer = ({
           className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
-            width: isMobile ? '40px' : '52px',
-            height: isMobile ? '40px' : '52px',
+            width: isMobile ? '50px' : '52px',
+            height: isMobile ? '50px' : '52px',
             borderColor: '#C084FC',
             boxShadow: cooldowns['shield_pulse'] > 0 ? 'none' : '0 0 15px rgba(192, 132, 252, 0.4)',
             touchAction: 'manipulation'
@@ -738,7 +742,7 @@ export const GameContainer = ({
           {cooldowns['shield_pulse'] > 0 ? (
             <span style={{ ...styles.cdNum, fontSize: isMobile ? '0.76rem' : '1rem' }}>{cooldowns['shield_pulse']}s</span>
           ) : (
-            <Shield size={isMobile ? 18 : 22} color="#C084FC" />
+            <Shield size={isMobile ? 20 : 22} color="#C084FC" />
           )}
         </button>
 
@@ -751,8 +755,8 @@ export const GameContainer = ({
           className="circular-ability-btn"
           style={{
             ...styles.circularAbilityBtn,
-            width: isMobile ? '40px' : '52px',
-            height: isMobile ? '40px' : '52px',
+            width: isMobile ? '50px' : '52px',
+            height: isMobile ? '50px' : '52px',
             borderColor: '#38BDF8',
             boxShadow: cooldowns['emergency_warp'] > 0 ? 'none' : '0 0 15px rgba(56, 189, 248, 0.4)',
             touchAction: 'manipulation'
@@ -762,7 +766,7 @@ export const GameContainer = ({
           {cooldowns['emergency_warp'] > 0 ? (
             <span style={{ ...styles.cdNum, fontSize: isMobile ? '0.76rem' : '1rem' }}>{cooldowns['emergency_warp']}s</span>
           ) : (
-            <Zap size={isMobile ? 18 : 22} color="#38BDF8" />
+            <Zap size={isMobile ? 20 : 22} color="#38BDF8" />
           )}
         </button>
 
@@ -774,14 +778,14 @@ export const GameContainer = ({
           className="circular-fire-btn animate-pulse-glow"
           style={{
             ...styles.circularPrimaryFireBtn,
-            width: isMobile ? '50px' : '64px',
-            height: isMobile ? '50px' : '64px',
+            width: isMobile ? '58px' : '64px',
+            height: isMobile ? '58px' : '64px',
             boxShadow: '0 0 25px rgba(0, 229, 255, 0.6)',
             touchAction: 'manipulation'
           }}
           title="Primary Sortie Fire / Missiles (Space)"
         >
-          <Target size={isMobile ? 22 : 28} color="#060919" />
+          <Target size={isMobile ? 25 : 28} color="#060919" />
         </button>
       </div>
 

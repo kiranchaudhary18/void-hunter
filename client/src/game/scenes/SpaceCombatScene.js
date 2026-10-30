@@ -54,6 +54,19 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.isSpawningWave = true; // Prevent update loop from skipping to Wave 2 on startup
     this.elapsedCombatSeconds = 0;
 
+    // Mobile Touch & Smooth Delta Drag Control
+    this.touchControl = {
+      isDragging: false,
+      touchStartX: 0,
+      touchStartY: 0,
+      shipStartX: 0,
+      shipStartY: 0,
+      targetX: 0,
+      targetY: 0,
+      touchOffset: 0
+    };
+    this.targetTilt = 0;
+
     // Active power-up buffs
     this.activeBuffs = {
       rapidFire: false,
@@ -115,19 +128,40 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-SEVEN', () => this.activatePowerUp('repair_drone'));
     this.input.keyboard.on('keydown-EIGHT', () => this.activatePowerUp('overdrive'));
 
-    // Mouse / Touch pointer drag and tap movement (Section 7 Mobile Controls)
+    // Mouse / Touch pointer drag with relative delta movement & thumb visibility offset
     this.input.on('pointerdown', (pointer) => {
-      if (!this.isGameOver) {
-        this.player.x = Phaser.Math.Clamp(pointer.x, 30, width - 30);
-        this.player.y = Phaser.Math.Clamp(pointer.y, 60, height - 60);
+      if (!this.isGameOver && this.player && this.player.active) {
+        this.touchControl.isDragging = true;
+        this.touchControl.touchStartX = pointer.x;
+        this.touchControl.touchStartY = pointer.y;
+        this.touchControl.shipStartX = this.player.x;
+        this.touchControl.shipStartY = this.player.y;
+        this.touchControl.targetX = this.player.x;
+        this.touchControl.targetY = this.player.y;
+        // On touch screens, keep the starfighter slightly ahead of thumb (35px upwards offset)
+        const isTouch = pointer.wasTouch || pointer.pointerType === 'touch';
+        this.touchControl.touchOffset = isTouch ? 35 : 0;
       }
     });
 
     this.input.on('pointermove', (pointer) => {
-      if (pointer.isDown && !this.isGameOver) {
-        this.player.x = Phaser.Math.Clamp(pointer.x, 30, width - 30);
-        this.player.y = Phaser.Math.Clamp(pointer.y, 60, height - 60);
+      if (this.touchControl.isDragging && pointer.isDown && !this.isGameOver && this.player && this.player.active) {
+        const dx = pointer.x - this.touchControl.touchStartX;
+        const dy = pointer.y - this.touchControl.touchStartY;
+        const targetX = this.touchControl.shipStartX + dx;
+        const targetY = this.touchControl.shipStartY + dy - this.touchControl.touchOffset;
+
+        this.touchControl.targetX = Phaser.Math.Clamp(targetX, 30, width - 30);
+        this.touchControl.targetY = Phaser.Math.Clamp(targetY, 60, height - 60);
       }
+    });
+
+    this.input.on('pointerup', () => {
+      this.touchControl.isDragging = false;
+    });
+
+    this.input.on('pointerupoutside', () => {
+      this.touchControl.isDragging = false;
     });
 
     // 5. Collisions & Overlaps
@@ -227,7 +261,7 @@ export class SpaceCombatScene extends Phaser.Scene {
       if (s.y > this.scale.height) s.y = 0;
     });
 
-    // Player Movement (Desktop WASD & Arrows)
+    // Player Movement (Desktop WASD, Arrows & Smooth Relative Touch Drag)
     const speed = (this.activeBuffs.overdrive ? 1.4 : 1.0) * (this.selectedShip.speed || 380);
     let vx = 0;
     let vy = 0;
@@ -238,7 +272,28 @@ export class SpaceCombatScene extends Phaser.Scene {
     if (this.cursors.up.isDown || this.wasd.up.isDown) vy = -speed;
     else if (this.cursors.down.isDown || this.wasd.down.isDown) vy = speed;
 
-    this.player.setVelocity(vx, vy);
+    if (this.touchControl.isDragging && this.player && this.player.active) {
+      const prevX = this.player.x;
+      // Smooth linear interpolation for silky 60fps drag tracking without jitter
+      this.player.x = Phaser.Math.Linear(this.player.x, this.touchControl.targetX, 0.45);
+      this.player.y = Phaser.Math.Linear(this.player.y, this.touchControl.targetY, 0.45);
+      this.player.setVelocity(0, 0);
+
+      // Banking angle based on horizontal drag motion
+      const horizontalDelta = this.player.x - prevX;
+      this.targetTilt = Phaser.Math.Clamp(horizontalDelta * 2.2, -14, 14);
+    } else {
+      this.player.setVelocity(vx, vy);
+      // Banking angle based on keyboard velocity
+      if (vx < 0) this.targetTilt = -12;
+      else if (vx > 0) this.targetTilt = 12;
+      else this.targetTilt = 0;
+    }
+
+    // Smoothly interpolate starfighter tilt angle back to level flight
+    if (this.player && this.player.active) {
+      this.player.angle = Phaser.Math.Linear(this.player.angle, this.targetTilt, 0.2);
+    }
 
     // Realistic Twin Plasma Rocket Engine Flares (Player)
     if (this.player && this.player.active && !this.isGameOver) {
@@ -1115,8 +1170,31 @@ export class SpaceCombatScene extends Phaser.Scene {
   }
 
   handleLaserHitEnemy(laser, enemy) {
+    const lx = laser.x;
+    const ly = laser.y;
     laser.destroy();
     const damage = (this.activeBuffs.overdrive ? 1.5 : 1.0) * (this.selectedShip.damage || 25);
+
+    // Subtle impact spark burst for juicy arcade hit sensation
+    for (let i = 0; i < 3; i++) {
+      const spark = this.add.circle(
+        lx + Phaser.Math.Between(-4, 4),
+        ly + Phaser.Math.Between(-4, 4),
+        Phaser.Math.Between(2, 3),
+        0x00E5FF,
+        0.9
+      );
+      spark.setDepth(14);
+      this.tweens.add({
+        targets: spark,
+        x: spark.x + Phaser.Math.Between(-12, 12),
+        y: spark.y + Phaser.Math.Between(-12, 12),
+        alpha: 0,
+        scale: 0.2,
+        duration: 130,
+        onComplete: () => spark.destroy()
+      });
+    }
     
     if (enemy.isBoss) {
       this.bossHp = Math.max(0, this.bossHp - damage);
@@ -1307,6 +1385,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     soundManager.playShieldHit();
     soundManager.playHaptic('hit');
     this.cameras.main.shake(120, 0.015);
+    this.cameras.main.flash(80, 255, 40, 40, false);
 
     // Shield absorbs first
     if (this.playerShield > 0) {
