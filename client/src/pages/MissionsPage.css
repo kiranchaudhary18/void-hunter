@@ -49,6 +49,23 @@
   box-sizing: border-box;
 }
 
+/* Offset for public fixed navbar when unauthenticated */
+.missions-page-root {
+  padding-top: 64px;
+}
+
+@media (max-width: 768px) {
+  .missions-page-root {
+    padding-top: 58px;
+  }
+}
+
+@media (max-width: 480px) {
+  .missions-page-root {
+    padding-top: 56px;
+  }
+}
+
 .missions-vignette {
   position: fixed;
   inset: 0;
@@ -1283,19 +1300,52 @@
     min-width: unset;
   }
   .sector-selector-bar {
-    grid-template-columns: 1fr 1fr;
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 8px !important;
+    padding-bottom: 6px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .sector-selector-bar::-webkit-scrollbar {
+    display: none !important;
+  }
+  .sector-tab-pill,
+  .sector-nav-tab {
+    flex: 0 0 auto !important;
+    min-width: 135px !important;
   }
   .map-controls-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
   .sector-map-canvas-card {
-    min-height: 460px;
-    overflow-x: auto;
+    min-height: 400px;
+    height: 400px;
+    overflow: hidden;
+    width: 100%;
   }
   .sector-nodes-container {
-    min-width: 540px;
-    min-height: 460px;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 400px;
+    height: 100%;
+  }
+  .node-circle-btn {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 0.68rem !important;
+  }
+  .node-current-sortie-badge {
+    font-size: 0.50rem !important;
+    padding: 1px 4px !important;
+    top: -14px !important;
+  }
+  .boss-label-tag {
+    font-size: 0.50rem !important;
+    padding: 1px 4px !important;
+    bottom: -15px !important;
   }
 }
 
@@ -1393,26 +1443,34 @@
   background: rgba(255, 194, 71, 0.04) !important;
 }
 
-/* Extra Mobile Sector Progression Refinements */
-@media (max-width: 768px) {
+/* Multi-Device Synchronized Breakpoints (Tablet & Mobile) */
+@media (max-width: 1024px) {
   .missions-container,
   .sector-progression-shell {
-    padding: 16px 12px 84px 12px !important;
-  }
-  .sector-map-canvas-card {
-    -webkit-overflow-scrolling: touch !important;
+    padding: 20px 24px 84px 24px !important;
+    gap: 20px !important;
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 768px) {
   .missions-container,
   .sector-progression-shell {
-    padding: 12px 8px 84px 8px !important;
+    padding: 16px 16px 84px 16px !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .missions-container,
+  .sector-progression-shell {
+    padding: 14px 12px 84px 12px !important;
     gap: 14px !important;
   }
-  .sector-selector-bar {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 6px !important;
+  .briefing-mission-title {
+    font-size: 1rem !important;
+  }
+  .briefing-telemetry-grid {
+    grid-template-columns: 1fr !important;
   }
   .sector-tab-pill {
     padding: 8px 10px !important;
@@ -1422,12 +1480,6 @@
   }
   .sector-pill-name {
     font-size: 0.66rem !important;
-  }
-  .briefing-mission-title {
-    font-size: 1rem !important;
-  }
-  .briefing-telemetry-grid {
-    grid-template-columns: 1fr !important;
   }
 }
 

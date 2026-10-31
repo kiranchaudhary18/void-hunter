@@ -1477,18 +1477,33 @@
   }
 }
 
-/* Mobile (<= 768px) Touch and Padding Adjustments */
+/* Multi-Device Synchronized Breakpoints (Tablet & Mobile) */
+@media (max-width: 1024px) {
+  .hangar-container {
+    padding: 20px 24px 84px 24px !important;
+    gap: 20px !important;
+  }
+}
+
 @media (max-width: 768px) {
   .hangar-container {
-    padding: 16px 12px 84px 12px !important;
+    padding: 16px 16px 84px 16px !important;
     gap: 16px !important;
+  }
+  .ships-selector-track {
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 8px !important;
+  }
+  .ship-selector-card {
+    scroll-snap-align: start !important;
   }
 }
 
 @media (max-width: 480px) {
   .hangar-container {
-    padding: 12px 8px 84px 8px !important;
-    gap: 12px !important;
+    padding: 14px 12px 84px 12px !important;
+    gap: 14px !important;
   }
   .coating-options-grid {
     grid-template-columns: 1fr !important;

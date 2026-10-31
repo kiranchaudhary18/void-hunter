@@ -67,10 +67,30 @@
 .leaderboard-content {
   position: relative;
   z-index: 10;
-  max-width: 1320px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 32px 28px 60px 28px;
+  padding: 24px 32px 60px 32px;
   box-sizing: border-box;
+}
+
+/* Offset for public fixed navbar when unauthenticated */
+.leaderboard-root,
+.leaderboard-page-wrapper {
+  padding-top: 64px;
+}
+
+@media (max-width: 768px) {
+  .leaderboard-root,
+  .leaderboard-page-wrapper {
+    padding-top: 58px;
+  }
+}
+
+@media (max-width: 480px) {
+  .leaderboard-root,
+  .leaderboard-page-wrapper {
+    padding-top: 56px;
+  }
 }
 
 /* ==========================================================================

@@ -6,7 +6,7 @@
 .quests-shell {
   width: 100%;
   min-height: calc(100vh - 70px);
-  padding: 24px 32px 64px;
+  padding: 24px 32px 60px;
   background: radial-gradient(circle at 50% 0%, #0A1238 0%, #04081E 65%, #02040E 100%);
   color: #EAF1FF;
   display: flex;
