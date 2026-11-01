@@ -51,18 +51,18 @@
 
 /* Offset for public fixed navbar when unauthenticated */
 .missions-page-root {
-  padding-top: 64px;
+  padding-top: max(72px, calc(env(safe-area-inset-top, 0px) + 66px));
 }
 
 @media (max-width: 768px) {
   .missions-page-root {
-    padding-top: 58px;
+    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 70px)) !important;
   }
 }
 
 @media (max-width: 480px) {
   .missions-page-root {
-    padding-top: 56px;
+    padding-top: max(78px, calc(env(safe-area-inset-top, 0px) + 72px)) !important;
   }
 }
 
@@ -442,10 +442,22 @@
 .filter-pills-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  width: 100%;
+  padding: 4px 2px;
+}
+
+.filter-pills-row::-webkit-scrollbar {
+  display: none;
 }
 
 .filter-pill-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
   background: #0A1028;
   border: 1px solid rgba(150, 166, 200, 0.2);
   border-radius: 6px;
@@ -1303,21 +1315,36 @@
     display: flex !important;
     overflow-x: auto !important;
     gap: 8px !important;
-    padding-bottom: 6px !important;
+    padding-bottom: 8px !important;
     scrollbar-width: none !important;
     -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
   }
   .sector-selector-bar::-webkit-scrollbar {
     display: none !important;
   }
   .sector-tab-pill,
   .sector-nav-tab {
-    flex: 0 0 auto !important;
-    min-width: 135px !important;
+    flex: 0 0 155px !important;
+    min-width: 145px !important;
   }
   .map-controls-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+  .filter-pill-btn {
+    padding: 7px 13px !important;
+    font-size: 0.66rem !important;
+  }
+  .tactical-briefing-panel {
+    margin-bottom: 24px !important;
+  }
+  .btn-briefing-launch,
+  .btn-briefing-replay,
+  .btn-briefing-locked,
+  .briefing-actions-group .btn-quick-deploy-cta {
+    min-height: 48px !important;
+    font-size: 0.84rem !important;
   }
   .sector-map-canvas-card {
     min-height: 400px;

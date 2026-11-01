@@ -1314,3 +1314,92 @@ html, body, #root, .command-deck-shell, .command-viewport-main, .command-content
     touch-action: manipulation;
   }
 }
+
+/* ==========================================================================
+   SHARED PUBLIC PAGE FOOTER (Missions, Hangar, Leaderboard)
+   ========================================================================== */
+.public-page-footer {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  min-height: 40px;
+  background: rgba(6, 9, 25, 0.95);
+  border-top: 1px solid rgba(0, 229, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(16px, 4vw, 48px);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.public-footer-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: #9AA9C7;
+}
+
+.public-footer-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.public-footer-highlight {
+  color: #00E5FF;
+  font-weight: 700;
+}
+
+.public-footer-divider {
+  margin: 0 4px;
+  opacity: 0.45;
+}
+
+.public-footer-center {
+  color: #9AA9C7;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.public-footer-dot-sep {
+  margin: 0 6px;
+  color: #00E5FF;
+}
+
+.public-footer-beacon {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .public-page-footer {
+    min-height: 46px;
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .public-footer-container {
+    flex-direction: column !important;
+    gap: 4px !important;
+    text-align: center !important;
+    font-size: 0.65rem !important;
+  }
+  .public-footer-center {
+    display: none !important;
+  }
+}

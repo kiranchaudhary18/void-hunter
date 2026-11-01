@@ -50,6 +50,19 @@
   overflow-x: hidden;
   box-sizing: border-box;
   scroll-snap-align: start;
+  padding-top: max(72px, calc(env(safe-area-inset-top, 0px) + 66px));
+}
+
+@media (max-width: 768px) {
+  .hangar-page-root {
+    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 70px)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hangar-page-root {
+    padding-top: max(78px, calc(env(safe-area-inset-top, 0px) + 72px)) !important;
+  }
 }
 
 /* Layer 1: Procedural Multi-Cluster Starfield (Pure CSS) */

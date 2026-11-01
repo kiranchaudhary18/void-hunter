@@ -525,7 +525,7 @@
   }
 }
 
-@media (max-height: 700px) {
+@media (max-height: 700px) and (min-width: 769px) {
   .hero-main-heading {
     font-size: clamp(1.8rem, 3.2vw, 2.6rem);
   }
@@ -547,37 +547,144 @@
   }
 }
 
+/* Tablet & Large Mobile Screen Adjustments */
 @media (max-width: 900px) {
   .main-menu-root {
     height: auto;
-    min-height: 100vh;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .main-menu-content {
-    padding-top: 80px;
+    padding-top: max(84px, calc(env(safe-area-inset-top, 0px) + 74px));
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 10px));
     overflow: visible;
   }
   .status-strip-center {
-    display: none;
+    display: none !important;
   }
 }
 
-@media (max-width: 640px) {
+/* ==========================================================================
+   MOBILE VIEWPORT ENHANCEMENTS (<= 768px):
+   - Removes 4 clutter cards on mobile as requested
+   - Hides desktop keyboard cues
+   - Generous top clearance so navbar never covers heading
+   - Balanced, touch-friendly CTA buttons
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* 1. Explicit user request: Hide the 4 feature cards on mobile for a clean, simple landing view */
   .feature-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    display: none !important;
   }
+
+  /* 2. Hide keyboard shortcut hint on touch screens */
+  .hero-keyboard-hint {
+    display: none !important;
+  }
+
+  /* 3. Viewport and content alignment */
+  .main-menu-root {
+    min-height: 100dvh !important;
+    min-height: -webkit-fill-available !important;
+    height: auto !important;
+    justify-content: space-between !important;
+  }
+
+  .main-menu-content {
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 78px)) !important;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 16px)) !important;
+    padding-left: clamp(16px, 5vw, 32px) !important;
+    padding-right: clamp(16px, 5vw, 32px) !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 20px !important;
+    flex: 1 !important;
+  }
+
+  /* 4. Upper Hero Showcase Centering */
+  .hero-upper-section {
+    max-width: 100% !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 14px !important;
+    padding-top: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+
+  .hero-status-pill {
+    align-self: center !important;
+  }
+
+  .hero-main-heading {
+    font-size: clamp(1.85rem, 7.5vw, 2.6rem) !important;
+    line-height: 1.12 !important;
+    text-align: center !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .hero-supporting-text {
+    font-size: 0.86rem !important;
+    line-height: 1.52 !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    color: #A6B4C9 !important;
+  }
+
+  /* 5. Mobile Touch Action Buttons */
+  .hero-actions-container {
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 380px !important;
+    margin: 6px auto 0 !important;
+  }
+
   .hero-buttons-row {
-    flex-direction: column;
-    width: 100%;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 10px !important;
   }
-  .btn-hero-primary, .btn-hero-secondary {
-    width: 100%;
+
+  .btn-hero-primary, 
+  .btn-hero-secondary,
+  .btn-hero-sound-toggle {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 50px !important;
+    font-size: 0.84rem !important;
+    padding: 12px 20px !important;
   }
+
+  /* 6. Clean Mobile Status Strip */
+  .main-menu-status-strip {
+    height: auto !important;
+    min-height: 42px !important;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
   .status-strip-container {
-    flex-direction: column;
-    gap: 4px;
-    text-align: center;
+    flex-direction: column !important;
+    gap: 5px !important;
+    text-align: center !important;
+    font-size: 0.65rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-main-heading {
+    font-size: clamp(1.70rem, 7vw, 2.15rem) !important;
+  }
+  .hero-supporting-text {
+    font-size: 0.80rem !important;
+  }
+  .btn-hero-primary, 
+  .btn-hero-secondary,
+  .btn-hero-sound-toggle {
+    min-height: 46px !important;
+    font-size: 0.80rem !important;
   }
 }
 
