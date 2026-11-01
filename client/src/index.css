@@ -86,7 +86,9 @@
 html, body {
   width: 100%;
   height: 100%;
+  min-height: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg-void-dark);
   background-image: 
     radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 60%),
@@ -105,9 +107,13 @@ html, body {
 }
 
 #root {
+  width: 100%;
+  min-height: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 /* Typography Helpers */

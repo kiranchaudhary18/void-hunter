@@ -5,9 +5,10 @@
 
 .main-menu-root {
   position: relative;
-  height: 100vh;
-  max-height: 100vh;
   width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  flex: 1;
   background-color: #080A2F;
   background-image: 
     linear-gradient(90deg, rgba(8, 10, 47, 0.88) 0%, rgba(8, 10, 47, 0.65) 38%, rgba(8, 10, 47, 0.25) 65%, rgba(8, 10, 47, 0.4) 100%),
@@ -550,9 +551,10 @@
 /* Tablet & Large Mobile Screen Adjustments */
 @media (max-width: 900px) {
   .main-menu-root {
-    height: auto;
+    width: 100%;
+    min-height: 100vh;
     min-height: 100dvh;
-    min-height: -webkit-fill-available;
+    flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -567,11 +569,12 @@
 }
 
 /* ==========================================================================
-   MOBILE VIEWPORT ENHANCEMENTS (<= 768px):
-   - Removes 4 clutter cards on mobile as requested
-   - Hides desktop keyboard cues
-   - Generous top clearance so navbar never covers heading
-   - Balanced, touch-friendly CTA buttons
+   MOBILE VIEWPORT FULL-SCREEN POLISH (<= 768px):
+   - Fills 100% of the screen (100dvh) with zero empty space or cut-offs
+   - Status strip pinned cleanly to the bottom
+   - 4 clutter cards removed as requested
+   - Desktop keyboard cues hidden
+   - Large, tactile, glowing touch buttons & balanced sci-fi hero typography
    ========================================================================== */
 @media (max-width: 768px) {
   /* 1. Explicit user request: Hide the 4 feature cards on mobile for a clean, simple landing view */
@@ -584,107 +587,171 @@
     display: none !important;
   }
 
-  /* 3. Viewport and content alignment */
+  /* 3. True Full-Screen Viewport Frame */
   .main-menu-root {
+    width: 100% !important;
+    min-height: 100vh !important;
     min-height: 100dvh !important;
-    min-height: -webkit-fill-available !important;
-    height: auto !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
     justify-content: space-between !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    background-size: cover !important;
+    background-position: center center !important;
   }
 
+  /* 4. Content region fills full space between top navbar & bottom status strip */
   .main-menu-content {
-    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 78px)) !important;
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 16px)) !important;
-    padding-left: clamp(16px, 5vw, 32px) !important;
-    padding-right: clamp(16px, 5vw, 32px) !important;
+    flex: 1 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
-    gap: 20px !important;
-    flex: 1 !important;
+    padding-top: max(84px, calc(env(safe-area-inset-top, 0px) + 76px)) !important;
+    padding-bottom: clamp(16px, 3vh, 32px) !important;
+    padding-left: clamp(16px, 5vw, 32px) !important;
+    padding-right: clamp(16px, 5vw, 32px) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 0 !important;
   }
 
-  /* 4. Upper Hero Showcase Centering */
+  /* 5. Centered Hero Showcase with generous vertical breathing room */
   .hero-upper-section {
     max-width: 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
-    gap: 14px !important;
-    padding-top: 0 !important;
-    margin: 0 auto !important;
-    width: 100% !important;
+    gap: clamp(14px, 2.8vh, 24px) !important;
+    padding: 0 !important;
+    margin: auto 0 !important;
   }
 
   .hero-status-pill {
     align-self: center !important;
+    padding: 6px 16px !important;
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.25) !important;
+  }
+
+  .status-pill-text {
+    font-size: 0.72rem !important;
+    letter-spacing: 0.14em !important;
   }
 
   .hero-main-heading {
-    font-size: clamp(1.85rem, 7.5vw, 2.6rem) !important;
-    line-height: 1.12 !important;
+    font-size: clamp(2rem, 8vw, 2.75rem) !important;
+    line-height: 1.1 !important;
     text-align: center !important;
     letter-spacing: 0.04em !important;
+    text-shadow: 0 0 25px rgba(0, 229, 255, 0.45) !important;
   }
 
   .hero-supporting-text {
-    font-size: 0.86rem !important;
-    line-height: 1.52 !important;
+    font-size: clamp(0.86rem, 3.5vw, 0.96rem) !important;
+    line-height: 1.55 !important;
     max-width: 440px !important;
     margin: 0 auto !important;
     text-align: center !important;
     color: #A6B4C9 !important;
   }
 
-  /* 5. Mobile Touch Action Buttons */
+  /* 6. Mobile Touch Action Buttons */
   .hero-actions-container {
+    display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     width: 100% !important;
     max-width: 380px !important;
-    margin: 6px auto 0 !important;
+    margin: clamp(6px, 1.5vh, 16px) auto 0 !important;
+    gap: 12px !important;
   }
 
   .hero-buttons-row {
+    display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
-    gap: 10px !important;
+    gap: 12px !important;
   }
 
-  .btn-hero-primary, 
-  .btn-hero-secondary,
-  .btn-hero-sound-toggle {
+  .btn-hero-primary {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 54px !important;
+    font-size: 0.92rem !important;
+    letter-spacing: 0.12em !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.65), inset 0 0 12px rgba(255, 255, 255, 0.4) !important;
+    padding: 14px 22px !important;
+  }
+
+  .btn-hero-secondary {
     width: 100% !important;
     justify-content: center !important;
     min-height: 50px !important;
-    font-size: 0.84rem !important;
+    font-size: 0.86rem !important;
+    letter-spacing: 0.10em !important;
+    border-radius: 10px !important;
     padding: 12px 20px !important;
   }
 
-  /* 6. Clean Mobile Status Strip */
+  .btn-hero-sound-toggle {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 48px !important;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.08em !important;
+    border-radius: 10px !important;
+    padding: 11px 18px !important;
+  }
+
+  /* 7. Full-Screen Pinned Bottom Status Strip */
   .main-menu-status-strip {
+    width: 100% !important;
     height: auto !important;
-    min-height: 42px !important;
-    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: 44px !important;
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+    padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    background: rgba(6, 9, 25, 0.95) !important;
+    border-top: 1px solid rgba(0, 229, 255, 0.25) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
   }
 
   .status-strip-container {
     flex-direction: column !important;
     gap: 5px !important;
     text-align: center !important;
-    font-size: 0.65rem !important;
+    font-size: 0.68rem !important;
+  }
+
+  .status-strip-center {
+    display: none !important;
   }
 }
 
 @media (max-width: 480px) {
   .hero-main-heading {
-    font-size: clamp(1.70rem, 7vw, 2.15rem) !important;
+    font-size: clamp(1.85rem, 7.5vw, 2.35rem) !important;
   }
   .hero-supporting-text {
-    font-size: 0.80rem !important;
+    font-size: 0.84rem !important;
   }
-  .btn-hero-primary, 
-  .btn-hero-secondary,
+  .btn-hero-primary {
+    min-height: 50px !important;
+    font-size: 0.88rem !important;
+  }
+  .btn-hero-secondary {
+    min-height: 48px !important;
+    font-size: 0.82rem !important;
+  }
   .btn-hero-sound-toggle {
     min-height: 46px !important;
-    font-size: 0.80rem !important;
+    font-size: 0.78rem !important;
   }
 }
 
