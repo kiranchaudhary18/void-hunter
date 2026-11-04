@@ -40,7 +40,7 @@ const SHIPS_SHOWCASE_CATALOG = [
     classType: 'Heavy Assault Striker',
     tagline: 'High Firepower Anti-Capital Craft',
     description: 'A heavy strike craft forged with supercritical thermal blasters. Sacrifices slight handling for devastating armor-piercing damage output.',
-    image: '/assets/ships/ship_phoenix.jpg',
+    image: '/assets/ships/ship_phoenix.jpg?v=2',
     baseStats: { firepower: 94, shield: 50, speed: 75, maneuver: 70 },
     primaryWeapon: 'Twin Thermal Beam Cannons',
     secondaryWeapon: 'Concussion Torpedoes',

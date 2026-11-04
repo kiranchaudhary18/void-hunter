@@ -163,7 +163,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
   const getShipIllustration = (shipId, shipCode) => {
     const combined = `${shipId || ''} ${shipCode || ''}`.toLowerCase();
     if (combined.includes('nova') || combined.includes('z05') || combined.includes('z-05')) return '/assets/ships/ship_nova.jpg';
-    if (combined.includes('phoenix') || combined.includes('s02') || combined.includes('s-02')) return '/assets/ships/ship_phoenix.jpg';
+    if (combined.includes('phoenix') || combined.includes('s02') || combined.includes('s-02')) return '/assets/ships/ship_phoenix.jpg?v=2';
     if (combined.includes('shadow') || combined.includes('x03') || combined.includes('x-03')) return '/assets/ships/ship_shadow.jpg';
     if (combined.includes('titan') || combined.includes('r04') || combined.includes('r-04')) return '/assets/ships/ship_titan.jpg';
     return '/assets/ships/ship_orbitron.jpg';
