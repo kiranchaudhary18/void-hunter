@@ -933,7 +933,7 @@ export const GameContainer = ({
                 border: `1px solid ${(victoryData.stars >= 1) ? '#FBBF24' : 'rgba(255, 255, 255, 0.14)'}`,
                 color: (victoryData.stars >= 1) ? '#FBBF24' : 'var(--text-muted)'
               }}>
-                {(victoryData.stars >= 1) ? '✓' : '•'} SORTIE CLEARED
+                {(victoryData.stars >= 1) ? '✓' : '•'} MISSION CLEARED
               </span>
               <span className="holo-victory-badge-pill" style={{
                 fontSize: isMobile ? '0.58rem' : '0.68rem',
@@ -1357,7 +1357,7 @@ export const GameContainer = ({
                 <div style={{ pointerEvents: 'auto' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span className="font-heading" style={{ fontSize: '0.78rem', color: '#FFF', letterSpacing: '0.04em' }}>
-                      {activeAdCampaign?.title || 'CYBERNETIC WEAPONS EXPO'} // {activeAdCampaign?.tagline || 'SPECIAL PROMO'}
+                      {activeAdCampaign?.title || 'WEAPONS EXPO'} - {activeAdCampaign?.tagline || 'SPECIAL PROMO'}
                     </span>
                     <span style={{ fontSize: '0.72rem', color: 'var(--secondary-cyan)', fontFamily: 'var(--font-heading)' }}>
                       0:${(10 - adCountdown) < 10 ? '0' : ''}${Math.min(10, 10 - adCountdown)} / 0:10
@@ -1507,7 +1507,7 @@ export const GameContainer = ({
             <AlertTriangle size={42} color="#EF4444" className="animate-pulse-glow" />
             <h2 className="font-heading" style={{ color: '#EF4444', fontSize: '1.6rem', marginTop: '4px' }}>ABORT MISSION?</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '360px', textAlign: 'center', lineHeight: '1.5' }}>
-              Are you sure you want to retreat to the hangar? Any unverified telemetry and mid-battle credits from this sortie will be forfeited.
+              Are you sure you want to exit to the hangar? Credits and progress from this mission will not be saved.
             </p>
 
             <div style={{ 

@@ -322,7 +322,7 @@ export const GlobalAudioPlayer = () => {
           <div style={styles.trackTag}>
             <Music size={11} color="var(--secondary-cyan)" style={{ display: 'inline', marginRight: '4px' }} />
             <span style={{ color: 'var(--secondary-cyan)' }}>
-              CYBERNETIC BGM
+              GAME MUSIC
             </span>
             <span style={styles.trackBadge}>{currentTrack?.bpm || 128} BPM</span>
           </div>

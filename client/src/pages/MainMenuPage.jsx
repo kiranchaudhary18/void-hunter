@@ -194,7 +194,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
           {/* Mission Control Status Pill */}
           <div className="hero-status-pill">
             <span className="status-beacon-dot" />
-            <span className="status-pill-text">// MISSION CONTROL : OPERATIONAL</span>
+            <span className="status-pill-text">● MISSION CONTROL: ONLINE</span>
           </div>
 
           {/* Headline Matching Reference Image */}
@@ -211,7 +211,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
 
           {/* Supporting Narrative */}
           <p className="hero-supporting-text">
-            Command advanced starfighters across 50 hostile sorties and 5 deep-space sectors. 
+            Command advanced starfighters across 50 action-packed missions and 5 deep-space galaxies. 
             Engage ruthless alien fleets, master tactical power-ups, and neutralize apex Void bosses to defend the galaxy.
           </p>
 
@@ -226,7 +226,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
                 title="Deploy immediately into tactical combat"
               >
                 <Play size={18} fill="#080A2F" strokeWidth={0} />
-                <span>START SORTIE</span>
+                <span>PLAY NOW</span>
               </button>
 
               {/* CONTINUE MISSION (Panel Navy with Cyan Border) */}
@@ -262,7 +262,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
             ) : (
               <div className="hero-keyboard-hint">
                 <span className="key-badge">ENTER</span>
-                <span>PRESS ENTER TO ENGAGE SORTIE</span>
+                <span>PRESS ENTER TO PLAY</span>
               </div>
             )}
           </div>
@@ -283,7 +283,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
               </div>
               <div className="card-text-col">
                 <span className="card-value">50</span>
-                <span className="card-label">TACTICAL SORTIES</span>
+                <span className="card-label">MISSIONS</span>
                 <div className="card-segmented-bar bar-cyan" />
               </div>
             </div>
@@ -401,7 +401,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
             <span className={`status-live-dot ${serverStatus.online ? '' : 'offline'}`} />
             <span>
               {serverStatus.online 
-                ? `SYSTEM OPERATIONAL // ${serverStatus.latency}MS` 
+                ? `SERVER ONLINE: ${serverStatus.latency}MS` 
                 : 'SYSTEM LINK OFFLINE'}
             </span>
           </div>

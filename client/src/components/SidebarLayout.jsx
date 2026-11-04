@@ -229,7 +229,7 @@ export const SidebarLayout = ({
               }
             }}
             className="sidebar-launch-combat-btn"
-            title="Launch Combat Sortie"
+            title="Play Game (Launch Combat)"
           >
             <Play size={16} fill="currentColor" />
             <span>LAUNCH COMBAT</span>

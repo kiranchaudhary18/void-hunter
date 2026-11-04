@@ -52,7 +52,7 @@ export class ErrorBoundary extends React.Component {
                 <AlertTriangle size={24} color="#FF5577" />
               </div>
               <div>
-                <span className="error-brand-tag">SYSTEM ANOMALY DETECTED // SECTOR CRITICAL</span>
+                <span className="error-brand-tag">SYSTEM ERROR DETECTED</span>
                 <h2 className="error-card-title">FLIGHT DECK TELEMETRY INTERRUPTED</h2>
               </div>
             </div>
@@ -64,7 +64,7 @@ export class ErrorBoundary extends React.Component {
             {this.state.error && (
               <div className="error-diagnostic-terminal">
                 <div className="diagnostic-header">
-                  <span>TERMINAL LOG // RECOVERY TRACE</span>
+                  <span>ERROR DETAILS & RECOVERY</span>
                 </div>
                 <pre className="diagnostic-body">
                   {this.state.error.toString()}

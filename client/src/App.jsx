@@ -252,7 +252,7 @@ function MainAppContent() {
     return (
       <div className="command-link-splash">
         <div className="command-link-pulse" />
-        <div className="command-link-text">// SYNCHRONIZING PILOT COMMAND LINK //</div>
+        <div className="command-link-text">LOADING YOUR FLIGHT PROFILE...</div>
       </div>
     );
   }

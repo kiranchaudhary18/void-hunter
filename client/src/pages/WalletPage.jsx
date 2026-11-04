@@ -260,7 +260,7 @@ export const WalletPage = ({ onBack }) => {
           <div className="treasury-title-group">
             <span className="treasury-pretitle-tag">
               <Sparkles size={11} />
-              PILOT FINANCIAL COMMAND // SECURE LEDGER
+              PILOT WALLET & REWARDS
             </span>
             <h1 className="treasury-main-title">GALACTIC TREASURY</h1>
             <p className="treasury-subtitle">
@@ -273,14 +273,14 @@ export const WalletPage = ({ onBack }) => {
           {syncStatus === 'SUCCESS' && (
             <div className="treasury-sync-badge sync-success" title="All double-entry ledger transactions verified">
               <span className="sync-pulse-dot" />
-              <span className="sync-text">LEDGER SYNCHRONIZED</span>
+              <span className="sync-text">WALLET SYNCED</span>
               {lastSyncedTime && <span className="sync-timestamp">({lastSyncedTime})</span>}
             </div>
           )}
           {syncStatus === 'SYNCING' && (
             <div className="treasury-sync-badge sync-syncing">
               <RefreshCw size={12} className="sync-spinning" />
-              <span className="sync-text">AUDITING LEDGER...</span>
+              <span className="sync-text">UPDATING BALANCE...</span>
             </div>
           )}
           {syncStatus === 'ERROR' && (
@@ -297,7 +297,7 @@ export const WalletPage = ({ onBack }) => {
             title="Perform server-authoritative wallet synchronization"
           >
             <RefreshCw size={13} className={loading ? 'sync-spinning' : ''} />
-            <span>{loading ? 'AUDITING...' : 'SYNC LEDGER'}</span>
+            <span>{loading ? 'UPDATING...' : 'REFRESH'}</span>
           </button>
         </div>
       </header>
@@ -447,7 +447,7 @@ export const WalletPage = ({ onBack }) => {
             <div>
               <h3 className="overview-heading-title">COMBAT EARNINGS OVERVIEW</h3>
               <span className="overview-heading-subtitle">
-                Aggregated lifetime yield from hostile engagements and campaign sorties.
+                Total rewards earned across completed missions and battles.
               </span>
             </div>
           </div>
@@ -485,7 +485,7 @@ export const WalletPage = ({ onBack }) => {
             <div className="metric-meta">
               <span className="metric-label">VERIFIED TRANSACTIONS</span>
               <span className="metric-value" style={{ color: '#10B981' }}>
-                {summary?.totalTransactions || ledger.length} AUDITED
+                {summary?.totalTransactions || ledger.length} COMPLETED
               </span>
             </div>
           </div>
@@ -495,7 +495,7 @@ export const WalletPage = ({ onBack }) => {
               <Crosshair size={18} />
             </div>
             <div className="metric-meta">
-              <span className="metric-label">LATEST SORTIE REWARD</span>
+              <span className="metric-label">LATEST MISSION REWARD</span>
               <span className="metric-value" style={{ color: '#00E5FF' }}>
                 {latestMissionTx ? `+${latestMissionTx.amount} CR` : 'READY TO DEPLOY'}
               </span>
@@ -504,7 +504,7 @@ export const WalletPage = ({ onBack }) => {
         </div>
       </section>
 
-      {/* ================= 4. SECURE TRANSACTION LEDGER ================= */}
+      {/* ================= 4. TRANSACTION & REWARD HISTORY ================= */}
       <section className="treasury-ledger-section" aria-label="Transaction Ledger">
         <div className="ledger-top-bar">
           <div className="ledger-heading-area">
@@ -565,7 +565,7 @@ export const WalletPage = ({ onBack }) => {
           {loading ? (
             <div className="ledger-state-box">
               <RefreshCw size={28} className="sync-spinning" color="#00E5FF" />
-              <h4 className="ledger-state-title">AUDITING CRYPTOGRAPHIC LEDGER...</h4>
+              <h4 className="ledger-state-title">LOADING TRANSACTION HISTORY...</h4>
               <p className="ledger-state-sub">Fetching verified double-entry transactions from command network.</p>
             </div>
           ) : processedTransactions.length === 0 ? (
@@ -575,7 +575,7 @@ export const WalletPage = ({ onBack }) => {
               <p className="ledger-state-sub">
                 {searchQuery 
                   ? 'No ledger records matched your search filter.' 
-                  : 'Complete combat sorties or claim daily supply drops to generate ledger entries.'}
+                  : 'Complete missions or claim daily rewards to see your history here.'}
               </p>
             </div>
           ) : (
@@ -680,7 +680,7 @@ export const WalletPage = ({ onBack }) => {
         {/* ================= 5. FINANCIAL SUMMARY FOOTER ================= */}
         <footer className="treasury-summary-footer" aria-label="Treasury Totals">
           <div className="summary-stat-box">
-            <span className="summary-stat-label">AUDITED TRANSACTIONS</span>
+            <span className="summary-stat-label">TOTAL TRANSACTIONS</span>
             <span className="summary-stat-num">{filteredTotals.count} ENTRIES</span>
           </div>
           <div className="summary-stat-box">
@@ -715,7 +715,7 @@ export const WalletPage = ({ onBack }) => {
           >
             <div className="drawer-header">
               <div>
-                <span className="drawer-pretag">AUDIT LOG // TRANSACTION TELEMETRY</span>
+                <span className="drawer-pretag">TRANSACTION DETAILS</span>
                 <h3 className="drawer-title">TRANSACTION DETAILS</h3>
               </div>
               <button type="button" 
@@ -902,7 +902,7 @@ export const WalletPage = ({ onBack }) => {
                 <div style={{ pointerEvents: 'auto' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span style={{ fontSize: '0.74rem', color: '#FFF', fontFamily: 'Orbitron, monospace', letterSpacing: '0.04em' }}>
-                      {activeAdCampaign?.title || 'CYBERNETIC FLEET EXPO'} // {activeAdCampaign?.tagline || 'SPECIAL PROMOTION'}
+                      {activeAdCampaign?.title || 'SPECIAL SPONSOR'} - {activeAdCampaign?.tagline || 'REWARD AD'}
                     </span>
                     <span style={{ fontSize: '0.70rem', color: '#00E5FF', fontFamily: 'Orbitron, monospace' }}>
                       0:${(10 - adCountdown) < 10 ? '0' : ''}${Math.min(10, 10 - adCountdown)} / 0:10
@@ -920,7 +920,7 @@ export const WalletPage = ({ onBack }) => {
 
             {adCountdown > 0 && (
               <div style={{ fontSize: '0.72rem', color: '#7B8CAE', textAlign: 'center', fontFamily: 'Inter, sans-serif' }}>
-                ⚡ Anti-cheat telemetry: Watching the full 10-second sponsor broadcast is required to credit bounty.
+                ⚡ Note: Watching the full 10-second video is required to receive your +150 Credits.
               </div>
             )}
 

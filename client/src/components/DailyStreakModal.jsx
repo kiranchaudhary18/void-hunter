@@ -198,7 +198,7 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
               </div>
               <div>
                 <div className="streak-modal-badge-row">
-                  <span className="streak-modal-eyebrow">// FLEET RETENTION PROTOCOL</span>
+                  <span className="streak-modal-eyebrow">DAILY REWARD PROGRAM</span>
                   <span className="streak-modal-counter">
                     DAY {currentDay} OF 7 ACTIVE
                   </span>

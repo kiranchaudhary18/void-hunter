@@ -100,7 +100,7 @@ SECTORS_LIST.forEach((sector, sIdx) => {
       sequence: seq,
       globalSequence: globalSeq,
       name: isBossMission ? `${sector.boss}` : `${template.name}`,
-      subtitle: `SECTOR ${sectorNum} // MISSION ${seq < 10 ? '0' + seq : seq}`,
+      subtitle: `SECTOR ${sectorNum} - MISSION ${seq < 10 ? '0' + seq : seq}`,
       difficulty: globalSeq <= 10 ? 'normal' : globalSeq <= 30 ? 'hard' : 'expert',
       objective: {
         type: template.objectiveType,

@@ -209,7 +209,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
           </div>
           <div className="dossier-sorties-badge">
             <Target size={13} color="#FBBF24" />
-            <span>{completedCount} / 50 SORTIES CLEARED</span>
+            <span>{completedCount} / 50 MISSIONS CLEARED</span>
           </div>
         </div>
 
@@ -237,7 +237,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
             title="Instant Combat Sortie Deployment"
           >
             <Play size={14} fill="currentColor" />
-            <span>DEPLOY SORTIE</span>
+            <span>PLAY NOW</span>
           </button>
         </div>
       </section>
@@ -268,7 +268,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
               </span>
             </div>
             <p className="streak-banner-desc">
-              Consecutive daily sorties yield escalating Credits, Energy Cores, and unlock the Day 7 Imperial Mystery Crate.
+              Consecutive daily logins yield escalating Credits, Energy Cores, and unlock the Day 7 Imperial Mystery Crate.
             </p>
           </div>
         </div>
@@ -326,7 +326,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
             {/* Mission Briefing Body */}
             <div className="hero-body">
               <div className="hero-sector-subtitle">
-                // {activeSector.sector} OVERWATCH
+                {activeSector.sector.toUpperCase()} REGION
               </div>
               <h1 className="hero-sector-title">
                 {activeSector.name}
@@ -347,7 +347,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
                 </span>
                 <span className="hero-telemetry-chip">
                   <ShieldCheck size={12} />
-                  <span>SECTOR GATE: RECON READY</span>
+                  <span>MISSION READY</span>
                 </span>
               </div>
             </div>
@@ -387,7 +387,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
           <div>
             <div className="starfighter-panel-header">
               <div>
-                <span className="starfighter-eyebrow">// ACTIVE STARFIGHTER</span>
+                <span className="starfighter-eyebrow">MY ACTIVE STARFIGHTER</span>
                 <h2 className="starfighter-name">{currentShipName}</h2>
                 <span className="starfighter-class-tag">{currentShipClass}</span>
               </div>
@@ -533,7 +533,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
           <div className="module-header">
             <div className="module-title-group">
               <Target size={15} color="#00E5FF" />
-              <h3 className="module-title">DAILY DIRECTIVES</h3>
+              <h3 className="module-title">DAILY TASKS</h3>
             </div>
             <button onClick={() => handleNav('quests')} className="module-action-link">
               DIRECTIVES &rarr;
@@ -584,7 +584,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
           <div className="module-header">
             <div className="module-title-group">
               <Award size={15} color="#FBBF24" />
-              <h3 className="module-title">REWARDS & LEDGER</h3>
+              <h3 className="module-title">RECENT REWARDS</h3>
             </div>
             <button onClick={() => handleNav('wallet')} className="module-action-link">
               VIEW WALLET &rarr;
@@ -596,7 +596,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
             <div className="recent-rewards-feed">
               {recentTransactions.length === 0 ? (
                 <div className="module-empty-notice" style={{ padding: '10px 0' }}>
-                  No recent ledger transactions recorded. Complete sorties to earn credits.
+                  No recent transactions recorded. Complete missions to earn credits.
                 </div>
               ) : (
                 recentTransactions.slice(0, 3).map((tx, idx) => {

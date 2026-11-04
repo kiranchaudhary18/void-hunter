@@ -280,11 +280,11 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
           <div className="settings-title-group">
             <span className="settings-pretitle-tag">
               <Sparkles size={12} color="#00E5FF" />
-              PILOT OPERATIONS // SYSTEMS CONFIGURATION
+              GAME SETTINGS
             </span>
             <h1 className="settings-main-title">PILOT & AUDIO SETTINGS</h1>
             <p className="settings-subtitle">
-              Configure telemetry audio, customize pilot callsign & photo, calibrate sublight controls, and optimize visual performance.
+              Adjust sound volume, customize your pilot callsign, view controls, and configure gameplay.
             </p>
           </div>
         </div>
@@ -310,7 +310,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
       {saveSuccess && (
         <div className="settings-success-toast">
           <CheckCircle2 size={18} color="#20D6A0" />
-          <span>System configuration successfully updated and saved to flight telemetry!</span>
+          <span>Settings updated and saved successfully!</span>
         </div>
       )}
 
@@ -462,7 +462,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
                 </div>
                 <div className="mini-telemetry-item">
                   <span className="mini-label">CLOUD MEDIA STORAGE</span>
-                  <span className="mini-val text-cyan">CLOUDINARY // SECURE</span>
+                  <span className="mini-val text-cyan">CLOUD STORAGE SECURE</span>
                 </div>
                 <div className="mini-telemetry-item">
                   <span className="mini-label">AVATAR STATUS</span>
@@ -532,7 +532,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
             {/* Master Volume */}
             <div className="audio-slider-row">
               <div className="slider-label-group">
-                <span className="slider-channel-title">MASTER TELEMETRY GAIN</span>
+                <span className="slider-channel-title">MASTER SOUND VOLUME</span>
                 <span className="slider-val-badge">{masterVol}%</span>
               </div>
               <div className="cyber-slider-track-wrap">
@@ -603,7 +603,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
               >
                 <div className="track-meta">
                   <span className="track-name">SECTOR OVERDRIVE (COMBAT MIX)</span>
-                  <span className="track-desc">High-octane electronic synth pulse for intense sorties</span>
+                  <span className="track-desc">High-energy electronic beats for combat missions</span>
                 </div>
                 {activeTrack === 'combat' && <Activity size={16} color="#00E5FF" className="pulse-icon" />}
               </button>
@@ -681,7 +681,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
               <Keyboard size={18} color="#C084FC" />
               <div>
                 <h2 className="card-heading-title">FLIGHT CONTROLS & KEYBINDINGS</h2>
-                <span className="card-heading-sub">Starship sublight vector and weapon triggers</span>
+                <span className="card-heading-sub">Ship flight controls and weapon buttons</span>
               </div>
             </div>
           </div>
@@ -734,7 +734,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
                 <kbd className="key-cap">ESC</kbd>
               </div>
               <div className="control-meta">
-                <span className="control-title">TACTICAL SORTIE PAUSE</span>
+                <span className="control-title">PAUSE GAME</span>
                 <span className="control-sub">Temporarily freeze combat state to inspect fleet loadouts</span>
               </div>
             </div>
@@ -866,7 +866,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
             <div className="card-heading-group">
               <Shield size={18} color="#FBBF24" />
               <div>
-                <h2 className="card-heading-title">PILOT TELEMETRY & SYSTEM BUILD</h2>
+                <h2 className="card-heading-title">SYSTEM & GAME ENGINE INFO</h2>
                 <span className="card-heading-sub">Command link specifications and cache maintenance</span>
               </div>
             </div>
@@ -883,7 +883,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
             </div>
             <div className="dossier-item">
               <span className="dossier-lbl">ENGINE BUILD PROTOCOL</span>
-              <span className="dossier-val">PHASER v3.80 // VITE v8</span>
+              <span className="dossier-val">PHASER v3.80 - VITE v8</span>
             </div>
             <div className="dossier-item">
               <span className="dossier-lbl">SOFTWARE SPECIFICATION</span>

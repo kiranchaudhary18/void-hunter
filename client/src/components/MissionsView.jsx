@@ -137,7 +137,7 @@ export const MissionsView = ({
 
     if (!mission.isUnlocked) {
       soundManager.playShieldHit();
-      setErrorMessage(`Sortie ${mission.name} is locked. Decrypt prior combat coordinates first.`);
+      setErrorMessage(`Mission ${mission.name} is locked. Complete the previous mission first.`);
       setTimeout(() => setErrorMessage(null), 3500);
       return;
     }
@@ -219,10 +219,10 @@ export const MissionsView = ({
         <div className="header-briefing-col">
           <div className="header-eyebrow">
             <span className="header-beacon-dot" />
-            <span>TACTICAL MISSION COMMAND // SECTOR OVERWATCH</span>
+            <span>CAMPAIGN MISSIONS</span>
           </div>
           <h1 className="header-main-title">
-            CHOOSE YOUR <span className="header-title-highlight">NEXT SORTIE</span>
+            CHOOSE YOUR <span className="header-title-highlight">NEXT MISSION</span>
           </h1>
           <p className="header-support-text">
             Chart your route through hostile sectors. Complete missions, earn rewards, and prepare for apex encounters across the contested galaxy.
@@ -248,7 +248,7 @@ export const MissionsView = ({
           </div>
 
           <div className="progress-footer-stats">
-            <span>{totalCompleted} SORTIES CLEARED</span>
+            <span>{totalCompleted} MISSIONS CLEARED</span>
             <span>{missions.reduce((acc, m) => acc + (m.stars || 0), 0)} / 150 STARS</span>
           </div>
         </div>
@@ -271,7 +271,7 @@ export const MissionsView = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Compass size={18} color="#00E5FF" />
             <span style={{ fontSize: '0.82rem', color: '#EAF1FF' }}>
-              <strong>TACTICAL FLIGHT ARCHIVE //</strong> All 5 sectors and 50 campaign sorties are visible. Sign in to initiate deployments and persist ledger earnings.
+              <strong>MISSIONS OVERVIEW:</strong> All 5 sectors and 50 campaign missions are visible. Sign in to initiate deployments and persist ledger earnings.
             </span>
           </div>
           <button
@@ -320,14 +320,14 @@ export const MissionsView = ({
             <div className="quick-deploy-tag-row">
               <span className="quick-deploy-status-dot" />
               <span className="quick-deploy-tag-text">
-                RECOMMENDED SORTIE // SECTOR {currentSector?.name?.toUpperCase() || '01'}
+                RECOMMENDED MISSION - SECTOR {currentSector?.name?.toUpperCase() || '01'}
               </span>
               <span className="quick-deploy-hazard-pill">
                 {recommendedMission.sequence === 10 ? 'APEX HAZARD' : 'STANDARD HAZARD'}
               </span>
             </div>
             <h2 className="quick-deploy-title">
-              SORTIE 0{recommendedMission.sequence}: {recommendedMission.name.toUpperCase()}
+              MISSION 0{recommendedMission.sequence}: {recommendedMission.name.toUpperCase()}
             </h2>
             <div className="quick-deploy-objective">
               <Target size={14} color="#00E5FF" />
@@ -387,7 +387,7 @@ export const MissionsView = ({
         {/* Filters */}
         <div className="filter-pills-row">
           {[
-            { id: 'ALL', label: 'ALL SORTIES' },
+            { id: 'ALL', label: 'ALL MISSIONS' },
             { id: 'AVAILABLE', label: 'AVAILABLE' },
             { id: 'COMPLETED', label: 'COMPLETED' },
             { id: 'BOSS', label: 'BOSS ENCOUNTERS' }
@@ -428,7 +428,7 @@ export const MissionsView = ({
 
       {/* ================= 4. MAIN CAMPAIGN ARENA (MAP + BRIEFING PANEL) ================= */}
       <div className="mobile-swipe-guide">
-        <span>👈 SWIPE MAP HORIZONTALLY TO EXPLORE SORTIES 01 - 10 👉</span>
+        <span>👈 SWIPE MAP HORIZONTALLY TO EXPLORE MISSIONS 01 - 10 👉</span>
       </div>
 
       <div className="campaign-arena-grid">
@@ -515,7 +515,7 @@ export const MissionsView = ({
               else if (isCurrent) stateClass = 'node-state-current';
 
               const unlockReqText = isLocked 
-                ? (idx > 0 ? `Locked: Clear Sortie 0${idx} first` : 'Locked') 
+                ? (idx > 0 ? `Locked: Clear Mission 0${idx} first` : 'Locked') 
                 : isCompleted ? 'Completed' : 'Available';
 
               return (
@@ -541,7 +541,7 @@ export const MissionsView = ({
                   {isCurrent && (
                     <>
                       <span className="node-orbital-ring" />
-                      <span className="node-current-sortie-badge">NEXT SORTIE</span>
+                      <span className="node-current-sortie-badge">NEXT MISSION</span>
                     </>
                   )}
 
@@ -606,7 +606,7 @@ export const MissionsView = ({
               <div className="briefing-banner-vignette" />
               <div className="briefing-banner-tags">
                 <span className="banner-sortie-code">
-                  SORTIE {String(selectedMission.sequence).padStart(2, '0')} // {selectedMission.isCompleted ? 'COMBAT DEBRIEF' : 'MISSION INTEL'}
+                  MISSION {String(selectedMission.sequence).padStart(2, '0')} - {selectedMission.isCompleted ? 'COMPLETED' : 'BRIEFING'}
                 </span>
                 <span className={`banner-status-pill ${
                   selectedMission.isCompleted 
@@ -632,7 +632,7 @@ export const MissionsView = ({
                   <div className="boss-hazard-pulse-dot" />
                   <Skull size={18} className="boss-hazard-skull-icon" />
                   <div className="boss-hazard-text">
-                    <span className="boss-hazard-title">APEX FLAGSHIP DETECTED // PROTOCOL OMEGA</span>
+                    <span className="boss-hazard-title">WARNING: BOSS ENCOUNTER</span>
                     <span className="boss-hazard-sub">Class-S Dreadnought with multi-phase shields and hyper-kinetic beam cannons.</span>
                   </div>
                 </div>
@@ -642,7 +642,7 @@ export const MissionsView = ({
               <div className="briefing-title-area">
                 <h2 className="briefing-mission-title">{selectedMission.name}</h2>
                 <div className="briefing-sector-line">
-                  <span>{selectedMission.sectorName || currentSector.name} • DEEP SPACE SORTIE</span>
+                  <span>{selectedMission.sectorName || currentSector.name} • DEEP SPACE MISSION</span>
                   <span className={`briefing-diff-pill diff-${(selectedMission.difficulty || 'normal').toLowerCase()}`}>
                     {selectedMission.difficulty || 'NORMAL'}
                   </span>
@@ -654,10 +654,10 @@ export const MissionsView = ({
                 <div className="briefing-objective-card debrief-completed-card">
                   <div className="objective-card-header">
                     <CheckCircle size={13} color="#10B981" />
-                    <span style={{ color: '#10B981', fontWeight: 800 }}>SORTIE RECORD ARCHIVE</span>
+                    <span style={{ color: '#10B981', fontWeight: 800 }}>MISSION RECORD</span>
                   </div>
                   <p className="objective-card-text">
-                    Combat sortie successfully neutralized. Hostile sector telemetry verified and all bounties secured.
+                    Mission completed! All enemy targets defeated and rewards secured.
                   </p>
                 </div>
               ) : (
@@ -736,7 +736,7 @@ export const MissionsView = ({
                 {selectedMission.isCompleted ? (
                   <>
                     <div className="rewards-header-row">
-                      <span className="rewards-label" style={{ color: '#10B981' }}>// REWARDS CLAIMED & SECURED</span>
+                      <span className="rewards-label" style={{ color: '#10B981' }}>REWARDS CLAIMED</span>
                       <span className="rewards-status-badge">
                         <Check size={10} /> CLAIMED
                       </span>
@@ -767,7 +767,7 @@ export const MissionsView = ({
                   </>
                 ) : (
                   <>
-                    <span className="rewards-label">// ESTIMATED COMBAT REWARDS</span>
+                    <span className="rewards-label">MISSION REWARDS</span>
                     <div className="rewards-tokens-row">
                       <div className="reward-token token-gold">
                         <Coins size={12} />
@@ -819,7 +819,7 @@ export const MissionsView = ({
                   <span>CAMPAIGN PROGRESSION</span>
                   <span className="progression-strip-status">
                     {selectedMission.isCompleted 
-                      ? 'SORTIE COMPLETE' 
+                      ? 'MISSION COMPLETED' 
                       : selectedMission.isUnlocked 
                         ? 'READY FOR DEPLOYMENT' 
                         : 'RESTRICTED'}
@@ -829,22 +829,22 @@ export const MissionsView = ({
                   {selectedMission.isCompleted ? (
                     nextMissionInSector ? (
                       <span>
-                        Clear Record: {selectedMission.bestTimeSeconds || 29}s • Score: {(selectedMission.highScore || 5610).toLocaleString()} PTS • Next: Sortie 0{nextMissionInSector.sequence} - {nextMissionInSector.name}
+                        Clear Record: {selectedMission.bestTimeSeconds || 29}s • Score: {(selectedMission.highScore || 5610).toLocaleString()} PTS • Next: Mission 0{nextMissionInSector.sequence} - {nextMissionInSector.name}
                       </span>
                     ) : (
-                      <span>Sector Cleared! Apex encounter neutralized.</span>
+                      <span>Sector Cleared! Boss defeated.</span>
                     )
                   ) : selectedMission.isUnlocked ? (
                     selectedMission.sequence === 10 ? (
                       <span style={{ color: '#FF4568', fontWeight: 'bold' }}>
-                        APEX ENCOUNTER // Hostile Flagship: {currentSector.boss}
+                        BOSS BATTLE: Hostile Flagship {currentSector.boss}
                       </span>
                     ) : (
-                      <span>Next Milestone: Apex Boss {currentSector.boss} in {10 - selectedMission.sequence} Sorties</span>
+                      <span>Next Milestone: Boss Battle in {10 - selectedMission.sequence} missions</span>
                     )
                   ) : (
                     <span style={{ color: '#96A6C8' }}>
-                      Prerequisite: Complete Sortie 0{selectedMission.sequence - 1} to decrypt flight coordinates.
+                      Prerequisite: Complete Mission 0{selectedMission.sequence - 1} to unlock.
                     </span>
                   )}
                 </div>
@@ -865,7 +865,7 @@ export const MissionsView = ({
                         <span>
                           {launchingId === selectedMission.id 
                             ? 'PREPARING REPLAY...' 
-                            : 'REPLAY SORTIE'}
+                            : 'REPLAY MISSION'}
                         </span>
                       </button>
                     ) : (
@@ -878,7 +878,7 @@ export const MissionsView = ({
                         <Play size={16} fill="currentColor" />
                         <span>
                           {launchingId === selectedMission.id 
-                            ? 'DEPLOYING SORTIE...' 
+                            ? 'LAUNCHING MISSION...' 
                             : selectedMission.sequence === 10 
                               ? 'ENGAGE APEX BOSS' 
                               : 'LAUNCH MISSION'}
@@ -892,7 +892,7 @@ export const MissionsView = ({
                       className="btn-briefing-locked"
                     >
                       <Lock size={15} />
-                      <span>LOCKED [CLEAR PRIOR SORTIE]</span>
+                      <span>LOCKED [COMPLETE PREVIOUS MISSION]</span>
                     </button>
                   )
                 ) : (

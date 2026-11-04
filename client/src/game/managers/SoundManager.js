@@ -18,7 +18,7 @@ class SoundManager {
 
     // Purely instrumental AAA sci-fi electronic soundtrack catalog (Zero vocal / zero narration)
     this.playlist = [
-      { id: 'menu', title: 'VOID HUNTER // CYBER DRIVE', subtitle: 'SYNTHWAVE BEAT (124 BPM)', bpm: 124, hasLyrics: false },
+      { id: 'menu', title: 'VOID HUNTER - CYBER DRIVE', subtitle: 'SYNTHWAVE BEAT (124 BPM)', bpm: 124, hasLyrics: false },
       { id: 'combat', title: 'SECTOR OVERDRIVE', subtitle: 'COMBAT FRENZY (138 BPM)', bpm: 138, hasLyrics: false }
     ];
 

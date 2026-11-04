@@ -326,7 +326,7 @@ export const HangarView = ({
         <div className="hangar-title-col">
           <div className="hangar-eyebrow">
             <span className="hangar-beacon-dot" />
-            <span>FLEET COMMAND // SHIP SELECTION</span>
+            <span>STARSHIP HANGAR</span>
           </div>
           <h1 className="hangar-main-heading">STARSHIP HANGAR</h1>
           <p className="hangar-subtext">Inspect your fleet. Configure your loadout. Prepare for combat.</p>
@@ -378,7 +378,7 @@ export const HangarView = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Sparkles size={18} color="#00E5FF" />
             <span style={{ fontSize: '0.84rem', color: '#EAF1FF' }}>
-              <strong>GUEST FLEET PREVIEW //</strong> Browse all 5 advanced starfighters and examine flight parameters. Enlist as an active pilot to equip starships and purchase module upgrades.
+              <strong>GUEST PREVIEW:</strong> Browse all 5 advanced starfighters and examine flight parameters. Enlist as an active pilot to equip starships and purchase module upgrades.
             </span>
           </div>
           <button
@@ -445,7 +445,7 @@ export const HangarView = ({
         <div className="carousel-header-row">
           <div className="carousel-section-title">
             <Compass size={16} color="#00E5FF" />
-            <span>COMMISSIONED STARFIGHTERS // SELECT VESSEL</span>
+            <span>CHOOSE YOUR STARSHIP</span>
           </div>
           <div className="carousel-nav-controls">
             <button 
@@ -551,7 +551,7 @@ export const HangarView = ({
           <nav className="showcase-tactical-nav" aria-label="Hangar Control Navigation">
             <div className="showcase-bay-label">
               <Radio size={14} color="#00E5FF" />
-              <span>DOCKING BAY 04 // ACTIVE PODIUM</span>
+              <span>SELECTED STARSHIP</span>
             </div>
             <div className="showcase-tabs-list">
               {[
@@ -598,16 +598,16 @@ export const HangarView = ({
 
             {/* Tactical HUD Telemetry Callouts */}
             <div className="hud-tag hud-tag-top-left">
-              + REG: {activeShip.code} // {activeShip.name.split(' ')[0]}
+              SHIP: {activeShip.code} - {activeShip.name.split(' ')[0]}
             </div>
             <div className="hud-tag hud-tag-top-right">
-              CLASS: {activeShip.classType.toUpperCase()} +
+              CLASS: {activeShip.classType.toUpperCase()}
             </div>
             <div className="hud-tag hud-tag-bottom-left">
-              + PROPULSION: {activeShip.manufacturer.split(' ')[0].toUpperCase()} ION
+              ENGINE: {activeShip.manufacturer.split(' ')[0].toUpperCase()} ION
             </div>
             <div className="hud-tag hud-tag-bottom-right">
-              SHIELD MATRIX: {calcStat(activeShip.baseStats?.shield, upgrades.shield)}% +
+              SHIELD: {calcStat(activeShip.baseStats?.shield, upgrades.shield)}%
             </div>
 
             {/* Floating Centerpiece Real Starfighter Canvas */}
@@ -634,7 +634,7 @@ export const HangarView = ({
           {/* Console Header */}
           <div className="console-header-block">
             <div className="console-ship-title-wrap">
-              <span className="console-ship-code">{activeShip.code} // FLEET REGISTRY</span>
+              <span className="console-ship-code">{activeShip.code} - STARSHIP</span>
               <h2 className="console-ship-name">{activeShip.name}</h2>
               <span style={{ fontSize: '0.74rem', color: '#00E5FF', fontFamily: 'Orbitron', fontWeight: '700' }}>
                 {activeShip.tagline}
@@ -662,7 +662,7 @@ export const HangarView = ({
                   <div className="stat-label-wrap">
                     <span className="stat-title stat-title-firepower">
                       <Zap size={13} />
-                      <span>FIREPOWER / DPS</span>
+                      <span>FIREPOWER</span>
                     </span>
                     <span className="stat-value-badge">
                       {calcStat(activeShip.baseStats?.firepower, upgrades.weapon)} / 100
@@ -681,7 +681,7 @@ export const HangarView = ({
                   <div className="stat-label-wrap">
                     <span className="stat-title stat-title-shield">
                       <Shield size={13} />
-                      <span>SHIELD DEFENSE MATRIX</span>
+                      <span>SHIELD POWER</span>
                     </span>
                     <span className="stat-value-badge">
                       {calcStat(activeShip.baseStats?.shield, upgrades.shield)} / 100
@@ -700,7 +700,7 @@ export const HangarView = ({
                   <div className="stat-label-wrap">
                     <span className="stat-title stat-title-speed">
                       <Activity size={13} />
-                      <span>SUBLIGHT VELOCITY</span>
+                      <span>TOP SPEED</span>
                     </span>
                     <span className="stat-value-badge">
                       {calcStat(activeShip.baseStats?.speed, upgrades.engine)} / 100
@@ -719,7 +719,7 @@ export const HangarView = ({
                   <div className="stat-label-wrap">
                     <span className="stat-title stat-title-maneuver">
                       <Sparkles size={13} />
-                      <span>MANEUVERABILITY // DRIFT</span>
+                      <span>AGILITY & DRIFT</span>
                     </span>
                     <span className="stat-value-badge">
                       {calcStat(activeShip.baseStats?.maneuver, upgrades.special)} / 100
@@ -744,14 +744,14 @@ export const HangarView = ({
                   </span>
                 </div>
                 <div className="loadout-card-item">
-                  <span className="loadout-card-label">SECONDARY ORDNANCE</span>
+                  <span className="loadout-card-label">SECONDARY WEAPON</span>
                   <span className="loadout-card-val">
                     <Zap size={13} color="#FFC247" />
                     <span>{activeShip.secondaryWeapon}</span>
                   </span>
                 </div>
                 <div className="loadout-card-item" style={{ gridColumn: 'span 2' }}>
-                  <span className="loadout-card-label">TACTICAL SPECIAL ABILITY</span>
+                  <span className="loadout-card-label">SPECIAL ABILITY</span>
                   <span className="loadout-card-val" style={{ color: '#C084FC' }}>
                     <Sparkles size={13} color="#A855F7" />
                     <span>{activeShip.specialAbility}</span>
@@ -782,7 +782,7 @@ export const HangarView = ({
                   <span>{activeShip.secondaryWeapon}</span>
                 </span>
                 <p style={{ margin: '4px 0 0', fontSize: '0.74rem', color: '#9AA9C7' }}>
-                  Automated lock-on ordnance engineered for capital hull breaching and heavy armor detonation.
+                  Automated lock-on missiles engineered for heavy armor and ship damage.
                 </p>
               </div>
 
@@ -818,14 +818,14 @@ export const HangarView = ({
                   <Wrench size={14} />
                   <span>ATOMIC MODULE UPGRADES</span>
                 </span>
-                <span className="section-subhead-hint">SERVER ENFORCED // 4 TIERS</span>
+                <span className="section-subhead-hint">MAX 4 TIERS</span>
               </div>
 
               <div className="modules-four-grid">
                 {[
                   { key: 'weapon', label: 'WEAPON SYSTEM', stat: '+3 DPS per Level', icon: Crosshair },
                   { key: 'shield', label: 'SHIELD MATRIX', stat: '+3 Shield per Level', icon: Shield },
-                  { key: 'engine', label: 'SUBLIGHT ENGINE', stat: '+3 Speed per Level', icon: Activity },
+                  { key: 'engine', label: 'ENGINE SPEED', stat: '+3 Speed per Level', icon: Activity },
                   { key: 'special', label: 'SPECIAL CORE', stat: '+3 Drift per Level', icon: Sparkles }
                 ].map((mod) => {
                   const currentLvl = upgrades[mod.key] || 1;
@@ -856,7 +856,7 @@ export const HangarView = ({
                           className="btn-module-upgrade-action"
                           title={
                             !isUnlocked 
-                              ? 'Commission ship first' 
+                              ? 'Unlock ship first' 
                               : isMax 
                                 ? 'Maximum Level Reached' 
                                 : !canAfford 
@@ -880,7 +880,7 @@ export const HangarView = ({
               <div className="section-subhead-row">
                 <span className="section-subhead-title">
                   <Palette size={14} />
-                  <span>TACTICAL HULL COATINGS</span>
+                  <span>SHIP COLOR THEMES</span>
                 </span>
                 <span className="section-subhead-hint">ACTIVE PREVIEW</span>
               </div>
@@ -918,7 +918,7 @@ export const HangarView = ({
               <div className="section-subhead-row">
                 <span className="section-subhead-title">
                   <Layers size={14} />
-                  <span>FLEET SQUADRON INSIGNIAS</span>
+                  <span>FLEET BADGES & EMBLEMS</span>
                 </span>
                 <span className="section-subhead-hint">SEALS & MARKS</span>
               </div>
@@ -973,17 +973,17 @@ export const HangarView = ({
               color: isEquipped ? '#20D6A0' : isUnlocked ? '#00E5FF' : '#FFC247'
             }}>
               {isEquipped 
-                ? 'CURRENTLY EQUIPPED // READY FOR COMBAT' 
+                ? 'EQUIPPED & READY FOR BATTLE' 
                 : isUnlocked 
-                  ? 'COMMISSIONED // HANGAR DECK STANDBY' 
-                  : 'DRYDOCK STATUS // LOCKED VESSEL'}
+                  ? 'UNLOCKED (READY TO EQUIP)' 
+                  : 'LOCKED STARSHIP'}
             </span>
             <span className="status-subtitle-hint">
               {isEquipped 
-                ? 'Starfighter active on flight deck. Selected for all mission sorties.' 
+                ? 'Active ship. Selected for all missions.' 
                 : isUnlocked 
-                  ? 'Hull ready for deployment. Equip to launch into combat missions.' 
-                  : `Procure blueprint requisition with ${activeShip.priceCredits.toLocaleString()} Credits.`}
+                  ? 'Unlocked! Equip this ship to fly into battle.' 
+                  : `Unlock with ${activeShip.priceCredits.toLocaleString()} Credits.`}
             </span>
           </div>
         </div>
@@ -1006,7 +1006,7 @@ export const HangarView = ({
               letterSpacing: '0.08em'
             }}>
               <Check size={16} />
-              <span>ACTIVE SORTIE READY</span>
+              <span>EQUIPPED</span>
             </div>
           ) : isUnlocked ? (
             <button
@@ -1032,7 +1032,7 @@ export const HangarView = ({
               <span>
                 {actionLoading 
                   ? 'COMMISSIONING...' 
-                  : `COMMISSION HULL // ${activeShip.priceCredits.toLocaleString()} CR`}
+                  : `UNLOCK SHIP (${activeShip.priceCredits.toLocaleString()} CR)`}
               </span>
             </button>
           )}
@@ -1048,9 +1048,9 @@ export const HangarView = ({
               }
             }}
             className="btn-combat-sortie"
-            title="Proceed to Tactical Missions Deck"
+            title="Go to Missions Page"
           >
-            <span>SORTIE ARCHIVE</span>
+            <span>ALL MISSIONS</span>
             <ChevronRight size={16} />
           </button>
         </div>

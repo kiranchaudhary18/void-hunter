@@ -265,7 +265,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
               <div>
                 <div className="leaderboard-user-pin-name">
                   <span>{userRank.callsign || userRank.name?.toUpperCase()}</span>
-                  <span style={{ color: '#00E5FF', opacity: 0.6 }}>//</span>
+                  <span style={{ color: '#00E5FF', opacity: 0.6 }}>·</span>
                   <span style={{ color: '#00E5FF' }}>{userRank.pilotRank}</span>
                 </div>
                 <div className="leaderboard-user-pin-sub">
@@ -297,7 +297,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                 {nextCompetitorInfo.isChampion ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FBBF24' }}>
                     <Crown size={15} color="#FBBF24" />
-                    <strong>SUPREME FLEET CHAMPION // DEFEND YOUR #1 THRONE IN ACTIVE SORTIES</strong>
+                    <strong>TOP PLAYER - DEFEND YOUR #1 RANK IN COMBAT MISSIONS</strong>
                   </div>
                 ) : nextCompetitorInfo.competitor ? (
                   <>
@@ -323,7 +323,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                       className="objective-launch-btn"
                     >
                       <Zap size={13} />
-                      <span>DEPLOY SORTIE</span>
+                      <span>PLAY MISSION</span>
                       <ArrowRight size={13} />
                     </button>
                   </>
@@ -496,7 +496,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                 </div>
                 <div className="podium-badge podium-badge-silver">#2 ACE</div>
                 <div className="podium-callsign" style={{ color: '#94A3B8' }}>VACANT SECTOR</div>
-                <p className="podium-vacant-text">Awaiting combat telemetry</p>
+                <p className="podium-vacant-text">No player yet</p>
                 <div className="podium-score-block">
                   <span className="podium-score-label">MINIMUM SCORE</span>
                   <span className="podium-score-val silver" style={{ opacity: 0.4 }}>-</span>
@@ -593,7 +593,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                 </div>
                 <div className="podium-badge podium-badge-bronze">#3 ACE</div>
                 <div className="podium-callsign" style={{ color: '#94A3B8' }}>VACANT SECTOR</div>
-                <p className="podium-vacant-text">Awaiting combat telemetry</p>
+                <p className="podium-vacant-text">No player yet</p>
                 <div className="podium-score-block">
                   <span className="podium-score-label">MINIMUM SCORE</span>
                   <span className="podium-score-val bronze" style={{ opacity: 0.4 }}>-</span>
@@ -660,7 +660,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                     <td colSpan={5} className="leaderboard-td">
                       <div className="leaderboard-empty-state">
                         <RefreshCw size={26} color="#00E5FF" className="leaderboard-sync-icon spin" />
-                        <p className="leaderboard-empty-title">FETCHING COMBAT TELEMETRY...</p>
+                        <p className="leaderboard-empty-title">LOADING LEADERBOARD...</p>
                         <p className="leaderboard-empty-desc">Querying authoritative server ledger records...</p>
                       </div>
                     </td>
@@ -834,7 +834,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                 marginBottom: '24px'
               }}>
                 <Crosshair size={16} color="#00E5FF" />
-                <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>YOUR SORTIE DAMAGE:</span>
+                <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>YOUR COMBAT DAMAGE:</span>
                 <strong style={{ color: '#00E5FF', fontFamily: 'Orbitron, sans-serif' }}>
                   {(raidBoss?.userDamage || 0).toLocaleString()} DMG
                 </strong>
@@ -884,7 +884,7 @@ export const LeaderboardView = ({ isPublic = false, onNavigate, onBack }) => {
                   }}
                 >
                   <Zap size={16} />
-                  <span>SORTIE MISSIONS (+DMG)</span>
+                  <span>MISSIONS (+DAMAGE)</span>
                 </button>
               </div>
             </div>

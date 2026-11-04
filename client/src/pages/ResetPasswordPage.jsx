@@ -143,7 +143,7 @@ export const ResetPasswordPage = ({ token, onNavigate, onAuthSuccess }) => {
         <div className="reset-header-brand">
           <span className="reset-brand-tag">
             <Sparkles size={12} color="#00E5FF" />
-            SECURITY PROTOCOL // FLEET DIRECTIVE
+            ACCOUNT SECURITY
           </span>
           <span className="reset-brand-title">VOID HUNTER</span>
         </div>
@@ -176,7 +176,7 @@ export const ResetPasswordPage = ({ token, onNavigate, onAuthSuccess }) => {
             {activeToken ? (
               <span className="token-status-val token-valid">
                 <CheckCircle2 size={12} />
-                <span>TOKEN VERIFIED // ENCRYPTED</span>
+                <span>TOKEN VERIFIED (SECURE)</span>
               </span>
             ) : (
               <span className="token-status-val token-invalid">

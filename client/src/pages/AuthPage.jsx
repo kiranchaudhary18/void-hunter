@@ -404,7 +404,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
           <div className="auth-panel-body">
             {/* Eyebrow */}
             <div className="auth-eyebrow eyebrow-cyan">
-              <span className="eyebrow-prefix">//</span> PILOT ACCESS
+              PILOT LOGIN
             </div>
 
             {/* Heading & Description */}
@@ -544,7 +544,7 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
           <div className="auth-panel-body">
             {/* Eyebrow */}
             <div className="auth-eyebrow eyebrow-purple">
-              <span className="eyebrow-prefix">//</span> JOIN THE FLEET
+              CREATE ACCOUNT
             </div>
 
             {/* Heading & Description */}

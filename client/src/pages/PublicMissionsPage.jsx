@@ -33,7 +33,7 @@ export const PublicMissionsPage = ({ onNavigate }) => {
           <div className="public-footer-center">
             <span>TACTICAL CAMPAIGN</span>
             <span className="public-footer-dot-sep">•</span>
-            <span>50 CONTINGENCY SORTIES</span>
+            <span>50 MISSIONS</span>
             <span className="public-footer-dot-sep">•</span>
             <span>5 CONTESTED SECTORS</span>
           </div>

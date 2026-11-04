@@ -405,7 +405,7 @@ export const QuestsPage = ({ onBack }) => {
           <div>
             <div className="quests-eyebrow">
               <span className="quests-eyebrow-blip" />
-              <span>PILOT OPERATIONS // REWARD PROTOCOL</span>
+              <span>PILOT ACHIEVEMENTS & QUESTS</span>
             </div>
             <h1 className="quests-title">QUESTS & ACHIEVEMENTS</h1>
             <p className="quests-subtitle">
@@ -441,7 +441,7 @@ export const QuestsPage = ({ onBack }) => {
             <Shield size={20} color="#00E5FF" />
           </div>
           <div className="career-stat-info">
-            <span className="career-stat-label">PILOT RANK // LEVEL</span>
+            <span className="career-stat-label">PILOT RANK & LEVEL</span>
             <span className="career-stat-val">{pilotRank} · LVL {pilotLevel}</span>
           </div>
         </div>
@@ -510,7 +510,7 @@ export const QuestsPage = ({ onBack }) => {
                 <span className="streak-tag">DAY 0{questsData.streak.streakDay} ACTIVE</span>
               </div>
               <p className="streak-subtitle">
-                Consecutive daily sorties deliver escalating combat credits and high-density plasma energy cores.
+                Play daily to earn bonus credits and energy cores.
               </p>
             </div>
           </div>
@@ -624,7 +624,7 @@ export const QuestsPage = ({ onBack }) => {
             <div className={`supply-cooldown-timer ${supplyDrop.canClaim ? 'ready' : ''}`}>
               <Clock size={14} />
               <span>
-                {supplyDrop.canClaim ? 'ORBITAL POD READY FOR EXTRACTION' : `REFUELING SHUTTLE // ${supplyCountdown}`}
+                {supplyDrop.canClaim ? 'ORBITAL POD READY FOR EXTRACTION' : `NEXT CRATE IN: ${supplyCountdown}`}
               </span>
             </div>
           </div>
@@ -960,7 +960,7 @@ export const QuestsPage = ({ onBack }) => {
                   <div className="event-header-row">
                     <div>
                       <div className="event-badge-group">
-                        <span className="event-type-badge">LIMITED-TIME SORTIE</span>
+                        <span className="event-type-badge">LIMITED-TIME EVENT</span>
                         <div className="event-timer-pill">
                           <Clock size={13} />
                           <span>ACTIVE FLEET CAMPAIGN</span>
@@ -1027,7 +1027,7 @@ export const QuestsPage = ({ onBack }) => {
                     ) : (
                       <div className="quest-status-badge in-progress">
                         <Crosshair size={14} color="#94A3B8" />
-                        <span>IN ACTIVE SORTIE ({pct}%)</span>
+                        <span>IN PROGRESS ({pct}%)</span>
                       </div>
                     )}
                   </div>
