@@ -303,48 +303,56 @@ export class SpaceCombatScene extends Phaser.Scene {
       this.player.angle = Phaser.Math.Linear(this.player.angle, this.targetTilt, 0.2);
     }
 
-    // Realistic Twin Plasma Rocket Engine Flares (Player)
+    // Realistic Multi-Stage Rocket Engine Flares (Player)
     if (this.player && this.player.active && !this.isGameOver) {
-      const leftNozzleX = this.player.x - 16;
-      const rightNozzleX = this.player.x + 16;
+      const isPhoenix = this.playerTextureKey === 'ship_phoenix' || this.selectedShip?.id === 'v02-phoenix';
+      const isShadow = this.playerTextureKey === 'ship_shadow' || this.selectedShip?.id === 'v03-shadow';
+      const isTitan = this.playerTextureKey === 'ship_titan' || this.selectedShip?.id === 'v04-titan';
+
+      const coreJetColor = isPhoenix ? 0xFEF08A : (isShadow ? 0xF472B6 : (isTitan ? 0xFBBF24 : 0x00E5FF));
+      const outerPlumeColor = isPhoenix ? 0xEF4444 : (isShadow ? 0x9333EA : (isTitan ? 0xEA580C : 0x3B82F6));
       const nozzleY = this.player.y + 42;
       const isBoosting = vy < 0;
 
-      [leftNozzleX, rightNozzleX].forEach((nx) => {
-        // Inner hot white/cyan core jet
+      const nozzles = isPhoenix 
+        ? [this.player.x - 18, this.player.x - 7, this.player.x + 7, this.player.x + 18]
+        : [this.player.x - 16, this.player.x + 16];
+
+      nozzles.forEach((nx) => {
+        // Inner hot white/core jet
         const jet = this.add.circle(
           nx + Phaser.Math.Between(-1, 1),
           nozzleY + Phaser.Math.Between(0, 3),
-          isBoosting ? Phaser.Math.Between(4, 6) : Phaser.Math.Between(3, 4),
-          0x00E5FF,
+          isBoosting ? Phaser.Math.Between(3, 5) : Phaser.Math.Between(2, 4),
+          coreJetColor,
           0.95
         );
         jet.setDepth(9);
         this.tweens.add({
           targets: jet,
-          y: jet.y + (isBoosting ? Phaser.Math.Between(26, 42) : Phaser.Math.Between(16, 26)),
+          y: jet.y + (isBoosting ? Phaser.Math.Between(24, 40) : Phaser.Math.Between(14, 24)),
           scale: 0.1,
           alpha: 0,
           duration: isBoosting ? 160 : 120,
           onComplete: () => jet.destroy()
         });
 
-        // Outer radiant blue/orange afterburner flame
-        if (Math.random() < 0.6) {
+        // Outer radiant theme-matched afterburner flame
+        if (Math.random() < 0.65) {
           const plume = this.add.circle(
-            nx + Phaser.Math.Between(-3, 3),
-            nozzleY + 8,
-            isBoosting ? Phaser.Math.Between(5, 8) : Phaser.Math.Between(4, 6),
-            0x3B82F6,
-            0.55
+            nx + Phaser.Math.Between(-2, 2),
+            nozzleY + 6,
+            isBoosting ? Phaser.Math.Between(4, 7) : Phaser.Math.Between(3, 5),
+            outerPlumeColor,
+            0.6
           );
           plume.setDepth(8);
           this.tweens.add({
             targets: plume,
-            y: plume.y + (isBoosting ? Phaser.Math.Between(35, 55) : Phaser.Math.Between(22, 35)),
+            y: plume.y + (isBoosting ? Phaser.Math.Between(32, 50) : Phaser.Math.Between(20, 32)),
             scale: 0.2,
             alpha: 0,
-            duration: 220,
+            duration: 210,
             onComplete: () => plume.destroy()
           });
         }
@@ -353,13 +361,15 @@ export class SpaceCombatScene extends Phaser.Scene {
 
     // Hostile Fleet Ion Trails (Trailing behind incoming enemies)
     this.enemies.getChildren().forEach((enemy) => {
-      if (enemy.active && Math.random() < 0.22) {
+      if (enemy.active && Math.random() < 0.25) {
+        const isInterceptor = enemy.texture?.key === 'enemy_interceptor';
+        const trailColor = isInterceptor ? 0xA855F7 : 0xEF4444;
         const trail = this.add.circle(
           enemy.x + Phaser.Math.Between(-6, 6),
-          enemy.y - 25,
+          enemy.y - 22,
           Phaser.Math.Between(2, 4),
-          0xEF4444,
-          0.55
+          trailColor,
+          0.6
         );
         trail.setDepth(4);
         this.tweens.add({
