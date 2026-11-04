@@ -7,8 +7,8 @@
 .leaderboard-root {
   min-height: 100vh;
   width: 100%;
-  background-color: #04081E;
-  color: #EAF1FF;
+  background-color: #040711;
+  color: #F8FAFC;
   position: relative;
   overflow-x: hidden;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -20,10 +20,10 @@
   position: fixed;
   inset: 0;
   background-image: 
-    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(124, 58, 237, 0.16) 0%, transparent 70%),
-    radial-gradient(ellipse 65% 45% at 50% 32%, rgba(0, 229, 255, 0.09) 0%, transparent 60%),
-    radial-gradient(ellipse 100% 85% at 50% 100%, rgba(7, 12, 38, 0.9) 0%, transparent 80%),
-    linear-gradient(180deg, #04081E 0%, #070D28 50%, #030616 100%);
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(109, 40, 217, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 65% 45% at 50% 32%, rgba(0, 240, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 85% at 50% 100%, rgba(4, 7, 17, 0.95) 0%, transparent 80%),
+    linear-gradient(180deg, #040711 0%, #060B18 50%, #020409 100%);
   z-index: 0;
   pointer-events: none;
 }

@@ -15,20 +15,20 @@
    ========================================================================== */
 
 :root {
-  --hangar-bg: #040716;
-  --hangar-panel-bg: rgba(11, 18, 48, 0.84);
-  --hangar-panel-elevated: rgba(16, 26, 62, 0.9);
-  --hangar-panel-subtle: rgba(8, 14, 38, 0.78);
-  --hangar-border: rgba(0, 229, 255, 0.22);
-  --hangar-border-glow: rgba(0, 229, 255, 0.5);
-  --hangar-border-purple: rgba(139, 92, 246, 0.35);
-  --hangar-cyan: #00E5FF;
-  --hangar-purple: #8B5CF6;
-  --hangar-gold: #FFC247;
-  --hangar-green: #20D6A0;
-  --hangar-text-primary: #EAF1FF;
-  --hangar-text-secondary: #9AA9C7;
-  --hangar-text-muted: #627299;
+  --hangar-bg: #040711;
+  --hangar-panel-bg: rgba(11, 19, 36, 0.88);
+  --hangar-panel-elevated: rgba(16, 27, 50, 0.92);
+  --hangar-panel-subtle: rgba(7, 12, 24, 0.82);
+  --hangar-border: rgba(0, 240, 255, 0.16);
+  --hangar-border-glow: rgba(0, 240, 255, 0.35);
+  --hangar-border-purple: rgba(139, 92, 246, 0.25);
+  --hangar-cyan: #00F0FF;
+  --hangar-purple: #7C3AED;
+  --hangar-gold: #F59E0B;
+  --hangar-green: #10B981;
+  --hangar-text-primary: #F8FAFC;
+  --hangar-text-secondary: #94A3B8;
+  --hangar-text-muted: #64748B;
 }
 
 /* ==========================================================================

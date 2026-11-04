@@ -5,76 +5,81 @@
    ========================================================================== */
 
 :root {
-  /* BRAND SYSTEM - AAA Redesign Spec */
-  --bg-deep-navy: #080A2F;
-  --bg-panel-navy: #111735;
-  --accent-cosmic-purple: #7C3AED;
-  --neon-cyan: #00E5FF;
-  --text-offwhite: #EAF0FF;
+  /* ========================================================================
+     VOID HUNTER - PRECISION SCI-FI AEROSPACE DESIGN SYSTEM
+     Obsidian Carbon Base, Gunmetal Titanium Armor, Precision HUD Cyan,
+     Solar Tactical Amber, and Crystal Clear Typography.
+     ======================================================================== */
+  --bg-deep-navy: #050814;
+  --bg-panel-navy: #0B1324;
+  --accent-cosmic-purple: #6D28D9;
+  --neon-cyan: #00F0FF;
+  --text-offwhite: #F8FAFC;
   --text-blue-grey: #94A3B8;
-  /* MISSIONS REDESIGN BRAND SYSTEM */
-  --space-navy: #05091B;
-  --panel-navy: #0B1230;
-  --panel-elevated: #101A3A;
-  --neon-cyan: #00E5FF;
-  --cosmic-purple: #8B5CF6;
-  --text-primary: #EAF1FF;
-  --text-secondary: #9AA9C7;
-  --color-success: #20D6A0;
-  --color-warning: #FFB84D;
-  --color-error: #FF5577;
 
-  /* Color Tokens */
-  --bg-deep-space: #0A0F2C;
-  --bg-void-dark: #060919;
-  --bg-card: rgba(10, 15, 44, 0.75);
-  --bg-card-hover: rgba(18, 26, 68, 0.85);
-  --bg-surface-elevated: rgba(22, 33, 84, 0.6);
+  /* MISSIONS & CAMPAIGN BRAND SYSTEM */
+  --space-navy: #040711;
+  --panel-navy: #0A1120;
+  --panel-elevated: #0F1A30;
+  --cosmic-purple: #7C3AED;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
 
-  /* Primary Accent & Brand */
-  --primary-purple: #7C3AED;
-  --primary-purple-light: #9061F9;
-  --primary-purple-glow: rgba(124, 58, 237, 0.45);
+  /* Color Tokens - Deep Obsidian & Gunmetal */
+  --bg-deep-space: #070B16;
+  --bg-void-dark: #040711;
+  --bg-card: rgba(11, 19, 36, 0.82);
+  --bg-card-hover: rgba(15, 26, 48, 0.92);
+  --bg-surface-elevated: rgba(16, 27, 50, 0.75);
 
-  /* Secondary Neon Action */
-  --secondary-cyan: #00E5FF;
+  /* Primary Accent & Brand (Tactical HUD) */
+  --primary-purple: #6D28D9;
+  --primary-purple-light: #8B5CF6;
+  --primary-purple-glow: rgba(109, 40, 217, 0.35);
+
+  /* Secondary Neon Action (Laser Cyan) */
+  --secondary-cyan: #00F0FF;
   --secondary-cyan-light: #67E8F9;
-  --secondary-cyan-glow: rgba(0, 229, 255, 0.5);
+  --secondary-cyan-glow: rgba(0, 240, 255, 0.35);
 
-  /* Highlights & Boss Warnings */
-  --accent-magenta: #FF2DFF;
-  --accent-magenta-glow: rgba(255, 45, 255, 0.45);
+  /* Highlights & Danger Warnings */
+  --accent-magenta: #EC4899;
+  --accent-magenta-glow: rgba(236, 72, 153, 0.35);
 
   /* Currencies */
-  --currency-gold: #FBBF24;
-  --currency-gold-glow: rgba(251, 191, 36, 0.4);
+  --currency-gold: #F59E0B;
+  --currency-gold-glow: rgba(245, 158, 11, 0.35);
   --currency-gem: #A855F7;
-  --currency-gem-glow: rgba(168, 85, 247, 0.4);
+  --currency-gem-glow: rgba(168, 85, 247, 0.35);
 
   /* Status */
   --status-green: #10B981;
   --status-red: #EF4444;
-  --status-blue: #3B82F6;
+  --status-blue: #38BDF8;
 
   /* Typography */
-  --text-light: #E6F1FF;
-  --text-muted: #9AA4C7;
-  --text-dark: #0A0F2C;
+  --text-light: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-dark: #050814;
 
   /* Fonts */
   --font-heading: 'Orbitron', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-ui: 'Exo 2', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Borders & Shadows */
-  --border-glass: rgba(0, 229, 255, 0.18);
-  --border-purple-glass: rgba(124, 58, 237, 0.28);
-  --shadow-neon-cyan: 0 0 15px rgba(0, 229, 255, 0.35);
-  --shadow-neon-purple: 0 0 15px rgba(124, 58, 237, 0.35);
-  --shadow-neon-magenta: 0 0 15px rgba(255, 45, 255, 0.35);
+  /* Precision Hairline Borders & Shadows */
+  --border-glass: rgba(0, 240, 255, 0.16);
+  --border-glass-bright: rgba(0, 240, 255, 0.38);
+  --border-purple-glass: rgba(139, 92, 246, 0.22);
+  --shadow-neon-cyan: 0 0 16px rgba(0, 240, 255, 0.28);
+  --shadow-neon-purple: 0 0 16px rgba(139, 92, 246, 0.28);
+  --shadow-neon-magenta: 0 0 16px rgba(236, 72, 153, 0.28);
 }
 
-/* Base Reset & Background */
+/* Base Reset & Atmospheric Deep Space Background */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -91,14 +96,14 @@ html, body {
   min-height: 100dvh;
   background-color: var(--bg-void-dark);
   background-image: 
-    radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(0, 229, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 100px 150px, #00E5FF, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 200px 80px, #FF2DFF, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 300px 220px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 450px 180px, #00E5FF, rgba(0,0,0,0));
-  background-size: 100% 100%, 100% 100%, 550px 550px, 350px 350px, 400px 400px, 600px 600px, 500px 500px;
+    radial-gradient(circle at 50% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 55%),
+    radial-gradient(circle at 80% 85%, rgba(109, 40, 217, 0.04) 0%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 120px 160px, rgba(0, 240, 255, 0.7), rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 220px 80px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 320px 240px, rgba(245, 158, 11, 0.6), rgba(0,0,0,0)),
+    radial-gradient(1.2px 1.2px at 460px 180px, rgba(0, 240, 255, 0.6), rgba(0,0,0,0));
+  background-size: 100% 100%, 100% 100%, 550px 550px, 380px 380px, 420px 420px, 600px 600px, 500px 500px;
   color: var(--text-light);
   font-family: var(--font-body);
   line-height: 1.5;
@@ -119,7 +124,7 @@ html, body {
 /* Typography Helpers */
 .font-heading {
   font-family: var(--font-heading);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -131,118 +136,131 @@ html, body {
   font-family: var(--font-body);
 }
 
-/* Glassmorphism Containers */
+/* Precision Aerospace Glassmorphism Containers */
 .glass-panel {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-glass);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 30px rgba(0, 0, 0, 0.55);
   transition: all 0.25s ease;
 }
 
 .glass-card {
-  background: rgba(14, 21, 58, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(124, 58, 237, 0.2);
-  border-radius: 10px;
+  background: rgba(11, 19, 36, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 240, 255, 0.14);
+  border-radius: 8px;
   padding: 16px;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 6px 20px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .glass-card:hover {
-  border-color: var(--secondary-cyan);
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
-  transform: translateY(-2px);
+  border-color: rgba(0, 240, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 18px rgba(0, 240, 255, 0.2), 0 8px 26px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1.5px);
 }
 
-/* Buttons - Tactile Cyber Styling with Bevel Highlight */
+/* Sleek Chamfered Tech Profile (Military Aerospace Cut) */
+.cyber-card-chamfer {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+/* Buttons - Precision Aerospace Console Switches */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 20px;
+  padding: 11px 22px;
   font-family: var(--font-heading);
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   border: 1px solid transparent;
   outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
   white-space: nowrap;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   position: relative;
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .btn:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
-  filter: grayscale(0.5);
+  filter: grayscale(0.6);
   box-shadow: none !important;
 }
 
-/* Primary Cyan Button (PLAY NOW, NEXT MISSION) */
+/* Primary Laser Cyan Button */
 .btn-cyan {
-  background: linear-gradient(135deg, #00E5FF 0%, #00B4D8 100%);
-  color: #050B20;
-  box-shadow: 0 0 20px var(--secondary-cyan-glow);
+  background: linear-gradient(180deg, #00F0FF 0%, #00B8D9 100%);
+  color: #040814;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .btn-cyan:hover:not(:disabled) {
-  background: linear-gradient(135deg, #48CAE4 0%, #00E5FF 100%);
-  box-shadow: 0 0 30px rgba(0, 229, 255, 0.8), 0 0 10px #00E5FF;
+  background: linear-gradient(180deg, #33F3FF 0%, #00CEE6 100%);
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.55), 0 6px 16px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   transform: translateY(-1px);
 }
 
-/* Secondary Purple Button (UPGRADE, CREATE ACCOUNT) */
+/* Secondary Stealth Violet Button */
 .btn-purple {
-  background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+  background: linear-gradient(180deg, #7C3AED 0%, #5B21B6 100%);
   color: #FFFFFF;
-  box-shadow: 0 0 20px var(--primary-purple-glow);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 14px rgba(124, 58, 237, 0.3), 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-purple:hover:not(:disabled) {
-  background: linear-gradient(135deg, #9061F9 0%, #7C3AED 100%);
-  box-shadow: 0 0 30px rgba(124, 58, 237, 0.8);
+  background: linear-gradient(180deg, #8B5CF6 0%, #6D28D9 100%);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.5), 0 6px 16px rgba(0, 0, 0, 0.6);
   transform: translateY(-1px);
 }
 
-/* Electric Magenta Button (SPECIAL, BOSS ATTACK, AD CLAIM) */
+/* High-Alert Crimson Button */
 .btn-magenta {
-  background: linear-gradient(135deg, #FF2DFF 0%, #D946EF 100%);
+  background: linear-gradient(180deg, #E11D48 0%, #BE123C 100%);
   color: #FFFFFF;
-  box-shadow: 0 0 20px var(--accent-magenta-glow);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 14px rgba(225, 29, 72, 0.35), 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-magenta:hover:not(:disabled) {
-  background: linear-gradient(135deg, #F472B6 0%, #FF2DFF 100%);
-  box-shadow: 0 0 30px rgba(255, 45, 255, 0.8);
+  background: linear-gradient(180deg, #F43F5E 0%, #E11D48 100%);
+  box-shadow: 0 0 20px rgba(225, 29, 72, 0.55), 0 6px 16px rgba(0, 0, 0, 0.6);
   transform: translateY(-1px);
 }
 
-/* Glass Outline Button (CONTINUE MISSION, RETRY, BACK) */
+/* Glass Outline Aerospace Button */
 .btn-outline {
-  background: rgba(10, 15, 44, 0.6);
+  background: rgba(11, 19, 36, 0.75);
   color: var(--text-light);
-  border: 1px solid var(--border-glass);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .btn-outline:hover:not(:disabled) {
-  border-color: var(--secondary-cyan);
-  color: var(--secondary-cyan);
-  box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+  border-color: #00F0FF;
+  color: #00F0FF;
+  background: rgba(0, 240, 255, 0.08);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.25), 0 4px 12px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
 }
 
 /* Stat Progress Bars */

@@ -670,6 +670,59 @@ class SoundManager {
     this.playHaptic('victory');
   }
 
+  // Precision Aerospace UI Feedback (Clean, non-intrusive micro-audio)
+  playUiClick() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(2200, this.ctx.currentTime + 0.03);
+
+      gain.gain.setValueAtTime(0.08 * this.sfxVolume, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.03);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.03);
+    } catch {
+      // Audio context safety fallback
+    }
+  }
+
+  playUiHover() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(980, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1250, this.ctx.currentTime + 0.015);
+
+      gain.gain.setValueAtTime(0.03 * this.sfxVolume, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.015);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.015);
+    } catch {
+      // Audio context safety fallback
+    }
+  }
+
   // Cross-device haptic feedback engine (navigator.vibrate)
   playHaptic(profile = 'light') {
     if (typeof window === 'undefined' || !window.navigator || !window.navigator.vibrate) return;

@@ -16,15 +16,15 @@
   display: flex;
   width: 100%;
   min-height: 100vh;
-  background-color: #050817;
+  background-color: #040711;
   background-image: 
-    radial-gradient(circle at 18% 12%, rgba(139, 92, 246, 0.08) 0%, transparent 48%),
-    radial-gradient(circle at 82% 88%, rgba(0, 229, 255, 0.06) 0%, transparent 48%),
+    radial-gradient(circle at 18% 12%, rgba(0, 240, 255, 0.04) 0%, transparent 48%),
+    radial-gradient(circle at 82% 88%, rgba(109, 40, 217, 0.04) 0%, transparent 48%),
     radial-gradient(1.5px 1.5px at 35px 55px, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1.5px 1.5px at 145px 190px, rgba(0, 229, 255, 0.75), transparent),
-    radial-gradient(1.5px 1.5px at 270px 110px, rgba(139, 92, 246, 0.6), transparent);
+    radial-gradient(1.5px 1.5px at 145px 190px, rgba(0, 240, 255, 0.65), transparent),
+    radial-gradient(1.5px 1.5px at 270px 110px, rgba(245, 158, 11, 0.5), transparent);
   background-size: 100% 100%, 100% 100%, 420px 420px, 320px 320px, 480px 480px;
-  color: #EAF1FF;
+  color: #F8FAFC;
   position: relative;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -38,9 +38,9 @@
   bottom: 0;
   width: 250px;
   min-width: 250px;
-  background: rgba(10, 16, 40, 0.96);
-  border-right: 1px solid rgba(0, 229, 255, 0.14);
-  box-shadow: 4px 0 28px rgba(0, 0, 0, 0.6), inset -1px 0 0 rgba(0, 229, 255, 0.05);
+  background: rgba(7, 12, 24, 0.96);
+  border-right: 1px solid rgba(0, 240, 255, 0.14);
+  box-shadow: 4px 0 28px rgba(0, 0, 0, 0.65), inset -1px 0 0 rgba(0, 240, 255, 0.04);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   display: flex;
@@ -53,8 +53,8 @@
 /* Sidebar Brand Header */
 .sidebar-brand-box {
   padding: 20px 20px 16px 20px;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.12);
-  background: linear-gradient(180deg, rgba(0, 229, 255, 0.04) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.12);
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.04) 0%, transparent 100%);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -276,14 +276,14 @@
   top: 0;
   right: 0;
   height: 64px;
-  background: rgba(10, 16, 40, 0.88);
-  border-bottom: 1px solid rgba(0, 229, 255, 0.12);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(7, 12, 24, 0.92);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.14);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(0, 240, 255, 0.04);
   z-index: 990;
   box-sizing: border-box;
 }
@@ -304,9 +304,9 @@
   font-family: 'Orbitron', monospace;
   font-size: 0.52rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
-  color: #00E5FF;
-  opacity: 0.85;
+  letter-spacing: 0.12em;
+  color: #00F0FF;
+  opacity: 0.9;
 }
 
 .hud-location-title {
@@ -314,7 +314,7 @@
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: #EAF1FF;
+  color: #F8FAFC;
 }
 
 .hud-quick-nav {
@@ -327,27 +327,29 @@
 .hud-quick-link {
   background: transparent;
   border: 1px solid transparent;
-  padding: 5px 12px;
-  border-radius: 6px;
-  color: #96A6C8;
+  padding: 6px 14px;
+  border-radius: 5px;
+  color: #94A3B8;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hud-quick-link:hover {
   background: rgba(255, 255, 255, 0.04);
-  color: #EAF1FF;
-  border-color: rgba(150, 166, 200, 0.15);
+  color: #F8FAFC;
+  border-color: rgba(0, 240, 255, 0.18);
+  transform: translateY(-1px);
 }
 
 .hud-quick-link.active {
-  background: rgba(0, 229, 255, 0.1);
-  border-color: rgba(0, 229, 255, 0.3);
-  color: #00E5FF;
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.35);
+  color: #00F0FF;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 12px rgba(0, 240, 255, 0.15);
 }
 
 /* Header Right Area */
@@ -357,18 +359,19 @@
   gap: 12px;
 }
 
-/* Currency Pills */
+/* Precision Aerospace Currency Capsules */
 .hud-currency-pill {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: rgba(13, 23, 51, 0.85);
-  border: 1px solid rgba(150, 166, 200, 0.2);
-  border-radius: 9999px;
+  background: rgba(11, 19, 36, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.16);
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .hud-currency-pill:hover {
@@ -376,21 +379,21 @@
 }
 
 .pill-gold {
-  border-color: rgba(251, 191, 36, 0.35);
+  border-color: rgba(245, 158, 11, 0.3);
 }
 
 .pill-gold:hover {
-  border-color: #FBBF24;
-  box-shadow: 0 0 14px rgba(251, 191, 36, 0.3);
+  border-color: #F59E0B;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 14px rgba(245, 158, 11, 0.25);
 }
 
 .pill-purple {
-  border-color: rgba(139, 92, 246, 0.35);
+  border-color: rgba(168, 85, 247, 0.3);
 }
 
 .pill-purple:hover {
-  border-color: #8B5CF6;
-  box-shadow: 0 0 14px rgba(139, 92, 246, 0.3);
+  border-color: #A855F7;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 14px rgba(168, 85, 247, 0.25);
 }
 
 .hud-currency-icon-box {
@@ -403,8 +406,8 @@
   font-family: 'Orbitron', monospace;
   font-size: 0.76rem;
   font-weight: 800;
-  color: #FBBF24;
-  text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+  color: #F59E0B;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
 }
 
 .hud-currency-text-purple {
@@ -412,7 +415,7 @@
   font-size: 0.76rem;
   font-weight: 800;
   color: #C084FC;
-  text-shadow: 0 0 8px rgba(192, 132, 252, 0.5);
+  text-shadow: 0 0 8px rgba(192, 132, 252, 0.4);
 }
 
 /* Pilot Profile HUD Badge */
@@ -420,11 +423,17 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 6px 4px 12px;
-  background: rgba(13, 23, 51, 0.85);
-  border: 1px solid rgba(0, 229, 255, 0.25);
-  border-radius: 9999px;
+  padding: 4px 10px 4px 6px;
+  background: rgba(11, 19, 36, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 6px;
   user-select: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.hud-pilot-badge:hover {
+  border-color: rgba(0, 240, 255, 0.4);
 }
 
 
