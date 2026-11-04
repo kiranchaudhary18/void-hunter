@@ -31,180 +31,199 @@ export class BootScene extends Phaser.Scene {
     // =========================================================================
     // 1. PLAYER SHIP: V-01 ORBITRON (Balanced Fighter) - 128x128
     // =========================================================================
+    // =========================================================================
+    // 1. PLAYER SHIP: S-01 ORBITRON (High-Tech Apex Starfighter) - 128x128
+    // =========================================================================
     register('ship_orbitron', 128, 128, (ctx) => {
-      // 1. High-Energy Twin Ion Engine Plume Glow
-      const engineGlow = ctx.createRadialGradient(64, 110, 2, 64, 110, 22);
-      engineGlow.addColorStop(0, '#FFFFFF');
-      engineGlow.addColorStop(0.25, '#00E5FF');
-      engineGlow.addColorStop(0.65, '#2563EB');
-      engineGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = engineGlow;
-      ctx.fillRect(36, 90, 56, 38);
+      // 1. High-Output Twin Hyper-Ion Afterburner Plume
+      const plumeGlow = ctx.createRadialGradient(64, 114, 2, 64, 114, 26);
+      plumeGlow.addColorStop(0, '#FFFFFF');
+      plumeGlow.addColorStop(0.2, '#00E5FF');
+      plumeGlow.addColorStop(0.55, '#2563EB');
+      plumeGlow.addColorStop(0.85, '#1E1B4B');
+      plumeGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = plumeGlow;
+      ctx.fillRect(28, 92, 72, 36);
 
-      // 2. Wing Understructure Keel & Shadow
+      // 2. Mach Diamonds in Engine Exhaust
+      ctx.fillStyle = '#FFFFFF';
+      [104, 112, 120].forEach((y, i) => {
+        ctx.globalAlpha = 0.9 - i * 0.25;
+        ctx.beginPath();
+        ctx.ellipse(54, y, 3, 2, 0, 0, Math.PI * 2);
+        ctx.ellipse(74, y, 3, 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1.0;
+
+      // 3. Lower Stealth Keel & Aerodynamic Understructure
       ctx.fillStyle = '#030712';
       ctx.beginPath();
-      ctx.moveTo(64, 10);
-      ctx.lineTo(124, 96);
-      ctx.lineTo(106, 110);
-      ctx.lineTo(84, 96);
-      ctx.lineTo(64, 116);
-      ctx.lineTo(44, 96);
-      ctx.lineTo(22, 110);
-      ctx.lineTo(4, 96);
+      ctx.moveTo(64, 6);
+      ctx.lineTo(126, 94);
+      ctx.lineTo(110, 112);
+      ctx.lineTo(84, 98);
+      ctx.lineTo(64, 118);
+      ctx.lineTo(44, 98);
+      ctx.lineTo(18, 112);
+      ctx.lineTo(2, 94);
       ctx.closePath();
       ctx.fill();
 
-      // 3. Swept Delta Hull Wings (Metallic Titanium Alloy Gradient)
+      // 4. Primary Swept Titanium Delta Wings (Layered Metallic Sheen)
       const wingGrad = ctx.createLinearGradient(4, 0, 124, 0);
-      wingGrad.addColorStop(0, '#0F172A');
-      wingGrad.addColorStop(0.15, '#1E293B');
-      wingGrad.addColorStop(0.35, '#475569');
-      wingGrad.addColorStop(0.5, '#94A3B8');
-      wingGrad.addColorStop(0.65, '#475569');
-      wingGrad.addColorStop(0.85, '#1E293B');
-      wingGrad.addColorStop(1, '#0F172A');
+      wingGrad.addColorStop(0, '#0B1329');
+      wingGrad.addColorStop(0.12, '#1E293B');
+      wingGrad.addColorStop(0.28, '#334155');
+      wingGrad.addColorStop(0.48, '#94A3B8');
+      wingGrad.addColorStop(0.52, '#F1F5F9');
+      wingGrad.addColorStop(0.72, '#334155');
+      wingGrad.addColorStop(0.88, '#1E293B');
+      wingGrad.addColorStop(1, '#0B1329');
       ctx.fillStyle = wingGrad;
       ctx.beginPath();
-      ctx.moveTo(64, 14);
-      ctx.lineTo(120, 92);
-      ctx.lineTo(104, 104);
-      ctx.lineTo(82, 92);
-      ctx.lineTo(64, 110);
-      ctx.lineTo(46, 92);
-      ctx.lineTo(24, 104);
-      ctx.lineTo(8, 92);
+      ctx.moveTo(64, 10);
+      ctx.lineTo(122, 90);
+      ctx.lineTo(108, 106);
+      ctx.lineTo(82, 94);
+      ctx.lineTo(64, 112);
+      ctx.lineTo(46, 94);
+      ctx.lineTo(20, 106);
+      ctx.lineTo(6, 90);
       ctx.closePath();
       ctx.fill();
 
-      // 4. Wing Outer Carbon Armor Plates
-      ctx.fillStyle = '#090D1A';
-      // Left outer wing facet
+      // 5. Outer Armor Chine Facets (Dark Carbon-Composite)
+      ctx.fillStyle = '#080E1C';
+      // Left Facet
       ctx.beginPath();
-      ctx.moveTo(8, 92);
-      ctx.lineTo(36, 68);
-      ctx.lineTo(48, 90);
-      ctx.lineTo(24, 104);
+      ctx.moveTo(6, 90);
+      ctx.lineTo(34, 64);
+      ctx.lineTo(46, 88);
+      ctx.lineTo(20, 106);
       ctx.closePath();
       ctx.fill();
-      // Right outer wing facet
+      // Right Facet
       ctx.beginPath();
-      ctx.moveTo(120, 92);
-      ctx.lineTo(92, 68);
-      ctx.lineTo(80, 90);
-      ctx.lineTo(104, 104);
-      ctx.closePath();
-      ctx.fill();
-
-      // 5. Electric Cyan Wing Chevron Inlays & Energy Conduits
-      ctx.fillStyle = '#00E5FF';
-      // Left Chevron
-      ctx.beginPath();
-      ctx.moveTo(34, 58);
-      ctx.lineTo(16, 86);
-      ctx.lineTo(24, 96);
-      ctx.lineTo(42, 82);
-      ctx.closePath();
-      ctx.fill();
-      // Right Chevron
-      ctx.beginPath();
-      ctx.moveTo(94, 58);
-      ctx.lineTo(112, 86);
-      ctx.lineTo(104, 96);
-      ctx.lineTo(86, 82);
+      ctx.moveTo(122, 90);
+      ctx.lineTo(94, 64);
+      ctx.lineTo(82, 88);
+      ctx.lineTo(108, 106);
       ctx.closePath();
       ctx.fill();
 
-      // Wing Energy Spine Lines
+      // 6. Active Plasma Energy Conduits & Wing Embellishments
       ctx.strokeStyle = '#00E5FF';
-      ctx.lineWidth = 1.2;
+      ctx.lineWidth = 1.6;
+      ctx.shadowColor = '#00E5FF';
+      ctx.shadowBlur = 6;
       ctx.beginPath();
-      ctx.moveTo(38, 52); ctx.lineTo(24, 76);
-      ctx.moveTo(90, 52); ctx.lineTo(104, 76);
+      // Wing conduits
+      ctx.moveTo(64, 30); ctx.lineTo(34, 64); ctx.lineTo(16, 92);
+      ctx.moveTo(64, 30); ctx.lineTo(94, 64); ctx.lineTo(112, 92);
+      // Lateral energy vents
+      ctx.moveTo(42, 78); ctx.lineTo(24, 98);
+      ctx.moveTo(86, 78); ctx.lineTo(104, 98);
       ctx.stroke();
+      ctx.shadowBlur = 0;
 
-      // 6. Central Molded Fuselage Chassis (Aero Bevel & Chine Lines)
-      const fuseGrad = ctx.createLinearGradient(46, 0, 82, 0);
-      fuseGrad.addColorStop(0, '#1E293B');
-      fuseGrad.addColorStop(0.2, '#334155');
+      // 7. Central Armored Fuselage Chassis (Raised Spined Hull)
+      const fuseGrad = ctx.createLinearGradient(48, 0, 80, 0);
+      fuseGrad.addColorStop(0, '#0F172A');
+      fuseGrad.addColorStop(0.2, '#1E293B');
       fuseGrad.addColorStop(0.5, '#E2E8F0');
-      fuseGrad.addColorStop(0.8, '#334155');
-      fuseGrad.addColorStop(1, '#1E293B');
+      fuseGrad.addColorStop(0.8, '#1E293B');
+      fuseGrad.addColorStop(1, '#0F172A');
       ctx.fillStyle = fuseGrad;
       ctx.beginPath();
       ctx.moveTo(64, 8);
-      ctx.lineTo(76, 40);
-      ctx.lineTo(76, 96);
-      ctx.lineTo(64, 108);
-      ctx.lineTo(52, 96);
-      ctx.lineTo(52, 40);
+      ctx.lineTo(76, 36);
+      ctx.lineTo(77, 96);
+      ctx.lineTo(64, 110);
+      ctx.lineTo(51, 96);
+      ctx.lineTo(52, 36);
       ctx.closePath();
       ctx.fill();
 
-      // 7. Structural Armor Panel Seams & Rivets
-      ctx.strokeStyle = '#0B1120';
-      ctx.lineWidth = 1.4;
+      // 8. Fuselage Armor Seams, Spines & Rivet Details
+      ctx.strokeStyle = '#020617';
+      ctx.lineWidth = 1.6;
       ctx.beginPath();
-      ctx.moveTo(64, 12); ctx.lineTo(64, 104);
-      ctx.moveTo(54, 44); ctx.lineTo(74, 44);
-      ctx.moveTo(52, 74); ctx.lineTo(76, 74);
+      ctx.moveTo(64, 10); ctx.lineTo(64, 108);
+      ctx.moveTo(52, 42); ctx.lineTo(76, 42);
+      ctx.moveTo(51, 72); ctx.lineTo(77, 72);
       ctx.stroke();
 
-      // Micro Rivets
-      ctx.fillStyle = '#94A3B8';
-      [48, 58, 68, 78, 88].forEach(y => {
-        ctx.fillRect(50, y, 1.5, 1.5);
+      // Micro Heat-Sink Rivets
+      ctx.fillStyle = '#64748B';
+      [46, 56, 66, 76, 86].forEach((y) => {
+        ctx.fillRect(49, y, 1.5, 1.5);
         ctx.fillRect(77, y, 1.5, 1.5);
       });
 
-      // 8. Wingtip Heavy Dual Plasma Rail Cannons
-      const cannonGrad = ctx.createLinearGradient(0, 50, 0, 92);
-      cannonGrad.addColorStop(0, '#CBD5E1');
-      cannonGrad.addColorStop(0.5, '#475569');
+      // 9. Twin Heavy Wingtip Rail Cannons
+      const cannonGrad = ctx.createLinearGradient(0, 48, 0, 94);
+      cannonGrad.addColorStop(0, '#E2E8F0');
+      cannonGrad.addColorStop(0.4, '#475569');
       cannonGrad.addColorStop(1, '#0F172A');
       ctx.fillStyle = cannonGrad;
-      // Left Cannon Assembly
-      ctx.fillRect(6, 52, 6, 38);
-      ctx.fillStyle = '#00E5FF';
-      ctx.fillRect(7, 48, 4, 6);
-      // Right Cannon Assembly
-      ctx.fillStyle = cannonGrad;
-      ctx.fillRect(116, 52, 6, 38);
-      ctx.fillStyle = '#00E5FF';
-      ctx.fillRect(117, 48, 4, 6);
+      // Left Cannon Barrel
+      ctx.fillRect(4, 50, 7, 40);
+      ctx.fillRect(3, 80, 9, 6);
+      // Right Cannon Barrel
+      ctx.fillRect(117, 50, 7, 40);
+      ctx.fillRect(116, 80, 9, 6);
 
-      // 9. 3D Faceted Hexagonal Sapphire Cockpit Canopy
-      const glassGrad = ctx.createLinearGradient(54, 28, 74, 68);
-      glassGrad.addColorStop(0, '#38BDF8');
-      glassGrad.addColorStop(0.4, '#0284C7');
-      glassGrad.addColorStop(0.8, '#0369A1');
-      glassGrad.addColorStop(1, '#082F49');
-      ctx.fillStyle = glassGrad;
+      // Glowing Plasma Muzzle Tips
+      ctx.fillStyle = '#00E5FF';
+      ctx.shadowColor = '#00E5FF';
+      ctx.shadowBlur = 8;
+      ctx.fillRect(5, 46, 5, 6);
+      ctx.fillRect(118, 46, 5, 6);
+      ctx.shadowBlur = 0;
+
+      // 10. Central Glowing Fusion Core (Dorsal Spine Arc Reactor)
+      const coreGrad = ctx.createRadialGradient(64, 76, 1, 64, 76, 7);
+      coreGrad.addColorStop(0, '#FFFFFF');
+      coreGrad.addColorStop(0.4, '#00E5FF');
+      coreGrad.addColorStop(0.8, '#2563EB');
+      coreGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = coreGrad;
       ctx.beginPath();
-      ctx.ellipse(64, 44, 7, 20, 0, 0, Math.PI * 2);
+      ctx.arc(64, 76, 7, 0, Math.PI * 2);
       ctx.fill();
 
-      // Pilot HUD Telemetry Instrument Glare
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.lineWidth = 1.8;
+      // 11. Multi-Faceted Sapphire Cockpit Canopy
+      const canopyGrad = ctx.createLinearGradient(54, 26, 74, 66);
+      canopyGrad.addColorStop(0, '#38BDF8');
+      canopyGrad.addColorStop(0.35, '#0284C7');
+      canopyGrad.addColorStop(0.7, '#0369A1');
+      canopyGrad.addColorStop(1, '#082F49');
+      ctx.fillStyle = canopyGrad;
       ctx.beginPath();
-      ctx.arc(63, 42, 13, -Math.PI * 0.7, -Math.PI * 0.2);
+      ctx.ellipse(64, 42, 8, 20, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pilot Holographic HUD Glare Arc
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.lineWidth = 2.0;
+      ctx.beginPath();
+      ctx.arc(63, 40, 13, -Math.PI * 0.75, -Math.PI * 0.2);
       ctx.stroke();
 
-      // 10. Twin Ion Thruster Exhaust Nozzles
+      // 12. Twin Vector Thruster Nozzles & Thermal Rings
       ctx.fillStyle = '#1E293B';
-      ctx.fillRect(50, 96, 10, 10);
-      ctx.fillRect(68, 96, 10, 10);
-      // Thermal Vectoring Rings
+      ctx.fillRect(49, 96, 11, 10);
+      ctx.fillRect(68, 96, 11, 10);
       ctx.fillStyle = '#F59E0B';
-      ctx.fillRect(52, 103, 6, 3);
-      ctx.fillRect(70, 103, 6, 3);
+      ctx.fillRect(50, 104, 9, 3);
+      ctx.fillRect(69, 104, 9, 3);
 
-      // 11. Navigation Strobe Beacons
-      ctx.fillStyle = '#EF4444';
-      ctx.beginPath(); ctx.arc(9, 90, 2.5, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#10B981';
-      ctx.beginPath(); ctx.arc(119, 90, 2.5, 0, Math.PI * 2); ctx.fill();
+      // 13. Tactical Formation Strobe Beacons
+      ctx.fillStyle = '#EF4444'; // Port red
+      ctx.beginPath(); ctx.arc(7, 88, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#10B981'; // Starboard green
+      ctx.beginPath(); ctx.arc(121, 88, 3, 0, Math.PI * 2); ctx.fill();
     });
 
     // =========================================================================
@@ -569,68 +588,142 @@ export class BootScene extends Phaser.Scene {
     });
 
     // =========================================================================
-    // 8. ENEMY SCOUT (Stealth Dive Bomber - Facing Down) - 110x110
+    // 8. ENEMY SCOUT (Cybernetic Void Predator Raider - Facing Down) - 110x110
     // =========================================================================
     register('enemy_scout', 110, 110, (ctx) => {
-      // 1. Dual Top Ion Engine Flume (Facing Downward Flight)
-      const ionGlow = ctx.createRadialGradient(55, 14, 2, 55, 14, 18);
-      ionGlow.addColorStop(0, '#FFFFFF');
-      ionGlow.addColorStop(0.3, '#F59E0B');
-      ionGlow.addColorStop(0.7, '#DC2626');
-      ionGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = ionGlow;
-      ctx.fillRect(32, 0, 46, 26);
+      // 1. Dual Heavy Ion Exhaust Plumes (Facing Downward Flight, Venting Upwards)
+      const plumeGlow = ctx.createRadialGradient(55, 12, 2, 55, 12, 22);
+      plumeGlow.addColorStop(0, '#FFFFFF');
+      plumeGlow.addColorStop(0.25, '#F59E0B');
+      plumeGlow.addColorStop(0.6, '#DC2626');
+      plumeGlow.addColorStop(0.85, '#7F1D1D');
+      plumeGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = plumeGlow;
+      ctx.fillRect(24, 0, 62, 28);
 
-      // 2. Obsidian & Crimson Delta Blade Wings
-      const scoutGrad = ctx.createLinearGradient(6, 0, 104, 0);
-      scoutGrad.addColorStop(0, '#450A0A');
-      scoutGrad.addColorStop(0.2, '#991B1B');
+      // 2. Underlying Carbon-Composite Chassis & Underwing Shadow
+      ctx.fillStyle = '#080A10';
+      ctx.beginPath();
+      ctx.moveTo(55, 106); // Piercing forward prow
+      ctx.lineTo(108, 22);
+      ctx.lineTo(94, 10);
+      ctx.lineTo(72, 24);
+      ctx.lineTo(55, 12);
+      ctx.lineTo(38, 24);
+      ctx.lineTo(16, 10);
+      ctx.lineTo(2, 22);
+      ctx.closePath();
+      ctx.fill();
+
+      // 3. Menacing Obsidian-Crimson Primary Wings (Predatory Faceted Armor)
+      const scoutGrad = ctx.createLinearGradient(4, 0, 106, 0);
+      scoutGrad.addColorStop(0, '#1E0A12');
+      scoutGrad.addColorStop(0.18, '#7F1D1D');
+      scoutGrad.addColorStop(0.35, '#991B1B');
       scoutGrad.addColorStop(0.5, '#EF4444');
-      scoutGrad.addColorStop(0.8, '#991B1B');
-      scoutGrad.addColorStop(1, '#450A0A');
+      scoutGrad.addColorStop(0.65, '#991B1B');
+      scoutGrad.addColorStop(0.82, '#7F1D1D');
+      scoutGrad.addColorStop(1, '#1E0A12');
       ctx.fillStyle = scoutGrad;
       ctx.beginPath();
-      ctx.moveTo(55, 104);  // Needle nose pointing down
-      ctx.lineTo(104, 26);
-      ctx.lineTo(90, 14);
-      ctx.lineTo(68, 28);
+      ctx.moveTo(55, 102);
+      ctx.lineTo(104, 24);
+      ctx.lineTo(92, 14);
+      ctx.lineTo(70, 26);
       ctx.lineTo(55, 16);
-      ctx.lineTo(42, 28);
-      ctx.lineTo(20, 14);
-      ctx.lineTo(6, 26);
+      ctx.lineTo(40, 26);
+      ctx.lineTo(18, 14);
+      ctx.lineTo(6, 24);
       ctx.closePath();
       ctx.fill();
 
-      // 3. Dark Gunmetal Armor Cowling
+      // 4. Serrated Armor Plating Plates (Dark Gunmetal Stealth Chines)
       ctx.fillStyle = '#0F172A';
+      // Left Mandible Armor Plate
       ctx.beginPath();
-      ctx.moveTo(55, 92);
-      ctx.lineTo(86, 32);
-      ctx.lineTo(66, 36);
+      ctx.moveTo(55, 90);
+      ctx.lineTo(26, 32);
+      ctx.lineTo(44, 38);
       ctx.lineTo(55, 26);
-      ctx.lineTo(44, 36);
-      ctx.lineTo(24, 32);
+      ctx.closePath();
+      ctx.fill();
+      // Right Mandible Armor Plate
+      ctx.beginPath();
+      ctx.moveTo(55, 90);
+      ctx.lineTo(84, 32);
+      ctx.lineTo(66, 38);
+      ctx.lineTo(55, 26);
       ctx.closePath();
       ctx.fill();
 
-      // 4. Glowing Cyclops Optical Eye / Scanner (High-Contrast Red)
-      ctx.fillStyle = '#EF4444';
+      // 5. Glowing Crimson Energy Conduit Seams
+      ctx.strokeStyle = '#FF1E27';
+      ctx.lineWidth = 1.4;
+      ctx.shadowColor = '#FF1E27';
+      ctx.shadowBlur = 6;
       ctx.beginPath();
-      ctx.ellipse(55, 60, 7, 13, 0, 0, Math.PI * 2);
+      ctx.moveTo(55, 26); ctx.lineTo(30, 36); ctx.lineTo(12, 28);
+      ctx.moveTo(55, 26); ctx.lineTo(80, 36); ctx.lineTo(98, 28);
+      ctx.moveTo(55, 68); ctx.lineTo(28, 52);
+      ctx.moveTo(55, 68); ctx.lineTo(82, 52);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // 6. Central Void Singularity Core (Dark Pulsing Reactor)
+      const coreGrad = ctx.createRadialGradient(55, 46, 1, 55, 46, 8);
+      coreGrad.addColorStop(0, '#FFFFFF');
+      coreGrad.addColorStop(0.3, '#FF1E27');
+      coreGrad.addColorStop(0.7, '#7F1D1D');
+      coreGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(55, 46, 8, 0, Math.PI * 2);
       ctx.fill();
-      // White Glare Pupil
+
+      // 7. Intimidating Cybernetic Ocular Slit Scanner (Apex Predator Visor)
+      const visorGrad = ctx.createLinearGradient(40, 68, 70, 68);
+      visorGrad.addColorStop(0, 'rgba(255, 30, 39, 0)');
+      visorGrad.addColorStop(0.25, '#FF1E27');
+      visorGrad.addColorStop(0.5, '#FFFFFF');
+      visorGrad.addColorStop(0.75, '#FF1E27');
+      visorGrad.addColorStop(1, 'rgba(255, 30, 39, 0)');
+      ctx.fillStyle = visorGrad;
+      ctx.shadowColor = '#FF1E27';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.ellipse(55, 68, 16, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Precision Targeting Optic Bead
       ctx.fillStyle = '#FFFFFF';
       ctx.beginPath();
-      ctx.arc(55, 60, 3.5, 0, Math.PI * 2);
+      ctx.arc(55, 68, 2, 0, Math.PI * 2);
       ctx.fill();
 
-      // 5. Dual Wingtip Micro-Blasters
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(6, 24, 6, 26);
-      ctx.fillRect(98, 24, 6, 26);
-      ctx.fillStyle = '#EF4444';
-      ctx.fillRect(7, 48, 4, 5);
-      ctx.fillRect(99, 48, 4, 5);
+      // 8. Dual Heavy Wingtip Siege Plasma Cannons
+      const gunGrad = ctx.createLinearGradient(0, 20, 0, 58);
+      gunGrad.addColorStop(0, '#64748B');
+      gunGrad.addColorStop(0.5, '#1E293B');
+      gunGrad.addColorStop(1, '#020617');
+      ctx.fillStyle = gunGrad;
+      // Left Cannon
+      ctx.fillRect(4, 22, 7, 34);
+      // Right Cannon
+      ctx.fillRect(99, 22, 7, 34);
+
+      // Glowing Plasma Weapon Muzzles
+      ctx.fillStyle = '#FF1E27';
+      ctx.shadowColor = '#FF1E27';
+      ctx.shadowBlur = 8;
+      ctx.fillRect(5, 52, 5, 6);
+      ctx.fillRect(100, 52, 5, 6);
+      ctx.shadowBlur = 0;
+
+      // 9. Rear Vector Thruster Flaps
+      ctx.fillStyle = '#F59E0B';
+      ctx.fillRect(41, 10, 8, 3);
+      ctx.fillRect(61, 10, 8, 3);
     });
 
     // =========================================================================
@@ -832,35 +925,56 @@ export class BootScene extends Phaser.Scene {
     });
 
     // =========================================================================
-    // 13. HOSTILE PLASMA PROJECTILE (24x36)
+    // 13. HOSTILE HYPER-PLASMA LANCE (24x36 - Downward Projectile)
     // =========================================================================
     register('enemy_bullet', 24, 36, (ctx) => {
-      // High-Visibility Outer Plasma Corona
-      const grad = ctx.createRadialGradient(12, 18, 2, 12, 18, 14);
-      grad.addColorStop(0, '#FFFFFF');
-      grad.addColorStop(0.25, '#FEF08A');
-      grad.addColorStop(0.65, '#F97316');
-      grad.addColorStop(0.9, '#EF4444');
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
+      // 1. Outer Ionization Sheath & Crimson Glow
+      const glowGrad = ctx.createRadialGradient(12, 22, 2, 12, 22, 12);
+      glowGrad.addColorStop(0, '#FFFFFF');
+      glowGrad.addColorStop(0.25, '#FF2D55');
+      glowGrad.addColorStop(0.65, '#EF4444');
+      glowGrad.addColorStop(0.9, '#7F1D1D');
+      glowGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = glowGrad;
       ctx.beginPath();
-      ctx.arc(12, 18, 12, 0, Math.PI * 2);
+      ctx.ellipse(12, 20, 11, 14, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Directional Plasma Teardrop Trail
-      ctx.fillStyle = 'rgba(239, 68, 68, 0.6)';
+      // 2. Trailing Supersonic Plasma Exhaust Tail (Facing Upward at Tail)
+      const tailGrad = ctx.createLinearGradient(0, 0, 0, 24);
+      tailGrad.addColorStop(0, 'transparent');
+      tailGrad.addColorStop(0.4, 'rgba(239, 68, 68, 0.45)');
+      tailGrad.addColorStop(0.8, '#FF1E27');
+      tailGrad.addColorStop(1, '#FEF08A');
+      ctx.fillStyle = tailGrad;
       ctx.beginPath();
-      ctx.moveTo(6, 18);
-      ctx.lineTo(12, 4);
-      ctx.lineTo(18, 18);
+      ctx.moveTo(12, 2);
+      ctx.lineTo(19, 20);
+      ctx.lineTo(12, 33); // Arrow tip
+      ctx.lineTo(5, 20);
       ctx.closePath();
       ctx.fill();
 
-      // White-Hot Blinding Energy Center
-      ctx.fillStyle = '#FFFFFF';
+      // 3. Piercing White-Hot Sabot Core (Needle Spike)
+      const coreGrad = ctx.createLinearGradient(0, 10, 0, 34);
+      coreGrad.addColorStop(0, '#FEF08A');
+      coreGrad.addColorStop(0.5, '#FFFFFF');
+      coreGrad.addColorStop(1, '#FEF08A');
+      ctx.fillStyle = coreGrad;
       ctx.beginPath();
-      ctx.arc(12, 18, 4, 0, Math.PI * 2);
+      ctx.moveTo(12, 8);
+      ctx.lineTo(15, 22);
+      ctx.lineTo(12, 34); // Razor needle point
+      ctx.lineTo(9, 22);
+      ctx.closePath();
       ctx.fill();
+
+      // 4. Supersonic Energy Shock Ring
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(12, 22, 6, 2, 0, 0, Math.PI * 2);
+      ctx.stroke();
     });
 
     // =========================================================================

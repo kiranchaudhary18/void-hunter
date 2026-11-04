@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WebAudio & HTML5 Dual-Engine Arcade Sound Synthesizer & BGM Player
  * Provides cinematic, rich soundtrack playback and authentic retro-modern sci-fi SFX.
  */
@@ -11,31 +11,25 @@ class SoundManager {
     this.muted = false;
     this.bgmPlaying = false;
     this.bgmMode = null; // 'menu' | 'combat'
-    this.desiredBgmMode = 'vocal';
+    this.desiredBgmMode = 'menu';
     this.autoplayBlocked = false;
     this.audioUnlocked = false;
     this.listeners = new Set();
 
-    // Playlist catalog for easy switching
+    // Purely instrumental AAA sci-fi electronic soundtrack catalog (Zero vocal / zero narration)
     this.playlist = [
-      { id: 'vocal', title: 'WARRIORS OF THE VOID', subtitle: 'ENGLISH VOCAL ANTHEM (130 BPM)', bpm: 130, hasLyrics: true },
       { id: 'menu', title: 'VOID HUNTER // CYBER DRIVE', subtitle: 'SYNTHWAVE BEAT (124 BPM)', bpm: 124, hasLyrics: false },
       { id: 'combat', title: 'SECTOR OVERDRIVE', subtitle: 'COMBAT FRENZY (138 BPM)', bpm: 138, hasLyrics: false }
     ];
 
-    // HTML5 Audio Elements for Studio-Quality Soundtrack Playback
+    // HTML5 Audio Elements for Studio-Quality Instrumental Playback
     this.tracks = {
-      vocal: null,
       menu: null,
       combat: null
     };
 
     if (typeof window !== 'undefined') {
       try {
-        const vocalAudio = new Audio('/audio/vocal_anthem.wav');
-        vocalAudio.loop = true;
-        vocalAudio.preload = 'auto';
-
         const menuAudio = new Audio('/audio/ambient_theme.wav');
         menuAudio.loop = true;
         menuAudio.preload = 'auto';
@@ -44,10 +38,9 @@ class SoundManager {
         combatAudio.loop = true;
         combatAudio.preload = 'auto';
 
-        this.tracks.vocal = vocalAudio;
         this.tracks.menu = menuAudio;
         this.tracks.combat = combatAudio;
-      } catch { // AudioContext autoplay policy handled
+      } catch (e) {
         console.warn('Audio element initialization notice:', e);
       }
 
@@ -118,7 +111,7 @@ class SoundManager {
     if (!this.muted && (!this.bgmPlaying || this.autoplayBlocked)) {
       const isCombat = typeof window !== 'undefined' && 
         (window.location.pathname.includes('combat') || window.location.pathname.includes('gameplay'));
-      const target = this.desiredBgmMode || (isCombat ? 'combat' : 'vocal');
+      const target = this.desiredBgmMode || (isCombat ? 'combat' : 'menu');
       this.startBGM(target);
     }
   }
@@ -136,7 +129,7 @@ class SoundManager {
     if (!this.muted && !this.bgmPlaying) {
       const isCombat = typeof window !== 'undefined' && 
         (window.location.pathname.includes('combat') || window.location.pathname.includes('gameplay'));
-      this.startBGM(this.desiredBgmMode || (isCombat ? 'combat' : 'vocal'));
+      this.startBGM(this.desiredBgmMode || (isCombat ? 'combat' : 'menu'));
     }
     this.notifyListeners();
     return this.muted;
@@ -144,7 +137,7 @@ class SoundManager {
 
   updateVolumes() {
     const activeVolume = this.muted ? 0 : this.bgmVolume;
-    ['vocal', 'menu', 'combat'].forEach((key) => {
+    ['menu', 'combat'].forEach((key) => {
       if (this.tracks[key]) {
         this.tracks[key].volume = this.bgmMode === key ? activeVolume : 0;
       }
@@ -172,16 +165,16 @@ class SoundManager {
   }
 
   // ==================== BACKGROUND SOUNDTRACK CONTROLLER ====================
-  startBGM(mode = 'vocal') {
+  startBGM(mode = 'menu') {
     this.init();
     this.desiredBgmMode = mode;
 
     if (this.bgmPlaying && this.bgmMode === mode) return;
 
-    const targetTrack = this.tracks[mode] || this.tracks.vocal || this.tracks.menu;
+    const targetTrack = this.tracks[mode] || this.tracks.menu || this.tracks.combat;
 
     // Pause all other tracks
-    ['vocal', 'menu', 'combat'].forEach((key) => {
+    ['menu', 'combat'].forEach((key) => {
       if (key !== mode && this.tracks[key]) {
         try {
           this.tracks[key].pause();
@@ -215,12 +208,95 @@ class SoundManager {
 
   stopBGM() {
     this.bgmPlaying = false;
-    ['vocal', 'menu', 'combat'].forEach((key) => {
+    ['menu', 'combat'].forEach((key) => {
       if (this.tracks[key]) {
         try { this.tracks[key].pause(); } catch {}
       }
     });
     this.notifyListeners();
+  }
+
+  // Electrical shield shatter sound when shield drops to 0
+  playShieldBreak() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(1400, this.ctx.currentTime);
+      osc1.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.28);
+
+      osc2.type = 'square';
+      osc2.frequency.setValueAtTime(900, this.ctx.currentTime);
+      osc2.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.28);
+
+      gain.gain.setValueAtTime(0.24 * this.sfxVolume, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      osc1.stop(this.ctx.currentTime + 0.28);
+      osc2.stop(this.ctx.currentTime + 0.28);
+    } catch {}
+  }
+
+  // Deep metallic impact thud when direct hull damage is sustained
+  playHullImpact() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(170, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(32, this.ctx.currentTime + 0.22);
+
+      gain.gain.setValueAtTime(0.32 * this.sfxVolume, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.22);
+    } catch {}
+  }
+
+  // Rising high-tech harmonic tone when shields start regenerating
+  playShieldRecharge() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(280, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(640, this.ctx.currentTime + 0.22);
+
+      gain.gain.setValueAtTime(0.09 * this.sfxVolume, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.22);
+    } catch {}
   }
 
   // ==================== SFX GENERATORS ====================

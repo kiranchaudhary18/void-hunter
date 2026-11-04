@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import soundManager from '../game/managers/SoundManager.js';
 import { 
   Volume2, VolumeX, Play, Pause, Music, ChevronDown, ChevronUp, Minus, 
@@ -7,14 +7,6 @@ import {
 
 const STORAGE_KEY = 'void_hunter_audio_pos';
 
-const LYRIC_SNIPPETS = [
-  "⚡ 'Into the endless dark we fly, stars ignite across the sky!'",
-  "🔥 'Void Hunters rise, our spirits bold! A galactic legend unfolds!'",
-  "🚀 'Engines roar through cyber space, speed and fury in the chase!'",
-  "🛡️ 'Through asteroid belts and laser storms, true champions take their forms!'",
-  "👑 'Void Hunter! Bound for glory, conquer the galactic story!'"
-];
-
 export const GlobalAudioPlayer = () => {
   const [audioState, setAudioState] = useState(() => {
     if (soundManager && typeof soundManager.getState === 'function') {
@@ -22,7 +14,7 @@ export const GlobalAudioPlayer = () => {
     }
     return {
       bgmPlaying: soundManager?.bgmPlaying || false,
-      bgmMode: soundManager?.bgmMode || soundManager?.desiredBgmMode || 'vocal',
+      bgmMode: soundManager?.bgmMode || soundManager?.desiredBgmMode || 'menu',
       muted: soundManager?.muted || false,
       bgmVolume: soundManager?.bgmVolume ?? 0.85,
       autoplayBlocked: soundManager?.autoplayBlocked || false,
@@ -31,7 +23,6 @@ export const GlobalAudioPlayer = () => {
   });
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [lyricIndex, setLyricIndex] = useState(0);
 
   // Position state (null = default bottom-right)
   const [position, setPosition] = useState(() => {
@@ -183,23 +174,13 @@ export const GlobalAudioPlayer = () => {
     } catch {}
   };
 
-  // Cycle lyric snippets every 5 seconds when vocal track is active
-  useEffect(() => {
-    if (audioState.bgmMode === 'vocal' && audioState.bgmPlaying) {
-      const interval = setInterval(() => {
-        setLyricIndex((prev) => (prev + 1) % LYRIC_SNIPPETS.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [audioState.bgmMode, audioState.bgmPlaying]);
-
   const handleTogglePlay = (e) => {
     e.stopPropagation();
     if (audioState.bgmPlaying) {
       soundManager.stopBGM();
     } else {
       soundManager.unlockAudio();
-      soundManager.startBGM(audioState.bgmMode || 'vocal');
+      soundManager.startBGM(audioState.bgmMode || 'menu');
     }
   };
 
@@ -287,7 +268,7 @@ export const GlobalAudioPlayer = () => {
   }
 
   // Current track metadata
-  const currentTrack = soundManager.playlist.find((p) => p.id === (audioState.bgmMode || 'vocal')) || soundManager.playlist[0];
+  const currentTrack = soundManager.playlist.find((p) => p.id === (audioState.bgmMode || 'menu')) || soundManager.playlist[0];
 
   return (
     <div 
@@ -339,15 +320,11 @@ export const GlobalAudioPlayer = () => {
         {/* Track Label */}
         <div className="audio-track-info" style={styles.trackInfo}>
           <div style={styles.trackTag}>
-            {currentTrack.hasLyrics ? (
-              <Mic size={11} color="#10B981" style={{ display: 'inline', marginRight: '4px' }} />
-            ) : (
-              <Music size={11} color="var(--secondary-cyan)" style={{ display: 'inline', marginRight: '4px' }} />
-            )}
-            <span style={{ color: currentTrack.hasLyrics ? '#10B981' : 'var(--secondary-cyan)' }}>
-              {currentTrack.hasLyrics ? 'VOCAL ANTHEM' : 'SOUNDTRACK'}
+            <Music size={11} color="var(--secondary-cyan)" style={{ display: 'inline', marginRight: '4px' }} />
+            <span style={{ color: 'var(--secondary-cyan)' }}>
+              CYBERNETIC BGM
             </span>
-            <span style={styles.trackBadge}>{currentTrack.bpm} BPM</span>
+            <span style={styles.trackBadge}>{currentTrack?.bpm || 128} BPM</span>
           </div>
 
           <div 
@@ -358,15 +335,8 @@ export const GlobalAudioPlayer = () => {
               textShadow: audioState.bgmPlaying ? '0 0 8px rgba(0,229,255,0.6)' : '0 0 8px rgba(245,158,11,0.6)'
             }}
           >
-            {audioState.bgmPlaying ? currentTrack.title : '⚡ TAP TO START SOUNDTRACK 🔊'}
+            {audioState.bgmPlaying ? currentTrack?.title : '⚡ TAP TO START SOUNDTRACK 🔊'}
           </div>
-
-          {/* Real-time lyrics ticker for the English vocal song */}
-          {audioState.bgmPlaying && currentTrack.hasLyrics && (
-            <div className="audio-lyrics-ticker" style={styles.lyricsTicker}>
-              {LYRIC_SNIPPETS[lyricIndex]}
-            </div>
-          )}
         </div>
 
         {/* Playback Controls (Prev, Play/Pause, Next, Mute, Expand) */}

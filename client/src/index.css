@@ -1409,3 +1409,239 @@ html, body, #root, .command-deck-shell, .command-viewport-main, .command-content
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   Cybernetic Combat HUD Gauges & Low-Health Alarm
+   ========================================================================== */
+.cyber-hud-gauges-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(6, 11, 25, 0.72);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 8px;
+  padding: 4px 8px;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.12), inset 0 0 10px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.cyber-gauge-unit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cyber-gauge-badge {
+  font-family: var(--font-heading);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.cyber-gauge-badge-mobile {
+  font-size: 0.52rem;
+  width: 36px;
+  gap: 2px;
+}
+
+.cyber-bar-housing {
+  position: relative;
+  width: 130px;
+  height: 9px;
+  background: rgba(2, 6, 18, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
+  transform: skewX(-14deg);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.cyber-bar-housing-mobile {
+  width: 78px;
+  height: 8px;
+}
+
+.cyber-bar-segmented-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 19%,
+    rgba(2, 6, 18, 0.95) 20%,
+    rgba(2, 6, 18, 0.95) 21.5%
+  );
+}
+
+.cyber-bar-core-fill {
+  height: 100%;
+  transition: width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.cyber-gauge-readout {
+  font-family: 'Share Tech Mono', monospace, Courier;
+  font-size: 0.72rem;
+  font-weight: 700;
+  width: 28px;
+  text-align: right;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.cyber-gauge-readout-mobile {
+  font-size: 0.65rem;
+  width: 24px;
+}
+
+/* Pulsing Red Screen Hazard Alarm for Critical Hull */
+.critical-hull-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  box-shadow: inset 0 0 50px rgba(239, 68, 68, 0.55);
+  animation: criticalVignettePulse 1s infinite alternate ease-in-out;
+}
+
+@keyframes criticalVignettePulse {
+  0% {
+    box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.03);
+  }
+  100% {
+    box-shadow: inset 0 0 70px rgba(239, 68, 68, 0.75);
+    background: rgba(239, 68, 68, 0.12);
+  }
+}
+
+/* ==========================================================================
+   Holographic AAA Victory Modal Terminal
+   ========================================================================== */
+.holo-victory-terminal {
+  position: relative;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.18) 0%, rgba(10, 16, 35, 0.96) 72%);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 0 35px rgba(0, 229, 255, 0.25), 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 229, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+
+.holo-victory-corner-tl,
+.holo-victory-corner-tr,
+.holo-victory-corner-bl,
+.holo-victory-corner-br {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.holo-victory-corner-tl {
+  top: 6px;
+  left: 6px;
+  border-top: 2px solid #00E5FF;
+  border-left: 2px solid #00E5FF;
+}
+
+.holo-victory-corner-tr {
+  top: 6px;
+  right: 6px;
+  border-top: 2px solid #00E5FF;
+  border-right: 2px solid #00E5FF;
+}
+
+.holo-victory-corner-bl {
+  bottom: 6px;
+  left: 6px;
+  border-bottom: 2px solid #00E5FF;
+  border-left: 2px solid #00E5FF;
+}
+
+.holo-victory-corner-br {
+  bottom: 6px;
+  right: 6px;
+  border-bottom: 2px solid #00E5FF;
+  border-right: 2px solid #00E5FF;
+}
+
+.holo-victory-badge-pill {
+  font-family: var(--font-heading);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+.holo-card-inner {
+  background: rgba(6, 12, 28, 0.7);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.holo-reward-capsule {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justifyContent: center;
+  padding: 8px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex: 1;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.holo-reward-capsule:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 229, 255, 0.35);
+}
+
+.btn-holo-2x-credits {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(219, 39, 119, 0.45) 100%);
+  border: 1px solid #EC4899;
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
+  color: #FFF;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-holo-2x-credits:hover {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.35) 0%, rgba(219, 39, 119, 0.65) 100%);
+  box-shadow: 0 0 22px rgba(236, 72, 153, 0.6);
+  transform: translateY(-1px);
+}
+
+.btn-holo-2x-score {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(139, 92, 246, 0.45) 100%);
+  border: 1px solid #A855F7;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+  color: #FFF;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-holo-2x-score:hover {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(139, 92, 246, 0.65) 100%);
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.6);
+  transform: translateY(-1px);
+}

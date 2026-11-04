@@ -53,6 +53,7 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.maxWaves = this.bossInfo ? 3 : 4; // Boss arrives on Wave 3!
     this.isSpawningWave = true; // Prevent update loop from skipping to Wave 2 on startup
     this.elapsedCombatSeconds = 0;
+    this.lastDamageTime = 0;
 
     // Mobile Touch & Smooth Delta Drag Control
     this.touchControl = {
@@ -204,13 +205,20 @@ export class SpaceCombatScene extends Phaser.Scene {
       loop: true
     });
 
-    // Shield passive regeneration every second if not damaged
+    // Shield passive regeneration every second if not damaged recently (3.0s tactical buffer)
     this.time.addEvent({
       delay: 1000,
       callback: () => {
         if (!this.isGameOver && this.playerShield < this.playerMaxShield) {
-          this.playerShield = Math.min(this.playerMaxShield, this.playerShield + 5);
-          this.emitStats();
+          const cooldownElapsed = this.time.now - (this.lastDamageTime || 0);
+          if (cooldownElapsed >= 3000) {
+            const wasZero = this.playerShield <= 0;
+            this.playerShield = Math.min(this.playerMaxShield, this.playerShield + 6);
+            if (wasZero) {
+              soundManager.playShieldRecharge();
+            }
+            this.emitStats();
+          }
         }
       },
       loop: true
@@ -1382,21 +1390,48 @@ export class SpaceCombatScene extends Phaser.Scene {
   damagePlayer(amount) {
     if (this.isInvulnerable || this.isGameOver) return;
 
-    soundManager.playShieldHit();
+    this.lastDamageTime = this.time.now;
     soundManager.playHaptic('hit');
     this.cameras.main.shake(120, 0.015);
     this.cameras.main.flash(80, 255, 40, 40, false);
 
-    // Shield absorbs first
-    if (this.playerShield > 0) {
+    const hadShield = this.playerShield > 0;
+
+    // Shield absorbs damage first
+    if (hadShield) {
       const absorbed = Math.min(this.playerShield, amount);
       this.playerShield -= absorbed;
       amount -= absorbed;
+
+      if (this.playerShield <= 0) {
+        soundManager.playShieldBreak();
+        if (this.player && this.player.active) {
+          const ring = this.add.circle(this.player.x, this.player.y, 22, 0x00E5FF, 0.75);
+          this.tweens.add({
+            targets: ring,
+            scale: 2.4,
+            alpha: 0,
+            duration: 320,
+            onComplete: () => ring.destroy()
+          });
+        }
+      } else {
+        soundManager.playShieldHit();
+      }
     }
 
-    // Remainder hits hull health
+    // Remainder penetrates to structural hull
     if (amount > 0) {
       this.playerHealth = Math.max(0, this.playerHealth - amount);
+      soundManager.playHullImpact();
+      if (this.player && this.player.active) {
+        this.player.setTint(0xFF3333);
+        this.time.delayedCall(140, () => {
+          if (this.player && this.player.active) {
+            this.player.clearTint();
+          }
+        });
+      }
     }
 
     // Temporary i-frames (600ms)
@@ -1404,7 +1439,9 @@ export class SpaceCombatScene extends Phaser.Scene {
     this.player.setAlpha(0.4);
     this.time.delayedCall(600, () => {
       this.isInvulnerable = false;
-      this.player.setAlpha(1.0);
+      if (this.player && this.player.active) {
+        this.player.setAlpha(1.0);
+      }
     });
 
     this.emitStats();

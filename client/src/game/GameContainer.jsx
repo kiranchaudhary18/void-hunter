@@ -387,6 +387,28 @@ export const GameContainer = ({
     }
   };
 
+  const healthPct = Math.max(0, Math.min(100, (stats.health / (stats.maxHealth || 100)) * 100));
+  const shieldPct = Math.max(0, Math.min(100, (stats.shield / (stats.maxShield || 100)) * 100));
+
+  let hullColor = '#10B981';
+  let hullGrad = 'linear-gradient(90deg, #059669 0%, #10B981 100%)';
+  let hullGlow = '0 0 10px rgba(16, 185, 129, 0.7)';
+  if (healthPct <= 25) {
+    hullColor = '#EF4444';
+    hullGrad = 'linear-gradient(90deg, #DC2626 0%, #EF4444 100%)';
+    hullGlow = '0 0 14px rgba(239, 68, 68, 0.9)';
+  } else if (healthPct <= 50) {
+    hullColor = '#F59E0B';
+    hullGrad = 'linear-gradient(90deg, #D97706 0%, #F59E0B 100%)';
+    hullGlow = '0 0 10px rgba(245, 158, 11, 0.7)';
+  }
+
+  const shieldColor = shieldPct > 0 ? '#00E5FF' : 'rgba(255, 255, 255, 0.4)';
+  const shieldGrad = shieldPct > 0 
+    ? 'linear-gradient(90deg, #0284C7 0%, #00E5FF 100%)' 
+    : 'rgba(255, 255, 255, 0.08)';
+  const shieldGlow = shieldPct > 0 ? '0 0 10px rgba(0, 229, 255, 0.7)' : 'none';
+
   return (
     <div style={styles.gameWrapper}>
       {/* ================= SCREEN 6: TOP HUD OVERLAY ================= */}
@@ -424,34 +446,54 @@ export const GameContainer = ({
               </button>
             </div>
 
-            {/* Health & Shield Mini Bars */}
-            <div style={styles.gaugesContainerMobile}>
-              <div style={styles.gaugeRowMobile}>
-                <Heart size={11} color="var(--status-green)" style={{ flexShrink: 0 }} />
-                <div style={styles.barTrackMobile}>
+            {/* Health & Shield Cyber Gauges Cluster (Mobile) */}
+            <div className="cyber-hud-gauges-cluster">
+              {/* Hull Gauge */}
+              <div className="cyber-gauge-unit">
+                <span className="cyber-gauge-badge cyber-gauge-badge-mobile" style={{ color: hullColor }}>
+                  <Heart size={10} color={hullColor} style={{ flexShrink: 0 }} /> HULL
+                </span>
+                <div className="cyber-bar-housing cyber-bar-housing-mobile">
+                  <div className="cyber-bar-segmented-grid" />
                   <div 
+                    className="cyber-bar-core-fill"
                     style={{ 
-                      ...styles.barFill, 
-                      width: `${Math.max(0, Math.min(100, (stats.health / stats.maxHealth) * 100))}%`, 
-                      background: 'linear-gradient(90deg, #059669 0%, #10B981 100%)'
+                      width: `${healthPct}%`, 
+                      background: hullGrad,
+                      boxShadow: hullGlow
                     }} 
                   />
                 </div>
-                <span style={styles.gaugeValMobile}>{Math.round(stats.health)}</span>
+                <span 
+                  className={`cyber-gauge-readout cyber-gauge-readout-mobile ${healthPct <= 25 ? 'animate-pulse' : ''}`}
+                  style={{ color: hullColor }}
+                >
+                  {Math.round(stats.health)}
+                </span>
               </div>
 
-              <div style={styles.gaugeRowMobile}>
-                <Shield size={11} color="var(--secondary-cyan)" style={{ flexShrink: 0 }} />
-                <div style={styles.barTrackMobile}>
+              {/* Shield Gauge */}
+              <div className="cyber-gauge-unit">
+                <span className="cyber-gauge-badge cyber-gauge-badge-mobile" style={{ color: shieldColor }}>
+                  <Shield size={10} color={shieldColor} style={{ flexShrink: 0 }} /> SHLD
+                </span>
+                <div className="cyber-bar-housing cyber-bar-housing-mobile">
+                  <div className="cyber-bar-segmented-grid" />
                   <div 
+                    className="cyber-bar-core-fill"
                     style={{ 
-                      ...styles.barFill, 
-                      width: `${Math.max(0, Math.min(100, (stats.shield / stats.maxShield) * 100))}%`, 
-                      background: 'linear-gradient(90deg, #0099FF 0%, #00E5FF 100%)'
+                      width: `${shieldPct}%`, 
+                      background: shieldGrad,
+                      boxShadow: shieldGlow
                     }} 
                   />
                 </div>
-                <span style={styles.gaugeValMobile}>{Math.round(stats.shield)}</span>
+                <span 
+                  className="cyber-gauge-readout cyber-gauge-readout-mobile"
+                  style={{ color: shieldColor }}
+                >
+                  {Math.round(stats.shield)}
+                </span>
               </div>
             </div>
 
@@ -517,38 +559,54 @@ export const GameContainer = ({
               {isMuted ? <VolumeX size={18} color="#EF4444" /> : <Volume2 size={18} color="var(--secondary-cyan)" />}
             </button>
 
-            {/* Dual Health & Shield Gauges */}
-            <div style={styles.gaugesContainer}>
-              {/* Health Bar */}
-              <div style={styles.gaugeRow}>
-                <Heart size={14} color="#10B981" style={{ flexShrink: 0 }} />
-                <div className="game-hud-bar-track" style={styles.barTrack}>
+            {/* Dual Cybernetic Health & Shield Gauges (Desktop) */}
+            <div className="cyber-hud-gauges-cluster" style={{ padding: '6px 12px', gap: '6px' }}>
+              {/* Hull Integrity Bar */}
+              <div className="cyber-gauge-unit">
+                <span className="cyber-gauge-badge" style={{ color: hullColor }}>
+                  <Heart size={12} color={hullColor} style={{ flexShrink: 0 }} /> HULL
+                </span>
+                <div className="cyber-bar-housing" style={{ width: '135px', height: '10px' }}>
+                  <div className="cyber-bar-segmented-grid" />
                   <div 
+                    className="cyber-bar-core-fill"
                     style={{ 
-                      ...styles.barFill, 
-                      width: `${Math.max(0, Math.min(100, (stats.health / stats.maxHealth) * 100))}%`, 
-                      background: 'linear-gradient(90deg, #059669 0%, #10B981 60%, #00E5FF 100%)',
-                      boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)'
+                      width: `${healthPct}%`, 
+                      background: hullGrad,
+                      boxShadow: hullGlow
                     }} 
                   />
                 </div>
-                <span style={{ ...styles.gaugeVal, color: '#10B981' }}>{Math.round(stats.health)}</span>
+                <span 
+                  className={`cyber-gauge-readout ${healthPct <= 25 ? 'animate-pulse' : ''}`}
+                  style={{ color: hullColor }}
+                >
+                  {Math.round(stats.health)}%
+                </span>
               </div>
 
-              {/* Shield Bar */}
-              <div style={styles.gaugeRow}>
-                <Shield size={14} color="#00E5FF" style={{ flexShrink: 0 }} />
-                <div className="game-hud-bar-track" style={styles.barTrack}>
+              {/* Shield Energy Bar */}
+              <div className="cyber-gauge-unit">
+                <span className="cyber-gauge-badge" style={{ color: shieldColor }}>
+                  <Shield size={12} color={shieldColor} style={{ flexShrink: 0 }} /> SHLD
+                </span>
+                <div className="cyber-bar-housing" style={{ width: '135px', height: '10px' }}>
+                  <div className="cyber-bar-segmented-grid" />
                   <div 
+                    className="cyber-bar-core-fill"
                     style={{ 
-                      ...styles.barFill, 
-                      width: `${Math.max(0, Math.min(100, (stats.shield / stats.maxShield) * 100))}%`, 
-                      background: 'linear-gradient(90deg, #0099FF 0%, #00E5FF 60%, #C084FC 100%)',
-                      boxShadow: '0 0 8px rgba(0, 229, 255, 0.6)'
+                      width: `${shieldPct}%`, 
+                      background: shieldGrad,
+                      boxShadow: shieldGlow
                     }} 
                   />
                 </div>
-                <span style={{ ...styles.gaugeVal, color: 'var(--secondary-cyan)' }}>{Math.round(stats.shield)}</span>
+                <span 
+                  className="cyber-gauge-readout"
+                  style={{ color: shieldColor }}
+                >
+                  {Math.round(stats.shield)}%
+                </span>
               </div>
             </div>
           </div>
@@ -610,6 +668,9 @@ export const GameContainer = ({
       {/* Phaser Canvas Mount with Arcade Viewport Enclosure */}
       <div className="combat-hud-enclosure" style={styles.canvasEnclosure}>
         <div ref={gameRef} style={styles.canvasContainer} />
+        {stats.health <= 25 && !victoryData && !gameOverData && (
+          <div className="critical-hull-vignette" />
+        )}
       </div>
 
       {/* Active Buff Notification Banner */}
@@ -823,13 +884,19 @@ export const GameContainer = ({
       {/* ================= SCREEN 7: VICTORY & REWARDS MODAL ================= */}
       {victoryData && (
         <div style={{ ...styles.modalBackdrop, padding: isMobile ? '8px' : '20px' }}>
-          <div className="glass-panel cyber-box animate-pulse-glow" style={{
+          <div className="holo-victory-terminal animate-pulse-glow" style={{
             ...styles.screen7VictoryModal,
-            padding: isMobile ? '10px 12px' : 'clamp(18px, 4vw, 32px) clamp(14px, 4vw, 28px)',
-            gap: isMobile ? '5px' : '8px',
+            padding: isMobile ? '12px 14px' : 'clamp(20px, 4vw, 32px) clamp(16px, 4vw, 28px)',
+            gap: isMobile ? '6px' : '10px',
             maxHeight: isMobile ? '95dvh' : '90dvh'
           }}>
-            {/* Dynamic 1 to 3 Stars with Criteria */}
+            {/* Tech Corner Brackets */}
+            <div className="holo-victory-corner-tl" />
+            <div className="holo-victory-corner-tr" />
+            <div className="holo-victory-corner-bl" />
+            <div className="holo-victory-corner-br" />
+
+            {/* Dynamic 1 to 3 Stars with Luminous Radial Halo */}
             <div style={styles.screen7StarsRow}>
               {[1, 2, 3].map((starIdx) => {
                 const earned = starIdx <= (victoryData.stars || 1);
@@ -837,13 +904,13 @@ export const GameContainer = ({
                 return (
                   <Star
                     key={starIdx}
-                    size={isCenter ? (isMobile ? 28 : 54) : (isMobile ? 20 : 40)}
-                    color={earned ? "#FBBF24" : "rgba(255, 255, 255, 0.22)"}
+                    size={isCenter ? (isMobile ? 32 : 56) : (isMobile ? 22 : 42)}
+                    color={earned ? "#FBBF24" : "rgba(255, 255, 255, 0.2)"}
                     fill={earned ? "#FBBF24" : "transparent"}
                     style={{
-                      filter: earned ? 'drop-shadow(0 0 10px #FBBF24)' : 'none',
+                      filter: earned ? 'drop-shadow(0 0 12px #FBBF24)' : 'none',
                       margin: isCenter ? (isMobile ? '0 4px' : '0 8px') : '0',
-                      transform: isCenter ? 'translateY(-2px)' : 'none',
+                      transform: isCenter ? 'translateY(-3px)' : 'none',
                       transition: 'all 0.3s ease'
                     }}
                   />
@@ -851,74 +918,85 @@ export const GameContainer = ({
               })}
             </div>
 
-            {/* Transparent Star Criteria Badges */}
+            {/* Tactical Star Criteria Badges */}
             <div style={{
               display: 'flex',
               justifyContent: 'center',
               gap: isMobile ? '4px' : '6px',
               flexWrap: 'wrap',
-              margin: isMobile ? '1px 0 3px 0' : '6px 0 10px 0'
+              margin: isMobile ? '1px 0 2px 0' : '4px 0 8px 0'
             }}>
-              <span style={{
+              <span className="holo-victory-badge-pill" style={{
                 fontSize: isMobile ? '0.58rem' : '0.68rem',
-                padding: isMobile ? '1px 5px' : '2px 8px',
-                borderRadius: '4px',
-                background: (victoryData.stars >= 1) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                border: `1px solid ${(victoryData.stars >= 1) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
-                color: (victoryData.stars >= 1) ? 'var(--currency-gold)' : 'var(--text-muted)'
+                padding: isMobile ? '2px 6px' : '3px 10px',
+                background: (victoryData.stars >= 1) ? 'rgba(251, 191, 36, 0.18)' : 'rgba(255, 255, 255, 0.05)',
+                border: `1px solid ${(victoryData.stars >= 1) ? '#FBBF24' : 'rgba(255, 255, 255, 0.14)'}`,
+                color: (victoryData.stars >= 1) ? '#FBBF24' : 'var(--text-muted)'
               }}>
-                ⭐ Sortie Cleared
+                {(victoryData.stars >= 1) ? '✓' : '•'} SORTIE CLEARED
               </span>
-              <span style={{
+              <span className="holo-victory-badge-pill" style={{
                 fontSize: isMobile ? '0.58rem' : '0.68rem',
-                padding: isMobile ? '1px 5px' : '2px 8px',
-                borderRadius: '4px',
-                background: (victoryData.stars >= 2) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                border: `1px solid ${(victoryData.stars >= 2) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
-                color: (victoryData.stars >= 2) ? 'var(--currency-gold)' : 'var(--text-muted)'
+                padding: isMobile ? '2px 6px' : '3px 10px',
+                background: (victoryData.stars >= 2) ? 'rgba(251, 191, 36, 0.18)' : 'rgba(255, 255, 255, 0.05)',
+                border: `1px solid ${(victoryData.stars >= 2) ? '#FBBF24' : 'rgba(255, 255, 255, 0.14)'}`,
+                color: (victoryData.stars >= 2) ? '#FBBF24' : 'var(--text-muted)'
               }}>
-                ⭐ 10+ Kills / 3.5k
+                {(victoryData.stars >= 2) ? '✓' : '•'} 10+ KILLS / 3.5K
               </span>
-              <span style={{
+              <span className="holo-victory-badge-pill" style={{
                 fontSize: isMobile ? '0.58rem' : '0.68rem',
-                padding: isMobile ? '1px 5px' : '2px 8px',
-                borderRadius: '4px',
-                background: (victoryData.stars >= 3) ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                border: `1px solid ${(victoryData.stars >= 3) ? 'var(--currency-gold)' : 'rgba(255, 255, 255, 0.15)'}`,
-                color: (victoryData.stars >= 3) ? 'var(--currency-gold)' : 'var(--text-muted)'
+                padding: isMobile ? '2px 6px' : '3px 10px',
+                background: (victoryData.stars >= 3) ? 'rgba(251, 191, 36, 0.18)' : 'rgba(255, 255, 255, 0.05)',
+                border: `1px solid ${(victoryData.stars >= 3) ? '#FBBF24' : 'rgba(255, 255, 255, 0.14)'}`,
+                color: (victoryData.stars >= 3) ? '#FBBF24' : 'var(--text-muted)'
               }}>
-                ⭐ Hull ≥ 70%
+                {(victoryData.stars >= 3) ? '✓' : '•'} HULL ≥ 70%
               </span>
             </div>
 
-            <h2 className="font-heading text-glow-cyan" style={{ 
-              ...styles.screen7Title, 
-              fontSize: isMobile ? '1.10rem' : '1.85rem',
-              margin: 0,
-              lineHeight: 1.2
-            }}>
-              MISSION COMPLETE
-            </h2>
+            <div style={{ textAlign: 'center', margin: '0 0 2px 0' }}>
+              <h2 className="font-heading text-glow-cyan" style={{ 
+                ...styles.screen7Title, 
+                fontSize: isMobile ? '1.15rem' : '1.9rem',
+                margin: 0,
+                letterSpacing: '0.12em',
+                lineHeight: 1.15
+              }}>
+                MISSION COMPLETE
+              </h2>
+              <div style={{ 
+                fontSize: isMobile ? '0.54rem' : '0.66rem', 
+                color: 'var(--secondary-cyan)', 
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                marginTop: '2px',
+                opacity: 0.9
+              }}>
+                // SECTOR SECURED • FLIGHT TELEMETRY SYNCD //
+              </div>
+            </div>
 
-            {/* Twin Panels: Left Telemetry vs Right Rewards in 2 side-by-side columns on mobile */}
+            {/* Twin Panels: Left Telemetry vs Right Rewards in side-by-side columns */}
             <div style={{
               ...styles.screen7TwinGrid,
               gridTemplateColumns: isMobile ? '1.05fr 0.95fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
               gap: isMobile ? '6px' : '12px',
-              marginTop: isMobile ? '3px' : '10px'
+              marginTop: isMobile ? '2px' : '8px'
             }}>
               {/* Left Box: Mission Telemetry */}
               <div style={{
                 ...styles.screen7TelemetryBox,
-                padding: isMobile ? '6px 8px' : '16px',
+                padding: isMobile ? '8px 10px' : '16px',
                 gap: isMobile ? '4px' : '10px'
-              }} className="glass-card">
+              }} className="holo-card-inner">
                 <div style={{
                   ...styles.screen7TelemetryHeader,
-                  paddingBottom: isMobile ? '3px' : '8px'
+                  paddingBottom: isMobile ? '3px' : '8px',
+                  borderBottom: '1px solid rgba(0, 229, 255, 0.18)'
                 }}>
                   <div className="font-heading text-glow-cyan" style={{ 
-                    fontSize: isMobile ? '0.72rem' : '0.92rem',
+                    fontSize: isMobile ? '0.74rem' : '0.94rem',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
@@ -926,7 +1004,7 @@ export const GameContainer = ({
                     {mission.name || 'MISSION 01'}
                   </div>
                   <div style={{ fontSize: isMobile ? '0.56rem' : '0.70rem', color: 'var(--text-muted)' }}>
-                    {mission.sector || 'Nebula Outpost'} • Normal
+                    {mission.sector || 'Nebula Outpost'} • Standard Hazard
                   </div>
                 </div>
 
@@ -936,7 +1014,7 @@ export const GameContainer = ({
                 }}>
                   <div style={{ ...styles.screen7TelemRow, fontSize: isMobile ? '0.66rem' : '0.78rem' }}>
                     <span style={{ ...styles.screen7TelemLabel, fontSize: isMobile ? '0.58rem' : '0.68rem' }}>SCORE</span>
-                    <span style={{ ...styles.screen7TelemVal, color: 'var(--currency-gold)' }}>
+                    <span style={{ ...styles.screen7TelemVal, color: 'var(--currency-gold)', fontWeight: 'bold' }}>
                       {(victoryData.score || stats.score || 0).toLocaleString()}
                     </span>
                   </div>
@@ -950,7 +1028,7 @@ export const GameContainer = ({
                   </div>
                   <div style={{ ...styles.screen7TelemRow, fontSize: isMobile ? '0.66rem' : '0.78rem' }}>
                     <span style={{ ...styles.screen7TelemLabel, fontSize: isMobile ? '0.58rem' : '0.68rem' }}>HULL</span>
-                    <span style={{ ...styles.screen7TelemVal, color: '#10B981' }}>{Math.round(stats.health)}%</span>
+                    <span style={{ ...styles.screen7TelemVal, color: hullColor, fontWeight: 'bold' }}>{Math.round(stats.health)}%</span>
                   </div>
                 </div>
               </div>
@@ -958,116 +1036,118 @@ export const GameContainer = ({
               {/* Right Box: Rewards */}
               <div style={{
                 ...styles.screen7RewardsBox,
-                padding: isMobile ? '6px 6px' : '16px'
-              }} className="glass-card">
+                padding: isMobile ? '8px 8px' : '16px'
+              }} className="holo-card-inner">
                 <div className="font-heading text-glow-gold" style={{ 
-                  fontSize: isMobile ? '0.72rem' : '0.90rem', 
-                  marginBottom: isMobile ? '4px' : '12px', 
-                  letterSpacing: '0.08em' 
+                  fontSize: isMobile ? '0.74rem' : '0.92rem', 
+                  marginBottom: isMobile ? '4px' : '10px', 
+                  letterSpacing: '0.1em' 
                 }}>
                   REWARDS
                 </div>
 
                 <div style={{
                   ...styles.screen7RewardItemsRow,
-                  gap: isMobile ? '3px' : '8px'
+                  gap: isMobile ? '4px' : '8px'
                 }}>
-                  <div style={styles.screen7RewardItem}>
+                  <div className="holo-reward-capsule">
                     <div style={{
                       ...styles.screen7RewardIconGold,
-                      width: isMobile ? '26px' : '42px',
-                      height: isMobile ? '26px' : '42px'
+                      width: isMobile ? '28px' : '42px',
+                      height: isMobile ? '28px' : '42px'
                     }}>
-                      <Coins size={isMobile ? 13 : 22} color="var(--currency-gold)" />
+                      <Coins size={isMobile ? 14 : 22} color="var(--currency-gold)" />
                     </div>
                     <div className="font-heading text-glow-gold" style={{
                       ...styles.screen7RewardValGold,
-                      fontSize: isMobile ? '0.76rem' : '1.05rem'
+                      fontSize: isMobile ? '0.78rem' : '1.05rem'
                     }}>
                       +{victoryData.creditsEarned || 150}
                     </div>
-                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.52rem' : '0.66rem' }}>Credits</div>
+                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.54rem' : '0.66rem' }}>Credits</div>
                   </div>
 
-                  <div style={styles.screen7RewardItem}>
+                  <div className="holo-reward-capsule">
                     <div style={{
                       ...styles.screen7RewardIconPurple,
-                      width: isMobile ? '26px' : '42px',
-                      height: isMobile ? '26px' : '42px'
+                      width: isMobile ? '28px' : '42px',
+                      height: isMobile ? '28px' : '42px'
                     }}>
-                      <Zap size={isMobile ? 13 : 22} color="#C084FC" />
+                      <Zap size={isMobile ? 14 : 22} color="#C084FC" />
                     </div>
                     <div className="font-heading text-glow-purple" style={{
                       ...styles.screen7RewardValPurple,
-                      fontSize: isMobile ? '0.76rem' : '1.05rem'
+                      fontSize: isMobile ? '0.78rem' : '1.05rem'
                     }}>
                       +2
                     </div>
-                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.52rem' : '0.66rem' }}>Gems</div>
+                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.54rem' : '0.66rem' }}>Gems</div>
                   </div>
 
-                  <div style={styles.screen7RewardItem}>
+                  <div className="holo-reward-capsule">
                     <div style={{
                       ...styles.screen7RewardIconCyan,
-                      width: isMobile ? '26px' : '42px',
-                      height: isMobile ? '26px' : '42px'
+                      width: isMobile ? '28px' : '42px',
+                      height: isMobile ? '28px' : '42px'
                     }}>
-                      <Award size={isMobile ? 13 : 22} color="var(--secondary-cyan)" />
+                      <Award size={isMobile ? 14 : 22} color="var(--secondary-cyan)" />
                     </div>
                     <div className="font-heading text-glow-cyan" style={{
                       ...styles.screen7RewardValCyan,
-                      fontSize: isMobile ? '0.76rem' : '1.05rem'
+                      fontSize: isMobile ? '0.78rem' : '1.05rem'
                     }}>
                       +300
                     </div>
-                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.52rem' : '0.66rem' }}>Exp</div>
+                    <div style={{ ...styles.screen7RewardLabel, fontSize: isMobile ? '0.54rem' : '0.66rem' }}>Exp</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Rewarded Multipliers in 1 row side-by-side on mobile */}
+            {/* Rewarded Multipliers in 1 row side-by-side */}
             <div style={{
               display: 'flex',
               flexDirection: 'row',
-              gap: isMobile ? '5px' : '8px',
+              gap: isMobile ? '6px' : '10px',
               width: '100%',
-              margin: isMobile ? '3px 0' : '12px 0 10px 0'
+              margin: isMobile ? '4px 0' : '10px 0 8px 0'
             }}>
               {!victoryData.doubledCredits && (
                 <button 
                   onClick={() => triggerRewardedAd('double_credits')}
-                  className="btn btn-magenta"
+                  className="btn btn-holo-2x-credits"
                   style={{ 
                     flex: 1, 
-                    padding: isMobile ? '6px 4px' : '10px 12px', 
-                    fontSize: isMobile ? '0.66rem' : '0.78rem', 
+                    padding: isMobile ? '7px 4px' : '11px 12px', 
+                    fontSize: isMobile ? '0.68rem' : '0.80rem', 
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
-                    gap: isMobile ? '3px' : '6px',
-                    whiteSpace: 'nowrap'
+                    gap: isMobile ? '4px' : '6px',
+                    whiteSpace: 'nowrap',
+                    borderRadius: '8px'
                   }}
                 >
-                  <Video size={isMobile ? 12 : 15} /> 2X CREDITS (+{(victoryData.creditsEarned || 150) * 2})
+                  <Video size={isMobile ? 13 : 16} /> 2X CREDITS (+{(victoryData.creditsEarned || 150) * 2})
                 </button>
               )}
               {!victoryData.doubledScore && (
                 <button 
                   onClick={() => triggerRewardedAd('double_score')}
-                  className="btn btn-purple"
+                  className="btn btn-holo-2x-score"
                   style={{ 
                     flex: 1, 
-                    padding: isMobile ? '6px 4px' : '10px 12px', 
-                    fontSize: isMobile ? '0.66rem' : '0.78rem', 
+                    padding: isMobile ? '7px 4px' : '11px 12px', 
+                    fontSize: isMobile ? '0.68rem' : '0.80rem', 
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
-                    gap: isMobile ? '3px' : '6px',
-                    whiteSpace: 'nowrap'
+                    gap: isMobile ? '4px' : '6px',
+                    whiteSpace: 'nowrap',
+                    borderRadius: '8px'
                   }}
                 >
-                  <Video size={isMobile ? 12 : 15} /> 2X SCORE (+{((victoryData.score || stats.score || 1000) * 2).toLocaleString()})
+                  <Video size={isMobile ? 13 : 16} /> 2X SCORE (+{((victoryData.score || stats.score || 1000) * 2).toLocaleString()})
                 </button>
               )}
             </div>

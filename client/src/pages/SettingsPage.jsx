@@ -37,7 +37,7 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
   const [bgmVol, setBgmVol] = useState(70);
   const [sfxVol, setSfxVol] = useState(80);
   const [isMuted, setIsMuted] = useState(soundManager.muted);
-  const [activeTrack, setActiveTrack] = useState(soundManager.bgmMode || soundManager.desiredBgmMode || 'vocal');
+  const [activeTrack, setActiveTrack] = useState(soundManager.bgmMode || soundManager.desiredBgmMode || 'combat');
 
   // Display & Performance State
   const [graphicsQuality, setGraphicsQuality] = useState('ULTRA');
@@ -240,10 +240,10 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
     setBgmVol(70);
     setSfxVol(80);
     setIsMuted(false);
-    setActiveTrack('vocal');
+    setActiveTrack('combat');
     soundManager.muted = false;
     soundManager.setVolumes(0.8, 0.7);
-    soundManager.startBGM('vocal');
+    soundManager.startBGM('combat');
 
     setGraphicsQuality('ULTRA');
     setScreenShake(true);
@@ -598,14 +598,26 @@ export const SettingsPage = ({ onBack, onNavigate: _onNavigate }) => {
             <div className="track-buttons-grid">
               <button
                 type="button"
-                onClick={() => handleSelectTrack('vocal')}
-                className={`track-select-card ${activeTrack === 'vocal' ? 'active' : ''}`}
+                onClick={() => handleSelectTrack('combat')}
+                className={`track-select-card ${activeTrack === 'combat' ? 'active' : ''}`}
               >
                 <div className="track-meta">
-                  <span className="track-name">NEON VOID (VOCAL MIX)</span>
-                  <span className="track-desc">AAA Synthwave vocal theme for tactical sorties</span>
+                  <span className="track-name">SECTOR OVERDRIVE (COMBAT MIX)</span>
+                  <span className="track-desc">High-octane electronic synth pulse for intense sorties</span>
                 </div>
-                {activeTrack === 'vocal' && <Activity size={16} color="#00E5FF" className="pulse-icon" />}
+                {activeTrack === 'combat' && <Activity size={16} color="#00E5FF" className="pulse-icon" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectTrack('menu')}
+                className={`track-select-card ${activeTrack === 'menu' ? 'active' : ''}`}
+              >
+                <div className="track-meta">
+                  <span className="track-name">VOID HUNTER (CYBER DRIVE)</span>
+                  <span className="track-desc">Atmospheric deep-space electronic soundtrack</span>
+                </div>
+                {activeTrack === 'menu' && <Activity size={16} color="#00E5FF" className="pulse-icon" />}
               </button>
 
               <button
