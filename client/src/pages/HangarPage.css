@@ -65,6 +65,11 @@
   }
 }
 
+/* In authenticated Command Deck / SidebarLayout, match Galactic Treasury (Rewards) baseline directly */
+.command-content-viewport .hangar-page-root {
+  padding-top: 0 !important;
+}
+
 /* Layer 1: Procedural Multi-Cluster Starfield (Pure CSS) */
 .hangar-starfield {
   position: fixed;

@@ -93,6 +93,12 @@
   }
 }
 
+/* In authenticated Command Deck / SidebarLayout, match Galactic Treasury (Rewards) baseline directly */
+.command-content-viewport .leaderboard-root,
+.command-content-viewport .leaderboard-page-wrapper {
+  padding-top: 0 !important;
+}
+
 /* ==========================================================================
    1. COMMAND CONSOLE & HALL OF FAME HEADER
    ========================================================================== */

@@ -66,6 +66,11 @@
   }
 }
 
+/* In authenticated Command Deck / SidebarLayout, match Galactic Treasury (Rewards) baseline directly */
+.command-content-viewport .missions-page-root {
+  padding-top: 0 !important;
+}
+
 .missions-vignette {
   position: fixed;
   inset: 0;

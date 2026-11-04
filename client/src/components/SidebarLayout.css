@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    VOID HUNTER - SPACECRAFT PILOT COMMAND NAVIGATION SYSTEM
    Brand Colors:
    - Deep space: #050817
@@ -722,4 +722,13 @@
     padding: 3px 4px;
     font-size: 0.50rem;
   }
+}
+
+
+/* Ensure all pages rendered inside authenticated command viewport align seamlessly with Treasury / Rewards deck baseline */
+.command-content-viewport .missions-page-root,
+.command-content-viewport .hangar-page-root,
+.command-content-viewport .leaderboard-root,
+.command-content-viewport .leaderboard-page-wrapper {
+  padding-top: 0 !important;
 }
