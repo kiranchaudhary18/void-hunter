@@ -4,6 +4,7 @@ import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import { MISSIONS_CATALOG } from '../data/missionsData.js';
 import './DashboardPage.css';
+import StarfighterCanvas from '../components/StarfighterCanvas.jsx';
 import { DailyStreakModal } from '../components/DailyStreakModal.jsx';
 import { 
   Play, Compass, Award, ChevronRight, 
@@ -159,17 +160,6 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
   const liveSpeed = Math.min(100, (baseStats.speed || 82) + ((upgrades.engine || 1) - 1) * 4);
   const liveManeuver = Math.min(100, (baseStats.maneuver || 76) + ((upgrades.special || 1) - 1) * 4);
 
-  // Authentic ship artwork mapping
-  const getShipIllustration = (shipId, shipCode) => {
-    const combined = `${shipId || ''} ${shipCode || ''}`.toLowerCase();
-    if (combined.includes('nova') || combined.includes('z05') || combined.includes('z-05')) return '/assets/ships/ship_nova.jpg';
-    if (combined.includes('phoenix') || combined.includes('s02') || combined.includes('s-02')) return '/assets/ships/ship_phoenix.jpg?v=2';
-    if (combined.includes('shadow') || combined.includes('x03') || combined.includes('x-03')) return '/assets/ships/ship_shadow.jpg';
-    if (combined.includes('titan') || combined.includes('r04') || combined.includes('r-04')) return '/assets/ships/ship_titan.jpg';
-    return '/assets/ships/ship_orbitron.jpg';
-  };
-
-  const shipImage = getShipIllustration(activeShip?.id || profile?.selectedShipId, activeShip?.code);
   const currentShipName = activeShip?.name ? `${activeShip.code || 'V-01'} ${activeShip.name}` : (profile?.selectedShipId?.toUpperCase() || 'V-01 ORBITRON');
   const currentShipClass = activeShip?.classType ? `${activeShip.classType} • ${activeShip.tagline || 'Combat Ready'}` : 'Balanced Fighter • All-Rounder';
 
@@ -411,13 +401,15 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
               </button>
             </div>
 
-            {/* Holographic Ship Viewport Card with Authentic Render */}
+            {/* Holographic Ship Viewport Card with Real In-Game Starfighter */}
             <div className="starfighter-viewport">
               <div className="hologram-grid-floor" aria-hidden="true" />
-              <img 
-                src={shipImage} 
-                alt={currentShipName}
-                className="starfighter-render-image"
+              <StarfighterCanvas 
+                shipId={activeShip?.id || profile?.selectedShipId || 's02-phoenix'}
+                shipCode={activeShip?.code}
+                size={144}
+                animated={true}
+                className="starfighter-render-canvas"
               />
             </div>
 

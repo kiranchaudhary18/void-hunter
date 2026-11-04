@@ -374,10 +374,10 @@
   pointer-events: none;
 }
 
-.starfighter-render-image {
-  max-height: 130px;
-  max-width: 85%;
-  object-fit: contain;
+.starfighter-render-image,
+.starfighter-render-canvas {
+  max-height: 140px;
+  max-width: 140px;
   filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.65));
   animation: shipFloat 4s ease-in-out infinite alternate;
   z-index: 2;

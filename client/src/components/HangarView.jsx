@@ -10,6 +10,7 @@ import {
   Activity, Compass, Radio, ShieldCheck
 } from 'lucide-react';
 import '../pages/HangarPage.css';
+import StarfighterCanvas from './StarfighterCanvas.jsx';
 
 // 5 Mandatory Spaceship Classes matching User Specification
 const SHIPS_SHOWCASE_CATALOG = [
@@ -483,11 +484,15 @@ export const HangarView = ({
                 aria-selected={isSelected}
                 title={`Select ${ship.name}`}
               >
-                <img 
-                  src={ship.image || '/assets/ships/ship_orbitron.jpg'} 
-                  alt={ship.name}
-                  className="selector-thumb-bg"
-                />
+                <div className="selector-thumb-canvas-box">
+                  <StarfighterCanvas 
+                    shipId={ship.id}
+                    shipCode={ship.code}
+                    size={68}
+                    animated={false}
+                    className="selector-thumb-canvas"
+                  />
+                </div>
                 <div className="selector-card-overlay" />
 
                 <div className="selector-top-row">
@@ -605,12 +610,14 @@ export const HangarView = ({
               SHIELD MATRIX: {calcStat(activeShip.baseStats?.shield, upgrades.shield)}% +
             </div>
 
-            {/* Floating Centerpiece Starship Artwork */}
+            {/* Floating Centerpiece Real Starfighter Canvas */}
             <div className="showcase-ship-render">
-              <img 
-                src={activeShip.image || '/assets/ships/ship_orbitron.jpg'} 
-                alt={activeShip.name}
-                className="showcase-ship-img"
+              <StarfighterCanvas 
+                shipId={activeShip.id} 
+                shipCode={activeShip.code}
+                size={340} 
+                animated={true}
+                className="showcase-ship-canvas"
                 style={{
                   filter: `drop-shadow(0 14px 28px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 26px ${currentCoatingObj.tint})`
                 }}

@@ -479,6 +479,28 @@
   z-index: 1;
 }
 
+.selector-thumb-canvas-box {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  opacity: 0.85;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  padding-top: 8px;
+}
+
+.ship-selector-card:hover .selector-thumb-canvas-box {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.ship-selector-card.selected .selector-thumb-canvas-box {
+  opacity: 1;
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5));
+}
+
 .ship-selector-card:hover .selector-thumb-bg {
   transform: scale(1.06);
   opacity: 0.6;
@@ -831,7 +853,8 @@
   justify-content: center;
 }
 
-.showcase-ship-img {
+.showcase-ship-img,
+.showcase-ship-canvas {
   width: 100%;
   height: 100%;
   object-fit: contain;
