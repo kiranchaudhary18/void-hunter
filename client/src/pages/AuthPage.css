@@ -931,6 +931,42 @@
   }
 }
 
+@media (max-width: 480px) {
+  .auth-topbar {
+    padding: 10px 14px 6px 14px;
+  }
+  .auth-dual-panels {
+    padding: 0 10px;
+    margin: 6px auto 24px auto;
+  }
+  .auth-panel-body {
+    padding: 20px 16px 18px 16px;
+  }
+  .auth-title {
+    font-size: 1.15rem;
+  }
+  .auth-subtitle {
+    font-size: 0.72rem;
+  }
+  .auth-input {
+    font-size: 0.82rem;
+    height: 42px;
+  }
+}
+
+@media (max-width: 360px) {
+  .auth-panel-body {
+    padding: 16px 12px 14px 12px;
+  }
+  .auth-title {
+    font-size: 1.05rem;
+  }
+  .auth-tab-btn {
+    height: 36px;
+    font-size: 0.58rem;
+  }
+}
+
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
