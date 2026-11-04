@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';

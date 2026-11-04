@@ -741,3 +741,10 @@
 .command-content-viewport .leaderboard-page-wrapper {
   padding-top: 0 !important;
 }
+
+.command-content-viewport .treasury-shell {
+  padding-top: 24px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}

@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import LeaderboardView from '../components/LeaderboardView.jsx';
 import './Leaderboard.css';
 

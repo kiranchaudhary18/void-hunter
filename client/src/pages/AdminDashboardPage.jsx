@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import { useAuth } from '../context/AuthContext.jsx';

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import api from '../services/api.js';
 import { getRandomAdCampaign } from '../data/adCampaigns.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -248,7 +248,7 @@ export const WalletPage = ({ onBack }) => {
       <header className="treasury-header-shell">
         <div className="treasury-header-left">
           {onBack && (
-            <button 
+            <button type="button" 
               onClick={onBack} 
               className="treasury-back-btn"
               title="Return to Command Deck"
@@ -290,7 +290,7 @@ export const WalletPage = ({ onBack }) => {
             </div>
           )}
 
-          <button 
+          <button type="button" 
             onClick={fetchWalletData} 
             disabled={loading}
             className="treasury-sync-btn"
@@ -334,7 +334,7 @@ export const WalletPage = ({ onBack }) => {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span className="card-tag-pill">STANDARD TENDER</span>
-              <button 
+              <button type="button" 
                 onClick={handleWatchAd}
                 className="btn-mini-watch-ad"
                 title="Watch simulated 10-second sponsor broadcast for +150 Credits"
@@ -522,7 +522,7 @@ export const WalletPage = ({ onBack }) => {
                 { id: 'ENERGY_CORES', label: 'ENERGY CORES' },
                 { id: 'REWARD_COINS', label: 'REWARD COINS' }
               ].map((tab) => (
-                <button
+                <button type="button"
                   key={tab.id}
                   onClick={() => {
                     soundManager.playLaser();
@@ -617,8 +617,7 @@ export const WalletPage = ({ onBack }) => {
                       <td>
                         <div className="td-ref-box">
                           <code>{shortRef}</code>
-                          <button
-                            type="button"
+                          <button type="button"
                             onClick={(e) => handleCopy(tx.referenceId, e)}
                             className="btn-copy-ref"
                             title={isCopied ? 'Copied to clipboard!' : 'Copy complete reference ID'}
@@ -662,8 +661,7 @@ export const WalletPage = ({ onBack }) => {
                       </td>
 
                       <td style={{ textAlign: 'right' }}>
-                        <button 
-                          type="button" 
+                        <button type="button" 
                           onClick={(e) => { e.stopPropagation(); setSelectedTx(tx); }}
                           className="btn-inspect-tx"
                         >
@@ -720,7 +718,7 @@ export const WalletPage = ({ onBack }) => {
                 <span className="drawer-pretag">AUDIT LOG // TRANSACTION TELEMETRY</span>
                 <h3 className="drawer-title">TRANSACTION DETAILS</h3>
               </div>
-              <button 
+              <button type="button" 
                 onClick={() => setSelectedTx(null)}
                 className="drawer-close-btn"
                 title="Close Drawer (ESC)"
@@ -753,8 +751,7 @@ export const WalletPage = ({ onBack }) => {
                 <span className="drawer-field-label">IMMUTABLE REFERENCE ID</span>
                 <div className="drawer-ref-box">
                   <code>{selectedTx.referenceId || 'N/A'}</code>
-                  <button
-                    type="button"
+                  <button type="button"
                     onClick={() => handleCopy(selectedTx.referenceId)}
                     className="btn-drawer-copy"
                     title="Copy full reference ID"
@@ -847,7 +844,7 @@ export const WalletPage = ({ onBack }) => {
                   {adCountdown > 0 ? `REWARD IN: ${adCountdown}S` : '✓ REWARD READY'}
                 </span>
 
-                <button
+                <button type="button"
                   onClick={handleAbortAd}
                   style={{
                     background: 'rgba(255, 255, 255, 0.08)',
@@ -893,7 +890,7 @@ export const WalletPage = ({ onBack }) => {
                   }}>
                     4K ULTRA HD TRANSMISSION
                   </span>
-                  <button
+                  <button type="button"
                     onClick={() => setIsAdAudioMuted(!isAdAudioMuted)}
                     className="ad-sound-toggle-btn"
                     title={isAdAudioMuted ? 'Click to Unmute' : 'Click to Mute'}
@@ -927,7 +924,7 @@ export const WalletPage = ({ onBack }) => {
               </div>
             )}
 
-            <button
+            <button type="button"
               onClick={handleClaimAdReward}
               disabled={adCountdown > 0 || adVerifying}
               className="ad-claim-action-btn"
