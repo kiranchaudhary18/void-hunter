@@ -367,19 +367,29 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
         </div>
       )}
 
-      {/* Responsive Mobile / Tablet Tab Switcher */}
+      {/* Responsive Mobile / Tablet Tab Switcher - Fixed Under Navbar */}
       {isMobile && (
         <div className="auth-tab-switch">
           <button
             type="button"
-            onClick={() => setActiveTab('login')}
+            onClick={() => {
+              setActiveTab('login');
+              setErrorMsg('');
+              const scroller = document.querySelector('.auth-scroll-container');
+              if (scroller) scroller.scrollTop = 0;
+            }}
             className={`auth-tab-btn ${activeTab === 'login' ? 'tab-active-cyan' : ''}`}
           >
-            PILOT ACCESS
+            PILOT LOGIN
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('register')}
+            onClick={() => {
+              setActiveTab('register');
+              setErrorMsg('');
+              const scroller = document.querySelector('.auth-scroll-container');
+              if (scroller) scroller.scrollTop = 0;
+            }}
             className={`auth-tab-btn ${activeTab === 'register' ? 'tab-active-purple' : ''}`}
           >
             JOIN THE FLEET
@@ -387,8 +397,10 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
         </div>
       )}
 
-      {/* Centered Dual Panel Composition */}
-      <main className={`auth-dual-panels ${isMobile ? (activeTab === 'login' ? 'view-login-tab' : 'view-register-tab') : ''}`}>
+      {/* Scrollable / Fixed Content Area */}
+      <div className={`auth-scroll-container ${isMobile ? (activeTab === 'login' ? 'scroll-locked' : 'scroll-allowed') : ''}`}>
+        {/* Centered Dual Panel Composition */}
+        <main className={`auth-dual-panels ${isMobile ? (activeTab === 'login' ? 'view-login-tab' : 'view-register-tab') : ''}`}>
         
         {/* ================= LEFT PANEL: LOGIN (CYAN ACCENTS) ================= */}
         <section className="auth-panel panel-cyan" aria-label="Pilot Login Panel">
@@ -519,6 +531,8 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
                 onClick={() => {
                   setErrorMsg('');
                   setActiveTab('register');
+                  const scroller = document.querySelector('.auth-scroll-container');
+                  if (scroller) scroller.scrollTop = 0;
                   const regInput = document.getElementById('reg-name-field');
                   if (regInput) regInput.focus();
                 }}
@@ -748,6 +762,8 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
                 onClick={() => {
                   setErrorMsg('');
                   setActiveTab('login');
+                  const scroller = document.querySelector('.auth-scroll-container');
+                  if (scroller) scroller.scrollTop = 0;
                   const loginInput = document.getElementById('login-email-field');
                   if (loginInput) loginInput.focus();
                 }}
@@ -758,7 +774,8 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
             </div>
           </div>
         </section>
-      </main>
+        </main>
+      </div>
 
       {/* ================= TERMS & PRIVACY POLICY MODAL ================= */}
       {termsModalOpen && (
