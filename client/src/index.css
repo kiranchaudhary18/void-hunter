@@ -1681,3 +1681,37 @@ html, body, #root, .command-deck-shell, .command-viewport-main, .command-content
   box-shadow: 0 0 22px rgba(168, 85, 247, 0.6);
   transform: translateY(-1px);
 }
+
+
+/* ==========================================================================
+   MOBILE DEFEAT / GAME-OVER MODAL CONTAINMENT
+   ========================================================================== */
+.defeat-modal-card {
+  box-sizing: border-box !important;
+  max-width: min(440px, calc(100vw - 24px)) !important;
+  overflow: hidden !important;
+}
+
+.btn-defeat-revive {
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+.defeat-revive-btn-text {
+  display: inline-block;
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .btn-defeat-revive {
+    font-size: 0.72rem !important;
+    letter-spacing: 0.02em !important;
+    padding: 10px 8px !important;
+    line-height: 1.25 !important;
+  }
+}

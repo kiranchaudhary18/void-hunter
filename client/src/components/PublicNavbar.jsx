@@ -161,6 +161,29 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
       {mobileMenuOpen && (
         <div style={styles.mobileDrawer}>
           <div style={styles.mobileNavLinks}>
+            {/* Quick Audio Toggle Inside Mobile Drawer */}
+            <button
+              onClick={handleToggleMute}
+              style={{
+                ...styles.mobileNavLink,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                color: isMuted ? '#EF4444' : '#00E5FF',
+                borderBottom: '1px solid rgba(0, 229, 255, 0.25)',
+                paddingBottom: '12px',
+                marginBottom: '4px'
+              }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {isMuted ? <VolumeX size={18} color="#EF4444" /> : <Volume2 size={18} color="#00E5FF" />}
+                <span style={{ fontWeight: 'bold' }}>{isMuted ? 'AUDIO: MUTED' : 'AUDIO: ONLINE'}</span>
+              </span>
+              <span style={{ fontSize: '0.65rem', color: '#94A3B8', border: '1px solid rgba(0,229,255,0.3)', padding: '2px 6px', borderRadius: '4px' }}>
+                TOGGLE
+              </span>
+            </button>
+
             {navLinks.map((item) => {
               const isActive = item.match.includes(current);
               return (
@@ -179,14 +202,14 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
             {isAuthenticated ? (
               <button
                 onClick={() => handleAction('dashboard')}
-                style={{ ...styles.mobileNavLink, color: '#00E5FF' }}
+                style={{ ...styles.mobileNavLink, color: '#00E5FF', fontWeight: 'bold' }}
               >
                 COMMAND DECK ({user?.pilotName || user?.username || 'PILOT'})
               </button>
             ) : (
               <button
                 onClick={() => handleAction('auth')}
-                style={{ ...styles.mobileNavLink, color: '#00E5FF' }}
+                style={{ ...styles.mobileNavLink, color: '#00E5FF', fontWeight: 'bold' }}
               >
                 LOGIN / ENLIST
               </button>
@@ -206,11 +229,15 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
           }
         }
         @media (max-width: 640px) {
+          .public-sound-btn {
+            display: none !important;
+          }
           .public-brand-tag {
             display: none !important;
           }
           .public-brand-title {
-            font-size: 1.05rem !important;
+            font-size: 1.0rem !important;
+            letter-spacing: 0.06em !important;
           }
           .public-login-text-full {
             display: none !important;
@@ -219,28 +246,51 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
             display: inline !important;
           }
           .public-login-btn {
-            padding: 8px 12px !important;
-            font-size: 0.74rem !important;
+            padding: 7px 13px !important;
+            font-size: 0.72rem !important;
             gap: 5px !important;
+            border-radius: 6px !important;
+            min-height: 36px !important;
           }
-          .public-sound-btn {
+          .public-mobile-menu-btn {
             width: 36px !important;
             height: 36px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: rgba(17, 23, 53, 0.7) !important;
+            border: 1px solid rgba(0, 229, 255, 0.25) !important;
+            border-radius: 6px !important;
+            padding: 0 !important;
           }
           .public-top-bar {
-            padding: 0 12px !important;
+            padding: 0 14px !important;
+            height: 56px !important;
+          }
+          .public-dashboard-btn {
+            padding: 6px 10px !important;
+            font-size: 0.72rem !important;
+            gap: 5px !important;
+            min-height: 36px !important;
+          }
+          .pilotCallsign {
+            max-width: 80px !important;
+          }
+          .logoutBtn {
+            width: 34px !important;
+            height: 34px !important;
           }
         }
         @media (max-width: 380px) {
           .public-brand-title {
-            font-size: 0.90rem !important;
+            font-size: 0.88rem !important;
           }
           .public-login-btn {
             padding: 6px 10px !important;
             font-size: 0.68rem !important;
           }
           .public-top-bar {
-            padding: 0 8px !important;
+            padding: 0 10px !important;
           }
         }
       `}</style>

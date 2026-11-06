@@ -847,33 +847,114 @@ export const GameContainer = ({
 
       {/* ================= DEFEAT / REVIVE MODAL ================= */}
       {gameOverData && (
-        <div style={styles.modalBackdrop}>
-          <div className="glass-panel" style={styles.defeatModal}>
-            <span className="badge badge-magenta">HULL INTEGRITY COMPROMISED</span>
-            <h2 className="font-heading" style={styles.defeatTitle}>MISSION FAILED</h2>
-            <p style={styles.defeatSubtitle}>Your ship was overwhelmed by enemy interceptors.</p>
+        <div style={{
+          ...styles.modalBackdrop,
+          padding: isMobile ? '10px 12px' : '20px'
+        }}>
+          <div 
+            className="glass-panel defeat-modal-card" 
+            style={{
+              ...styles.defeatModal,
+              maxWidth: isMobile ? '380px' : '460px',
+              width: '100%',
+              boxSizing: 'border-box',
+              padding: isMobile ? '18px 14px' : 'clamp(20px, 4vw, 36px) clamp(16px, 4vw, 32px)',
+              gap: isMobile ? '10px' : '14px'
+            }}
+          >
+            <span className="badge badge-magenta" style={{ fontSize: isMobile ? '0.62rem' : '0.72rem', padding: isMobile ? '3px 8px' : '4px 10px' }}>
+              HULL INTEGRITY COMPROMISED
+            </span>
+            <h2 className="font-heading" style={{
+              ...styles.defeatTitle,
+              fontSize: isMobile ? '1.35rem' : '1.6rem',
+              margin: '2px 0 0 0'
+            }}>
+              MISSION FAILED
+            </h2>
+            <p style={{
+              ...styles.defeatSubtitle,
+              fontSize: isMobile ? '0.76rem' : '0.82rem',
+              margin: 0
+            }}>
+              Your ship was overwhelmed by enemy interceptors.
+            </p>
 
-            <div style={styles.statsSummaryBox} className="glass-card">
+            <div style={{
+              ...styles.statsSummaryBox,
+              padding: isMobile ? '8px 10px' : '12px',
+              gap: isMobile ? '6px' : '10px',
+              fontSize: isMobile ? '0.74rem' : '0.82rem'
+            }} className="glass-card">
               <div>Score: <b>{gameOverData.score.toLocaleString()}</b></div>
               <div>Enemies Destroyed: <b>{gameOverData.enemiesKilled}</b></div>
               <div>Credits Recovered: <b>{gameOverData.creditsCollected}</b></div>
             </div>
 
-            <div style={styles.modalActions}>
+            <div style={{
+              ...styles.modalActions,
+              gap: isMobile ? '10px' : '12px',
+              marginTop: isMobile ? '4px' : '8px',
+              width: '100%'
+            }}>
               <button 
                 onClick={() => triggerRewardedAd('revive')} 
-                className="btn btn-cyan"
-                style={{ width: '100%', padding: '14px' }}
+                className="btn btn-cyan btn-defeat-revive"
+                style={{
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  padding: isMobile ? '11px 10px' : '14px 18px',
+                  fontSize: isMobile ? '0.74rem' : '0.84rem',
+                  letterSpacing: isMobile ? '0.025em' : '0.06em',
+                  whiteSpace: 'normal',
+                  lineHeight: 1.25,
+                  minHeight: isMobile ? '44px' : '48px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}
               >
-                <Video size={18} /> WATCH AD TO REVIVE (FULL SHIELDS)
+                <Video size={isMobile ? 16 : 18} style={{ flexShrink: 0 }} />
+                <span className="defeat-revive-btn-text">WATCH AD TO REVIVE (FULL SHIELDS)</span>
               </button>
 
-              <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
-                <button onClick={handleRestart} className="btn btn-purple" style={{ flex: 1 }}>
-                  <RotateCcw size={16} /> RESTART
+              <div style={{ display: 'flex', gap: isMobile ? '8px' : '12px', width: '100%' }}>
+                <button 
+                  onClick={handleRestart} 
+                  className="btn btn-purple" 
+                  style={{ 
+                    flex: 1,
+                    padding: isMobile ? '10px 8px' : '12px 14px',
+                    fontSize: isMobile ? '0.74rem' : '0.82rem',
+                    minHeight: isMobile ? '42px' : '46px',
+                    borderRadius: '8px',
+                    gap: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <RotateCcw size={isMobile ? 14 : 16} /> RESTART
                 </button>
-                <button onClick={() => onExit('missions')} className="btn btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                  <Compass size={16} /> MISSIONS
+                <button 
+                  onClick={() => onExit('missions')} 
+                  className="btn btn-outline" 
+                  style={{ 
+                    flex: 1, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: '6px',
+                    padding: isMobile ? '10px 8px' : '12px 14px',
+                    fontSize: isMobile ? '0.74rem' : '0.82rem',
+                    minHeight: isMobile ? '42px' : '46px',
+                    borderRadius: '8px'
+                  }}
+                >
+                  <Compass size={isMobile ? 14 : 16} /> MISSIONS
                 </button>
               </div>
             </div>
@@ -973,7 +1054,7 @@ export const GameContainer = ({
                 marginTop: '2px',
                 opacity: 0.9
               }}>
-                // SECTOR SECURED • FLIGHT TELEMETRY SYNCD //
+                SECTOR SECURED • FLIGHT REWARDS SYNCD
               </div>
             </div>
 

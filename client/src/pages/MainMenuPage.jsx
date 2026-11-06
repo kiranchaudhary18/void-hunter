@@ -218,7 +218,7 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
           {/* Action Buttons Row */}
           <div className="hero-actions-container">
             <div className="hero-buttons-row">
-              {/* PLAY NOW (Vibrant Cyan) */}
+              {/* PLAY NOW (Vibrant Cyan - Prominent Primary Call-to-Action) */}
               <button
                 id="btn-play-now"
                 onClick={handlePlayNow}
@@ -229,29 +229,32 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
                 <span>PLAY NOW</span>
               </button>
 
-              {/* CONTINUE MISSION (Panel Navy with Cyan Border) */}
-              <button
-                id="btn-continue-mission"
-                onClick={handleContinueMission}
-                className="btn-hero-secondary"
-                title={isAuthenticated 
-                  ? `Resume Campaign at Mission ${currentMissionNumber}` 
-                  : 'Enlist to resume saved campaign progress'}
-              >
-                <RotateCcw size={17} />
-                <span>CONTINUE MISSION</span>
-              </button>
+              {/* Secondary Actions Row */}
+              <div className="hero-secondary-buttons-row">
+                {/* CONTINUE MISSION (Panel Navy with Cyan Border) */}
+                <button
+                  id="btn-continue-mission"
+                  onClick={handleContinueMission}
+                  className="btn-hero-secondary"
+                  title={isAuthenticated 
+                    ? `Resume Campaign at Mission ${currentMissionNumber}` 
+                    : 'Enlist to resume saved campaign progress'}
+                >
+                  <RotateCcw size={16} />
+                  <span>CONTINUE MISSION</span>
+                </button>
 
-              {/* Dynamic Sound Toggle */}
-              <button
-                id="btn-sound-toggle"
-                onClick={toggleAudio}
-                className="btn-hero-sound-toggle"
-                title={isAudioMuted ? "Unmute Game Audio" : "Mute Game Audio"}
-              >
-                {isAudioMuted ? <VolumeX size={17} color="#EF4444" /> : <Volume2 size={17} color="#00E5FF" />}
-                <span>{isAudioMuted ? "AUDIO: MUTED" : "AUDIO: ONLINE"}</span>
-              </button>
+                {/* Dynamic Sound Toggle */}
+                <button
+                  id="btn-sound-toggle"
+                  onClick={toggleAudio}
+                  className="btn-hero-sound-toggle"
+                  title={isAudioMuted ? "Unmute Game Audio" : "Mute Game Audio"}
+                >
+                  {isAudioMuted ? <VolumeX size={16} color="#EF4444" /> : <Volume2 size={16} color="#00E5FF" />}
+                  <span>{isAudioMuted ? "AUDIO: MUTED" : "AUDIO: ONLINE"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Explanatory Message / Keyboard Shortcut Cue */}
