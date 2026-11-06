@@ -1390,3 +1390,15 @@
     width: 96% !important;
   }
 }
+
+
+@media (max-width: 480px) {
+  .ad-claim-action-btn {
+    font-size: 0.72rem !important;
+    letter-spacing: 0.03em !important;
+    padding: 10px 8px !important;
+    white-space: normal !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+  }
+}

@@ -900,11 +900,11 @@ export const WalletPage = ({ onBack }) => {
                 </div>
 
                 <div style={{ pointerEvents: 'auto' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '0.74rem', color: '#FFF', fontFamily: 'Orbitron, monospace', letterSpacing: '0.04em' }}>
-                      {activeAdCampaign?.title || 'SPECIAL SPONSOR'} - {activeAdCampaign?.tagline || 'REWARD AD'}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', gap: '8px' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#FFF', fontFamily: 'Orbitron, monospace', letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                      {activeAdCampaign?.title || 'SPECIAL SPONSOR'}
                     </span>
-                    <span style={{ fontSize: '0.70rem', color: '#00E5FF', fontFamily: 'Orbitron, monospace' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#00E5FF', fontFamily: 'Orbitron, monospace', fontWeight: 'bold', flexShrink: 0, background: 'rgba(0,0,0,0.7)', padding: '1px 6px', borderRadius: '4px', border: '1px solid rgba(0,229,255,0.3)' }}>
                       0:${(10 - adCountdown) < 10 ? '0' : ''}${Math.min(10, 10 - adCountdown)} / 0:10
                     </span>
                   </div>
@@ -935,7 +935,7 @@ export const WalletPage = ({ onBack }) => {
                   <span>VERIFYING CRYPTOGRAPHIC PROOF...</span>
                 </>
               ) : adCountdown > 0 ? (
-                <span>WATCH TRANSMISSION TO UNLOCK ({adCountdown}S)</span>
+                <span>WATCH BROADCAST TO CLAIM ({adCountdown}S)</span>
               ) : (
                 <>
                   <Award size={18} />

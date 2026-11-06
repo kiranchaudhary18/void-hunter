@@ -163,6 +163,14 @@
   gap: 14px;
 }
 
+.btn-label-desktop {
+  display: inline;
+}
+
+.btn-label-mobile {
+  display: none;
+}
+
 /* Play Now Primary Button */
 .btn-hero-primary {
   display: inline-flex;
@@ -710,35 +718,56 @@
     padding: 12px 20px !important;
   }
 
+  .btn-label-desktop {
+    display: none !important;
+  }
+
+  .btn-label-mobile {
+    display: inline !important;
+  }
+
+  .hero-upper-section {
+    max-width: min(440px, 100%) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .hero-actions-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .hero-buttons-row {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
   .hero-secondary-buttons-row {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 8px !important;
     width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  .btn-hero-secondary {
+  .btn-hero-secondary,
+  .btn-hero-sound-toggle {
+    min-width: 0 !important;
     width: 100% !important;
+    box-sizing: border-box !important;
     justify-content: center !important;
     min-height: 40px !important;
     font-size: 0.74rem !important;
-    letter-spacing: 0.06em !important;
+    letter-spacing: 0.05em !important;
     border-radius: 6px !important;
-    padding: 8px 10px !important;
+    padding: 8px 6px !important;
     border-color: rgba(0, 240, 255, 0.28) !important;
     white-space: nowrap !important;
-  }
-
-  .btn-hero-sound-toggle {
-    width: 100% !important;
-    justify-content: center !important;
-    min-height: 40px !important;
-    font-size: 0.74rem !important;
-    letter-spacing: 0.06em !important;
-    border-radius: 6px !important;
-    padding: 8px 10px !important;
-    border-color: rgba(0, 240, 255, 0.22) !important;
-    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    gap: 5px !important;
   }
 
   /* 7. Full-Screen Pinned Bottom Status Strip */

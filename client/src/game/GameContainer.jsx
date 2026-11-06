@@ -1318,44 +1318,85 @@ export const GameContainer = ({
 
       {/* ================= SIMULATED REWARDED AD MODAL WITH 10S ROTATING VIDEOS ================= */}
       {adModalOpen && (
-        <div style={styles.adModalBackdrop}>
-          <div className="glass-panel" style={{ ...styles.adBox, border: '1px solid rgba(0, 229, 255, 0.4)', boxShadow: '0 0 50px rgba(0, 229, 255, 0.25)' }}>
-            <div style={styles.adHeader}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <span className="badge badge-cyan" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Video size={13} /> {activeAdCampaign?.sponsor || 'VELOP SPONSORED TRANSMISSION'}
-                </span>
-                <span style={{ fontSize: '0.70rem', color: 'var(--currency-gold)', fontFamily: 'var(--font-heading)' }}>
-                  {activeAdCampaign?.badge || 'AD • 1 OF 1'}
+        <div style={{
+          ...styles.adModalBackdrop,
+          padding: isMobile ? '10px 12px' : '20px'
+        }}>
+          <div 
+            className="glass-panel ad-modal-card" 
+            style={{ 
+              ...styles.adBox, 
+              maxWidth: isMobile ? '390px' : '520px',
+              width: '100%',
+              boxSizing: 'border-box',
+              padding: isMobile ? '16px 14px' : '24px 28px',
+              gap: isMobile ? '12px' : '18px',
+              border: '1px solid rgba(0, 229, 255, 0.4)', 
+              boxShadow: '0 0 50px rgba(0, 229, 255, 0.25)',
+              borderRadius: '16px',
+              maxHeight: '94dvh',
+              overflowY: 'auto'
+            }}
+          >
+            {/* Ad Header Row */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '6px',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                <span className="badge badge-cyan" style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontSize: isMobile ? '0.62rem' : '0.74rem',
+                  padding: isMobile ? '3px 8px' : '4px 10px',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>
+                  <Video size={13} style={{ flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {activeAdCampaign?.sponsor || 'HYPERION PROPULSION LABS'}
+                  </span>
                 </span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                 <span style={{
                   ...styles.countdownPill,
+                  fontSize: isMobile ? '0.66rem' : '0.75rem',
+                  padding: isMobile ? '3px 8px' : '4px 10px',
                   background: adCountdown > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
                   color: adCountdown > 0 ? '#FCA5A5' : '#6EE7B7',
-                  border: `1px solid ${adCountdown > 0 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)'}`
+                  border: `1px solid ${adCountdown > 0 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)'}`,
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap'
                 }}>
-                  {adCountdown > 0 ? `Reward in ${adCountdown}s` : '✓ Reward Ready!'}
+                  {adCountdown > 0 ? `Reward in ${adCountdown}s` : '✓ Ready!'}
                 </span>
 
                 {/* Abort Ad Button */}
                 <button
                   onClick={handleAbortAd}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
                     borderRadius: '50%',
-                    width: '26px',
-                    height: '26px',
+                    width: isMobile ? '26px' : '30px',
+                    height: isMobile ? '26px' : '30px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#AAA',
+                    color: '#E2E8F0',
                     cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    lineHeight: 1
+                    fontSize: '0.78rem',
+                    lineHeight: 1,
+                    flexShrink: 0
                   }}
                   title="Close Ad (Reward will be forfeited)"
                 >
@@ -1367,11 +1408,13 @@ export const GameContainer = ({
             {/* Actual Commercial Video Player Container */}
             <div style={{
               ...styles.adVideoScreen,
+              height: isMobile ? '180px' : '240px',
               position: 'relative',
               overflow: 'hidden',
               padding: 0,
               background: '#02040A',
-              boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8)'
+              boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8)',
+              borderRadius: '10px'
             }}>
               <video
                 key={activeAdCampaign?.videoSrc || 'ad-video'}
@@ -1396,13 +1439,13 @@ export const GameContainer = ({
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                padding: '14px',
+                padding: isMobile ? '10px' : '14px',
                 pointerEvents: 'none'
               }}>
                 {/* Top overlay line */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pointerEvents: 'auto' }}>
                   <span style={{
-                    fontSize: '0.68rem',
+                    fontSize: isMobile ? '0.60rem' : '0.68rem',
                     padding: '2px 8px',
                     background: 'rgba(0, 0, 0, 0.75)',
                     border: '1px solid rgba(0, 229, 255, 0.4)',
@@ -1419,8 +1462,8 @@ export const GameContainer = ({
                       background: 'rgba(0, 0, 0, 0.75)',
                       border: '1px solid rgba(255, 255, 255, 0.25)',
                       borderRadius: '50%',
-                      width: '32px',
-                      height: '32px',
+                      width: isMobile ? '28px' : '32px',
+                      height: isMobile ? '28px' : '32px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1430,17 +1473,35 @@ export const GameContainer = ({
                     }}
                     title={isAdAudioMuted ? 'Click to Unmute' : 'Click to Mute'}
                   >
-                    {isAdAudioMuted ? <VolumeX size={15} color="#EF4444" /> : <Volume2 size={15} color="#10B981" />}
+                    {isAdAudioMuted ? <VolumeX size={isMobile ? 13 : 15} color="#EF4444" /> : <Volume2 size={isMobile ? 13 : 15} color="#10B981" />}
                   </button>
                 </div>
 
                 {/* Bottom overlay info & scrubber */}
-                <div style={{ pointerEvents: 'auto' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span className="font-heading" style={{ fontSize: '0.78rem', color: '#FFF', letterSpacing: '0.04em' }}>
-                      {activeAdCampaign?.title || 'WEAPONS EXPO'} - {activeAdCampaign?.tagline || 'SPECIAL PROMO'}
+                <div style={{ pointerEvents: 'auto', width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px', gap: '8px' }}>
+                    <span className="font-heading" style={{
+                      fontSize: isMobile ? '0.68rem' : '0.78rem',
+                      color: '#FFF',
+                      letterSpacing: '0.03em',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1
+                    }}>
+                      {activeAdCampaign?.title || 'SPONSOR BROADCAST'}
                     </span>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--secondary-cyan)', fontFamily: 'var(--font-heading)' }}>
+                    <span style={{
+                      fontSize: isMobile ? '0.65rem' : '0.72rem',
+                      color: 'var(--secondary-cyan)',
+                      fontFamily: 'var(--font-heading)',
+                      fontWeight: 'bold',
+                      flexShrink: 0,
+                      background: 'rgba(0, 0, 0, 0.7)',
+                      padding: '1px 6px',
+                      borderRadius: '4px',
+                      border: '1px solid rgba(0, 229, 255, 0.35)'
+                    }}>
                       0:${(10 - adCountdown) < 10 ? '0' : ''}${Math.min(10, 10 - adCountdown)} / 0:10
                     </span>
                   </div>
@@ -1459,26 +1520,45 @@ export const GameContainer = ({
 
             {/* Warning if early exit */}
             {adCountdown > 0 && (
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '-8px' }}>
+              <div style={{
+                fontSize: isMobile ? '0.68rem' : '0.75rem',
+                color: 'var(--text-muted)',
+                textAlign: 'center',
+                margin: isMobile ? '-4px 0 0 0' : '-8px 0 0 0',
+                lineHeight: 1.3
+              }}>
                 ⚠️ Notice: Watching the full 10-second broadcast is required by Velop anti-cheat to earn rewards.
               </div>
             )}
 
             <button 
               onClick={claimAdReward}
-              className={`btn ${adCountdown > 0 ? 'btn-outline' : 'btn-cyan animate-pulse-glow'}`}
+              className={`btn ${adCountdown > 0 ? 'btn-outline' : 'btn-cyan animate-pulse-glow'} btn-ad-claim-action`}
               disabled={adCountdown > 0}
               style={{
                 width: '100%',
-                padding: '14px',
-                fontSize: '0.92rem',
-                letterSpacing: '0.06em',
+                boxSizing: 'border-box',
+                padding: isMobile ? '11px 10px' : '14px 18px',
+                fontSize: isMobile ? '0.74rem' : '0.88rem',
+                letterSpacing: isMobile ? '0.025em' : '0.06em',
                 fontWeight: 'bold',
                 cursor: adCountdown > 0 ? 'not-allowed' : 'pointer',
-                opacity: adCountdown > 0 ? 0.6 : 1
+                opacity: adCountdown > 0 ? 0.65 : 1,
+                whiteSpace: 'normal',
+                lineHeight: 1.25,
+                minHeight: isMobile ? '44px' : '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                borderRadius: '8px'
               }}
             >
-              {adCountdown > 0 ? `LOCKED (WATCH FULL BROADCAST: ${adCountdown}S)` : '✓ CLAIM VERIFIED REWARD'}
+              {adCountdown > 0 ? (
+                <span>WATCH BROADCAST TO CLAIM (${adCountdown}S)</span>
+              ) : (
+                <span>✓ CLAIM VERIFIED REWARD</span>
+              )}
             </button>
           </div>
         </div>

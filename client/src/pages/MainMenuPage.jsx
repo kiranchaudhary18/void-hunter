@@ -240,8 +240,9 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
                     ? `Resume Campaign at Mission ${currentMissionNumber}` 
                     : 'Enlist to resume saved campaign progress'}
                 >
-                  <RotateCcw size={16} />
-                  <span>CONTINUE MISSION</span>
+                  <RotateCcw size={15} style={{ flexShrink: 0 }} />
+                  <span className="btn-label-desktop">CONTINUE MISSION</span>
+                  <span className="btn-label-mobile">CONTINUE</span>
                 </button>
 
                 {/* Dynamic Sound Toggle */}
@@ -251,8 +252,9 @@ export const MainMenuPage = ({ onNavigate, onLaunchMission }) => {
                   className="btn-hero-sound-toggle"
                   title={isAudioMuted ? "Unmute Game Audio" : "Mute Game Audio"}
                 >
-                  {isAudioMuted ? <VolumeX size={16} color="#EF4444" /> : <Volume2 size={16} color="#00E5FF" />}
-                  <span>{isAudioMuted ? "AUDIO: MUTED" : "AUDIO: ONLINE"}</span>
+                  {isAudioMuted ? <VolumeX size={15} color="#EF4444" style={{ flexShrink: 0 }} /> : <Volume2 size={15} color="#00E5FF" style={{ flexShrink: 0 }} />}
+                  <span className="btn-label-desktop">{isAudioMuted ? "AUDIO: MUTED" : "AUDIO: ONLINE"}</span>
+                  <span className="btn-label-mobile">{isAudioMuted ? "MUTED" : "SOUND ON"}</span>
                 </button>
               </div>
             </div>
