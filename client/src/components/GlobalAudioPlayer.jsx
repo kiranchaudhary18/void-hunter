@@ -31,6 +31,15 @@ export const GlobalAudioPlayer = () => {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
+          // Tablet & mobile (< 1024px) should always dock above bottom nav bar
+          if (typeof window !== 'undefined' && window.innerWidth <= 1024) {
+            localStorage.removeItem(STORAGE_KEY);
+            return null;
+          }
+          if (parsed.y < 70 || parsed.x < 15) {
+            localStorage.removeItem(STORAGE_KEY);
+            return null;
+          }
           return parsed;
         }
       }
@@ -50,12 +59,29 @@ export const GlobalAudioPlayer = () => {
     return () => unsubscribe();
   }, []);
 
+  // Clear stuck drag positions on tablet & mobile on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 1024) {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {}
+      setPosition((prev) => (prev ? null : prev));
+    }
+  }, []);
+
   // Window resize bounds clamping
   useEffect(() => {
     const handleResize = () => {
+      if (typeof window !== 'undefined' && window.innerWidth <= 1024 && position) {
+        setPosition(null);
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {}
+        return;
+      }
       if (position && widgetRef.current) {
         const rect = widgetRef.current.getBoundingClientRect();
-        const bottomOffset = window.innerWidth <= 768 ? 76 : 10;
+        const bottomOffset = window.innerWidth <= 1024 ? 76 : 10;
         const maxX = Math.max(10, window.innerWidth - rect.width - 10);
         const maxY = Math.max(10, window.innerHeight - rect.height - bottomOffset);
         const clampedX = Math.max(10, Math.min(maxX, position.x));
@@ -98,7 +124,7 @@ export const GlobalAudioPlayer = () => {
       }
       if (widgetRef.current) {
         const rect = widgetRef.current.getBoundingClientRect();
-        const bottomOffset = window.innerWidth <= 768 ? 76 : 10;
+        const bottomOffset = window.innerWidth <= 1024 ? 76 : 10;
         const maxX = Math.max(10, window.innerWidth - rect.width - 10);
         const maxY = Math.max(10, window.innerHeight - rect.height - bottomOffset);
         const newX = Math.max(10, Math.min(maxX, dragInfoRef.current.initialLeft + dx));
@@ -111,7 +137,7 @@ export const GlobalAudioPlayer = () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
       setIsDragging(false);
-      if (widgetRef.current) {
+      if (widgetRef.current && dragInfoRef.current.hasMoved && window.innerWidth > 1024) {
         const rect = widgetRef.current.getBoundingClientRect();
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
@@ -124,7 +150,8 @@ export const GlobalAudioPlayer = () => {
   };
 
   const handleTouchStart = (e) => {
-    if (e.target.closest('button, input, select, .no-drag, .playlist-item')) {
+    // Only drag on touch if touching the drag handle (prevents accidental full-screen stretch on tap)
+    if (!e.target.closest('.audio-drag-handle')) {
       return;
     }
     const touch = e.touches[0];
@@ -141,7 +168,7 @@ export const GlobalAudioPlayer = () => {
       }
       if (widgetRef.current) {
         const rect = widgetRef.current.getBoundingClientRect();
-        const bottomOffset = window.innerWidth <= 768 ? 76 : 10;
+        const bottomOffset = window.innerWidth <= 1024 ? 80 : 10;
         const maxX = Math.max(10, window.innerWidth - rect.width - 10);
         const maxY = Math.max(10, window.innerHeight - rect.height - bottomOffset);
         const newX = Math.max(10, Math.min(maxX, dragInfoRef.current.initialLeft + dx));
@@ -154,7 +181,7 @@ export const GlobalAudioPlayer = () => {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
       setIsDragging(false);
-      if (widgetRef.current) {
+      if (widgetRef.current && dragInfoRef.current.hasMoved && window.innerWidth > 1024) {
         const rect = widgetRef.current.getBoundingClientRect();
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
@@ -238,7 +265,7 @@ export const GlobalAudioPlayer = () => {
             setIsMinimized(false);
           }
         }}
-        className={`global-audio-minimized-orb animate-pulse-glow ${isDragging ? 'is-dragging' : ''}`}
+        className={`global-audio-minimized-orb animate-pulse-glow ${position ? 'is-custom-positioned' : ''} ${isDragging ? 'is-dragging' : ''}`}
         title="Expand Soundtrack Player (Drag to reposition, double-click to reset)"
         style={{
           position: 'fixed',
@@ -273,7 +300,7 @@ export const GlobalAudioPlayer = () => {
   return (
     <div 
       ref={widgetRef}
-      className={`global-audio-widget glass-panel cyber-box ${!audioState.bgmPlaying ? 'audio-prompt-glow' : 'animate-pulse-glow'} ${isDragging ? 'is-dragging' : ''}`}
+      className={`global-audio-widget glass-panel cyber-box ${position ? 'is-custom-positioned' : ''} ${!audioState.bgmPlaying ? 'audio-prompt-glow' : 'animate-pulse-glow'} ${isDragging ? 'is-dragging' : ''}`}
       style={{
         ...styles.widgetContainer,
         position: 'fixed',
@@ -281,6 +308,8 @@ export const GlobalAudioPlayer = () => {
         top: position ? `${position.y}px` : undefined,
         bottom: position ? 'auto' : undefined,
         right: position ? 'auto' : undefined,
+        height: 'auto',
+        maxHeight: 'calc(100vh - 90px)',
         cursor: isDragging ? 'grabbing' : 'default',
         touchAction: 'none'
       }}
@@ -485,8 +514,9 @@ export const GlobalAudioPlayer = () => {
       <style>{`
         .global-audio-widget {
           z-index: 9999;
-          bottom: 22px;
-          right: 22px;
+          height: auto !important;
+          max-height: calc(100vh - 90px);
+          box-sizing: border-box;
           background: rgba(6, 9, 25, 0.94);
           border: 1px solid rgba(0, 229, 255, 0.4);
           border-radius: 12px;
@@ -495,20 +525,34 @@ export const GlobalAudioPlayer = () => {
           user-select: none;
           transition: border-color 0.25s ease, box-shadow 0.25s ease;
         }
-        .global-audio-minimized-orb {
+        .global-audio-widget:not(.is-custom-positioned),
+        .global-audio-minimized-orb:not(.is-custom-positioned) {
           bottom: 22px;
           right: 22px;
         }
-        @media (max-width: 768px) {
-          .global-audio-widget, .global-audio-minimized-orb {
+        .global-audio-widget.is-custom-positioned,
+        .global-audio-minimized-orb.is-custom-positioned {
+          bottom: auto !important;
+          right: auto !important;
+        }
+        @media (max-width: 1024px) {
+          .global-audio-widget:not(.is-custom-positioned),
+          .global-audio-minimized-orb:not(.is-custom-positioned) {
             bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
             right: 12px !important;
+            left: auto !important;
+            top: auto !important;
+          }
+          .global-audio-widget {
+            max-width: min(380px, calc(100vw - 24px)) !important;
+            height: auto !important;
           }
         }
         @media (max-width: 480px) {
           .global-audio-widget {
             max-width: calc(100vw - 20px) !important;
             padding: 6px 10px !important;
+            height: auto !important;
           }
           .audio-track-info {
             min-width: 105px !important;
@@ -580,6 +624,8 @@ const styles = {
   widgetContainer: {
     padding: '8px 14px',
     maxWidth: 'min(430px, calc(100vw - 20px))',
+    height: 'auto',
+    boxSizing: 'border-box'
   },
   headerRow: {
     display: 'flex',
@@ -664,7 +710,9 @@ const styles = {
     marginTop: '10px',
     paddingTop: '10px',
     borderTop: '1px solid rgba(0, 229, 255, 0.2)',
-    cursor: 'default'
+    cursor: 'default',
+    maxHeight: '260px',
+    overflowY: 'auto'
   },
   playlistHeader: {
     fontSize: '0.64rem',
