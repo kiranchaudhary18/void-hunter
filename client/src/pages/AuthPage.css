@@ -17,6 +17,7 @@
   height: 100vh;
   min-height: 100vh;
   max-height: 100vh;
+  padding-top: 64px;
   overflow: hidden;
   background-color: #050817;
   color: #EAF1FF;
@@ -25,6 +26,29 @@
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
+}
+
+/* Universal scrollbar suppressor for AuthPage to eliminate any vertical scroll line */
+.auth-viewport,
+.auth-viewport *,
+.auth-scroll-container,
+.auth-scroll-container *,
+.auth-panel,
+.auth-panel-body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.auth-viewport::-webkit-scrollbar,
+.auth-viewport *::-webkit-scrollbar,
+.auth-scroll-container::-webkit-scrollbar,
+.auth-scroll-container *::-webkit-scrollbar,
+.auth-panel::-webkit-scrollbar,
+.auth-panel-body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 /* ================= 1. CINEMATIC ORBITAL COMMAND BACKGROUND ================= */
@@ -882,51 +906,14 @@
     height: 100vh;
     height: 100dvh;
     max-height: 100dvh;
+    padding-top: 56px !important; /* Fixed PublicNavbar mobile offset */
     overflow: hidden !important;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
   }
 
-  /* Fixed / Sticky Topbar on Mobile: Never scrolls away */
-  .auth-topbar {
-    position: sticky !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 100 !important;
-    height: 52px !important;
-    min-height: 52px !important;
-    padding: 0 14px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    background: rgba(5, 8, 23, 0.96) !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
-    border-bottom: 1px solid rgba(0, 229, 255, 0.18) !important;
-    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.6) !important;
-    flex-shrink: 0 !important;
-    box-sizing: border-box !important;
-  }
-
-  .auth-brand-title {
-    font-size: 1.05rem !important;
-    letter-spacing: 0.08em !important;
-  }
-
-  .auth-brand-subtitle {
-    font-size: 0.50rem !important;
-  }
-
-  .auth-back-btn {
-    padding: 6px 12px !important;
-    font-size: 0.70rem !important;
-    gap: 5px !important;
-    border-radius: 6px !important;
-  }
-
-  /* Fixed / Sticky Tab Switcher directly under Topbar */
+  /* Fixed / Sticky Tab Switcher directly under PublicNavbar (56px) */
   .auth-tab-switch {
     display: flex !important;
     justify-content: center !important;
@@ -934,7 +921,7 @@
     gap: 8px !important;
     padding: 6px 14px !important;
     position: sticky !important;
-    top: 52px !important;
+    top: 56px !important;
     z-index: 90 !important;
     background: rgba(5, 8, 23, 0.94) !important;
     backdrop-filter: blur(12px) !important;
@@ -973,7 +960,7 @@
     box-shadow: 0 0 14px rgba(139, 92, 246, 0.25);
   }
 
-  /* Content Scroller Container */
+  /* Content Scroller Container - No Scrollbar Indicator */
   .auth-scroll-container {
     flex: 1 !important;
     min-height: 0 !important;
@@ -981,22 +968,48 @@
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
 
-  /* Login tab: Zero-scroll locked viewport */
+  .auth-scroll-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
+
+  /* Login tab: Zero-scroll locked viewport (fits completely in one screen) */
   .auth-scroll-container.scroll-locked {
     overflow: hidden !important;
     justify-content: center !important;
     align-items: center !important;
     touch-action: none !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
 
-  /* Signup tab: Gentle smooth scroll if needed, navbar stays pinned */
+  .auth-scroll-container.scroll-locked::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Signup tab: Gentle smooth scroll under pinned navbar, completely hidden scrollbar */
   .auth-scroll-container.scroll-allowed {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     padding-bottom: 24px !important;
     touch-action: pan-y !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  .auth-scroll-container.scroll-allowed::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
   }
 
   .auth-dual-panels {

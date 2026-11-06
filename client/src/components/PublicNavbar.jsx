@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
 import { GAME_NAME, GAME_TAGLINE } from '../config/gameConfig.js';
-import { Volume2, VolumeX, LogIn, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
+import { Volume2, VolumeX, LogIn, LayoutDashboard, LogOut, Menu, X, ArrowLeft } from 'lucide-react';
 
 export const PublicNavbar = ({ current = 'home', onNavigate }) => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -131,6 +131,18 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
                 <LogOut size={15} />
               </button>
             </div>
+          ) : current === 'auth' ? (
+            <button 
+              id="public-nav-back"
+              onClick={() => handleAction('landing')} 
+              className="public-login-btn"
+              style={styles.loginBtn}
+              title="Return to Main Menu / Game"
+            >
+              <ArrowLeft size={16} strokeWidth={2.5} />
+              <span className="public-login-text-full">BACK TO GAME</span>
+              <span className="public-login-text-mobile" style={{ display: 'none' }}>BACK</span>
+            </button>
           ) : (
             <button 
               id="public-nav-login"
@@ -205,6 +217,13 @@ export const PublicNavbar = ({ current = 'home', onNavigate }) => {
                 style={{ ...styles.mobileNavLink, color: '#00E5FF', fontWeight: 'bold' }}
               >
                 COMMAND DECK ({user?.pilotName || user?.username || 'PILOT'})
+              </button>
+            ) : current === 'auth' ? (
+              <button
+                onClick={() => handleAction('landing')}
+                style={{ ...styles.mobileNavLink, color: '#00E5FF', fontWeight: 'bold' }}
+              >
+                BACK TO GAME
               </button>
             ) : (
               <button

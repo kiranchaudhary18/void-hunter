@@ -2,26 +2,13 @@ import api from '../services/api.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import soundManager from '../game/managers/SoundManager.js';
+import PublicNavbar from '../components/PublicNavbar.jsx';
 import './AuthPage.css';
 import { 
-  Mail, Lock, User, Eye, EyeOff, Shield, ArrowLeft, 
+  Mail, Lock, User, Eye, EyeOff, Shield, 
   AlertCircle, CheckCircle2, X, UserPlus, LogIn, Check,
   Loader2, ExternalLink
 } from 'lucide-react';
-
-// Brand SVG Delta Logo
-const DeltaLogo = () => (
-  <svg viewBox="0 0 36 36" width="34" height="34" fill="none" className="auth-delta-icon" aria-hidden="true">
-    <polygon points="18,3 34,32 23,32 18,20 13,32 2,32" fill="url(#authDeltaGrad)" />
-    <polygon points="18,9 29,29 23,29 18,19 13,29 7,29" fill="#04081E" />
-    <defs>
-      <linearGradient id="authDeltaGrad" x1="2" y1="3" x2="34" y2="32" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#00E5FF" />
-        <stop offset="100%" stopColor="#0088FF" />
-      </linearGradient>
-    </defs>
-  </svg>
-);
 
 // Subtle Non-Interactive Decorative Ship Schematics
 const ShipSchematicWatermark = ({ color = '#00E5FF' }) => (
@@ -40,9 +27,20 @@ const ShipSchematicWatermark = ({ color = '#00E5FF' }) => (
   </svg>
 );
 
-export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
+export const AuthPage = ({ onBackToGame, onAuthSuccess, onNavigate }) => {
   const { login, register } = useAuth();
   const canvasRef = useRef(null);
+
+  const handleNav = (screen) => {
+    if (screen === 'landing' || screen === 'back') {
+      if (onBackToGame) onBackToGame();
+      else if (onNavigate) onNavigate('landing');
+    } else if (onNavigate) {
+      onNavigate(screen);
+    } else if (onBackToGame) {
+      onBackToGame();
+    }
+  };
 
   // Active tab on mobile/tablet: 'login' or 'register'
   const [activeTab, setActiveTab] = useState(() => {
@@ -319,33 +317,8 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess }) => {
         <div className="auth-station-vignette" />
       </div>
 
-      {/* Top Navigation Bar */}
-      <header className="auth-topbar">
-        <div 
-          className="auth-brand-block" 
-          onClick={onBackToGame} 
-          role="button" 
-          tabIndex={0}
-          aria-label="Void Hunter Home"
-          onKeyDown={(e) => { if (e.key === 'Enter') onBackToGame(); }}
-        >
-          <DeltaLogo />
-          <div className="auth-brand-info">
-            <span className="auth-brand-title">VOID HUNTER</span>
-            <span className="auth-brand-subtitle">SPACE COMBAT BEYOND LIMITS</span>
-          </div>
-        </div>
-
-        <button 
-          type="button" 
-          onClick={onBackToGame} 
-          className="auth-back-btn"
-          id="auth-back-button"
-        >
-          <ArrowLeft size={15} />
-          <span>BACK TO GAME</span>
-        </button>
-      </header>
+      {/* Top Cyber Navigation Bar (Identical to Missions, Hangar & Home) */}
+      <PublicNavbar current="auth" onNavigate={handleNav} />
 
       {/* Dynamic Floating Toast Alerts */}
       {errorMsg && (

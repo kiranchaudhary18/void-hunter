@@ -264,6 +264,7 @@ function MainAppContent() {
       <AuthPage 
         onBackToGame={() => navigateTo('landing')} 
         onAuthSuccess={handleAuthSuccess} 
+        onNavigate={(screen) => navigateTo(screen)}
       />
     );
   }
@@ -324,6 +325,7 @@ function MainAppContent() {
       <AuthPage 
         onBackToGame={() => navigateTo(isAuthenticated ? 'dashboard' : 'landing')} 
         onAuthSuccess={handleAuthSuccess} 
+        onNavigate={(screen) => navigateTo(screen)}
       />
     );
   }

@@ -139,6 +139,20 @@ html, body {
   box-sizing: border-box;
 }
 
+/* Mobile & Touch Viewports: Clean Native App Scrollbar Suppression */
+@media (max-width: 960px) {
+  html, body, #root {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  ::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
+}
+
 /* Typography Helpers */
 .font-heading {
   font-family: var(--font-heading);
