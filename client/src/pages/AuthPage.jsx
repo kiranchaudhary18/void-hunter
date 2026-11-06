@@ -54,17 +54,30 @@ export const AuthPage = ({ onBackToGame, onAuthSuccess, onNavigate }) => {
     return 'login';
   });
 
-  // Track viewport size for mobile tab toggle
-  const [isMobile, setIsMobile] = useState(() => 
-    typeof window !== 'undefined' ? window.innerWidth <= 960 : false
-  );
+  // Track viewport size for mobile & tablet portrait tab toggle
+  const checkIsMobileOrTabletPortrait = () => {
+    if (typeof window === 'undefined') return false;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    // Phones in any orientation or narrow viewports
+    if (w <= 768 || h <= 520) return true;
+    // Tablets in portrait orientation (up to 1024px width where height >= width)
+    if (w <= 1024 && h >= w) return true;
+    return false;
+  };
+
+  const [isMobile, setIsMobile] = useState(checkIsMobileOrTabletPortrait);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 960);
+      setIsMobile(checkIsMobileOrTabletPortrait());
     };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
 
   // Update Document Title for SEO

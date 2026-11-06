@@ -248,6 +248,16 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.auth-scroll-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .auth-dual-panels {
@@ -887,20 +897,230 @@
   }
 }
 
-/* Tablet / Landscape Layout (<= 1024px width) */
-@media (max-width: 1024px) {
-  .auth-dual-panels {
-    grid-template-columns: 380px 380px;
-    gap: 18px;
-    padding: 0 16px;
+/* Tablet Layout (641px - 1024px width) - Portrait & Landscape Responsive */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .auth-viewport {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding-top: 64px !important; /* Matches 64px PublicNavbar on tablet */
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
   }
-  .auth-panel-body {
-    padding: 20px 22px 16px 22px;
+
+  /* Sticky Tab Switcher on Tablet Portrait */
+  .auth-tab-switch {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 20px !important;
+    position: sticky !important;
+    top: 64px !important; /* Exact flush alignment with PublicNavbar (64px) */
+    z-index: 90 !important;
+    background: rgba(5, 8, 23, 0.94) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-bottom: 1px solid rgba(150, 166, 200, 0.14) !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .auth-tab-btn {
+    flex: 1;
+    max-width: 240px !important;
+    height: 42px !important;
+    background: #0B1430;
+    border: 1px solid rgba(150, 166, 200, 0.25);
+    border-radius: 8px !important;
+    color: #96A6C8;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.76rem !important;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .auth-tab-btn.tab-active-cyan {
+    border-color: #00E5FF;
+    color: #00E5FF;
+    background: rgba(0, 229, 255, 0.12);
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.28);
+  }
+
+  .auth-tab-btn.tab-active-purple {
+    border-color: #8B5CF6;
+    color: #C084FC;
+    background: rgba(139, 92, 246, 0.12);
+    box-shadow: 0 0 16px rgba(139, 92, 246, 0.28);
+  }
+
+  /* Content Scroller on Tablet */
+  .auth-scroll-container {
+    flex: 1 !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  .auth-scroll-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
+
+  /* Tablet Login tab (Single Card) */
+  .auth-scroll-container.scroll-locked {
+    overflow: hidden !important;
+    justify-content: center !important;
+    align-items: center !important;
+    touch-action: none !important;
+  }
+
+  /* Tablet Signup tab (Smooth Scroll) */
+  .auth-scroll-container.scroll-allowed {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 32px !important;
+    touch-action: pan-y !important;
+  }
+
+  /* Tablet Portrait: Single Card view scaled gracefully for iPad / tablets */
+  .auth-dual-panels.view-login-tab,
+  .auth-dual-panels.view-register-tab {
+    grid-template-columns: 1fr !important;
+    max-width: 540px !important;
+    width: 100% !important;
+    margin: auto !important;
+    padding: 16px 24px !important;
+    box-sizing: border-box !important;
+  }
+
+  .auth-dual-panels.view-login-tab .panel-purple {
+    display: none !important;
+  }
+
+  .auth-dual-panels.view-register-tab .panel-cyan {
+    display: none !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-panel-body,
+  .auth-dual-panels.view-register-tab .auth-panel-body {
+    padding: 24px 30px 22px 30px !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-eyebrow,
+  .auth-dual-panels.view-register-tab .auth-eyebrow {
+    font-size: 0.68rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-heading,
+  .auth-dual-panels.view-register-tab .auth-heading {
+    font-size: 1.45rem !important;
+    margin: 4px 0 6px 0 !important;
+    line-height: 1.25 !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-description,
+  .auth-dual-panels.view-register-tab .auth-description {
+    font-size: 0.82rem !important;
+    line-height: 1.45 !important;
+    margin-bottom: 14px !important;
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-form-grid,
+  .auth-dual-panels.view-register-tab .auth-form-grid {
+    gap: 12px !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-field-label,
+  .auth-dual-panels.view-register-tab .auth-field-label {
+    font-size: 0.70rem !important;
+    margin-bottom: 5px !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-input-container,
+  .auth-dual-panels.view-register-tab .auth-input-container {
+    height: 44px !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-submit-btn,
+  .auth-dual-panels.view-register-tab .auth-submit-btn {
+    height: 48px !important;
+    min-height: 48px !important;
+    font-size: 0.85rem !important;
+    margin-top: 8px !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-security-badge {
+    margin-top: 10px !important;
+    padding: 5px 12px !important;
+    font-size: 0.65rem !important;
+  }
+
+  .auth-dual-panels.view-login-tab .auth-panel-footer,
+  .auth-dual-panels.view-register-tab .auth-panel-footer {
+    margin-top: 12px !important;
+    font-size: 0.78rem !important;
+  }
+
+  /* Tablet Landscape: Dual Panels side-by-side with vertical scrolling */
+  .auth-dual-panels:not(.view-login-tab):not(.view-register-tab) {
+    grid-template-columns: minmax(340px, 400px) minmax(340px, 400px) !important;
+    gap: 18px !important;
+    padding: 12px 20px 32px 20px !important;
+    margin: auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .auth-dual-panels:not(.view-login-tab):not(.view-register-tab) .auth-panel-body {
+    padding: 18px 22px 14px 22px !important;
+  }
+
+  .auth-dual-panels:not(.view-login-tab):not(.view-register-tab) .auth-heading {
+    font-size: 1.25rem !important;
+    margin: 2px 0 4px 0 !important;
+  }
+
+  .auth-dual-panels:not(.view-login-tab):not(.view-register-tab) .auth-description {
+    font-size: 0.74rem !important;
+    line-height: 1.35 !important;
+    margin-bottom: 10px !important;
+  }
+
+  .auth-dual-panels:not(.view-login-tab):not(.view-register-tab) .auth-form-grid {
+    gap: 8px !important;
+  }
+
+  .auth-dual-panels:not(.view-login-tab):not(.view-register-tab) .auth-input-container {
+    height: 40px !important;
+  }
+
+  .auth-dual-panels:not(.view-login-tab):not(.view-register-tab) .auth-submit-btn {
+    height: 42px !important;
+    min-height: 42px !important;
+    font-size: 0.78rem !important;
+    margin-top: 6px !important;
   }
 }
 
-/* Mobile Layout (<= 960px width) */
-@media (max-width: 960px) {
+/* Mobile Phone Layout (<= 640px width) - Exact Mobile Containment Preserved */
+@media (max-width: 640px) {
   .auth-viewport {
     width: 100vw;
     height: 100vh;
