@@ -7,77 +7,80 @@
 
 :root {
   /* ========================================================================
-     VOID HUNTER - PRECISION SCI-FI AEROSPACE DESIGN SYSTEM
-     Obsidian Carbon Base, Gunmetal Titanium Armor, Precision HUD Cyan,
-     Solar Tactical Amber, and Crystal Clear Typography.
+     VOID HUNTER - OPTION 2: AAA SCI-FI TACTICAL & HOLOGRAPHIC PRISM
+     Obsidian Sapphire Base, Metallic Chamfered HUD, Coral-Cyan Prism CTAs,
+     Amethyst Epic & Golden Apex Reward Tiers.
      ======================================================================== */
-  --bg-deep-navy: #050814;
-  --bg-panel-navy: #0B1324;
-  --accent-cosmic-purple: #6D28D9;
+  --bg-deep-navy: #060A18;
+  --bg-panel-navy: #0D1632;
+  --accent-cosmic-purple: #9333EA;
   --neon-cyan: #00F0FF;
+  --tactical-coral: #FF4D5A;
+  --tactical-amber: #FF7B00;
+  --apex-gold: #FACC15;
   --text-offwhite: #F8FAFC;
-  --text-blue-grey: #94A3B8;
+  --text-blue-grey: #A5B4D4;
 
   /* MISSIONS & CAMPAIGN BRAND SYSTEM */
-  --space-navy: #040711;
-  --panel-navy: #0A1120;
-  --panel-elevated: #0F1A30;
-  --cosmic-purple: #7C3AED;
+  --space-navy: #050917;
+  --panel-navy: #0B132B;
+  --panel-elevated: #121E3F;
+  --cosmic-purple: #A855F7;
   --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
+  --text-secondary: #A5B4D4;
   --color-success: #10B981;
   --color-warning: #F59E0B;
-  --color-error: #EF4444;
+  --color-error: #FF4D5A;
 
-  /* Color Tokens - Deep Obsidian & Gunmetal */
-  --bg-deep-space: #070B16;
-  --bg-void-dark: #040711;
-  --bg-card: rgba(11, 19, 36, 0.82);
-  --bg-card-hover: rgba(15, 26, 48, 0.92);
-  --bg-surface-elevated: rgba(16, 27, 50, 0.75);
+  /* Color Tokens - Deep Obsidian Sapphire */
+  --bg-deep-space: #070C1D;
+  --bg-void-dark: #050816;
+  --bg-card: rgba(13, 21, 48, 0.88);
+  --bg-card-hover: rgba(18, 30, 66, 0.94);
+  --bg-surface-elevated: rgba(20, 32, 68, 0.82);
 
-  /* Primary Accent & Brand (Tactical HUD) */
-  --primary-purple: #6D28D9;
-  --primary-purple-light: #8B5CF6;
-  --primary-purple-glow: rgba(109, 40, 217, 0.35);
+  /* Primary Accent & Brand (AAA Tactical Coral-Cyan Prism) */
+  --primary-purple: #7C3AED;
+  --primary-purple-light: #A855F7;
+  --primary-purple-glow: rgba(168, 85, 247, 0.4);
 
   /* Secondary Neon Action (Laser Cyan) */
   --secondary-cyan: #00F0FF;
-  --secondary-cyan-light: #67E8F9;
-  --secondary-cyan-glow: rgba(0, 240, 255, 0.35);
+  --secondary-cyan-light: #99F6FF;
+  --secondary-cyan-glow: rgba(0, 240, 255, 0.4);
 
   /* Highlights & Danger Warnings */
-  --accent-magenta: #EC4899;
-  --accent-magenta-glow: rgba(236, 72, 153, 0.35);
+  --accent-magenta: #FF4D5A;
+  --accent-magenta-glow: rgba(255, 77, 90, 0.42);
 
   /* Currencies */
-  --currency-gold: #F59E0B;
-  --currency-gold-glow: rgba(245, 158, 11, 0.35);
-  --currency-gem: #A855F7;
-  --currency-gem-glow: rgba(168, 85, 247, 0.35);
+  --currency-gold: #FACC15;
+  --currency-gold-glow: rgba(250, 204, 21, 0.45);
+  --currency-gem: #C084FC;
+  --currency-gem-glow: rgba(192, 132, 252, 0.42);
 
   /* Status */
   --status-green: #10B981;
-  --status-red: #EF4444;
+  --status-red: #FF4D5A;
   --status-blue: #38BDF8;
 
   /* Typography */
   --text-light: #F8FAFC;
   --text-muted: #94A3B8;
-  --text-dark: #050814;
+  --text-dark: #040814;
 
   /* Fonts */
   --font-heading: 'Orbitron', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-ui: 'Exo 2', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Precision Hairline Borders & Shadows */
-  --border-glass: rgba(0, 240, 255, 0.16);
-  --border-glass-bright: rgba(0, 240, 255, 0.38);
-  --border-purple-glass: rgba(139, 92, 246, 0.22);
-  --shadow-neon-cyan: 0 0 16px rgba(0, 240, 255, 0.28);
-  --shadow-neon-purple: 0 0 16px rgba(139, 92, 246, 0.28);
-  --shadow-neon-magenta: 0 0 16px rgba(236, 72, 153, 0.28);
+  /* Precision Metallic Specular Borders & Shadows */
+  --border-glass: rgba(0, 240, 255, 0.24);
+  --border-glass-bright: rgba(0, 240, 255, 0.55);
+  --border-purple-glass: rgba(168, 85, 247, 0.36);
+  --shadow-neon-cyan: 0 0 22px rgba(0, 240, 255, 0.35);
+  --shadow-neon-purple: 0 0 22px rgba(168, 85, 247, 0.35);
+  --shadow-neon-magenta: 0 0 22px rgba(255, 77, 90, 0.35);
 }
 
 /* Base Reset & Atmospheric Deep Space Background */
@@ -111,14 +114,11 @@ html, body {
   min-height: 100dvh;
   background-color: var(--bg-void-dark);
   background-image: 
-    radial-gradient(circle at 50% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 55%),
-    radial-gradient(circle at 80% 85%, rgba(109, 40, 217, 0.04) 0%, transparent 50%),
-    radial-gradient(1.5px 1.5px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 120px 160px, rgba(0, 240, 255, 0.7), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 220px 80px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 320px 240px, rgba(245, 158, 11, 0.6), rgba(0,0,0,0)),
-    radial-gradient(1.2px 1.2px at 460px 180px, rgba(0, 240, 255, 0.6), rgba(0,0,0,0));
-  background-size: 100% 100%, 100% 100%, 550px 550px, 380px 380px, 420px 420px, 600px 600px, 500px 500px;
+    radial-gradient(ellipse 70% 50% at 15% 10%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 45% at 85% 18%, rgba(255, 77, 90, 0.07) 0%, transparent 55%),
+    radial-gradient(circle at 60% 88%, rgba(147, 51, 234, 0.09) 0%, transparent 55%),
+    linear-gradient(180deg, #060A18 0%, #0A1128 50%, #050816 100%);
+  background-attachment: fixed;
   color: var(--text-light);
   font-family: var(--font-body);
   line-height: 1.5;
@@ -765,14 +765,14 @@ html, body {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #00E5FF 0%, #7C3AED 100%);
+  background: linear-gradient(125deg, #FF4D5A 0%, #FF784F 35%, #00F0FF 85%);
   border: 2px solid #FFFFFF;
-  color: #FFFFFF;
+  color: #040814;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.55), 0 0 14px rgba(255, 77, 90, 0.45);
   cursor: pointer;
   outline: none;
 }
@@ -839,15 +839,6 @@ html, body {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-  }
-
-  /* Audio Widget Adjustments for Mobile */
-  .global-audio-widget {
-    bottom: 74px !important;
-    right: 12px !important;
-    left: 12px !important;
-    max-width: calc(100vw - 24px) !important;
-    border-radius: 10px;
   }
 }
 
@@ -1204,39 +1195,159 @@ img, video, canvas {
   pointer-events: none;
 }
 
-/* 3. Cyberpunk High-Impact Action Button */
+/* 3. Option 2 AAA Tactical Prism Action Button (Coral-to-Cyan Holographic) */
 .cyber-action-btn-primary {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   padding: 14px 28px;
-  background: linear-gradient(135deg, rgba(0, 229, 255, 0.95) 0%, rgba(124, 58, 237, 0.9) 100%);
-  border: 1px solid #00E5FF;
-  border-radius: 8px;
-  color: #060919;
+  background: linear-gradient(108deg, #FF4D5A 0%, #FF784F 28%, #00E5FF 75%, #38BDF8 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
+  color: #050914;
   font-family: var(--font-heading);
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  box-shadow: 0 0 25px rgba(0, 229, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 26px rgba(0, 229, 255, 0.35), 0 4px 18px rgba(255, 77, 90, 0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.55);
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
   min-height: 44px;
+}
+
+.cyber-action-btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 65%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: skewX(-25deg);
+  transition: left 0.55s ease;
+  pointer-events: none;
 }
 
 .cyber-action-btn-primary:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.02);
-  background: linear-gradient(135deg, #00E5FF 0%, #9061F9 100%);
-  box-shadow: 0 0 35px rgba(0, 229, 255, 0.7), 0 0 15px rgba(124, 58, 237, 0.5);
-  color: #FFFFFF;
+  background: linear-gradient(108deg, #FF5E6B 0%, #FF8E53 26%, #22F3FF 74%, #67E8F9 100%);
+  box-shadow: 0 8px 34px rgba(0, 240, 255, 0.65), 0 4px 22px rgba(255, 77, 90, 0.5), inset 0 1.5px 0 rgba(255, 255, 255, 0.75);
+  color: #030612;
+}
+
+.cyber-action-btn-primary:hover:not(:disabled)::after {
+  left: 160%;
 }
 
 .cyber-action-btn-primary:active:not(:disabled) {
   transform: translateY(1px) scale(0.98);
+}
+
+/* Holographic Ice-Cyan Supply Claim Button (Option 2 Signature) */
+.aaa-btn-claim {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 28px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #CCFBF1 35%, #67E8F9 100%);
+  border: 2px solid #A5F3FC;
+  border-radius: 6px;
+  color: #040814;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  box-shadow: 0 0 28px rgba(0, 240, 255, 0.55), 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 2px 0 #FFFFFF;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 44px;
+}
+
+.aaa-btn-claim:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.85), 0 10px 24px rgba(0, 0, 0, 0.7), inset 0 2px 0 #FFFFFF;
+}
+
+.aaa-btn-claim:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Option 2 Signature Panel Notch, Armored Card & Segmented Progress Primitives */
+.aaa-top-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 112px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #00F0FF 22%, #67E8F9 50%, #00F0FF 78%, transparent);
+  box-shadow: 0 2px 14px rgba(0, 240, 255, 0.85);
+  border-radius: 0 0 4px 4px;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.aaa-top-notch-gold {
+  background: linear-gradient(90deg, transparent, #F59E0B 22%, #FDE047 50%, #F59E0B 78%, transparent);
+  box-shadow: 0 2px 14px rgba(250, 204, 21, 0.85);
+}
+
+.aaa-top-notch-coral {
+  background: linear-gradient(90deg, transparent, #FF4D5A 22%, #FF784F 50%, #00F0FF 85%, transparent);
+  box-shadow: 0 2px 14px rgba(255, 77, 90, 0.7);
+}
+
+.aaa-crate-blend {
+  mix-blend-mode: lighten;
+  -webkit-mask-image: radial-gradient(circle, #000 56%, transparent 94%);
+  mask-image: radial-gradient(circle, #000 56%, transparent 94%);
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.aaa-segment-track {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  width: 100%;
+}
+
+.aaa-segment-cell {
+  height: 7px;
+  border-radius: 3px;
+  background: rgba(15, 25, 50, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  transition: all 0.28s ease;
+}
+
+.aaa-segment-cell.filled {
+  background: linear-gradient(90deg, #00F0FF 0%, #67E8F9 100%);
+  border-color: #67E8F9;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+}
+
+.aaa-segment-cell.current {
+  background: linear-gradient(90deg, #FF4D5A 0%, #FF8A4C 100%);
+  border-color: #FF8A4C;
+  box-shadow: 0 0 10px rgba(255, 77, 90, 0.75);
+}
+
+.aaa-segment-cell.gold {
+  background: linear-gradient(90deg, #F59E0B 0%, #FDE047 100%);
+  border-color: #FDE047;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
 }
 
 /* 4. Luxury Gold Action Button */
@@ -1652,7 +1763,7 @@ html, body, #root, .command-deck-shell, .command-viewport-main, .command-content
   display: flex;
   flex-direction: column;
   align-items: center;
-  justifyContent: center;
+  justify-content: center;
   padding: 8px 6px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.03);

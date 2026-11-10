@@ -9,9 +9,9 @@
   min-height: 100vh;
   min-height: 100dvh;
   flex: 1;
-  background-color: #080A2F;
+  background-color: #060A18;
   background-image: 
-    linear-gradient(90deg, rgba(8, 10, 47, 0.88) 0%, rgba(8, 10, 47, 0.65) 38%, rgba(8, 10, 47, 0.25) 65%, rgba(8, 10, 47, 0.4) 100%),
+    linear-gradient(90deg, rgba(6, 10, 24, 0.9) 0%, rgba(6, 10, 24, 0.68) 38%, rgba(6, 10, 24, 0.25) 65%, rgba(6, 10, 24, 0.42) 100%),
     url('/assets/hero_wallpaper.jpg');
   background-size: cover;
   background-position: center center;
@@ -19,7 +19,7 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   flex-direction: column;
-  justifyContent: space-between;
+  justify-content: space-between;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -171,32 +171,33 @@
   display: none;
 }
 
-/* Play Now Primary Button */
+/* Play Now Primary Button — Option 2 Coral-to-Cyan Prism */
 .btn-hero-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: linear-gradient(180deg, #00F0FF 0%, #00B8D9 100%);
-  color: #040814;
+  background: linear-gradient(108deg, #FF4D5A 0%, #FF784F 26%, #00E5FF 76%, #38BDF8 100%);
+  color: #050914;
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   padding: 12px 28px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
   border-radius: 6px;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
   cursor: pointer;
-  box-shadow: 0 0 18px rgba(0, 240, 255, 0.35), 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 24px rgba(0, 240, 255, 0.38), 0 4px 16px rgba(255, 77, 90, 0.28), inset 0 1.5px 0 rgba(255, 255, 255, 0.55);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 44px;
 }
 
 .btn-hero-primary:hover {
-  transform: translateY(-1.5px);
-  background: linear-gradient(180deg, #33F3FF 0%, #00CEE6 100%);
-  box-shadow: 0 0 26px rgba(0, 240, 255, 0.55), 0 6px 18px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  background: linear-gradient(108deg, #FF5E6B 0%, #FF8E53 26%, #22F3FF 74%, #67E8F9 100%);
+  box-shadow: 0 8px 32px rgba(0, 240, 255, 0.62), 0 4px 20px rgba(255, 77, 90, 0.45), inset 0 1.5px 0 rgba(255, 255, 255, 0.75);
 }
 
 .btn-hero-primary:active {
@@ -275,17 +276,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  background: rgba(17, 23, 53, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(0, 229, 255, 0.25);
+  padding: 11px 15px;
+  background: linear-gradient(145deg, rgba(16, 28, 62, 0.88) 0%, rgba(8, 13, 32, 0.94) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 240, 255, 0.25);
   border-radius: 10px;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(0, 229, 255, 0.05);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 0.25s ease;
   cursor: pointer;
-  min-height: 58px;
+  min-height: 60px;
 }
 
 .feature-card:hover {

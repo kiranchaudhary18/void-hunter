@@ -16,14 +16,15 @@
   display: flex;
   width: 100%;
   min-height: 100vh;
-  background-color: #040711;
+  background-color: #060A18;
   background-image: 
-    radial-gradient(circle at 18% 12%, rgba(0, 240, 255, 0.04) 0%, transparent 48%),
-    radial-gradient(circle at 82% 88%, rgba(109, 40, 217, 0.04) 0%, transparent 48%),
+    radial-gradient(circle at 18% 12%, rgba(0, 240, 255, 0.07) 0%, transparent 48%),
+    radial-gradient(circle at 86% 24%, rgba(255, 77, 90, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 82% 88%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
     radial-gradient(1.5px 1.5px at 35px 55px, rgba(255, 255, 255, 0.7), transparent),
     radial-gradient(1.5px 1.5px at 145px 190px, rgba(0, 240, 255, 0.65), transparent),
-    radial-gradient(1.5px 1.5px at 270px 110px, rgba(245, 158, 11, 0.5), transparent);
-  background-size: 100% 100%, 100% 100%, 420px 420px, 320px 320px, 480px 480px;
+    radial-gradient(1.5px 1.5px at 270px 110px, rgba(250, 204, 21, 0.55), transparent);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 420px 420px, 320px 320px, 480px 480px;
   color: #F8FAFC;
   position: relative;
   overflow-x: hidden;
@@ -38,11 +39,11 @@
   bottom: 0;
   width: 250px;
   min-width: 250px;
-  background: rgba(7, 12, 24, 0.96);
-  border-right: 1px solid rgba(0, 240, 255, 0.14);
-  box-shadow: 4px 0 28px rgba(0, 0, 0, 0.65), inset -1px 0 0 rgba(0, 240, 255, 0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(180deg, rgba(10, 17, 40, 0.98) 0%, rgba(6, 10, 24, 0.99) 100%);
+  border-right: 1px solid rgba(0, 240, 255, 0.2);
+  box-shadow: 4px 0 32px rgba(0, 0, 0, 0.72), inset -1px 0 0 rgba(0, 240, 255, 0.06);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
   display: flex;
   flex-direction: column;
   z-index: 1000;
@@ -226,11 +227,11 @@
   transform: scale(1.08);
 }
 
-/* Sidebar Footer & LAUNCH COMBAT Action */
+/* Sidebar Footer & LAUNCH COMBAT Action (Option 2 Prism CTA) */
 .sidebar-footer-action {
   padding: 16px 14px 18px 14px;
-  border-top: 1px solid rgba(0, 229, 255, 0.12);
-  background: linear-gradient(0deg, rgba(0, 229, 255, 0.06) 0%, transparent 100%);
+  border-top: 1px solid rgba(0, 240, 255, 0.16);
+  background: linear-gradient(0deg, rgba(0, 240, 255, 0.06) 0%, transparent 100%);
 }
 
 .sidebar-launch-combat-btn {
@@ -240,22 +241,23 @@
   align-items: center;
   justify-content: center;
   gap: 9px;
-  background: #00E5FF;
-  border: none;
-  border-radius: 8px;
-  color: #04081E;
+  background: linear-gradient(108deg, #FF4D5A 0%, #FF784F 26%, #00E5FF 76%, #38BDF8 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  color: #050914;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.08em;
   cursor: pointer;
-  box-shadow: 0 0 22px rgba(0, 229, 255, 0.45);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 22px rgba(0, 229, 255, 0.35), 0 4px 16px rgba(255, 77, 90, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-launch-combat-btn:hover {
-  background: #33ECFF;
-  box-shadow: 0 0 32px rgba(0, 229, 255, 0.75);
+  background: linear-gradient(108deg, #FF5E6B 0%, #FF8E53 26%, #22F3FF 74%, #67E8F9 100%);
+  box-shadow: 0 6px 28px rgba(0, 240, 255, 0.6), 0 4px 20px rgba(255, 77, 90, 0.45);
   transform: translateY(-1.5px);
 }
 
@@ -553,11 +555,11 @@
   left: 0;
   right: 0;
   height: 64px;
-  background: rgba(10, 16, 40, 0.96);
-  border-top: 1px solid rgba(0, 229, 255, 0.25);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.75), 0 0 15px rgba(0, 229, 255, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: linear-gradient(180deg, rgba(10, 17, 40, 0.96) 0%, rgba(6, 10, 24, 0.99) 100%);
+  border-top: 1px solid rgba(0, 240, 255, 0.28);
+  box-shadow: 0 -6px 26px rgba(0, 0, 0, 0.8), 0 0 18px rgba(0, 240, 255, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -602,14 +604,14 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #00E5FF 0%, #8B5CF6 100%);
+  background: linear-gradient(125deg, #FF4D5A 0%, #FF7B00 32%, #00F0FF 85%);
   border: 2px solid #FFFFFF;
-  color: #04081E;
+  color: #050914;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.65);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.65), 0 0 14px rgba(255, 77, 90, 0.45);
   cursor: pointer;
   outline: none;
   font-family: 'Orbitron', sans-serif;

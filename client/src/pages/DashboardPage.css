@@ -1,43 +1,49 @@
 /* ==========================================================================
-   VOID HUNTER - PREMIUM PILOT COMMAND CENTER (DASHBOARD)
-   Theme:
-   - Deep space: #050817
-   - Midnight navy: #0A1028
-   - Elevated panel: #0D1733
-   - Neon cyan: #00E5FF
-   - Cosmic purple: #8B5CF6
-   - Currency gold: #FBBF24
-   - Primary text: #EAF1FF
-   - Secondary text: #96A6C8
+   VOID HUNTER - AAA SCI-FI TACTICAL & HOLOGRAPHIC PRISM COMMAND CENTER
+   Palette:
+   - Obsidian Sapphire: #060A18 / #0A1024
+   - Armored Panel: #0D1633 -> #070C1F
+   - Cryo Cyan: #00F0FF / #67E8F9
+   - Tactical Coral-Orange: #FF4D5A -> #FF784F
+   - Cosmic Amethyst: #A855F7
+   - Apex Gold: #FACC15
    ========================================================================== */
 
 .dashboard-root {
-  padding: 24px 32px 60px 32px;
+  padding: 24px 32px 64px 32px;
   max-width: 1440px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Glassmorphic Cyber Panel */
+/* Armored Glassmorphic Sapphire Panel */
 .cyber-panel {
   position: relative;
-  background: rgba(13, 23, 51, 0.88);
-  border: 1px solid rgba(0, 229, 255, 0.20);
+  background:
+    linear-gradient(155deg, rgba(16, 28, 62, 0.94) 0%, rgba(8, 14, 34, 0.96) 55%, rgba(6, 10, 24, 0.98) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.24);
   border-radius: 14px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), inset 0 0 16px rgba(0, 229, 255, 0.04);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.68),
+    inset 0 1px 0 rgba(103, 232, 249, 0.22),
+    inset 0 0 24px rgba(0, 240, 255, 0.04);
   box-sizing: border-box;
   overflow: hidden;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 .cyber-panel:hover {
-  border-color: rgba(0, 229, 255, 0.4);
+  border-color: rgba(0, 240, 255, 0.48);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.72),
+    0 0 24px rgba(0, 240, 255, 0.14),
+    inset 0 1px 0 rgba(103, 232, 249, 0.3);
 }
 
 /* Corner HUD Brackets */
@@ -228,27 +234,9 @@
 
 .btn-continue-mission {
   height: 46px;
-  padding: 0 26px;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  background: #00E5FF;
-  border: none;
-  border-radius: 8px;
-  color: #04081E;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  box-shadow: 0 0 24px rgba(0, 229, 255, 0.5);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.btn-continue-mission:hover {
-  background: #33ECFF;
-  box-shadow: 0 0 32px rgba(0, 229, 255, 0.75);
-  transform: translateY(-1.5px);
+  padding: 0 28px;
+  font-size: 0.84rem;
+  letter-spacing: 0.09em;
 }
 
 .btn-sector-map {
@@ -257,22 +245,25 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(11, 20, 48, 0.6);
-  border: 1px solid rgba(0, 229, 255, 0.35);
-  border-radius: 8px;
-  color: #00E5FF;
+  background: rgba(9, 17, 42, 0.86);
+  border: 1px solid rgba(0, 240, 255, 0.36);
+  border-radius: 6px;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  color: #67E8F9;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .btn-sector-map:hover {
-  background: rgba(0, 229, 255, 0.12);
-  border-color: #00E5FF;
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.3);
+  background: rgba(0, 240, 255, 0.14);
+  border-color: #00F0FF;
+  color: #FFFFFF;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.32);
   transform: translateY(-1px);
 }
 
@@ -348,37 +339,60 @@
   box-shadow: 0 0 14px rgba(139, 92, 246, 0.35);
 }
 
-/* Holographic Ship Viewport */
+/* Holographic Ship Viewport — Option 2 Illuminated Hangar Launch Deck */
 .starfighter-viewport {
   position: relative;
-  height: 160px;
+  height: 168px;
   margin: 12px 0 14px 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.09) 0%, rgba(10, 16, 40, 0) 70%);
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 65%, rgba(0, 240, 255, 0.14) 0%, rgba(168, 85, 247, 0.08) 45%, rgba(6, 10, 24, 0.75) 85%),
+    repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(0, 240, 255, 0.04) 28px, rgba(0, 240, 255, 0.04) 29px);
   border-radius: 10px;
-  border: 1px dashed rgba(139, 92, 246, 0.25);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.75), inset 0 -16px 24px rgba(0, 240, 255, 0.06);
   overflow: hidden;
+}
+
+.hologram-deck-runway {
+  position: absolute;
+  bottom: 0;
+  left: -15%;
+  right: -15%;
+  height: 58px;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(0, 240, 255, 0.18) 50%, transparent 100%),
+    repeating-linear-gradient(90deg, rgba(250, 204, 21, 0.14) 0px, rgba(250, 204, 21, 0.14) 6px, transparent 6px, transparent 18px);
+  background-size: 100% 100%, 100% 4px;
+  background-position: bottom, bottom;
+  background-repeat: no-repeat;
+  border-top: 1px solid rgba(0, 240, 255, 0.28);
+  transform: perspective(220px) rotateX(48deg);
+  transform-origin: bottom center;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .hologram-grid-floor {
   position: absolute;
-  bottom: 10px;
-  width: 140px;
-  height: 30px;
+  bottom: 12px;
+  width: 158px;
+  height: 32px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 229, 255, 0.35);
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
+  border: 1.5px solid rgba(0, 240, 255, 0.55);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.42), inset 0 0 12px rgba(0, 240, 255, 0.2);
   transform: rotateX(65deg);
   pointer-events: none;
+  z-index: 1;
 }
 
 .starfighter-render-image,
 .starfighter-render-canvas {
   max-height: 140px;
   max-width: 140px;
-  filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.65));
+  filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.75));
   animation: shipFloat 4s ease-in-out infinite alternate;
   z-index: 2;
 }
@@ -395,11 +409,12 @@
   align-items: center;
   justify-content: space-around;
   gap: 6px;
-  margin-bottom: 12px;
-  padding: 6px 8px;
-  background: rgba(6, 12, 34, 0.6);
-  border-radius: 6px;
-  border: 1px solid rgba(150, 166, 200, 0.12);
+  margin-bottom: 14px;
+  padding: 8px 10px;
+  background: rgba(6, 12, 34, 0.72);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 240, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .loadout-chip {
@@ -413,22 +428,23 @@
   font-family: 'Orbitron', monospace;
   font-size: 0.50rem;
   font-weight: 800;
-  color: #5A6D96;
+  color: #67E8F9;
+  opacity: 0.72;
   letter-spacing: 0.08em;
 }
 
 .loadout-chip-name {
-  font-size: 0.62rem;
+  font-size: 0.64rem;
   font-weight: 700;
-  color: #EAF1FF;
+  color: #F8FAFC;
   white-space: nowrap;
 }
 
-/* Ship Module Stat Bars */
+/* Ship Module Stat Bars (Segmented Pips) */
 .starfighter-stats-list {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
 
 .ship-stat-track-row {
@@ -442,9 +458,14 @@
   font-family: 'Orbitron', monospace;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: #96A6C8;
-  width: 120px;
+  color: #CBD5E1;
+  width: 124px;
   flex-shrink: 0;
+}
+
+.ship-stat-pips-wrap {
+  flex: 1;
+  min-width: 0;
 }
 
 .ship-stat-bar-slot {
@@ -539,17 +560,19 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  background: rgba(6, 12, 34, 0.7);
-  border: 1px solid rgba(150, 166, 200, 0.15);
+  background: linear-gradient(90deg, rgba(10, 18, 44, 0.85) 0%, rgba(7, 12, 32, 0.92) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.16);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .mission-row-card:hover {
-  background: rgba(0, 229, 255, 0.06);
-  border-color: rgba(0, 229, 255, 0.4);
-  transform: translateX(2px);
+  background: linear-gradient(90deg, rgba(0, 240, 255, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%);
+  border-color: rgba(0, 240, 255, 0.55);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.18);
+  transform: translateX(3px);
 }
 
 .mission-row-left {
@@ -611,9 +634,16 @@
 
 .contract-card {
   padding: 10px 12px;
-  background: rgba(6, 12, 34, 0.7);
-  border: 1px solid rgba(150, 166, 200, 0.15);
+  background: linear-gradient(90deg, rgba(10, 18, 44, 0.85) 0%, rgba(7, 12, 32, 0.92) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.16);
   border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.contract-card:hover {
+  border-color: rgba(0, 240, 255, 0.42);
+  transform: translateY(-1px);
 }
 
 .contract-header {
@@ -690,15 +720,17 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: rgba(6, 12, 34, 0.7);
-  border: 1px solid rgba(150, 166, 200, 0.15);
-  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(10, 18, 44, 0.85) 0%, rgba(7, 12, 32, 0.92) 100%);
+  border: 1px solid rgba(250, 204, 21, 0.16);
+  border-radius: 7px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .reward-feed-row:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(250, 204, 21, 0.08);
+  border-color: rgba(250, 204, 21, 0.45);
+  transform: translateX(2px);
 }
 
 .reward-feed-left {
@@ -889,7 +921,7 @@
 
 
 /* ==========================================================================
-   PILOT CALLSIGN DOSSIER & REAL-TIME CURRENCY BAR
+   PILOT CALLSIGN DOSSIER & REAL-TIME CURRENCY BAR (OPTION 2 ARMOR STRIP)
    ========================================================================== */
 .pilot-dossier-bar {
   display: flex;
@@ -898,13 +930,13 @@
   flex-wrap: wrap;
   gap: 16px;
   padding: 14px 22px;
-  margin-bottom: 20px;
-  background: rgba(11, 18, 48, 0.88);
-  border: 1px solid rgba(0, 229, 255, 0.35);
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, rgba(14, 24, 56, 0.95) 0%, rgba(8, 14, 34, 0.98) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.34);
   border-radius: 12px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 240, 255, 0.12);
   position: relative;
 }
 
@@ -915,32 +947,67 @@
   flex-wrap: wrap;
 }
 
+.dossier-identity-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dossier-tick-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dossier-tick {
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.dossier-tick.tick-cyan {
+  width: 34px;
+  background: #00F0FF;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+}
+
+.dossier-tick.tick-coral {
+  width: 24px;
+  background: linear-gradient(90deg, #FF4D5A, #FF8A4C);
+  box-shadow: 0 0 8px rgba(255, 77, 90, 0.7);
+}
+
+.dossier-tick.tick-muted {
+  width: 20px;
+  background: rgba(148, 163, 184, 0.25);
+}
+
 .dossier-callsign-box {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   font-family: 'Orbitron', monospace;
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 900;
   letter-spacing: 0.08em;
 }
 
 .dossier-bracket {
-  color: #7C3AED;
+  color: #FF784F;
   font-weight: 900;
   font-size: 1.05rem;
-  text-shadow: 0 0 8px rgba(124, 58, 237, 0.7);
+  text-shadow: 0 0 8px rgba(255, 120, 79, 0.7);
 }
 
 .dossier-label {
   color: #94A3B8;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   letter-spacing: 0.12em;
 }
 
 .dossier-callsign-name {
-  color: #00E5FF;
-  text-shadow: 0 0 10px rgba(0, 229, 255, 0.65);
+  color: #FFFFFF;
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.65);
 }
 
 .dossier-rank-badge, .dossier-sorties-badge {
@@ -948,8 +1015,8 @@
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  background: rgba(16, 26, 68, 0.75);
-  border: 1px solid rgba(0, 229, 255, 0.25);
+  background: rgba(12, 22, 52, 0.86);
+  border: 1px solid rgba(0, 240, 255, 0.26);
   border-radius: 6px;
   font-family: 'Orbitron', monospace;
   font-size: 0.7rem;
@@ -972,7 +1039,7 @@
   padding: 6px 14px;
   border-radius: 20px;
   font-family: 'Orbitron', monospace;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   cursor: pointer;
@@ -981,26 +1048,26 @@
 }
 
 .dossier-currency-pill.pill-gold {
-  background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.45);
-  color: #FBBF24;
+  background: rgba(250, 204, 21, 0.12);
+  border: 1px solid rgba(250, 204, 21, 0.45);
+  color: #FDE047;
 }
 
 .dossier-currency-pill.pill-gold:hover {
-  background: rgba(251, 191, 36, 0.22);
-  box-shadow: 0 0 16px rgba(251, 191, 36, 0.5);
+  background: rgba(250, 204, 21, 0.22);
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.5);
   transform: translateY(-2px);
 }
 
 .dossier-currency-pill.pill-purple {
-  background: rgba(124, 58, 237, 0.14);
-  border: 1px solid rgba(168, 85, 247, 0.45);
-  color: #C084FC;
+  background: rgba(124, 58, 237, 0.16);
+  border: 1px solid rgba(168, 85, 247, 0.48);
+  color: #D8B4FE;
 }
 
 .dossier-currency-pill.pill-purple:hover {
-  background: rgba(124, 58, 237, 0.25);
-  box-shadow: 0 0 16px rgba(168, 85, 247, 0.5);
+  background: rgba(124, 58, 237, 0.28);
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.55);
   transform: translateY(-2px);
 }
 
@@ -1010,8 +1077,8 @@
 }
 
 .dossier-sortie-btn {
-  padding: 10px 22px;
-  font-size: 0.76rem;
+  padding: 10px 24px;
+  font-size: 0.78rem;
   letter-spacing: 0.12em;
   min-height: 42px;
 }
@@ -1023,7 +1090,6 @@
   justify-content: center;
   padding: 16px 0;
   position: relative;
-  overflow: visible;
 }
 
 @media (max-width: 900px) {
@@ -1051,12 +1117,12 @@
 
 
 .dossier-avatar-box {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 1.5px solid #00E5FF;
-  background: rgba(0, 229, 255, 0.1);
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
+  border: 1.5px solid #00F0FF;
+  background: rgba(0, 240, 255, 0.12);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.42);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1067,8 +1133,8 @@
 }
 .dossier-avatar-box:hover {
   transform: scale(1.08);
-  border-color: #38BDF8;
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
+  border-color: #67E8F9;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.65);
 }
 .dossier-avatar-img {
   width: 100%;
@@ -1077,131 +1143,165 @@
   display: block;
 }
 
-/* ================= DASHBOARD DAILY STREAK BANNER ================= */
+/* ================= 7-DAY SUPPLY DROP LIVE BANNER (OPTION 2) ================= */
 .dashboard-streak-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, rgba(13, 23, 51, 0.95), rgba(8, 14, 38, 0.95));
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.05);
+  padding: 0.95rem 1.45rem;
+  background:
+    radial-gradient(circle at 12% 50%, rgba(250, 204, 21, 0.12) 0%, transparent 45%),
+    linear-gradient(135deg, rgba(14, 24, 58, 0.96) 0%, rgba(8, 13, 34, 0.98) 100%);
+  border: 1px solid rgba(250, 204, 21, 0.36);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), inset 0 0 18px rgba(250, 204, 21, 0.05);
   cursor: pointer;
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
 }
 
+.dashboard-streak-banner.is-claimable {
+  border-color: rgba(0, 240, 255, 0.52);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 240, 255, 0.14);
+}
+
 .dashboard-streak-banner:hover {
-  border-color: rgba(251, 191, 36, 0.65);
+  border-color: rgba(250, 204, 21, 0.72);
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(251, 191, 36, 0.15);
+  box-shadow: 0 12px 34px rgba(250, 204, 21, 0.16);
 }
 
 .streak-banner-left {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex: 1;
+  min-width: 0;
 }
 
-.streak-flame-badge {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, rgba(251, 191, 36, 0.05) 70%);
-  border: 1.5px solid rgba(251, 191, 36, 0.5);
+.streak-crate-pedestal {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 0 14px rgba(251, 191, 36, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.streak-crate-pedestal.pedestal-cyan {
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.24) 0%, rgba(6, 12, 30, 0.95) 75%);
+  border: 1.5px solid rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.32);
+}
+
+.streak-crate-pedestal.pedestal-gold {
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.28) 0%, rgba(16, 12, 6, 0.95) 75%);
+  border: 1.5px solid rgba(250, 204, 21, 0.65);
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+}
+
+.streak-banner-crate-img {
+  width: 48px;
+  height: 48px;
+  transform: scale(1.1);
+}
+
+.streak-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 .streak-banner-title {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
+  flex-wrap: wrap;
   font-family: 'Orbitron', 'Space Grotesk', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-size: 0.98rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
   color: #FFFFFF;
 }
 
 .streak-consecutive-tag {
-  font-size: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.64rem;
   font-weight: 800;
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
-  background: rgba(251, 191, 36, 0.15);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  color: #FBBF24;
-  letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 5px;
+  background: rgba(255, 77, 90, 0.14);
+  border: 1px solid rgba(255, 120, 79, 0.45);
+  color: #FF8A4C;
+  letter-spacing: 0.06em;
 }
 
-.streak-banner-desc {
-  font-size: 0.78rem;
-  color: #94A3B8;
-  margin: 0.2rem 0 0 0;
-  line-height: 1.3;
+.streak-banner-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 520px;
+}
+
+.streak-banner-submeta {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #FDE047;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
 }
 
 .streak-banner-right {
   flex-shrink: 0;
 }
 
-.streak-pulse-claim-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.1rem;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #FBBF24, #F59E0B);
-  color: #04081E;
-  font-family: 'Orbitron', 'Space Grotesk', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.45);
-  animation: pulseClaimBtn 1.8s infinite;
-  transition: all 0.2s ease;
-}
-
-@keyframes pulseClaimBtn {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
-  50% { transform: scale(1.03); box-shadow: 0 0 25px rgba(251, 191, 36, 0.75); }
+.streak-aaa-claim-btn {
+  padding: 11px 22px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
 }
 
 .streak-claimed-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.5rem 0.9rem;
-  border-radius: 6px;
+  padding: 0.55rem 0.95rem;
+  border-radius: 8px;
   background: rgba(32, 214, 160, 0.12);
-  border: 1px solid rgba(32, 214, 160, 0.3);
+  border: 1px solid rgba(32, 214, 160, 0.35);
   color: #20D6A0;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
 }
 
 @media (max-width: 768px) {
   .dashboard-streak-banner {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     padding: 1rem;
-    gap: 0.75rem;
+    gap: 0.85rem;
+  }
+  .streak-banner-progress-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
   .streak-banner-right {
     width: 100%;
   }
-  .streak-pulse-claim-btn {
+  .streak-aaa-claim-btn {
     width: 100%;
     justify-content: center;
   }

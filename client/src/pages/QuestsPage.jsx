@@ -5,7 +5,7 @@ import soundManager from '../game/managers/SoundManager.js';
 import confetti from 'canvas-confetti';
 import { 
   ArrowLeft, Award, Clock, Zap, Coins, 
-  CheckCircle2, Lock, Calendar, Gift, AlertCircle, Package, Flame,
+  CheckCircle2, Lock, Calendar, Gift, AlertCircle, Flame,
   Crosshair, Compass, Target, Radio, Star, Shield, Trophy, RefreshCw, X,
   Sparkles, Check, CheckCheck, Skull
 } from 'lucide-react';
@@ -499,18 +499,19 @@ export const QuestsPage = ({ onBack }) => {
 
       {/* ================= 3. 7-DAY GALACTIC LOGIN STREAK ================= */}
       <section className="streak-command-panel cyber-interactive-card">
+        <span className="aaa-top-notch aaa-top-notch-gold" aria-hidden="true" />
         <div className="streak-panel-header">
           <div className="streak-header-info">
             <div className="streak-flame-icon">
-              <Calendar size={22} color="#FBBF24" />
+              <Calendar size={22} color="#FACC15" />
             </div>
             <div>
               <div className="streak-title-row">
-                <h2 className="streak-title">GALACTIC DEPLOYMENT STREAK</h2>
+                <h2 className="streak-title">7-DAY SUPPLY DROP</h2>
                 <span className="streak-tag">DAY 0{questsData.streak.streakDay} ACTIVE</span>
               </div>
               <p className="streak-subtitle">
-                Play daily to earn bonus credits and energy cores.
+                Maintain your daily flight streak to unlock Cryo-Cyan, Amethyst Epic &amp; Golden Apex Crates.
               </p>
             </div>
           </div>
@@ -518,23 +519,23 @@ export const QuestsPage = ({ onBack }) => {
           <button
             onClick={handleClaimStreak}
             disabled={!questsData.streak.canClaimToday || claimingId === 'streak'}
-            className={`streak-claim-action ${questsData.streak.canClaimToday ? 'claimable' : 'claimed'}`}
+            className={`${questsData.streak.canClaimToday ? 'aaa-btn-claim streak-claim-action claimable' : 'streak-claim-action claimed'}`}
           >
             {questsData.streak.canClaimToday ? (
               <>
                 <Gift size={16} />
-                <span>{claimingId === 'streak' ? 'SECURING SUPPLY...' : "CLAIM TODAY'S CACHE"}</span>
+                <span>{claimingId === 'streak' ? 'UNLOCKING CRATE...' : 'CLAIM SUPPLY DROP'}</span>
               </>
             ) : (
               <>
                 <CheckCircle2 size={16} />
-                <span>TODAY'S CACHE SECURED</span>
+                <span>TODAY&apos;S DROP SECURED</span>
               </>
             )}
           </button>
         </div>
 
-        {/* 7 Connected Capsule Nodes Track */}
+        {/* 7 Connected 3D Crate Nodes Track */}
         <div className="streak-timeline-wrapper">
           <div className="streak-timeline-conduit" />
           <div className="streak-nodes-grid">
@@ -544,36 +545,52 @@ export const QuestsPage = ({ onBack }) => {
               const isClaimableToday = isToday && questsData.streak.canClaimToday;
               const isUpcoming = tier.day > questsData.streak.streakDay;
               const isDay7 = tier.day === 7;
+              const isEpic = [2, 3, 6].includes(tier.day);
+              const crateImg = isDay7
+                ? '/assets/rewards/crate_golden_apex.jpg'
+                : isEpic
+                ? '/assets/rewards/crate_amethyst_epic.jpg'
+                : '/assets/rewards/crate_cyan_rare.jpg';
+              const rarityLabel = isDay7 ? 'GOLDEN APEX' : isEpic ? 'AMETHYST EPIC' : 'CYAN RARE';
 
               let nodeClass = 'streak-capsule-node';
               if (isDay7) nodeClass += ' day-7';
+              if (isEpic) nodeClass += ' tier-epic';
               if (isClaimableToday) nodeClass += ' today';
               else if (isCompleted) nodeClass += ' completed';
               else if (isUpcoming) nodeClass += ' upcoming';
 
               return (
-                <div key={tier.day} className={nodeClass}>
-                  <div className="streak-day-badge">
-                    {isDay7 ? <Trophy size={12} color="#FBBF24" /> : null}
-                    <span>DAY 0{tier.day}</span>
+                <div
+                  key={tier.day}
+                  className={nodeClass}
+                  onClick={isClaimableToday && claimingId !== 'streak' ? handleClaimStreak : undefined}
+                  style={isClaimableToday ? { cursor: 'pointer' } : undefined}
+                >
+                  <div className={`streak-rarity-tag ${isDay7 ? 'gold' : isEpic ? 'epic' : 'cyan'}`}>
+                    {isDay7 ? <Trophy size={10} /> : null}
+                    <span>{rarityLabel}</span>
                   </div>
 
-                  <div className="streak-capsule-icon-wrap">
-                    {isCompleted ? (
-                      <Check size={20} color="#20D6A0" />
-                    ) : isClaimableToday ? (
-                      <Gift size={20} color="#00E5FF" />
-                    ) : isDay7 ? (
-                      <Sparkles size={20} color="#FBBF24" />
-                    ) : (
-                      <Package size={20} color="#94A3B8" />
+                  <div className="streak-crate-visual-wrap">
+                    <img
+                      src={crateImg}
+                      alt={`Day ${tier.day} ${rarityLabel}`}
+                      className="streak-crate-img aaa-crate-blend"
+                    />
+                    {isCompleted && (
+                      <span className="streak-claimed-check" title="Secured">
+                        <Check size={12} strokeWidth={3} />
+                      </span>
                     )}
                   </div>
+
+                  <div className="streak-day-badge">DAY {tier.day}</div>
 
                   <div className="streak-rewards-stack">
                     <div className="streak-reward-chip credits">
                       <Coins size={11} />
-                      <span>+{tier.credits}</span>
+                      <span>+{tier.credits} CR</span>
                     </div>
                     {tier.cores > 0 ? (
                       <div className="streak-reward-chip cores">
@@ -586,21 +603,40 @@ export const QuestsPage = ({ onBack }) => {
                   </div>
 
                   {isClaimableToday ? (
-                    <span className="streak-status-tag today">CLAIMABLE</span>
+                    <span className="streak-status-tag today">READY</span>
                   ) : isCompleted ? (
                     <span className="streak-status-tag completed">SECURED</span>
                   ) : (
-                    <span className="streak-status-tag upcoming">SCHEDULED</span>
+                    <span className="streak-status-tag upcoming">LOCKED</span>
                   )}
                 </div>
               );
             })}
+          </div>
+
+          <div className="quests-streak-segment-wrap">
+            <div className="quests-streak-segment-label">
+              <span>DAY PROGRESS</span>
+              <span>{questsData.streak.streakDay || 1} / 7</span>
+            </div>
+            <div className="aaa-segment-track">
+              {Array.from({ length: 7 }).map((_, idx) => {
+                const dayNum = idx + 1;
+                const filled =
+                  dayNum < (questsData.streak.streakDay || 1) ||
+                  (dayNum === (questsData.streak.streakDay || 1) && !questsData.streak.canClaimToday);
+                const ready = dayNum === (questsData.streak.streakDay || 1) && questsData.streak.canClaimToday;
+                const cellClass = dayNum === 7 && filled ? 'gold' : ready ? 'current' : filled ? 'filled' : '';
+                return <span key={dayNum} className={`aaa-segment-cell ${cellClass}`} />;
+              })}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ================= 4. ORBITAL SUPPLY DROP CENTERPIECE ================= */}
       <section className="orbital-supply-panel cyber-interactive-card">
+        <span className="aaa-top-notch" aria-hidden="true" />
         {/* Left Column: Holographic Cargo Pod Stage & Action */}
         <div className="supply-pod-stage">
           <div className="hologram-crate-visual">
@@ -608,23 +644,27 @@ export const QuestsPage = ({ onBack }) => {
             <div className="orbital-ring-inner" />
             <div className="orbital-laser-sweep" />
             <div className="central-crate-core">
-              <Package size={38} color="#00E5FF" />
+              <img
+                src="/assets/rewards/crate_golden_apex.jpg"
+                alt="Orbital Supply Crate"
+                className="orbital-crate-img aaa-crate-blend"
+              />
             </div>
           </div>
 
           <div className="supply-stage-meta">
             <h2 className="supply-stage-heading">
               <span>ORBITAL SUPPLY DROP</span>
-              <span className="badge badge-cyan" style={{ fontSize: '0.62rem' }}>SECTION 57</span>
+              <span className="badge badge-cyan" style={{ fontSize: '0.62rem' }}>4H RECHARGE</span>
             </h2>
             <p className="supply-stage-desc">
-              Automated high-altitude supply shuttles deliver randomized resource caches every 4 hours.
+              Orbital supply drops deliver randomized Credits caches, Energy Core clusters, and VELOOP Coins.
             </p>
 
             <div className={`supply-cooldown-timer ${supplyDrop.canClaim ? 'ready' : ''}`}>
               <Clock size={14} />
               <span>
-                {supplyDrop.canClaim ? 'ORBITAL POD READY FOR EXTRACTION' : `NEXT CRATE IN: ${supplyCountdown}`}
+                {supplyDrop.canClaim ? 'ORBITAL CRATE READY FOR EXTRACTION' : `NEXT DROP IN: ${supplyCountdown}`}
               </span>
             </div>
           </div>
@@ -632,22 +672,22 @@ export const QuestsPage = ({ onBack }) => {
           <button
             onClick={handleClaimSupplyDrop}
             disabled={!supplyDrop.canClaim || supplyDropLoading}
-            className={`supply-claim-btn ${supplyDrop.canClaim ? 'ready' : 'cooldown'}`}
+            className={`${supplyDrop.canClaim ? 'aaa-btn-claim supply-claim-btn ready' : 'supply-claim-btn cooldown'}`}
           >
             {supplyDropLoading ? (
               <>
                 <RefreshCw size={18} className="rotating" />
-                <span>OPENING ORBITAL POD...</span>
+                <span>UNLOCKING SUPPLY DROP...</span>
               </>
             ) : supplyDrop.canClaim ? (
               <>
                 <Gift size={18} />
-                <span>OPEN ORBITAL SUPPLY DROP</span>
+                <span>CLAIM ORBITAL DROP</span>
               </>
             ) : (
               <>
                 <Lock size={16} />
-                <span>REFUELING ORBITAL DROP</span>
+                <span>RECHARGING ORBITAL DROP</span>
               </>
             )}
           </button>
@@ -801,14 +841,14 @@ export const QuestsPage = ({ onBack }) => {
                       <span>REWARD CLAIMED</span>
                     </div>
                   ) : isCompleted ? (
-                    <button
-                      onClick={() => handleClaimQuest(q.id)}
-                      disabled={claimingId === q.id}
-                      className="quest-claim-btn"
-                    >
-                      <Sparkles size={14} />
-                      <span>{claimingId === q.id ? 'AUTHORIZING...' : 'CLAIM REWARD'}</span>
-                    </button>
+                      <button
+                        onClick={() => handleClaimQuest(q.id)}
+                        disabled={claimingId === q.id}
+                        className="cyber-action-btn-primary quest-claim-btn"
+                      >
+                        <Sparkles size={14} />
+                        <span>{claimingId === q.id ? 'CLAIMING...' : 'CLAIM BOUNTY'}</span>
+                      </button>
                   ) : (
                     <div className="quest-status-badge in-progress">
                       <Clock size={13} color="#94A3B8" />
@@ -914,7 +954,7 @@ export const QuestsPage = ({ onBack }) => {
                         className="ach-claim-btn"
                       >
                         <Sparkles size={14} />
-                        <span>{claimingId === ach.id ? 'AUTHORIZING...' : 'CLAIM MERIT'}</span>
+                        <span>{claimingId === ach.id ? 'CLAIMING...' : 'CLAIM MEDAL'}</span>
                       </button>
                     ) : (
                       <div className="quest-status-badge in-progress" style={{ width: '100%', justifyContent: 'center' }}>
@@ -1019,10 +1059,10 @@ export const QuestsPage = ({ onBack }) => {
                       <button
                         onClick={() => handleClaimEvent(ev.id)}
                         disabled={claimingId === ev.id}
-                        className="event-claim-btn"
+                        className="cyber-action-btn-primary event-claim-btn"
                       >
                         <Sparkles size={16} />
-                        <span>{claimingId === ev.id ? 'AUTHORIZING...' : 'CLAIM OPERATION REWARD'}</span>
+                        <span>{claimingId === ev.id ? 'CLAIMING...' : 'CLAIM EVENT REWARD'}</span>
                       </button>
                     ) : (
                       <div className="quest-status-badge in-progress">

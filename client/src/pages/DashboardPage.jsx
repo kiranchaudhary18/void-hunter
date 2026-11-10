@@ -93,7 +93,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
   const credits = profile?.credits ?? 0;
   const energyCores = profile?.energyCores ?? 0;
 
-  const _renderPowerPips = (score, activeClass = 'active') => {
+  const renderPowerPips = (score, activeClass = 'active') => {
     const activeCount = Math.max(1, Math.min(10, Math.round((score / 100) * 10)));
     return (
       <div className="cyber-pip-track">
@@ -175,11 +175,19 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
   // Real unlocked achievements count
   const unlockedAchievementsCount = achievements.filter((a) => a.isUnlocked).length;
 
+  const currentStreakDay = streakInfo.streakDay || 1;
+  const currentBannerCrate =
+    currentStreakDay === 7
+      ? '/assets/rewards/crate_golden_apex.jpg'
+      : [2, 3, 6].includes(currentStreakDay)
+      ? '/assets/rewards/crate_amethyst_epic.jpg'
+      : '/assets/rewards/crate_cyan_rare.jpg';
+
   return (
     <div className="dashboard-root">
-      {/* ================= 1. TOP HERO SECTION (2 BALANCED COLUMNS) ================= */}
       {/* ================= PILOT CALLSIGN DOSSIER & CURRENCY BAR ================= */}
       <section className="cyber-panel pilot-dossier-bar cyber-interactive-card" aria-label="Pilot Command Dossier">
+        <span className="aaa-top-notch" aria-hidden="true" />
         <span className="hud-corner hud-tl" aria-hidden="true" />
         <span className="hud-corner hud-tr" aria-hidden="true" />
         <span className="hud-corner hud-bl" aria-hidden="true" />
@@ -194,29 +202,36 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
             {pilotAvatarUrl ? (
               <img src={pilotAvatarUrl} alt={pilotCallsign} className="dossier-avatar-img" />
             ) : (
-              <User size={16} color="#00E5FF" />
+              <User size={16} color="#00F0FF" />
             )}
           </div>
-          <div className="dossier-callsign-box">
-            <span className="dossier-bracket">[</span>
-            <span className="dossier-label">CALLSIGN:</span>
-            <span className="dossier-callsign-name">{pilotCallsign}</span>
-            <span className="dossier-bracket">]</span>
+          <div className="dossier-identity-stack">
+            <div className="dossier-callsign-box">
+              <span className="dossier-bracket">[</span>
+              <span className="dossier-label">PILOT</span>
+              <span className="dossier-callsign-name">{pilotCallsign}</span>
+              <span className="dossier-bracket">]</span>
+            </div>
+            <div className="dossier-tick-strip" aria-hidden="true">
+              <span className="dossier-tick tick-cyan" />
+              <span className="dossier-tick tick-coral" />
+              <span className="dossier-tick tick-muted" />
+            </div>
           </div>
           <div className="dossier-rank-badge">
-            <Shield size={13} color="#00E5FF" />
+            <Shield size={13} color="#00F0FF" />
             <span>LVL {pilotLevel} • {pilotRank.toUpperCase()}</span>
           </div>
           <div className="dossier-sorties-badge">
-            <Target size={13} color="#FBBF24" />
-            <span>{completedCount} / 50 MISSIONS CLEARED</span>
+            <Target size={13} color="#FACC15" />
+            <span>{completedCount} / 50 CLEARED</span>
           </div>
         </div>
 
         <div className="dossier-currencies-group">
-          <div className="dossier-currency-pill pill-gold" onClick={() => handleNav('wallet')} title="Credits Balance">
-            <span className="cyber-pulse-dot" style={{ color: '#FBBF24' }} />
-            <Coins size={14} color="#FBBF24" />
+          <div className="dossier-currency-pill pill-gold" onClick={() => handleNav('wallet')} title="Combat Credits Balance">
+            <span className="cyber-pulse-dot" style={{ color: '#FACC15' }} />
+            <Coins size={14} color="#FACC15" />
             <span className="currency-val">{credits.toLocaleString()}</span>
             <span className="currency-lbl">CR</span>
           </div>
@@ -237,58 +252,82 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
             title="Instant Combat Sortie Deployment"
           >
             <Play size={14} fill="currentColor" />
-            <span>PLAY NOW</span>
+            <span>PLAY MISSION</span>
           </button>
         </div>
       </section>
 
-            {/* ================= 1B. DAILY DEPLOYMENT STREAK COMMAND BANNER ================= */}
+      {/* ================= 1B. 7-DAY SUPPLY DROP LIVE BANNER ================= */}
       <div 
-        className="dashboard-streak-banner cyber-panel cyber-interactive-card"
+        className={`dashboard-streak-banner cyber-panel cyber-interactive-card ${streakInfo.canClaimToday ? 'is-claimable' : ''}`}
         onClick={() => {
           try { soundManager.playLaser(); } catch {}
           setIsStreakModalOpen(true);
         }}
-        title="Open 7-Day Deployment Streak & Mystery Crate Calendar"
+        title="Open 7-Day Supply Drop & Mystery Crate Calendar"
       >
-        <span className="hud-corner hud-tl" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
-        <span className="hud-corner hud-tr" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
-        <span className="hud-corner hud-bl" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
-        <span className="hud-corner hud-br" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
+        <span className="aaa-top-notch aaa-top-notch-gold" aria-hidden="true" />
+        <span className="hud-corner hud-tl" style={{ borderColor: '#FACC15' }} aria-hidden="true" />
+        <span className="hud-corner hud-tr" style={{ borderColor: '#FACC15' }} aria-hidden="true" />
+        <span className="hud-corner hud-bl" style={{ borderColor: '#FACC15' }} aria-hidden="true" />
+        <span className="hud-corner hud-br" style={{ borderColor: '#FACC15' }} aria-hidden="true" />
 
         <div className="streak-banner-left">
-          <div className="streak-flame-badge">
-            <Flame size={20} color="#FBBF24" />
+          <div className={`streak-crate-pedestal ${currentStreakDay === 7 ? 'pedestal-gold' : 'pedestal-cyan'}`}>
+            <img
+              src={currentBannerCrate}
+              alt="Daily Supply Crate"
+              className="streak-banner-crate-img aaa-crate-blend"
+            />
           </div>
           <div className="streak-banner-text">
             <div className="streak-banner-title">
-              <span>DAY {streakInfo.streakDay || 1} / 7 DEPLOYMENT STREAK</span>
+              <span>7-DAY SUPPLY DROP</span>
               <span className="streak-consecutive-tag">
-                {streakInfo.currentStreak || 1} CONSECUTIVE {streakInfo.currentStreak === 1 ? 'DAY' : 'DAYS'}
+                <Flame size={11} />
+                DAY {currentStreakDay} / 7 • {streakInfo.currentStreak || 1}D STREAK
               </span>
             </div>
-            <p className="streak-banner-desc">
-              Consecutive daily logins yield escalating Credits, Energy Cores, and unlock the Day 7 Imperial Mystery Crate.
-            </p>
+            <div className="streak-banner-progress-row">
+              <div className="aaa-segment-track">
+                {Array.from({ length: 7 }).map((_, idx) => {
+                  const dayNum = idx + 1;
+                  const filled =
+                    dayNum < currentStreakDay ||
+                    (dayNum === currentStreakDay && !streakInfo.canClaimToday);
+                  const isTodayReady = dayNum === currentStreakDay && streakInfo.canClaimToday;
+                  const cellClass =
+                    dayNum === 7 && filled
+                      ? 'gold'
+                      : isTodayReady
+                      ? 'current'
+                      : filled
+                      ? 'filled'
+                      : '';
+                  return <span key={dayNum} className={`aaa-segment-cell ${cellClass}`} />;
+                })}
+              </div>
+              <span className="streak-banner-submeta">Day 7 Golden Apex Crate</span>
+            </div>
           </div>
         </div>
 
         <div className="streak-banner-right">
           {streakInfo.canClaimToday ? (
             <button 
-              className="streak-pulse-claim-btn"
+              className="aaa-btn-claim streak-aaa-claim-btn"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsStreakModalOpen(true);
               }}
             >
               <Sparkles size={14} />
-              <span>CLAIM DAY {streakInfo.streakDay || 1} REWARD</span>
+              <span>CLAIM SUPPLY DROP</span>
             </button>
           ) : (
             <div className="streak-claimed-badge">
               <CheckCircle2 size={14} color="#20D6A0" />
-              <span>TODAY'S AIRDROP SECURED</span>
+              <span>SUPPLY SECURED</span>
             </div>
           )}
         </div>
@@ -297,6 +336,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
       <div className="dashboard-top-hero-grid">
         {/* LEFT: CINEMATIC MISSION BRIEFING (HERO) */}
         <section className="cyber-panel hero-mission-briefing" aria-label="Current Mission Briefing">
+          <span className="aaa-top-notch aaa-top-notch-coral" aria-hidden="true" />
           {/* Tactical Corner HUD Brackets */}
           <span className="hud-corner hud-tl" aria-hidden="true" />
           <span className="hud-corner hud-tr" aria-hidden="true" />
@@ -357,7 +397,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
               <button
                 id="dashboard-btn-continue"
                 onClick={() => onLaunchQuickCombat ? onLaunchQuickCombat() : handleNav('gameplay')}
-                className="btn-continue-mission"
+                className="cyber-action-btn-primary btn-continue-mission"
                 title="Launch Combat Sortie"
               >
                 <Play size={16} fill="currentColor" />
@@ -378,10 +418,11 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
 
         {/* RIGHT: ACTIVE STARFIGHTER PANEL */}
         <section className="cyber-panel starfighter-panel" aria-label="Active Starfighter Viewport">
-          <span className="hud-corner hud-tl" style={{ borderColor: '#8B5CF6' }} aria-hidden="true" />
-          <span className="hud-corner hud-tr" style={{ borderColor: '#8B5CF6' }} aria-hidden="true" />
-          <span className="hud-corner hud-bl" style={{ borderColor: '#8B5CF6' }} aria-hidden="true" />
-          <span className="hud-corner hud-br" style={{ borderColor: '#8B5CF6' }} aria-hidden="true" />
+          <span className="aaa-top-notch" aria-hidden="true" />
+          <span className="hud-corner hud-tl" style={{ borderColor: '#00F0FF' }} aria-hidden="true" />
+          <span className="hud-corner hud-tr" style={{ borderColor: '#00F0FF' }} aria-hidden="true" />
+          <span className="hud-corner hud-bl" style={{ borderColor: '#00F0FF' }} aria-hidden="true" />
+          <span className="hud-corner hud-br" style={{ borderColor: '#00F0FF' }} aria-hidden="true" />
 
           {/* Panel Header */}
           <div>
@@ -401,13 +442,14 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
               </button>
             </div>
 
-            {/* Holographic Ship Viewport Card with Real In-Game Starfighter */}
+            {/* Holographic Ship Viewport Card with Illuminated Launch Deck */}
             <div className="starfighter-viewport">
+              <div className="hologram-deck-runway" aria-hidden="true" />
               <div className="hologram-grid-floor" aria-hidden="true" />
               <StarfighterCanvas 
                 shipId={activeShip?.id || profile?.selectedShipId || 's02-phoenix'}
                 shipCode={activeShip?.code}
-                size={144}
+                size={148}
                 animated={true}
                 className="starfighter-render-canvas"
               />
@@ -430,48 +472,36 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
             </div>
           </div>
 
-          {/* 4 Tactical Module Stat Tracks */}
+          {/* 4 Segmented Tactical Power Gauges */}
           <div className="starfighter-stats-list">
             <div className="ship-stat-track-row">
               <span className="ship-stat-label">FIREPOWER (LVL {upgrades.weapon || 1})</span>
-              <div className="ship-stat-bar-slot">
-                <div 
-                  className="ship-stat-bar-fill" 
-                  style={{ width: `${liveFirepower}%`, background: 'linear-gradient(90deg, #6D28D9, #A855F7)' }} 
-                />
+              <div className="ship-stat-pips-wrap">
+                {renderPowerPips(liveFirepower, 'active-purple')}
               </div>
               <span className="ship-stat-value">{liveFirepower}</span>
             </div>
 
             <div className="ship-stat-track-row">
               <span className="ship-stat-label">SHIELD (LVL {upgrades.shield || 1})</span>
-              <div className="ship-stat-bar-slot">
-                <div 
-                  className="ship-stat-bar-fill" 
-                  style={{ width: `${liveShield}%`, background: 'linear-gradient(90deg, #0088FF, #00E5FF)' }} 
-                />
+              <div className="ship-stat-pips-wrap">
+                {renderPowerPips(liveShield, 'active')}
               </div>
               <span className="ship-stat-value">{liveShield}</span>
             </div>
 
             <div className="ship-stat-track-row">
               <span className="ship-stat-label">SPEED (LVL {upgrades.engine || 1})</span>
-              <div className="ship-stat-bar-slot">
-                <div 
-                  className="ship-stat-bar-fill" 
-                  style={{ width: `${liveSpeed}%`, background: 'linear-gradient(90deg, #D97706, #FBBF24)' }} 
-                />
+              <div className="ship-stat-pips-wrap">
+                {renderPowerPips(liveSpeed, 'active-gold')}
               </div>
               <span className="ship-stat-value">{liveSpeed}</span>
             </div>
 
             <div className="ship-stat-track-row">
               <span className="ship-stat-label">MANEUVER (LVL {upgrades.special || 1})</span>
-              <div className="ship-stat-bar-slot">
-                <div 
-                  className="ship-stat-bar-fill" 
-                  style={{ width: `${liveManeuver}%`, background: 'linear-gradient(90deg, #059669, #20D6A0)' }} 
-                />
+              <div className="ship-stat-pips-wrap">
+                {renderPowerPips(liveManeuver, 'active')}
               </div>
               <span className="ship-stat-value">{liveManeuver}</span>
             </div>
@@ -484,6 +514,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
         
         {/* MODULE 1: UPCOMING MISSIONS */}
         <section className="cyber-panel module-card" aria-label="Upcoming Missions Module">
+          <span className="aaa-top-notch" aria-hidden="true" />
           <div className="module-header">
             <div className="module-title-group">
               <Crosshair size={15} color="#00E5FF" />
@@ -530,6 +561,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
 
         {/* MODULE 2: DAILY MISSIONS & CONTRACTS */}
         <section className="cyber-panel module-card" aria-label="Daily Directives Module">
+          <span className="aaa-top-notch" aria-hidden="true" />
           <div className="module-header">
             <div className="module-title-group">
               <Target size={15} color="#00E5FF" />
@@ -548,12 +580,14 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
             ) : (
               dailyQuests.slice(0, 3).map((q) => {
                 const pct = Math.min(100, Math.round(((q.progress || 0) / (q.target || 1)) * 100));
+                const claimed = Boolean(q.isClaimed || q.claimed);
+                const rewardAmt = q.rewards?.credits ?? q.rewardCredits ?? 100;
                 return (
                   <div key={q.id} className="contract-card">
                     <div className="contract-header">
                       <span className="contract-title">{q.title}</span>
                       <span className="contract-reward">
-                        +{q.rewardCredits || 100} <Coins size={11} />
+                        +{rewardAmt} <Coins size={11} />
                       </span>
                     </div>
                     <div className="contract-bar-row">
@@ -562,14 +596,14 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
                           className="contract-bar-fill" 
                           style={{ 
                             width: `${pct}%`, 
-                            background: q.isClaimed 
-                              ? '#20D6A0' 
-                              : 'linear-gradient(90deg, #00E5FF, #8B5CF6)' 
+                            background: claimed 
+                              ? 'linear-gradient(90deg, #10B981, #20D6A0)' 
+                              : 'linear-gradient(90deg, #FF4D5A, #FF8A4C, #00F0FF)' 
                           }} 
                         />
                       </div>
-                      <span className={`contract-progress-text ${q.isClaimed ? 'contract-claimed-badge' : ''}`}>
-                        {q.isClaimed ? 'CLAIMED' : `${q.progress || 0} / ${q.target}`}
+                      <span className={`contract-progress-text ${claimed ? 'contract-claimed-badge' : ''}`}>
+                        {claimed ? 'CLAIMED' : `${q.progress || 0} / ${q.target}`}
                       </span>
                     </div>
                   </div>
@@ -581,6 +615,7 @@ export const DashboardPage = ({ onNavigate, onLaunchQuickCombat, _selectedShip }
 
         {/* MODULE 3: RECENT REWARDS & ACHIEVEMENTS */}
         <section className="cyber-panel module-card" aria-label="Rewards and Achievements Module">
+          <span className="aaa-top-notch aaa-top-notch-gold" aria-hidden="true" />
           <div className="module-header">
             <div className="module-title-group">
               <Award size={15} color="#FBBF24" />

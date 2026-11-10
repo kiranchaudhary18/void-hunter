@@ -19,7 +19,7 @@
   max-height: 100vh;
   padding-top: 64px;
   overflow: hidden;
-  background-color: #050817;
+  background: linear-gradient(135deg, #070B1A, #111C3D);
   color: #EAF1FF;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   display: flex;

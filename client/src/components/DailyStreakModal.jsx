@@ -3,8 +3,8 @@ import api from '../services/api.js';
 import soundManager from '../game/managers/SoundManager.js';
 import confetti from 'canvas-confetti';
 import { 
-  X, Flame, Gift, CheckCircle2, Lock, 
-  Coins, Zap, Award, Sparkles, Clock, AlertCircle, Package
+  X, Flame, CheckCircle2, Lock, 
+  Coins, Zap, Award, Sparkles, Clock, AlertCircle 
 } from 'lucide-react';
 import { DAILY_LOGIN_STREAK_REWARDS } from '../data/questsData.js';
 import './DailyStreakModal.css';
@@ -174,14 +174,42 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
   const currentDay = streakData.streakDay || 1;
   const rewardsList = streakData.rewardsTable?.length ? streakData.rewardsTable : DAILY_LOGIN_STREAK_REWARDS;
 
+  // Rarity tier mapping matching Option 2 AAA Holographic Supply Drop design
+  const getTierVisual = (day, isMystery) => {
+    if (isMystery || day === 7) {
+      return {
+        rarityKey: 'apex',
+        rarityTitle: 'GOLDEN APEX CRATE',
+        crateImg: '/assets/rewards/crate_golden_apex.jpg'
+      };
+    }
+    if (day === 2 || day === 3 || day === 6) {
+      return {
+        rarityKey: 'epic',
+        rarityTitle: 'AMETHYST EPIC',
+        crateImg: '/assets/rewards/crate_amethyst_epic.jpg'
+      };
+    }
+    return {
+      rarityKey: 'rare',
+      rarityTitle: 'CYAN RARE',
+      crateImg: '/assets/rewards/crate_cyan_rare.jpg'
+    };
+  };
+
+  const celebrationVisual = celebrationReward
+    ? getTierVisual(celebrationReward.day || 1, celebrationReward.isMysteryCrate)
+    : null;
+
   return (
     <>
       <div className="streak-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
         <div 
-          className="streak-modal-panel cyber-panel" 
+          className="streak-modal-panel cyber-panel aaa-supply-modal" 
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Tech HUD Corner Accents */}
+          {/* Option 2 Top Energy Notch */}
+          <span className="aaa-modal-top-notch" aria-hidden="true" />
           <span className="hud-corner hud-tl" aria-hidden="true" />
           <span className="hud-corner hud-tr" aria-hidden="true" />
           <span className="hud-corner hud-bl" aria-hidden="true" />
@@ -193,71 +221,44 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
               <div className="streak-flame-wrapper">
                 <div className="streak-flame-glow" />
                 <div className="streak-modal-flame-icon">
-                  <Flame size={26} color="#FBBF24" />
+                  <Flame size={24} color="#FACC15" />
                 </div>
               </div>
               <div>
                 <div className="streak-modal-badge-row">
-                  <span className="streak-modal-eyebrow">DAILY REWARD PROGRAM</span>
+                  <span className="streak-modal-eyebrow">TACTICAL REWARDS</span>
                   <span className="streak-modal-counter">
-                    DAY {currentDay} OF 7 ACTIVE
+                    DAY {currentDay} / 7
                   </span>
                   <span className="streak-consecutive-chip">
-                    {streakData.currentStreak} CONSECUTIVE {streakData.currentStreak === 1 ? 'DAY' : 'DAYS'}
+                    {streakData.currentStreak} DAY STREAK
                   </span>
                 </div>
-                <h2 className="streak-modal-heading">DAILY DEPLOYMENT STREAK</h2>
+                <h2 className="streak-modal-heading">7-DAY SUPPLY DROP</h2>
                 <p className="streak-modal-subtext">
-                  Report for daily combat duty to claim escalating tactical credits, energy cores, and unlock the Day 7 Imperial Mystery Crate.
+                  Claim escalating Cryo Canisters, Amethyst Crates, and unlock the Day 7 Golden Apex Mystery Crate.
                 </p>
               </div>
             </div>
             <button 
               onClick={onClose} 
               className="streak-modal-close-btn" 
-              title="Close Daily Streak"
+              title="Close Supply Drop"
               aria-label="Close"
             >
               <X size={18} />
             </button>
           </div>
 
-          {/* Energy Pipeline Progress Bar */}
-          <div className="streak-pipeline-container" aria-label="7-Day Energy Pipeline">
-            <div className="streak-pipeline-track">
-              <div 
-                className="streak-pipeline-fill"
-                style={{ 
-                  width: `${Math.min(100, Math.round(((currentDay - (streakData.canClaimToday ? 1 : 0)) / 7) * 100))}%` 
-                }} 
-              />
-            </div>
-            <div className="streak-pipeline-nodes">
-              {rewardsList.map((tier) => {
-                const isPassed = tier.day < currentDay || (tier.day === currentDay && !streakData.canClaimToday);
-                const isCurrent = tier.day === currentDay;
-                return (
-                  <div 
-                    key={tier.day} 
-                    className={`pipeline-node ${isPassed ? 'completed' : ''} ${isCurrent ? 'active' : ''}`}
-                    title={`Day ${tier.day}`}
-                  >
-                    {isPassed ? <CheckCircle2 size={10} /> : <span>{tier.day}</span>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Error Notice */}
           {errorMsg && (
             <div className="streak-modal-feedback error">
-              <AlertCircle size={16} color="#EF4444" />
+              <AlertCircle size={16} color="#FF4D5A" />
               <span>{errorMsg}</span>
             </div>
           )}
 
-          {/* 7-Day Interactive Grid */}
+          {/* 7-Day Interactive 3D Loot Crate Grid */}
           <div className="streak-days-grid">
             {rewardsList.map((tier) => {
               const isToday = tier.day === currentDay;
@@ -265,91 +266,118 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
               const isAvailable = isToday && streakData.canClaimToday;
               const isLocked = tier.day > currentDay;
               const isMystery = !!tier.isMysteryCrate || tier.day === 7;
+              const visual = getTierVisual(tier.day, isMystery);
 
               return (
                 <div 
                   key={tier.day}
-                  onClick={() => isClaimed && handleInspectReward(tier)}
-                  className={`streak-day-card ${isMystery ? 'mystery-card' : ''} ${isAvailable ? 'available' : ''} ${isClaimed ? 'claimed' : ''} ${isLocked ? 'locked' : ''}`}
-                  title={isClaimed ? 'Click to inspect secured airdrop' : undefined}
+                  onClick={() => {
+                    if (isAvailable) {
+                      handleClaim();
+                    } else if (isClaimed) {
+                      handleInspectReward(tier);
+                    }
+                  }}
+                  className={`streak-day-card rarity-${visual.rarityKey} ${isMystery ? 'mystery-card' : ''} ${isAvailable ? 'available' : ''} ${isClaimed ? 'claimed' : ''} ${isLocked ? 'locked' : ''}`}
+                  title={
+                    isAvailable
+                      ? `Click to claim Day ${tier.day} Supply Drop`
+                      : isClaimed
+                        ? 'Click to inspect secured crate loot'
+                        : `Unlocks on Day ${tier.day}`
+                  }
                 >
-                  {/* Subtle Tech Corner Brackets */}
-                  <span className="card-bracket bracket-tl" />
-                  <span className="card-bracket bracket-tr" />
-                  <span className="card-bracket bracket-bl" />
-                  <span className="card-bracket bracket-br" />
-
                   {isMystery && <div className="mystery-aurora" aria-hidden="true" />}
-                  {isAvailable && <div className="available-scanline" aria-hidden="true" />}
+                  {isAvailable && <div className="available-shimmer" aria-hidden="true" />}
 
-                  <div className="streak-day-card-header">
-                    <span className="streak-day-number">DAY 0{tier.day}</span>
-                    {isClaimed && <span className="streak-status-pill claimed"><CheckCircle2 size={10} /> CLAIMED</span>}
-                    {isAvailable && <span className="streak-status-pill ready"><Sparkles size={10} /> READY</span>}
-                    {isLocked && <span className="streak-status-pill locked"><Lock size={10} /> LOCKED</span>}
+                  {/* Rarity Header Banner */}
+                  <div className={`crate-rarity-banner rarity-${visual.rarityKey}`}>
+                    <span>{visual.rarityTitle}</span>
                   </div>
 
-                  {/* Icon Slot with 3D Crate Glow */}
+                  {/* 3D Illustrated Crate Stage */}
                   <div className="streak-day-icon-slot">
-                    {isMystery ? (
-                      <div className="mystery-crate-icon-box">
-                        <Gift size={36} className="mystery-crate-svg" />
-                        <div className="mystery-sparkle-halo" />
+                    <div className={`crate-aura-glow rarity-${visual.rarityKey}`} aria-hidden="true" />
+                    <img
+                      src={visual.crateImg}
+                      alt={visual.rarityTitle}
+                      className={`crate-render-img ${isAvailable ? 'floating' : ''}`}
+                      loading="eager"
+                    />
+                    {isLocked && (
+                      <div className="crate-lock-badge" title="Locked">
+                        <Lock size={11} />
                       </div>
-                    ) : (
-                      <div className={`crate-icon-bubble ${isAvailable ? 'pulsing' : ''}`}>
-                        {tier.cores > 0 ? (
-                          <Zap size={28} color={isClaimed ? '#20D6A0' : '#C084FC'} />
-                        ) : (
-                          <Coins size={28} color={isClaimed ? '#20D6A0' : '#FBBF24'} />
-                        )}
+                    )}
+                    {isClaimed && (
+                      <div className="crate-claimed-check" title="Claimed">
+                        <CheckCircle2 size={13} />
                       </div>
                     )}
                   </div>
 
-                  <div className="streak-day-label">
-                    {isMystery ? 'MYSTERY CRATE' : tier.label?.split(':')[1]?.trim() || `Tier ${tier.day}`}
+                  {/* Day Marker */}
+                  <div className="streak-day-marker-row">
+                    <span className="streak-day-number">DAY {tier.day}</span>
+                    {isAvailable && <span className="streak-status-pill ready"><Sparkles size={9} /> READY</span>}
+                    {isClaimed && <span className="streak-status-pill claimed">SECURED</span>}
                   </div>
 
-                  {/* Rewards Breakdown Chips */}
+                  {/* Clean Compact Reward Chips */}
                   <div className="streak-day-rewards-list">
                     <div className="streak-reward-pill gold">
-                      <Coins size={12} />
-                      <span>+{tier.credits.toLocaleString()} CR</span>
+                      <Coins size={11} />
+                      <span>+{tier.credits.toLocaleString()}</span>
                     </div>
                     {tier.cores > 0 && (
                       <div className="streak-reward-pill purple">
-                        <Zap size={12} />
+                        <Zap size={11} />
                         <span>+{tier.cores} {tier.cores === 1 ? 'CORE' : 'CORES'}</span>
                       </div>
                     )}
                     {tier.coins > 0 && (
                       <div className="streak-reward-pill cyan">
-                        <Award size={12} />
+                        <Award size={11} />
                         <span>+{tier.coins} VELOOP</span>
                       </div>
                     )}
                   </div>
-
-                  {/* Click to inspect hint if claimed */}
-                  {isClaimed && (
-                    <div className="claimed-inspect-hint">
-                      <span>INSPECT LOOT</span>
-                    </div>
-                  )}
                 </div>
               );
             })}
           </div>
 
-          {/* Modal Footer & Actions */}
+          {/* 7-Segment Holographic Day Progress Track (Option 2 Style) */}
+          <div className="aaa-day-progress-section" aria-label="7-Day Supply Drop Progress">
+            <div className="aaa-day-progress-label-row">
+              <span className="aaa-day-progress-title">DAY PROGRESS</span>
+              <span className="aaa-day-progress-meta">
+                {streakData.canClaimToday ? `${Math.max(0, currentDay - 1)} / 7 CLAIMED` : `${currentDay} / 7 CLAIMED`}
+              </span>
+            </div>
+            <div className="aaa-day-segments">
+              {rewardsList.map((tier) => {
+                const isCompleted = tier.day < currentDay || (tier.day === currentDay && !streakData.canClaimToday);
+                const isActiveSegment = tier.day === currentDay && streakData.canClaimToday;
+                return (
+                  <div
+                    key={tier.day}
+                    className={`aaa-day-seg ${isCompleted ? 'completed' : ''} ${isActiveSegment ? 'active' : ''}`}
+                    title={`Day ${tier.day}`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Modal Footer & Primary CTA */}
           <div className="streak-modal-footer">
             <div className="streak-footer-timer">
               <div className="timer-icon-wrap">
-                <Clock size={18} color="#00E5FF" />
+                <Clock size={17} color="#00F0FF" />
               </div>
               <div>
-                <span className="timer-label">NEXT AIRDROP RESET IN</span>
+                <span className="timer-label">NEXT DROP RESET</span>
                 <span className="timer-value">{countdown}</span>
               </div>
             </div>
@@ -360,10 +388,10 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
                   id="btn-claim-daily-streak"
                   onClick={handleClaim}
                   disabled={claiming}
-                  className="streak-claim-btn ready-btn"
+                  className="aaa-btn-claim streak-claim-primary-cta"
                 >
                   <Sparkles size={18} />
-                  <span>{claiming ? 'AUTHORIZING LEDGER...' : `CLAIM DAY ${currentDay} AIRDROP`}</span>
+                  <span>{claiming ? 'UNLOCKING CRATE...' : 'CLAIM SUPPLY DROP'}</span>
                 </button>
               ) : (
                 <button 
@@ -372,10 +400,10 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
                     handleInspectReward(currentRewardTier);
                   }}
                   className="streak-claim-btn view-secured-btn"
-                  title="Click to view celebration & rewards secured today"
+                  title="Inspect rewards secured today"
                 >
                   <CheckCircle2 size={16} />
-                  <span>TODAY'S AIRDROP SECURED (VIEW LOOT)</span>
+                  <span>DROP SECURED • VIEW LOOT</span>
                 </button>
               )}
             </div>
@@ -398,10 +426,10 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
             onClick={(e) => e.stopPropagation()}
           >
             {/* Tech Corners */}
-            <span className="hud-corner hud-tl" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
-            <span className="hud-corner hud-tr" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
-            <span className="hud-corner hud-bl" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
-            <span className="hud-corner hud-br" style={{ borderColor: '#FBBF24' }} aria-hidden="true" />
+            <span className="hud-corner hud-tl" style={{ borderColor: '#FACC15' }} aria-hidden="true" />
+            <span className="hud-corner hud-tr" style={{ borderColor: '#FACC15' }} aria-hidden="true" />
+            <span className="hud-corner hud-bl" style={{ borderColor: '#FACC15' }} aria-hidden="true" />
+            <span className="hud-corner hud-br" style={{ borderColor: '#FACC15' }} aria-hidden="true" />
 
             {/* Glowing Close Button */}
             <button 
@@ -416,28 +444,28 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
             <div className="celebration-badge-row">
               <span className="celebration-sparkle-dot" />
               <span className="celebration-eyebrow">
-                // COMBAT AIRDROP SECURED //
+                {'// SUPPLY DROP UNLOCKED //'}
               </span>
               <span className="celebration-sparkle-dot" />
             </div>
 
-            {/* Floating Crate with Particle Ring */}
+            {/* Floating 3D Crate Showcase */}
             <div className="celebration-crate-stage">
               <div className="celebration-aura-ring" />
               <div className="celebration-crate-box">
-                {celebrationReward.isMysteryCrate || celebrationReward.day === 7 ? (
-                  <Gift size={72} className="celebration-crate-icon gold" />
-                ) : (
-                  <Package size={72} className="celebration-crate-icon cyan" />
-                )}
+                <img
+                  src={celebrationVisual?.crateImg || '/assets/rewards/crate_golden_apex.jpg'}
+                  alt="Unlocked Supply Crate"
+                  className="celebration-crate-3d-img"
+                />
               </div>
             </div>
 
             <h2 className="celebration-title">
-              {celebrationReward.label || `DAY ${celebrationReward.day} COMBAT CRATE`}
+              {celebrationReward.label || `DAY ${celebrationReward.day} SUPPLY CRATE`}
             </h2>
             <p className="celebration-subtitle">
-              Supply authorization verified on double-entry ledger. All tactical assets have been deposited into your pilot wallet.
+              Loot telemetry verified. All combat credits, energy cores, and tokens have been added to your hangar vault!
             </p>
 
             {/* Rewarded Asset Tiles */}
@@ -445,7 +473,7 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
               {/* Credits Tile */}
               <div className="celebration-asset-card gold">
                 <div className="asset-icon-box gold">
-                  <Coins size={28} />
+                  <Coins size={26} />
                 </div>
                 <div className="asset-info">
                   <span className="asset-type">TACTICAL CREDITS</span>
@@ -457,7 +485,7 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
               {celebrationReward.cores > 0 && (
                 <div className="celebration-asset-card purple">
                   <div className="asset-icon-box purple">
-                    <Zap size={28} />
+                    <Zap size={26} />
                   </div>
                   <div className="asset-info">
                     <span className="asset-type">ENERGY CORES</span>
@@ -470,10 +498,10 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
               {celebrationReward.coins > 0 && (
                 <div className="celebration-asset-card cyan">
                   <div className="asset-icon-box cyan">
-                    <Award size={28} />
+                    <Award size={26} />
                   </div>
                   <div className="asset-info">
-                    <span className="asset-type">VELOP COINS</span>
+                    <span className="asset-type">VELOOP TOKENS</span>
                     <span className="asset-amount">+{celebrationReward.coins} VELOOP</span>
                   </div>
                 </div>
@@ -483,14 +511,15 @@ export const DailyStreakModal = ({ isOpen, onClose, onRewardClaimed, initialData
             {/* Collect Button */}
             <div className="celebration-action-row">
               <button 
-                className="celebration-collect-btn"
+                className="cyber-action-btn-primary"
+                style={{ width: '100%' }}
                 onClick={() => {
                   soundManager.playLaser();
                   setCelebrationReward(null);
                 }}
               >
                 <Sparkles size={18} />
-                <span>COLLECT & RETURN TO COMMAND DECK</span>
+                <span>COLLECT &amp; DEPLOY</span>
               </button>
             </div>
           </div>

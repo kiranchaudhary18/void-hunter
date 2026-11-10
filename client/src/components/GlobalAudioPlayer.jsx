@@ -22,7 +22,8 @@ export const GlobalAudioPlayer = () => {
     };
   });
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
+  const [isModalBlocking, setIsModalBlocking] = useState(false);
 
   // Position state (null = default bottom-right)
   const [position, setPosition] = useState(() => {
@@ -57,6 +58,19 @@ export const GlobalAudioPlayer = () => {
       setAudioState((prev) => ({ ...prev, ...state }));
     });
     return () => unsubscribe();
+  }, []);
+
+  // Automatically hide audio control while modals/dialogs/drawers are open so it never overlaps game rewards or buttons
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    const modalSelectors = '.streak-modal-backdrop, .celebration-overlay-backdrop, .ad-modal-card, .tx-detail-backdrop, [role="dialog"], .sidebar-drawer-backdrop';
+    const checkModals = () => {
+      setIsModalBlocking(!!document.querySelector(modalSelectors));
+    };
+    checkModals();
+    const observer = new MutationObserver(checkModals);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, []);
 
   // Clear stuck drag positions on tablet & mobile on mount
@@ -246,50 +260,57 @@ export const GlobalAudioPlayer = () => {
     setIsExpanded(!isExpanded);
   };
 
-  // Safeguard: Hide audio widget during combat sorties
-  if (typeof window !== 'undefined' && (window.location.pathname.includes('/gameplay') || window.location.pathname.includes('/combat'))) {
+  // Safeguard: Hide audio widget during combat sorties or whenever a game modal/dialog is open
+  if (
+    isModalBlocking ||
+    (typeof window !== 'undefined' && (window.location.pathname.includes('/gameplay') || window.location.pathname.includes('/combat')))
+  ) {
     return null;
   }
 
-  // Minimized Floating Orb View
+  // Minimized Tactical Audio Orb (Default — sleek unobtrusive corner speaker toggle)
   if (isMinimized) {
     return (
       <button 
         ref={widgetRef}
         type="button"
         onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
         onDoubleClick={handleDoubleClick}
         onClick={() => {
           if (!dragInfoRef.current.hasMoved) {
+            soundManager.unlockAudio();
             setIsMinimized(false);
           }
         }}
-        className={`global-audio-minimized-orb animate-pulse-glow ${position ? 'is-custom-positioned' : ''} ${isDragging ? 'is-dragging' : ''}`}
-        title="Expand Soundtrack Player (Drag to reposition, double-click to reset)"
+        className={`global-audio-minimized-orb ${audioState.bgmPlaying && !audioState.muted ? 'is-playing' : ''} ${position ? 'is-custom-positioned' : ''} ${isDragging ? 'is-dragging' : ''}`}
+        title="Game Audio & Soundtrack Controls"
+        aria-label="Open Game Audio Controls"
         style={{
           position: 'fixed',
           left: position ? `${position.x}px` : undefined,
           top: position ? `${position.y}px` : undefined,
           bottom: position ? 'auto' : undefined,
           right: position ? 'auto' : undefined,
-          width: '44px',
-          height: '44px',
+          width: '40px',
+          height: '40px',
           borderRadius: '50%',
-          background: 'rgba(6, 9, 25, 0.94)',
-          border: '1.5px solid #00E5FF',
-          color: '#00E5FF',
+          background: 'linear-gradient(145deg, rgba(16, 26, 56, 0.92), rgba(7, 11, 26, 0.95))',
+          border: `1.5px solid ${audioState.muted ? 'rgba(255, 70, 85, 0.55)' : 'rgba(0, 240, 255, 0.45)'}`,
+          color: audioState.muted ? '#FF4655' : '#00F0FF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: isDragging ? '0 0 24px rgba(0, 229, 255, 0.8)' : '0 0 16px rgba(0, 229, 255, 0.45)',
-          zIndex: 9999,
-          cursor: isDragging ? 'grabbing' : 'grab',
-          touchAction: 'none',
-          userSelect: 'none'
+          boxShadow: isDragging
+            ? '0 0 22px rgba(0, 240, 255, 0.75)'
+            : '0 4px 16px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.14)',
+          zIndex: 750,
+          cursor: isDragging ? 'grabbing' : 'pointer',
+          touchAction: 'manipulation',
+          userSelect: 'none',
+          backdropFilter: 'blur(12px)'
         }}
       >
-        <Music size={18} />
+        {audioState.muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
       </button>
     );
   }
@@ -300,7 +321,7 @@ export const GlobalAudioPlayer = () => {
   return (
     <div 
       ref={widgetRef}
-      className={`global-audio-widget glass-panel cyber-box ${position ? 'is-custom-positioned' : ''} ${!audioState.bgmPlaying ? 'audio-prompt-glow' : 'animate-pulse-glow'} ${isDragging ? 'is-dragging' : ''}`}
+      className={`global-audio-widget glass-panel ${position ? 'is-custom-positioned' : ''} ${isDragging ? 'is-dragging' : ''}`}
       style={{
         ...styles.widgetContainer,
         position: 'fixed',
@@ -310,6 +331,7 @@ export const GlobalAudioPlayer = () => {
         right: position ? 'auto' : undefined,
         height: 'auto',
         maxHeight: 'calc(100vh - 90px)',
+        zIndex: 750,
         cursor: isDragging ? 'grabbing' : 'default',
         touchAction: 'none'
       }}
@@ -349,22 +371,20 @@ export const GlobalAudioPlayer = () => {
         {/* Track Label */}
         <div className="audio-track-info" style={styles.trackInfo}>
           <div style={styles.trackTag}>
-            <Music size={11} color="var(--secondary-cyan)" style={{ display: 'inline', marginRight: '4px' }} />
-            <span style={{ color: 'var(--secondary-cyan)' }}>
-              GAME MUSIC
+            <Music size={11} color="#00F0FF" style={{ display: 'inline', marginRight: '4px' }} />
+            <span style={{ color: '#00F0FF' }}>
+              AUDIO CONSOLE
             </span>
-            <span style={styles.trackBadge}>{currentTrack?.bpm || 128} BPM</span>
           </div>
 
           <div 
             className="font-heading audio-track-name" 
             style={{
               ...styles.trackName,
-              color: audioState.bgmPlaying ? '#00E5FF' : '#F59E0B',
-              textShadow: audioState.bgmPlaying ? '0 0 8px rgba(0,229,255,0.6)' : '0 0 8px rgba(245,158,11,0.6)'
+              color: audioState.bgmPlaying ? '#F8FAFC' : '#94A3B8',
             }}
           >
-            {audioState.bgmPlaying ? currentTrack?.title : '⚡ TAP TO START SOUNDTRACK 🔊'}
+            {audioState.bgmPlaying ? currentTrack?.title : 'Audio Standby (Tap Play)'}
           </div>
         </div>
 
@@ -513,22 +533,34 @@ export const GlobalAudioPlayer = () => {
       {/* Styles */}
       <style>{`
         .global-audio-widget {
-          z-index: 9999;
+          z-index: 750;
           height: auto !important;
           max-height: calc(100vh - 90px);
           box-sizing: border-box;
-          background: rgba(6, 9, 25, 0.94);
-          border: 1px solid rgba(0, 229, 255, 0.4);
+          background: linear-gradient(155deg, rgba(16, 26, 56, 0.96), rgba(7, 11, 26, 0.98));
+          border: 1px solid rgba(0, 240, 255, 0.35);
           border-radius: 12px;
-          box-shadow: 0 4px 24px rgba(0, 229, 255, 0.25), inset 0 0 12px rgba(0, 229, 255, 0.1);
-          backdrop-filter: blur(14px);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+          backdrop-filter: blur(16px);
           user-select: none;
           transition: border-color 0.25s ease, box-shadow 0.25s ease;
         }
+        .global-audio-minimized-orb {
+          z-index: 750;
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .global-audio-minimized-orb:hover {
+          transform: scale(1.08);
+          border-color: #00F0FF !important;
+          box-shadow: 0 0 18px rgba(0, 240, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        }
+        .global-audio-minimized-orb.is-playing {
+          box-shadow: 0 0 14px rgba(0, 240, 255, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+        }
         .global-audio-widget:not(.is-custom-positioned),
         .global-audio-minimized-orb:not(.is-custom-positioned) {
-          bottom: 22px;
-          right: 22px;
+          bottom: 20px;
+          right: 20px;
         }
         .global-audio-widget.is-custom-positioned,
         .global-audio-minimized-orb.is-custom-positioned {
@@ -538,13 +570,13 @@ export const GlobalAudioPlayer = () => {
         @media (max-width: 1024px) {
           .global-audio-widget:not(.is-custom-positioned),
           .global-audio-minimized-orb:not(.is-custom-positioned) {
-            bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
-            right: 12px !important;
+            bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
+            right: 14px !important;
             left: auto !important;
             top: auto !important;
           }
           .global-audio-widget {
-            max-width: min(380px, calc(100vw - 24px)) !important;
+            max-width: min(360px, calc(100vw - 24px)) !important;
             height: auto !important;
           }
         }
